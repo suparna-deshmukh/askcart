@@ -6,6 +6,7 @@ import { t } from "./lib/i18n";
 import { Onboarding, BUDGET_STYLE_MAX, SPEND_BIAS, SPEND_BRAND_AFFINITY } from "./ui/onboarding";
 import { CartDrawer, CheckoutModal, OrderToast } from "./ui/cart";
 import { AnalyticsView } from "./ui/analytics";
+import { ProductDetail, Tile } from "./ui/pdp";
 
 const EXAMPLES = [
   "shaadi gift under 2k",
@@ -95,19 +96,27 @@ function recommendScore(r, persona) {
   return base;
 }
 
-function ProductCard({ r, onAdd, onBuy, rec }) {
+// 9.7 card v2: designed placeholder image, whole card opens the PDP,
+// single Add button (Buy now moved to the PDP), Best match badge.
+function ProductCard({ r, onAdd, onOpen, best, close, overBudget }) {
   return (
-    <div className="card">
+    <div className="card" role="link" tabIndex={0} onClick={() => onOpen(r)}
+         onKeyDown={(e) => e.key === "Enter" && onOpen(r)}>
+      <div className="imwell">
+        {best && <span className="badge-best">Best match</span>}
+        {close && <span className="badge-close">Close match</span>}
+        <Tile item={r} size={215} />
+      </div>
       <div className="cat">{displayCat(r.category)}</div>
-      {rec ? <span className="rec">Top pick</span> : null}
       <div className="t">{r.title}</div>
       {r.brand ? <span className="brandb">{r.brand}</span> : null}
       <div className="prow"><span className="p">₹{r.price.toLocaleString("en-IN")}</span></div>
-      <div className="r"><span className="star">★</span> {r.rating} · {r.num_ratings.toLocaleString("en-IN")} ratings</div>
-      <div className="cardbtns">
-        <button className="add" onClick={() => onAdd(r)}>Add to cart</button>
-        <button className="buy" onClick={() => onBuy(r)}>Buy now</button>
+      <div className="rline">
+        <span className={"rpill " + (r.rating >= 4 ? "good" : r.rating >= 3 ? "mid" : "low")}>★ {r.rating}</span>
+        <span className="rc">{r.num_ratings.toLocaleString("en-IN")} ratings</span>
       </div>
+      {overBudget && <div className="overbud">Slightly over your budget</div>}
+      <button className="card-add" onClick={(e) => { e.stopPropagation(); onAdd(r); }}>Add to cart</button>
     </div>
   );
 }
@@ -227,6 +236,9 @@ function AskCartHome() {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [order, setOrder] = useState(null);
+  // 7.1: product detail drawer (linkable via ?sku=)
+  const [pdp, setPdp] = useState(null);
+  const [moreN, setMoreN] = useState(24); // 7.3: "Show more" page size
   const [isNewSession, setIsNewSession] = useState(() => {
     try { return !localStorage.getItem("askcart_session"); } catch { return true; }
   });
@@ -246,6 +258,13 @@ function AskCartHome() {
     if (isNewSession) track("session_start", { new: true });
     const q = params.get("q");
     if (q && tab === "search") startSearch(q, "deep_link");
+    // 7.1: ?sku= deep link opens the PDP directly.
+    const sku = params.get("sku");
+    if (sku) {
+      fetch(`/api/catalog-preview?sku=${encodeURIComponent(sku)}`).then((r) => r.json())
+        .then((j) => { if (j.item) setPdp({ ...j.item, _from: "deep_link", _position: 0 }); })
+        .catch(() => {});
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -357,7 +376,8 @@ function AskCartHome() {
     // study and the simulation use). Loose/relax results alone do not count.
     const ok = res.results.filter((r) => r.intent).length >= 2;
     markResultsShown(query, res.results, 1, "results");
-    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
+    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
+    setMoreN(24);
     if (ok) {
       track("resolved", { query, turns: 1, n_results: res.results.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
       // Optional refinement: the policy decides if one more question adds
@@ -417,12 +437,16 @@ function AskCartHome() {
     });
     const t0 = Date.now();
     let opts = {};
+    let trailLabel = chip; // O4: a default cap must show as a real chip, never silently
     if (guide.type === "budget") {
       const nums = (String(chip).match(/[\d,]+/g) || []).map((x) => parseInt(x.replace(/,/g, ""), 10)).filter((n) => n > 0);
       if (/not sure|flexible/i.test(chip)) {
         const p = getPersona();
         const def = p ? BUDGET_STYLE_MAX[p.budgetStyle || p.spendStyle] : null;
-        if (def) opts = { budget: def };
+        if (def) {
+          opts = { budget: def };
+          trailLabel = `Budget ≤ ₹${def.toLocaleString("en-IN")} (your default)`;
+        }
       } else if (nums.length) {
         opts = { budget: Math.max(...nums) }; // cap at the band's top
       }
@@ -445,11 +469,13 @@ function AskCartHome() {
       setBusy(false);
       return;
     }
+    const appliedOpts = { ...opts };
     if (res.results.filter((r) => r.intent).length < 2 && opts.category) {
       // the picked category was a dead end - retry without it, other
       // constraints (budget/occasion) still applied
       res = await doSearch(s.query, { relax: true, turn: turnNow, category: null,
                                       budget: opts.budget ?? null, occasion: opts.occasion ?? null });
+      delete appliedOpts.category;
     }
     // Never move the shopper away from a good result set: if their answer
     // made things worse, keep the previous picks and say so.
@@ -460,9 +486,10 @@ function AskCartHome() {
     const ok = finalResults.filter((r) => r.intent).length >= 2;
     const wasOk = s.ok === true;
     markResultsShown(s.query, finalResults, turnNow, "results");
-    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: finalResults,
-           filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, chip],
-           echo: echoFor(chip, finalResults, s.results), error: null });
+    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: finalResults, parsed: res.parsed,
+           filters: { ...DEFAULT_FILTERS }, guide: null,
+           trail: [...s.trail, { label: trailLabel, opts: appliedOpts }],
+           echo: echoFor(trailLabel, finalResults, s.results), error: null });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: finalResults.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
       endJourney(journeyRef.current, { resolved: true, turns: turnNow, ordered: journeyRef.current.ordered });
@@ -546,8 +573,8 @@ function AskCartHome() {
     if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
     const ok = res.results.filter((r) => r.intent).length >= 2;
     markResultsShown(s.query, res.results, turnNow, "results");
-    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: res.results,
-           filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, txt],
+    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: res.results, parsed: res.parsed,
+           filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, { label: txt, opts: null }],
            echo: `${txt} · ${res.results.length} of ${s.results.length} left`, error: null });
   }
 
@@ -560,6 +587,28 @@ function AskCartHome() {
     });
     if (journeyRef.current) journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g.type];
     setS((st) => st && { ...st, guide: null });
+  }
+
+  // 7.3: remove a trail constraint chip -> re-run the search with the
+  // remaining steps (later steps win on conflicting keys).
+  async function removeTrailStep(i) {
+    if (!s || busy) return;
+    const step = s.trail[i];
+    if (!step || typeof step === "string" || !step.opts) return;
+    track("constraint_removed", { query: s.query, removed: step.label, turn: s.turn });
+    const remaining = s.trail.filter((_, j) => j !== i && j > 0).map((t) => (typeof t === "object" ? t.opts : null)).filter(Boolean);
+    const merged = {};
+    for (const o of remaining) Object.assign(merged, o);
+    setBusy(true);
+    const t0 = Date.now();
+    const res = await doSearch(s.query, { relax: true, turn: remaining.length + 1, ...merged });
+    setBusy(false);
+    if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
+    const ok = res.results.filter((r) => r.intent).length >= 2;
+    markResultsShown(s.query, res.results, remaining.length + 1, "results");
+    setS((st) => st && { ...st, ok, ms: Date.now() - t0, results: res.results, parsed: res.parsed,
+                         trail: st.trail.filter((_, j) => j !== i), echo: null,
+                         guide: null, exhausted: false });
   }
 
   function setFilter(type, value) {
@@ -641,19 +690,43 @@ function AskCartHome() {
   const layout = useMemo(() => {
     if (!s || !s.results.length) return null;
     const filtered = applyFilters(s.results, s.filters);
-    if (!filtered.length) return { filtered, rec: [], groups: [], more: [] };
+    if (!filtered.length) return { filtered, single: false, grid: [], best: new Set(), rec: [], groups: [], more: [] };
+    // 7.3: clear queries (top category >= 60%) get ONE ranked grid;
+    // ambiguous queries get curated category shelves.
+    const catCount = new Map();
+    for (const r of filtered) catCount.set(r.category, (catCount.get(r.category) || 0) + 1);
+    const topEntry = [...catCount.entries()].sort((a, b) => b[1] - a[1])[0] || [null, 0];
+    if (topEntry[1] / filtered.length >= 0.6) {
+      const grid = filtered; // API order = relevance
+      return { filtered, single: true, grid, best: new Set(grid.slice(0, 3).map((r) => r.sku)),
+               rec: [], groups: [], more: [] };
+    }
     const rec = [...filtered].sort((a, b) => recommendScore(b, persona) - recommendScore(a, persona)).slice(0, 3);
     const recSet = new Set(rec.map((r) => r.sku));
     const rest = filtered.filter((r) => !recSet.has(r.sku));
-    const catCount = new Map();
-    for (const r of rest) catCount.set(r.category, (catCount.get(r.category) || 0) + 1);
     const topCats = [...catCount.entries()].sort((a, b) => b[1] - a[1])
-      .filter(([, c]) => c >= 2).slice(0, 3).map(([k]) => k);
+      .filter(([k, c]) => c >= 2 && k !== topEntry[0]).slice(0, 3).map(([k]) => k);
     const groups = topCats.map((cat) => ({ cat, items: rest.filter((r) => r.category === cat).slice(0, 4) }));
     const groupedSet = new Set(groups.flatMap((g) => g.items.map((r) => r.sku)));
     const more = rest.filter((r) => !groupedSet.has(r.sku));
-    return { filtered, rec, groups, more };
+    return { filtered, single: false, grid: [], best: new Set(rec.map((r) => r.sku)), rec, groups, more };
   }, [s, persona]);
+
+  // 7.1: similar items = same category, within ±40% price, best rated.
+  function similarFor(item, pool) {
+    return (pool || []).filter((x) => x.sku !== item.sku && x.category === item.category &&
+      Math.abs(x.price - item.price) <= Math.max(100, item.price * 0.4))
+      .sort((a, b) => (b.rating - a.rating) || (b.num_ratings - a.num_ratings))
+      .slice(0, 4);
+  }
+  function openPdp(r, from, position) {
+    setPdp({ ...r, _from: from, _position: position });
+    try { window.history.replaceState(null, "", `/?sku=${r.sku}`); } catch {}
+  }
+  function openPdpSku(sku, pool, from) {
+    const r = (pool || []).find((x) => x.sku === sku);
+    if (r) openPdp(r, from, 0);
+  }
 
   const brandOpts = useMemo(() => {
     if (!s || !s.results.length) return [];
@@ -672,8 +745,15 @@ function AskCartHome() {
 
   const cardProps = (from) => ({
     onAdd: (r) => addToCart(r, from),
-    onBuy: (r) => buyNow({ ...r, _from: from }),
+    onOpen: (r) => openPdp(r, from, 0),
   });
+  // S6: relaxed (slightly-over-budget) results are labelled, never silent.
+  const overBudget = (r) => !!(s && s.parsed && s.parsed.budgetMax &&
+    r.price > s.parsed.budgetMax && r.price <= s.parsed.budgetMax * 1.6);
+  function closePdp() {
+    setPdp(null);
+    try { window.history.replaceState(null, "", "/"); } catch {}
+  }
 
   return (
     <>
@@ -765,9 +845,20 @@ function AskCartHome() {
                   {s.trail.slice(1).map((t, i) => (
                     <span key={i} style={{ display: "contents" }}>
                       <span className="arrow">→</span>
-                      <span className="step">{t}</span>
+                      {typeof t === "object" && t.opts ? (
+                        <button className="chip-x" onClick={() => removeTrailStep(i + 1)} title="Remove this constraint">
+                          {t.label} <span className="xx">✕</span>
+                        </button>
+                      ) : (
+                        <span className="step">{typeof t === "object" ? t.label : t}</span>
+                      )}
                     </span>
                   ))}
+                </div>
+              )}
+              {s && s.results.length > 0 && (
+                <div className="resultsum">
+                  <b>{s.results.length}</b> products for “{s.query}” · {layout && layout.single ? "sorted by best match" : "curated into shelves"}
                 </div>
               )}
               {s && s.rollback && (
@@ -810,7 +901,13 @@ function AskCartHome() {
                 </div>
               )}
 
-              {s && s.results.length > 0 && layout && (
+              {s && busy && s.results.length === 0 && (
+                <div className="skel" aria-label="Loading results">
+                  {[...Array(8)].map((_, i) => <div key={i} className="sk" />)}
+                </div>
+              )}
+
+              {s && !busy && s.results.length > 0 && layout && (
                 <>
                   <div className="filters">
                     <div className="frow">
@@ -850,36 +947,65 @@ function AskCartHome() {
                     </div>
                   ) : (
                     <>
-                      <div className="group">
-                        <div className="gh">
-                          <h3>Recommended for you</h3>
-                          <span className="gc">ranked by your profile · price fit, brand preference, quality & trust</span>
-                        </div>
-                        <div className="grid">
-                          {layout.rec.map((r) => <ProductCard key={r.sku} r={r} rec {...cardProps("recommended")} />)}
-                        </div>
-                      </div>
-                      {layout.groups.map((g) => (
-                        <div className="group" key={g.cat}>
-                          <div className="gh">
-                            <h3>{displayCat(g.cat)}</h3>
-                            <span className="gc">{g.items.length} picks from this match</span>
-                          </div>
+                      {layout.single ? (
+                        <>
                           <div className="grid">
-                            {g.items.map((r) => <ProductCard key={r.sku} r={r} {...cardProps("results")} />)}
+                            {layout.grid.slice(0, moreN).map((r) => (
+                              <ProductCard key={r.sku} r={r} best={layout.best.has(r.sku)}
+                                           overBudget={overBudget(r)} {...cardProps("results")} />
+                            ))}
                           </div>
-                        </div>
-                      ))}
-                      {layout.more.length > 0 && (
-                        <div className="group">
-                          <div className="gh">
-                            <h3>More products</h3>
-                            <span className="gc">{layout.more.length} more in this result set</span>
+                          {layout.grid.length > moreN && (
+                            <div style={{ textAlign: "center", marginTop: 14 }}>
+                              <button className="fchip" style={{ padding: "9px 22px" }}
+                                      onClick={() => { setMoreN((n) => n + 24); track("show_more", { query: s.query, n: moreN + 24 }); }}>
+                                Show more ({layout.grid.length - moreN} left)
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <div className="group">
+                            <div className="gh">
+                              <h3>Best matches</h3>
+                              <span className="gc">{persona ? "ranked for your profile · price fit, brand preference, quality & trust" : "highest-scoring picks for this search"}</span>
+                            </div>
+                            <div className="grid">
+                              {layout.rec.map((r) => <ProductCard key={r.sku} r={r} best overBudget={overBudget(r)} {...cardProps("recommended")} />)}
+                            </div>
                           </div>
-                          <div className="grid">
-                            {layout.more.slice(0, 24).map((r) => <ProductCard key={r.sku} r={r} {...cardProps("results")} />)}
-                          </div>
-                        </div>
+                          {layout.groups.map((g) => (
+                            <div className="group" key={g.cat}>
+                              <div className="gh">
+                                <h3>{displayCat(g.cat)}</h3>
+                                <span className="gc">{g.items.length} picks from this match</span>
+                              </div>
+                              <div className="grid">
+                                {g.items.map((r) => <ProductCard key={r.sku} r={r} overBudget={overBudget(r)} {...cardProps("results")} />)}
+                              </div>
+                            </div>
+                          ))}
+                          {layout.more.length > 0 && (
+                            <div className="group">
+                              <div className="gh">
+                                <h3>More products</h3>
+                                <span className="gc">{layout.more.length} more in this result set</span>
+                              </div>
+                              <div className="grid">
+                                {layout.more.slice(0, moreN).map((r) => <ProductCard key={r.sku} r={r} overBudget={overBudget(r)} {...cardProps("results")} />)}
+                              </div>
+                              {layout.more.length > moreN && (
+                                <div style={{ textAlign: "center", marginTop: 14 }}>
+                                  <button className="fchip" style={{ padding: "9px 22px" }}
+                                          onClick={() => { setMoreN((n) => n + 24); track("show_more", { query: s.query, n: moreN + 24 }); }}>
+                                    Show more ({layout.more.length - moreN} left)
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </>
                       )}
                       {s.ok === false && s.turn < 4 && (
                         <div className="meta">One follow-up question can usually tighten this — pick an option above.</div>
@@ -896,7 +1022,10 @@ function AskCartHome() {
                     <span className="count">{preview.catalogSize.toLocaleString("en-IN")} products loaded · best-rated per band</span>
                   </div>
                   <div className="grid">
-                    {preview.items.map((r) => <ProductCard key={r.sku} r={r} {...cardProps("preview")} />)}
+                    {preview.items.map((r) => (
+                      <ProductCard key={r.sku} r={r} onAdd={(x) => addToCart(x, "preview")}
+                                   onOpen={(x) => openPdpSku(x.sku, preview.items, "preview")} />
+                    ))}
                   </div>
                 </div>
               )}
@@ -913,6 +1042,13 @@ function AskCartHome() {
           <div className="foot-note">Every interaction event is public in Behind the scenes · AI answers only from catalogue fields · method & evidence: PROJECT.md</div>
         </div>
       </footer>
+      <ProductDetail item={pdp} onClose={closePdp}
+                     onAdd={(r) => addToCart(r, "pdp")}
+                     onBuy={(r) => buyNow({ ...r, _from: "pdp" })}
+                     similar={pdp ? similarFor(pdp, s ? s.results : (preview ? preview.items : [])) : []}
+                     parsed={s ? s.parsed : null}
+                     region={region}
+                     onOpenSku={(x) => openPdpSku(x.sku, s ? s.results : (preview ? preview.items : []), "pdp")} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} setCart={setCart}
                   onCheckout={(total) => { setCartOpen(false); setCheckoutOpen(true); }} />
       <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} cart={cart} onPlaced={placeOrder} />

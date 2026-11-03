@@ -99,9 +99,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   if (hpAdds.length) { await hpAdds[0].click(); await sleep(600); }
   await shot("mvp_search_headphones_guided");
 
-  // 7. buy now on a result
-  const buy = await page.$$(".grid .cardbtns .buy");
-  if (buy.length) { await buy[0].click(); await sleep(900); }
+  // 7. open PDP from a result card, then buy now from the PDP
+  const firstCard = await page.$(".grid .card");
+  if (firstCard) { await firstCard.click(); await sleep(1200); }
+  await shot("mvp_pdp");
+  const pdpBuy = await page.$(".pdp-buy");
+  if (pdpBuy) { await pdpBuy.click(); await sleep(900); }
   await shot("mvp_checkout_buy_now");
 
   // 8. place order

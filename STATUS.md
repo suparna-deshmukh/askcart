@@ -149,7 +149,7 @@ zsh scripts/run_all.sh
 Rules per brief §0: one item at a time, canaries after each change, no
 claim inflation, acceptance tests per item, commits `T3:`-style per item.
 
-## P0 (in progress)
+## P0 (truth fixes)
 - **T1 DONE** — PROJECT.md §5.5 now has raw-vs-clean by-source tables
   (raw: Play 33,172 / AppStore 3,450 / Reddit 3,021 / Amazon 40,000 /
   Trustpilot 15,000; clean: 26,663 / 2,937 / 3,003 / 40,000 / 15,000).
@@ -173,22 +173,77 @@ claim inflation, acceptance tests per item, commits `T3:`-style per item.
   + retailer list), scheduled P2. Apple/Samsung median prices are
   accessories-driven; Myntra is a retailer. Recruiter-facing stats
   exclude brand medians until C2 lands.
-- **T6 IN PROGRESS** — footer demo-data disclosure being added with the
-  P1 UI pass (persistent footer + PDP label per brief).
-- **T7 IN PROGRESS** — `origin` field (C1) lands with the P1 catalogue
-  rebuild; docs rewording ("India-oriented demo catalogue") applied as
-  the P1 catalogue pass lands.
+- **T6 DONE** — persistent footer demo-data disclosure (ratings/prices
+  indicative, not live marketplace data); study stats moved out of the
+  footer into Behind the scenes. PDP carries the same disclosure.
+- **T7 IN PROGRESS** — `origin` field (C1: us_converted | india_layer)
+  lands with the P2 catalogue pass; docs rewording to "India-oriented
+  demo catalogue (36k SKUs: 25k US-sourced converted + 11k India layer)"
+  applies then.
 - **T8 IN FLIGHT** — scorer-vs-LLM agreement: the 600-sample LLM labels
   were dropping LLM "OTHER" answers silently (rc_map bug — fixed).
   Full-corpus 6,041-review Qwen re-label with 6-class taxonomy running
-  (4 shards, logs/llm_full_0..3.log, ETA ~2 h). Agreement stats
-  (accuracy, macro-F1, confusion matrix) + India-only cut will be
-  written to data/out/root_causes.json once the merge lands.
+  (4 shards, logs/llm_full_0..3.log). First run failed 100% of batches:
+  qwen38-27b is a thinking model that spent the whole token budget on
+  reasoning (25k thinking tokens, zero content). Fix: send
+  `extra_body: {chat_template_kwargs: {enable_thinking: false}}` (new
+  `thinking=False` option in llm_client) — batch calls now ~5 s. A small
+  share of batches (~10%) still exhausts tokens and is skipped; a
+  targeted retry pass over the missing doc_ids runs after the merge.
+  Agreement stats (accuracy, macro-F1, confusion matrix) + LLM-only
+  shares + India-only cut (Play IN + Reddit IN) will be written to
+  data/out/root_causes.json once the merge lands.
 - **T9 IN FLIGHT** — `pipeline/05_root_causes.sql`: no-hit complaints now
   score `other` (not forced trust_gap); LLM `OTHER`/`NOT_SEARCH_RELATED`
   labels now kept. Root-cause shares will change; docs update on merge.
-- **O1** — next (non-blocking onboarding).
-- **B2** — after O1 (event endpoint hardening).
+
+## P1 (onboarding + guide + shopper screens) — DONE
+- **O1 DONE** — hero-first search; onboarding no longer blocks the hero.
+- **O2 DONE** — one-line dismissible strip (pincode + language,
+  localStorage, never re-shown after dismiss); pincode → coarse
+  `region` only (raw pincode never sent to analytics); language
+  switches question text/option labels/hero copy via static
+  `app/app/lib/i18n.js` tables (no LLM); festival calendar
+  `app/lib/festivals_2026_27.json` (Diwali 2026-11-08 leads).
+- **O4 DONE** — "Not sure / flexible" now applies the persona default
+  cap as a *visible, removable* trail chip (`Budget ≤ ₹X (your default)`)
+  and the echo line names it. Silent caps banned.
+- **O5 DONE** — 3-question onboarding behind `/?onboard=1`;
+  double-barrelled options fixed; answers wired to real behaviour
+  (Student → budget step-down, Gifting → occasion-first, Senior →
+  large-text mode); post-answer toast states what changed.
+- **B2 DONE** — `/api/events` hardened: event allowlist (incl. all
+  `chat_*` names for the upcoming assistant), 4 KB body cap, 120 req/min
+  per IP, session-id format check, HTML strip.
+- **G1/G4/G5/G6/G10/G11 DONE** — facet counts on every option (zero-count
+  chips disabled), typed answers, Skip exit, why-we-ask micro-disclosure,
+  answer echo, compact one-row refinement strip (results never pushed
+  down).
+- **7.3 DONE** — single ranked grid when top category ≥ 60% (shelves only
+  for ambiguous/rescue), "Recommended for you" → "Best matches", result
+  summary line with removable trail chips + `constraint_removed`, 8
+  skeleton cards, Show-more pagination.
+- **7.1/7.2 DONE** — PDP side drawer (`app/app/ui/pdp.jsx`, linkable
+  `?sku=` via `/api/catalog-preview`): why-this-matched chips, Bayesian
+  adjusted rating with "adjusted for number of ratings" note, variant
+  selector from family, demo-labelled delivery, similar items,
+  Add/Buy. Placeholder `Tile` components (category tint + glyph + brand
+  monogram, "illustrative" label) — no generic grey boxes.
+- **9.7 DONE** — card v2: whole card → PDP, single Add button, Best
+  match badge, over-budget label, tabular prices.
+- **§8 tokens DONE** — v7 token set in globals.css (`:root`), marigold
+  reserved for the guide, Analytics nav → "Behind the scenes" ghost with
+  `--live` dot.
+- **Contrast gate DONE** — `scripts/contrast_check.js` now reads the real
+  `:root` tokens (no hand-typed hex); one FAIL found and fixed:
+  `--success` darkened `#15803D` → `#137333` (4.47 → 5.30:1 on
+  `--success-bg`). 16/16 pairs pass.
+
+## P2 (search engine + catalogue) — queue
+S1 typo (Damerau) → S2 hinglexicon → S3 relation words → S4 spec slots →
+S7 family_id grouping → C2 brand extraction → C3 is_accessory →
+C1 origin field → G3 for-whom/size + capacity → G8 seasonal rails →
+G12 outcome micro-survey.
 
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
