@@ -105,6 +105,25 @@ CANARIES = [
     ("फ़ोन under 15k", "hinglish_s2"),
     ("जूती for men", "hinglish_s2"),
     ("कुर्ता for men under 1k", "hinglish_s2"),
+    # S3 relation-word recipient canaries
+    ("saree for maa under 3k", "relation"),
+    ("saree for mummy under 3k", "relation"),
+    ("shirt for abba under 1k", "relation"),
+    ("watch for bhai under 3k", "relation"),
+    ("saree for behen under 3k", "relation"),
+    ("sweater for saas under 2k", "relation"),
+    ("gift for dost under 1k", "relation"),
+    ("kurta for beta under 500", "relation"),
+    # S4 spec-slot canaries (soft boosts, never budgets)
+    ("2 ton ac under 70k", "spec_s4"),
+    ("43 inch tv under 40k", "spec_s4"),
+    ("5 star ac under 60k", "spec_s4"),
+    ("128gb phone under 15k", "spec_s4"),
+    ("8gb ram laptop under 50k", "spec_s4"),
+    ("5 year old girl dress under 500", "spec_s4"),
+    ("6 months baby shoes", "spec_s4"),
+    ("size m kurta", "spec_s4"),
+    ("1 litre water bottle", "spec_s4"),
 ]
 
 def post(url, payload):
