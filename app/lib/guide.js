@@ -12,6 +12,8 @@
 //   occasion_blindness 7.1% -> occasion question (gift-intent queries)
 // Per-category flows differ by product type (see CATEGORY_FLOWS).
 
+import fs from "fs";
+import path from "path";
 import { parseQuery, searchStats } from "./search.js";
 
 const CATEGORY_FLOWS = {
@@ -59,6 +61,46 @@ function hasGiftIntent(q) {
   return GIFT_WORDS.some((w) => s.includes(w));
 }
 
+// G7: festival calendar (region-aware). Dates carry approx=true where lunar/
+// estimated. Upcoming-within-window festivals lead the occasion options.
+let _festivals = null;
+function festivals() {
+  if (_festivals === null) {
+    try {
+      _festivals = JSON.parse(fs.readFileSync(
+        path.join(process.cwd(), "lib", "festivals_2026_27.json"), "utf8")).festivals;
+    } catch { _festivals = []; }
+  }
+  return _festivals;
+}
+function regionMatches(f, region) {
+  if (!region || region === "pan") return true;
+  return f.region === "pan" || f.region === region;
+}
+function upcomingFestivals(region, today, days = 45) {
+  const t = new Date(today || Date.now());
+  const out = [];
+  for (const f of festivals()) {
+    if (!f.date || !regionMatches(f, region)) continue;
+    const d = new Date(f.date + "T00:00:00Z");
+    const delta = (d - t) / 86400000;
+    if (delta >= -3 && delta <= days) out.push({ name: f.name, delta });
+  }
+  return out.sort((a, b) => a.delta - b.delta).map((f) => f.name);
+}
+
+function occasionOptions(region) {
+  const fest = upcomingFestivals(region).slice(0, 3);
+  const opts = [...fest];
+  for (const base of ["Wedding / Shaadi", "Birthday", "Anniversary"]) {
+    if (opts.length >= 5) break;
+    if (!opts.includes(base)) opts.push(base);
+  }
+  if (!opts.length) opts.push("Gift", "Birthday", "Wedding / Shaadi", "Anniversary", "Everyday use");
+  if (opts.length < 5) opts.push("Everyday use");
+  return opts.slice(0, 6);
+}
+
 function clean(n) {
   if (!n || n <= 0) return 0;
   const step = n < 2000 ? 250 : n < 10000 ? 500 : 1000;
@@ -69,17 +111,45 @@ function inr(n) {
   return "₹" + clean(n).toLocaleString("en-IN");
 }
 
-function budgetOptions(stats) {
+// O5: stepDown shifts all budget bands one step lower (student persona).
+function budgetOptions(stats, { stepDown = false } = {}) {
+  const f = stepDown ? 0.75 : 1;
   const { p25, p50, p75 } = stats.priceP;
   if (!p25 || !p75) return ["Under ₹2,000", "₹2,000 – ₹5,000", "₹5,000 – ₹10,000", "Not sure / flexible"];
-  const a = clean(p25), b = clean(Math.max(p50, p25 + 500)), c = clean(p75);
+  const a = clean(p25 * f), b = clean(Math.max(p50 * f, p25 * f + 500)), c = clean(p75 * f);
   const opts = [`Under ${inr(a)}`, `${inr(a)} – ${inr(b)}`];
   if (c > b) opts.push(`${inr(b)} – ${inr(c)}`);
   opts.push("Not sure / flexible");
   return opts;
 }
 
-const OCCASION_OPTIONS = ["Gift", "Birthday", "Wedding / Shaadi", "Anniversary", "Diwali / Festival", "Everyday use"];
+// G1: facet counts per option, from the candidate set (top-300).
+const parseInr = (s) => parseInt(String(s).replace(/[₹,\s]/g, ""), 10) || 0;
+function countBudget(items, n, label) {
+  if (label.startsWith("Not sure")) return n;
+  const range = label.match(/₹[\d,]+\s*–\s*₹([\d,]+)/);
+  if (range) {
+    const lo = parseInr(label.slice(label.indexOf("₹") + 1, label.indexOf("–")));
+    const hi = parseInr(range[1]);
+    return items.filter((x) => x.price >= lo && x.price < hi).length;
+  }
+  const under = label.match(/^Under (₹[\d,]+)/);
+  if (under) return items.filter((x) => x.price < parseInr(under[1])).length;
+  return 0;
+}
+const OCCASION_TAG = { "Wedding / Shaadi": "wedding", Birthday: "birthday",
+  Anniversary: "anniversary", Gift: "gift", "Housewarming": "housewarming" };
+// Festival calendar names -> nearest catalogue tag (honest counts: the
+// Diwali window maps to the diwali tag; other festivals to party).
+const FESTIVAL_TAG = { Diwali: "diwali", Dhanteras: "diwali", "Bhai Dooj": "diwali",
+  "Guru Nanak Jayanti": "diwali" };
+function countOccasion(items, n, tagCounts, label) {
+  const tag = OCCASION_TAG[label];
+  if (!tag) return label === "Everyday use"
+    ? Math.max(0, n - tagCounts.reduce((a, t) => a + (["wedding", "birthday", "anniversary", "gift"].includes(t.name) ? t.count : 0), 0))
+    : (tagCounts.find((t) => t.name === (FESTIVAL_TAG[label] || "party")) || { count: 0 }).count;
+  return (tagCounts.find((t) => t.name === tag) || { count: 0 }).count;
+}
 
 const TEMPLATES = {
   budget: "Got it - what budget should I keep in mind?",
@@ -96,7 +166,8 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   const dominantShare = dominant && stats.n ? dominant.count / stats.n : 0;
   const flow = CATEGORY_FLOWS[flowKey(dominant ? dominant.name : null)] || DEFAULT_FLOW;
   const prev = new Set((context.prevTypes || []).map(String));
-  const gift = hasGiftIntent(query);
+  // O5: a Gifting persona gets the gift ordering even on non-"gift" queries.
+  const gift = hasGiftIntent(query) || context.persona?.context === "Gifting";
 
   const isRescue = nResults < 2;
   // brand is a refinement: never the first question of a journey
@@ -133,15 +204,19 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   }
 
   let options = [];
+  let optionCounts = [];
   let reason = "";
   if (type === "budget") {
-    options = budgetOptions(stats);
+    options = budgetOptions(stats, { stepDown: context.persona?.userType === "Student" });
     reason = `no explicit budget in query; candidate set price range p25 ${inr(stats.priceP.p25)} – p75 ${inr(stats.priceP.p75)} (budget_mismatch = 31.4% of mined complaints)`;
+    optionCounts = options.map((o) => ({ label: o, count: countBudget(stats.items, stats.n, o) }));
   } else if (type === "occasion") {
-    options = OCCASION_OPTIONS;
+    // G7: calendar- and region-aware ordering (Diwali leads in Nov 2026).
+    options = occasionOptions(context.region);
     reason = gift
       ? `gift intent without occasion; occasion tags decide ranking (occasion_blindness = 7.1% of mined complaints, top driver of gift-query failures)`
       : `category flow prioritizes occasion (fashion/gift-adjacent)`;
+    optionCounts = options.map((o) => ({ label: o, count: countOccasion(stats.items, stats.n, stats.tagCounts, o) }));
   } else if (type === "category") {
     // Dead-end (n=0) gift queries: offer gift-adjacent categories.
     const GIFT_AFFINITY = ["Toys & Games", "Handmade", "Arts, Crafts & Sewing", "AMAZON FASHION",
@@ -155,16 +230,24 @@ export function decideGuide(catalog, query, nResults, context = {}) {
     }
     options = names;
     reason = `ambiguous across categories (top share ${(dominantShare * 100).toFixed(0)}%); zero_or_wrong = 19.3% of mined complaints`;
+    const catCount = (name) => {
+      if (stats.n > 0) return counts.get(name) || 0;
+      return catalog.filter((x) => x.category === name).length; // dead-end: whole catalogue
+    };
+    optionCounts = options.map((o) => ({ label: o, count: catCount(o) }));
   } else if (type === "brand") {
     options = stats.brands.slice(0, 3).map((b) => b.name);
     options.push("No preference - best rated");
     reason = `brand-driven category, results fragmented (${stats.brands.length} brands in candidate set); brand = strongest trust proxy (trust_gap = 42.2% of mined complaints)`;
+    const brandCount = (name) => (stats.brands.find((b) => b.name === name) || { count: 0 }).count;
+    optionCounts = options.map((o) => ({ label: o, count: o.startsWith("No preference") ? stats.n : brandCount(o) }));
   }
 
   return {
     ask: true,
     type,
     options,
+    optionCounts,
     question: TEMPLATES[type],
     reason,
     stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue },

@@ -1,0 +1,21 @@
+{
+  "asOf": "2026-11-04",
+  "note": "Dates verified against the 2026-27 calendar where possible; lunar/estimated dates carry approx=true. Regions: pan | north | south | east | west | ne.",
+  "festivals": [
+    { "name": "Dhanteras", "date": "2026-11-06", "region": "pan", "approx": false },
+    { "name": "Diwali", "date": "2026-11-08", "region": "pan", "approx": false },
+    { "name": "Bhai Dooj", "date": "2026-11-10", "region": "pan", "approx": false },
+    { "name": "Guru Nanak Jayanti", "date": "2026-11-12", "region": "pan", "approx": false },
+    { "name": "Gifting (generic)", "date": null, "region": "pan", "approx": true },
+    { "name": "Pongal / Sankranti", "date": "2027-01-15", "region": "south", "approx": true },
+    { "name": "Makar Sankranti", "date": "2027-01-15", "region": "west", "approx": true },
+    { "name": "Eid al-Fitr", "date": "2027-02-09", "region": "pan", "approx": true },
+    { "name": "Holi", "date": "2027-03-22", "region": "pan", "approx": true },
+    { "name": "Ugadi / Gudi Padwa", "date": "2027-04-01", "region": "south", "approx": true },
+    { "name": "Baisakhi", "date": "2027-04-14", "region": "north", "approx": true },
+    { "name": "Onam", "date": "2027-09-15", "region": "south", "approx": true },
+    { "name": "Raksha Bandhan", "date": "2027-08-24", "region": "pan", "approx": true },
+    { "name": "Durga Puja", "date": "2027-10-17", "region": "east", "approx": true },
+    { "name": "Bihu (Magh)", "date": "2027-01-14", "region": "ne", "approx": true }
+  ]
+}

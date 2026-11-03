@@ -2,23 +2,24 @@
 import { useState } from "react";
 import { track, setPersona } from "../lib/track";
 
-// Persona v2 — three questions that calibrate WHO the shopper is and HOW
-// they judge value, instead of asking "what's your average price?" (budgets
-// vary by product). The answers drive:
-//  - recommendScore() ordering (price fit vs spend style, brand affinity)
-//  - the "flexible budget" guide answer (persona default, no re-ask)
-//  - cohort segmentation in the public dashboard
+// O5: the 3-question persona now lives behind /?onboard=1 (it is not on the
+// first-visit path — O1). Double-barrelled options were split; every answer
+// has a visible payoff (toast on completion) and wired behaviour:
+//  - spendStyle -> recommendScore() ordering + "flexible budget" default
+//  - context=Gifting -> occasion-first question ordering (guide.js)
+//  - userType=Student -> budget options one step lower (guide.js)
+//  - Senior -> larger text mode; all answers -> cohort segmentation
 const STEPS = [
   { key: "userType",
     label: "Which describes you best?",
     sub: "We use this to calibrate questions and recommendations — never to show ads.",
-    opts: ["Student", "Working professional", "Parent or homemaker",
-           "Senior — or buying for family", "A bit of everything"] },
+    opts: ["Student", "Working professional", "Homemaker",
+           "Senior (60+)", "Buying for my family"] },
   { key: "spendStyle",
     label: "How do you usually decide what's worth buying?",
     sub: "Your budget changes with the product — this tells us your default bar, not a cap.",
     opts: ["Best price — I compare a lot", "Good quality at a fair price",
-           "Brand & build matter most", "Premium, if it's worth it"] },
+           "Brand matters most", "Premium, if it's worth it"] },
   { key: "context",
     label: "What are you mostly shopping for?",
     sub: "One tap — you can always mix it later.",
@@ -27,24 +28,27 @@ const STEPS = [
 
 // spendStyle -> default budget cap used when the shopper picks
 // "Not sure / flexible" on a budget follow-up (null = no cap).
+// O3: these caps are ONLY applied when the shopper explicitly taps
+// "Not sure / flexible" on a budget question, and the applied default is
+// echoed as a removable trail chip (O4). They are never silent.
 export const BUDGET_STYLE_MAX = {
   "Best price — I compare a lot": 2000,
   "Good quality at a fair price": 5000,
-  "Brand & build matter most": 8000,
+  "Brand matters most": 8000,
   "Premium, if it's worth it": null,
 };
 // spendStyle -> expected price multiplier around the cap (recommender).
 export const SPEND_BIAS = {
   "Best price — I compare a lot": 0.8,
   "Good quality at a fair price": 1.0,
-  "Brand & build matter most": 1.1,
+  "Brand matters most": 1.1,
   "Premium, if it's worth it": 1.25,
 };
 // spendStyle -> weight given to branded products in the recommender.
 export const SPEND_BRAND_AFFINITY = {
   "Best price — I compare a lot": 0.3,
   "Good quality at a fair price": 0.5,
-  "Brand & build matter most": 1.0,
+  "Brand matters most": 1.0,
   "Premium, if it's worth it": 0.9,
 };
 

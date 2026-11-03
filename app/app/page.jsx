@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { track, getPersona, cohortOf } from "./lib/track";
+import { t } from "./lib/i18n";
 import { Onboarding, BUDGET_STYLE_MAX, SPEND_BIAS, SPEND_BRAND_AFFINITY } from "./ui/onboarding";
 import { CartDrawer, CheckoutModal, OrderToast } from "./ui/cart";
 import { AnalyticsView } from "./ui/analytics";
@@ -28,6 +29,22 @@ const PRICE_BANDS = [
   { id: "10k+", label: "₹10k & up", min: 10000, max: Infinity },
 ];
 const DEFAULT_FILTERS = { sort: "relevance", brands: [], band: null, rating4: false, category: null };
+
+// O2: coarse region from pincode (demo use only: festival ordering +
+// delivery estimate). Coarse by design — analytics never see the pincode.
+function pinRegion(pin) {
+  const p = parseInt(String(pin).slice(0, 2), 10);
+  if (isNaN(p)) return null;
+  if (p <= 29) return "north";
+  if (p <= 38) return "east";
+  if (p <= 53) return p >= 39 ? "west" : "south";
+  if (p <= 68) return "south";
+  if (p <= 70) return "west";
+  if (p <= 74) return "east";
+  if (p <= 80) return "ne";
+  if (p <= 84) return "east";
+  return "central";
+}
 
 // Display-only category labels. Raw category strings stay backend-only
 // (search, filters, analytics all use them); shoppers see clean names.
@@ -95,6 +112,65 @@ function ProductCard({ r, onAdd, onBuy, rec }) {
   );
 }
 
+// G6: "why are we asking?" — deterministic copy tied to the mined root
+// causes (no LLM). The numbers in the copy are the corpus shares.
+const WHY_COPY = {
+  budget: "Prices in this search span a wide range — a budget keeps you from scrolling past things you can't afford. (2nd most common reason searches fail.)",
+  occasion: "The same product can be for a shaadi, a birthday or everyday use — the occasion changes what counts as a good match. (Top reason gift searches miss.)",
+  category: "Your search matched several different product types — picking one avoids unrelated results. (3rd most common reason searches fail.)",
+  brand: "Within these results a few brands hold most of the ratings — brand is the fastest way to trust a pick. (The #1 reason shoppers distrust results.)",
+};
+
+function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip }) {
+  const [whyOpen, setWhyOpen] = useState(false);
+  const [typed, setTyped] = useState("");
+  const counts = Object.fromEntries((guide.optionCounts || []).map((c) => [c.label, c.count]));
+  const refine = !!guide.refine;
+  const submitTyped = () => { if (typed.trim()) { onTyped(typed); setTyped(""); } };
+  if (refine) {
+    // G11: resolved searches get a compact one-row strip, never a card
+    // pushing results down.
+    return (
+      <div className="qstrip" role="group" aria-label={t(lang, "qOptional")}>
+        <span className="qstrip-lbl">{t(lang, "qOptional")}</span>
+        <div className="qstrip-chips">
+          {guide.options.map((c) => (
+            <button key={c} className="qchip" onClick={() => onChip(c)} disabled={busy || counts[c] === 0}>
+              {c}{counts[c] != null && <span className="ccnt">{counts[c]}</span>}
+            </button>
+          ))}
+        </div>
+        <button className="qstrip-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
+      </div>
+    );
+  }
+  return (
+    <div className="qcard">
+      <div className="qe">
+        <span>{t(lang, "qEyebrow")}</span>
+        <button className="qcard-why" onClick={() => setWhyOpen(!whyOpen)} aria-expanded={whyOpen}>ⓘ {t(lang, "whyAsk")}</button>
+        <button className="qcard-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
+      </div>
+      {whyOpen && <div className="qcard-whybox">{WHY_COPY[guide.type] || WHY_COPY.budget}</div>}
+      <div className="q">{guide.question}</div>
+      <div className="chips" role="radiogroup" aria-label={guide.question}>
+        {guide.options.map((c) => (
+          <button key={c} role="radio" aria-checked="false"
+                  onClick={() => onChip(c)} disabled={busy || counts[c] === 0}>
+            {c}{counts[c] != null && <span className="ccnt">{counts[c]}</span>}
+          </button>
+        ))}
+      </div>
+      <div className="qcard-typed">
+        <input value={typed} onChange={(e) => setTyped(e.target.value)}
+               onKeyDown={(e) => e.key === "Enter" && submitTyped()}
+               placeholder={t(lang, "orType")} aria-label="Type your answer" maxLength={80} />
+        <button onClick={submitTyped} disabled={busy || !typed.trim()}>{t(lang, "send")}</button>
+      </div>
+    </div>
+  );
+}
+
 function AskCartHome() {
   const [input, setInput] = useState("");
   const params = useSearchParams();
@@ -110,6 +186,40 @@ function AskCartHome() {
     } catch { return true; }
   });
   const [persona, setPersonaState] = useState(null);
+  // O1/O2: language + pincode strip (non-blocking), persona v3 learning later.
+  const [lang, setLangState] = useState(() => {
+    try { return ["en", "hi", "hinglish"].includes(localStorage.getItem("askcart_lang")) ? localStorage.getItem("askcart_lang") : "en"; } catch { return "en"; }
+  });
+  const [pin, setPin] = useState("");
+  const [region, setRegion] = useState(() => {
+    try { const v = JSON.parse(localStorage.getItem("askcart_region") || "null"); return v && v.region ? v.region : null; } catch { return null; }
+  });
+  const [stripDismissed, setStripDismissed] = useState(() => {
+    try { return localStorage.getItem("askcart_strip_dismissed") === "1"; } catch { return true; }
+  });
+  const [stripOpen, setStripOpen] = useState(false);
+  const [obToast, setObToast] = useState(null);
+  useEffect(() => { try { document.documentElement.lang = lang === "hi" ? "hi" : lang === "hinglish" ? "hi-Latn" : "en"; } catch {} }, [lang]);
+  function setLang(l) {
+    setLangState(l);
+    try { localStorage.setItem("askcart_lang", l); } catch {}
+    track("language_change", { lang: l });
+  }
+  function dismissStrip() {
+    setStripDismissed(true);
+    setStripOpen(false);
+    try { localStorage.setItem("askcart_strip_dismissed", "1"); } catch {}
+    track("onboarding_strip_dismissed", {});
+  }
+  function saveRegion() {
+    if (pin.length !== 6) return;
+    const r = { pincode: pin, region: pinRegion(pin) };
+    try { localStorage.setItem("askcart_region", JSON.stringify(r)); } catch {}
+    setRegion(r.region);
+    setStripDismissed(true);
+    setStripOpen(false);
+    track("region_set", { region: r.region });
+  }
   const [s, setS] = useState(null); // active search state (see below)
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -204,7 +314,8 @@ function AskCartHome() {
     const r = await fetch("/api/guide", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, n_results: nResults, turn, prev_types: prevTypes, journey_id: jn ? jn.id : null }),
+      body: JSON.stringify({ query, n_results: nResults, turn, prev_types: prevTypes,
+                             journey_id: jn ? jn.id : null, region, persona, lang }),
     });
     return r.json();
   }
@@ -292,7 +403,11 @@ function AskCartHome() {
     setBusy(false);
   }
 
-  async function pickChip(chip, guide) {
+  // G10: one-line echo of what changed, shown above the results.
+  function echoFor(chip, finalResults, prevResults) {
+    return `${chip} · ${finalResults.length} of ${prevResults.length} left`;
+  }
+  async function applyAnswer(chip, guide) {
     if (!s || busy) return;
     setBusy(true);
     const turnNow = s.turn + 1;
@@ -346,7 +461,8 @@ function AskCartHome() {
     const wasOk = s.ok === true;
     markResultsShown(s.query, finalResults, turnNow, "results");
     setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: finalResults,
-           filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, chip], error: null });
+           filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, chip],
+           echo: echoFor(chip, finalResults, s.results), error: null });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: finalResults.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
       endJourney(journeyRef.current, { resolved: true, turns: turnNow, ordered: journeyRef.current.ordered });
@@ -378,6 +494,72 @@ function AskCartHome() {
     setS((st) => st && { ...st, exhausted: true });
     endJourney(journeyRef.current, { resolved: resolvedNow, turns: turnNow, ordered: journeyRef.current.ordered });
     setBusy(false);
+  }
+
+  // G4: typed answers. Resolved to a chip when possible; otherwise the text
+  // is appended to the query as a normal refinement (parsed by the engine).
+  async function answerTyped(text, guide) {
+    if (!s || busy) return;
+    const txt = String(text || "").trim();
+    if (!txt) return;
+    const low = txt.toLowerCase();
+    let chip = null;
+    if (guide.type === "budget") {
+      if (/not sure|flexible|pakka nahi|pata nahi/i.test(low)) chip = "Not sure / flexible";
+      else {
+        const k = low.match(/(\d+(?:[.,]\d+)?)\s*(k|thousand|lakh|hazaar)/);
+        let num = null;
+        if (k) {
+          const mult = k[2] === "lakh" ? 100000 : k[2] === "hazaar" ? 100 : 1000;
+          num = Math.round(parseFloat(k[1].replace(",", "")) * mult);
+        } else {
+          const nums = low.match(/\d+(?:[.,]\d+)?/g) || [];
+          if (nums.length) num = Math.round(parseFloat(nums[nums.length - 1].replace(",", "")));
+        }
+        if (num && num > 0) chip = `Under ₹${num.toLocaleString("en-IN")}`;
+      }
+    } else if (guide.type === "occasion") {
+      const map = { gift: "Gift", present: "Gift", birthday: "Birthday", janmdin: "Birthday",
+                    wedding: "Wedding / Shaadi", shaadi: "Wedding / Shaadi",
+                    anniversary: "Anniversary", diwali: "Diwali / Festival",
+                    festival: "Diwali / Festival", party: "Party",
+                    christmas: "Christmas", housewarming: "Housewarming" };
+      for (const [w, c] of Object.entries(map)) if (low.includes(w)) { chip = c; break; }
+      if (!chip && low.includes("everyday")) chip = "Everyday use";
+    } else if (guide.type === "brand") {
+      if (/no preference|best rated|koi fark/i.test(low)) chip = "No preference - best rated";
+      else chip = (s.results.find((r) => r.brand && low.includes(r.brand.toLowerCase())) || {}).brand || null;
+    } else {
+      chip = (s.results.find((r) => low.includes(r.category.toLowerCase())) || {}).category || null;
+    }
+    track("guide_typed_answer", {
+      query: s.query, question_type: guide.type, text: txt.slice(0, 80),
+      resolved_to_chip: !!chip, turn: s.turn + 1,
+    });
+    if (chip) { await applyAnswer(chip, guide); return; }
+    // Unresolvable text -> normal refinement search with the text appended.
+    setBusy(true);
+    const turnNow = s.turn + 1;
+    const t0 = Date.now();
+    const res = await doSearch(s.query + " " + txt, { relax: true, turn: turnNow });
+    setBusy(false);
+    if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
+    const ok = res.results.filter((r) => r.intent).length >= 2;
+    markResultsShown(s.query, res.results, turnNow, "results");
+    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: res.results,
+           filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, txt],
+           echo: `${txt} · ${res.results.length} of ${s.results.length} left`, error: null });
+  }
+
+  // G5: every question has an exit. Skipped types become ineligible.
+  function skipGuide() {
+    if (!s || !s.guide || busy) return;
+    const g = s.guide;
+    track("guide_skipped", {
+      query: s.query, question_type: g.type, turn: s.turn, mode: g.mode || "policy",
+    });
+    if (journeyRef.current) journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g.type];
+    setS((st) => st && { ...st, guide: null });
   }
 
   function setFilter(type, value) {
@@ -443,6 +625,14 @@ function AskCartHome() {
     setOnboarded(true);
     setPersonaState(p);
     try { localStorage.setItem("askcart_onboarded", "1"); } catch {}
+    // O5: show the payoff of the answers, and wire them to behaviour.
+    if (p) {
+      if (p.context === "Gifting") setObToast("Because you chose Gifting, we'll ask about the occasion first.");
+      else if (p.userType === "Student") setObToast("Noted - budget options will be one step lower for you.");
+      else if (p.userType === "Senior (60+)") { setObToast("Larger text mode is on for you."); try { document.body.classList.add("largetext"); } catch {} }
+      else if (p.spendStyle) setObToast("Got it - we'll rank results around that bar.");
+      setTimeout(() => setObToast(null), 6000);
+    }
   }
 
   const cartCount = Object.values(cart).reduce((a, e) => a + e.qty, 0);
@@ -498,8 +688,13 @@ function AskCartHome() {
             <button className={tab === "search" ? "on" : ""} onClick={() => switchTab("search")}>Search</button>
           </nav>
           <span className="topbar-spacer" />
+          <span className="langseg" role="group" aria-label="Language">
+            {[["en", "EN"], ["hi", "हिं"], ["hinglish", "Hinglish"]].map(([l, lb]) => (
+              <button key={l} className={lang === l ? "on" : ""} onClick={() => setLang(l)}>{lb}</button>
+            ))}
+          </span>
           <button className={"anbtn" + (tab === "analytics" ? " on" : "")} onClick={() => switchTab("analytics")}>
-            <span className="anbtn-dot" /> Analytics
+            <span className="anbtn-dot" /> Behind the scenes
           </button>
           <button className={"cartbtn" + (cartOpen ? " on" : "")} onClick={() => { setCartOpen(true); track("cart_view", { item_count: cartCount, total: Object.values(cart).reduce((a, e) => a + e.item.price * e.qty, 0) }); }}>
             <span className="carticon">🛒</span> Cart
@@ -507,22 +702,48 @@ function AskCartHome() {
           </button>
         </div>
       </div>
+      {obToast && <div className="obtoast" role="status">{obToast}</div>}
       <div className="wrap">
         {tab === "search" ? (
-          !onboarded ? <Onboarding onDone={onOnboarded} /> : (
+          params.get("onboard") === "1" && !onboarded ? <Onboarding onDone={onOnboarded} /> : (
             <>
               {!s && (
                 <div className="hero">
-                  <h1>Find it in <em>two questions</em>.</h1>
-                  <div className="sub">Guided e-commerce search over a 36,000-product Indian catalogue. Ask in plain language — when we can't nail it, we ask one quick question: budget, occasion, category, or brand.</div>
+                  <h1>{t(lang, "heroTitle")}</h1>
+                  <div className="sub">{t(lang, "heroSub")}</div>
                   <div className="searchbar">
                     <input value={input} onChange={(e) => setInput(e.target.value)}
                            onKeyDown={(e) => e.key === "Enter" && startSearch(input, "input")}
-                           placeholder='Try: "shaadi gift under 2k"' />
+                           placeholder={t(lang, "searchPlaceholder")} />
                     <button onClick={() => startSearch(input, "input")} disabled={busy}>{busy ? "…" : "Search"}</button>
                   </div>
+                  {!stripDismissed && (
+                    <div className="strip">
+                      {stripOpen ? (
+                        <div className="strip-card">
+                          <div className="strip-row">
+                            <span className="strip-lbl">{t(lang, "stripLang")}</span>
+                            <button className={lang === "hi" ? "seg on" : "seg"} onClick={() => setLang("hi")}>हिन्दी</button>
+                            <button className={lang === "hinglish" ? "seg on" : "seg"} onClick={() => setLang("hinglish")}>Hinglish</button>
+                            <span className="strip-sep" />
+                            <span className="strip-lbl">{t(lang, "stripPin")}</span>
+                            <input className="pin-in" value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                                   placeholder="110001" inputMode="numeric" aria-label="Delivery pincode" />
+                            <button className="strip-use" onClick={saveRegion} disabled={pin.length !== 6}>{t(lang, "use")}</button>
+                          </div>
+                          <div className="strip-hint">{t(lang, "pinHint")}</div>
+                          <button className="strip-skip" onClick={() => dismissStrip()}>{t(lang, "skip")} ✕</button>
+                        </div>
+                      ) : (
+                        <span className="strip-line" onClick={() => setStripOpen(true)} role="button" tabIndex={0}
+                              onKeyDown={(e) => e.key === "Enter" && setStripOpen(true)}>
+                          {t(lang, "strip")} <b>{t(lang, "setNow")} →</b>
+                        </span>
+                      )}
+                    </div>
+                  )}
                   <div className="ex">
-                    <span className="exl">Popular:</span>
+                    <span className="exl">{t(lang, "popular")}:</span>
                     {EXAMPLES.map((e) => <span key={e} onClick={() => startSearch(e, "example")}>{e}</span>)}
                   </div>
                 </div>
@@ -554,15 +775,15 @@ function AskCartHome() {
                   That answer didn't improve the match, so I kept your previous picks.
                 </div>
               )}
+              {s && s.echo && (
+                <div className="meta echo" role="status">{s.echo}</div>
+              )}
 
               {s && s.guide && (
-                <div className="qcard">
-                  <div className="qe">{s.guide.refine ? "Optional refinement" : "One quick question"}</div>
-                  <div className="q">{s.guide.question}{s.guide.refine ? " — the results below are ready to shop" : ""}</div>
-                  <div className="chips">
-                    {s.guide.options.map((c) => <button key={c} onClick={() => pickChip(c, s.guide)} disabled={busy}>{c}</button>)}
-                  </div>
-                </div>
+                <QuestionCard guide={s.guide} lang={lang} busy={busy}
+                              onChip={(c) => applyAnswer(c, s.guide)}
+                              onTyped={(txt) => answerTyped(txt, s.guide)}
+                              onSkip={skipGuide} />
               )}
 
               {s && s.error && (
@@ -688,9 +909,8 @@ function AskCartHome() {
       <footer>
         <div className="foot-inner">
           <div className="foot-brand">Ask<span>Cart</span> · guided shopping search</div>
-          <div className="foot-col">36,045-SKU Indian catalogue (real listings, INR pricing) · Qwen-guided follow-up questions · 6-stage DuckDB review pipeline with Bayesian ratings</div>
-          <div className="foot-col">Study: null results 27.3% → 8.0% · 78.7% resolved within 2 turns (n=150) · 3,000-query simulation: 0.0% null, 98.6% by turn 2 · the guide keeps asking (max 3 quick questions) until you're at the product</div>
-          <div className="foot-note">Prototype MVP — checkout is simulated, no payments processed. Every interaction event is public in Analytics. Internal search tags are backend-only and never shown to shoppers.</div>
+          <div className="foot-col">Demo catalogue: 36,045 SKUs (≈25k US-sourced listings converted to INR + ≈11k India layer) with indicative prices and ratings — not a live marketplace. Checkout is simulated: no payments, addresses or real delivery.</div>
+          <div className="foot-note">Every interaction event is public in Behind the scenes · AI answers only from catalogue fields · method & evidence: PROJECT.md</div>
         </div>
       </footer>
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} setCart={setCart}

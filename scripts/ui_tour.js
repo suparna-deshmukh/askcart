@@ -29,12 +29,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     return false;
   };
 
-  // 1. home + onboarding (3-question persona v2)
-  await page.goto("http://localhost:3000/", { waitUntil: "networkidle0", timeout: 90000 });
+  // 1. O5: onboarding panel (behind /?onboard=1) - 3 answers + payoff toast
+  await page.goto("http://localhost:3000/?onboard=1", { waitUntil: "networkidle0", timeout: 90000 });
   await sleep(1500);
-  await shot("mvp_home_onboarding");
-
-  // 2. finish onboarding: Working professional / Good quality at a fair price / Myself
+  await shot("mvp_onboarding_panel");
   for (const idx of [1, 1, 0]) {
     const opts = await page.$$(".ob-opts button");
     if (!opts.length) break;
@@ -42,13 +40,29 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     await sleep(450);
   }
   await sleep(1000);
+  await shot("mvp_onboarding_toast");
+
+  // 2. O1/O2: hero-first home with the non-blocking persona strip
+  await page.goto("http://localhost:3000/", { waitUntil: "networkidle0", timeout: 90000 });
+  await sleep(1500);
+  await shot("mvp_home_hero");
+  const stripLine = await page.$(".strip-line");
+  if (stripLine) {
+    await stripLine.click();
+    await sleep(500);
+    const hinglishSeg = await clickByText(".seg", "Hinglish");
+    if (hinglishSeg) await sleep(300);
+    const pinIn = await page.$(".pin-in");
+    if (pinIn) { await pinIn.type("110001"); await sleep(300); }
+    const useBtn = await page.$(".strip-use");
+    if (useBtn) { await useBtn.click(); await sleep(600); }
+    await shot("mvp_strip_set");
+  }
+  const adds0 = await page.$$(".cardbtns .add");
+  if (adds0.length) { await adds0[0].click(); await sleep(700); }
   await shot("mvp_home_preview");
 
-  // 3. add first trending card to cart
-  const adds = await page.$$(".cardbtns .add");
-  if (adds.length) { await adds[0].click(); await sleep(700); }
-
-  // 4. shaadi deep link (guided search)
+  // 3. shaadi deep link (guided search)
   await page.goto("http://localhost:3000/?q=shaadi+gift+under+2k&noob=1", { waitUntil: "networkidle0", timeout: 90000 });
   await sleep(3000);
   const tAdds = await page.$$(".grid .cardbtns .add");
@@ -72,7 +86,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await sleep(2000);
   let chips = [];
   for (let w = 0; w < 15; w++) {
-    chips = await page.$$(".qcard .chips button");
+    chips = await page.$$(".qcard .chips button, .qstrip .qchip");
     if (chips.length) break;
     await sleep(1000);
   }

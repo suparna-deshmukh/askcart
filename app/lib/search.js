@@ -364,10 +364,12 @@ export function searchStats(catalog, q, opts = {}) {
   const base = hits.length ? hits : catalog;
   const catCounts = new Map();
   const brandCounts = new Map();
+  const tagCounts = new Map();
   const prices = [];
   for (const it of base) {
     catCounts.set(it.category, (catCounts.get(it.category) || 0) + 1);
     if (it.brand) brandCounts.set(it.brand, (brandCounts.get(it.brand) || 0) + 1);
+    for (const tg of it.tags || []) tagCounts.set(tg, (tagCounts.get(tg) || 0) + 1);
     prices.push(it.price);
   }
   prices.sort((a, b) => a - b);
@@ -378,5 +380,10 @@ export function searchStats(catalog, q, opts = {}) {
     categories: top(catCounts, 4),
     brands: top(brandCounts, 4),
     priceP: { p25: pct(0.25), p50: pct(0.5), p75: pct(0.75) },
+    items: base.slice(0, 300), // G1: top-300 candidates for per-option facet counts
+    // G1: facet counts for question chips (candidate-set, not whole catalog)
+    tagCounts: top(tagCounts, 12),
+    priceMin: prices.length ? prices[0] : 0,
+    priceMax: prices.length ? prices[prices.length - 1] : 0,
   };
 }
