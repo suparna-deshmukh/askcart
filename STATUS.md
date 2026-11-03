@@ -240,8 +240,7 @@ claim inflation, acceptance tests per item, commits `T3:`-style per item.
   `--success-bg`). 16/16 pairs pass.
 
 ## P2 (search engine + catalogue) — queue
-S1 DONE (see below) → S2 DONE (see below) → S3 relation words → S4 spec
-slots →
+S1 DONE → S2 DONE → S3 DONE → S4 DONE (see below) →
 S7 family_id grouping → C2 brand extraction → C3 is_accessory →
 C1 origin field → G3 for-whom/size + capacity → G8 seasonal rails →
 G12 outcome micro-survey.
@@ -265,6 +264,30 @@ G12 outcome micro-survey.
   (liye, kuch, sabse...). 30 Hinglish canaries added → 94/94 green.
   One import-attribute quirk: Next dev wants
   `import ... from "./lexicon_hinglish.json" with { type: "json" }`.
+
+- **S3 DONE** — relation words → recipient in the scorer: maa/mummy
+  (mother→women), abba (father→men), bhai (brother→men), behen/bhen
+  (sister→women), saas (mother-in-law→women), sasur (father-in-law→men)
+  added to the adult/male/female recipient sets; beta/beti/bachche now
+  boost kid-marked titles (+1.0); dost/saas/sasur/beta/beti/maa/mummy/
+  abba/bhai/behen are stopwords (via the lexicon file). 8 relation
+  canaries.
+- **S4 DONE** — structured spec slots in `parseQuery` → `out.specs`:
+  age ("5 year old", "6 months"), size ("size m/l/xl/xxl"), storage
+  ("128gb"), ram ("8gb ram"), tonnage ("1.5 ton"), stars ("5 star"),
+  inches ("43 inch"), volume ("1 litre"). Soft boosts/penalties in
+  `scoreAll` only (carries stated spec +1.5, contradicts -1.0, stars vs
+  real rating +1.0/-0.5, size +0.75, toddler age +1.0 on kid-marked
+  titles). `gb` added to stuck-unit expansion. Age/size/litre phrases
+  stripped from the token stream so they never break all-required intent.
+  Never budgets (verified: "1.5 ton ac under 50k" keeps the 50k cap and
+  ranks 1.5-ton first). 9 spec canaries → 111/111 green.
+- **T8/T9 data** — full-corpus 6-class Qwen re-label complete: 4,639/4,639
+  labelled complaints across 4 slices (1,160+1,160+1,160+1,159). First
+  attempt failures = thinking-model token budget (fixed via
+  `enable_thinking: false`) + a proxy transient; final run: 0 failed
+  batches with max_retries=5. Merge + pipeline re-run + agreement stats
+  next.
 
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
