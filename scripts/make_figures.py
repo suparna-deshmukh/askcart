@@ -17,7 +17,8 @@ plt.rcParams.update({"figure.dpi": 140, "font.size": 9,
                      "axes.spines.top": False, "axes.spines.right": False})
 
 C = {"trust_gap": "#d6604d", "budget_mismatch": "#e0a53c",
-     "zero_or_wrong": "#5b8bd9", "occasion_blindness": "#6aa84f"}
+     "zero_or_wrong": "#5b8bd9", "occasion_blindness": "#6aa84f",
+     "not_search_related": "#8a8f98", "other": "#b9a888"}
 
 
 def fig_funnel():
@@ -49,7 +50,7 @@ def fig_root_causes():
         r = next(x for x in rc if x["root_cause"] == n)
         ax.text(n, v + max(vals) * 0.01, f"{v:,}\n{r['pct']}%", ha="center")
     ax.set_ylim(0, max(vals) * 1.18)
-    ax.set_title("Complaints by root cause (SQL + Qwen-verified labels)")
+    ax.set_title("Complaints by root cause (Qwen full-corpus labels, 6-class)")
     fig.tight_layout()
     fig.savefig(OUT / "root_causes.png")
     plt.close(fig)

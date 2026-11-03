@@ -80,9 +80,9 @@ def main():
         listing = "\n".join(f"{i+1}. [{r.kw_type}] {str(r.text)[:400]}" for i, r in enumerate(chunk.itertuples()))
         try:
             obj, model_used = chat_json([{"role": "user", "content": PROMPT + listing}],
-                                        max_tokens=2000, max_retries=3, thinking=False)
+                                        max_tokens=2000, max_retries=5, thinking=False)
         except Exception as e:
-            print(f"batch {start} failed: {type(e).__name__} {str(e)[:120]}", flush=True)
+            print(f"batch {start // a.batch + 1} failed: {type(e).__name__} {str(e)[:120]}", flush=True)
             continue
         for lab in obj.get("labels", []):
             idx = lab.get("id")

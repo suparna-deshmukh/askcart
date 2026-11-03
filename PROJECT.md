@@ -16,15 +16,27 @@ or recipient-bearing, the shopper hits one of four walls and leaves.
 **We did not guess those walls — we mined them.** An agentic extractor
 collected **94,643 real reviews** from 6 sources, a 6-stage DuckDB SQL
 pipeline cleaned them to **87,603**, gated **6,041 search-UX complaints**,
-and a pattern-scorer (with 238 Qwen-verified label overrides on a 600-review
-stratified sample) reduced them to **4 root causes**:
+and each complaint was labelled with a 6-class taxonomy: **every one of the
+4,639 LLM-eligible complaints was labelled by Qwen** (full-corpus re-label,
+`data/out/rc_agreement.json`); the remaining 1,402 carry the pattern-scorer
+label (zero-LLM fallback). Honest caveat: scorer-vs-LLM agreement on the
+labelled set is **accuracy 39.0%, macro-F1 0.231** — the pattern scorer is
+weak, so LLM labels are primary and the scorer is kept only as the
+no-LLM fallback:
 
 | # | Root cause | Share of complaints | What it means for the shopper |
 |---|---|---|---|
-| RC1 | **trust_gap** | 42.2% (2,549) | "Is this brand/store even legit?" — no trust signal on the card, generic listings ranked above genuine ones |
-| RC2 | **budget_mismatch** | 31.4% (1,898) | Query carried a budget ("under 2k") but results ignored it; p25–p75 price spread of the candidate set spans an order of magnitude in many categories |
-| RC3 | **zero_or_wrong** | 19.3% (1,165) | Empty results, or results from the wrong category — a dead end with no recovery path |
-| RC4 | **occasion_blindness** | 7.1% (429) | "gift", "shaadi", "diwali" are the *actual product spec* in Indian commerce; engines treat them as noise |
+| RC1 | **trust_gap** | 55.4% (3,345) | "Is this brand/store even legit?" — no trust signal on the card, generic listings ranked above genuine ones |
+| RC5 | **not_search_related** | 24.3% (1,466) | The complaint passed the search-keyword gate but is about something else (crashes, account, app design) — reported, not forced into a search cause. Highest on Reddit (69% of its complaints) |
+| RC2 | **budget_mismatch** | 14.8% (895) | Query carried a budget ("under 2k") but results ignored it; p25–p75 price spread of the candidate set spans an order of magnitude in many categories |
+| RC3 | **zero_or_wrong** | 3.2% (196) | Empty results, or results from the wrong category — a dead end with no recovery path |
+| RC6 | **other** | 1.5% (88) | Shopping-relevant but fits no other class |
+| RC4 | **occasion_blindness** | 0.8% (51) | "gift", "shaadi", "diwali" are the *actual product spec* in Indian commerce; engines treat them as noise |
+
+  The four *search* causes still order the product: trust_gap is the
+  largest by far, and budget is the next largest. The v6 4-class numbers
+  (trust 42.2 / budget 31.4 / zero 19.3 / occasion 7.1) came from the
+  pattern scorer with partial LLM overrides and are retired.
 
 Corpus: Play Store 33,172 · App Store 3,450 · Reddit 3,021 · Amazon product
 reviews 40,000 · Trustpilot 15,000. Demand/seasonality signal from Google
@@ -84,7 +96,8 @@ INR pricing, 299 brand names) with:
    budgets (7kg, 1.5 ton, 1100va, 23l), occasion words, recipient words,
    brand words.
 2. **A guided follow-up policy** — a deterministic decision engine
-   (grounded in the 4 root causes) that decides *what* to ask; Qwen38-27B
+   (grounded in the mined root causes — 4 search causes + 2 honest
+   non-search classes) that decides *what* to ask; Qwen38-27B
    only *phrases* the question (options stay byte-identical; any LLM failure
    falls back to a template). The policy can ask up to **3 follow-up
    questions per journey** (4-turn budget) and keeps asking until the shopper
@@ -174,9 +187,12 @@ askcart/
   from a 6-tool catalog; every decision is audit-logged
   (`logs/agent_decisions.jsonl`). A greedy zero-LLM path runs the whole
   pipeline with no model access.
-- **LLM label verification**: 600 stratified complaints labeled by
-  Qwen38-27B (3 parallel shards), 238 verified overrides merged into the
-  pattern scorer — keeps the 4 root causes honest.
+- **LLM label verification**: full-corpus re-label — all 4,639
+  LLM-eligible complaints labelled by Qwen38-27B (4 parallel shards,
+  6-class taxonomy, thinking disabled), overrides merged in
+  `05_root_causes.sql`. Scorer-vs-LLM agreement: accuracy 39.0%,
+  macro-F1 0.231 (`data/out/rc_agreement.json`) — LLM labels are
+  primary; the pattern scorer is the zero-LLM fallback only.
 - **Trends**: Google Suggest (IN) autocomplete + Wikipedia pageviews
   seasonality → `data/out/trends_insights.json` (used as evidence that
   occasion-awareness is a real, measurable demand signal).
@@ -188,8 +204,9 @@ askcart/
   `05_root_causes` weighted multi-pattern scoring with LLM-override merging;
   `06_bayesian` shrinks per-app ratings toward the global mean (m=100) so a
   14-review 5-star app doesn't outrank a 40k-review 4.2 app.
-- Funnel: **94,643 raw → 87,603 clean → 6,041 complaints → 4 root causes**
-  (trust 42.2 / budget 31.4 / zero-wrong 19.3 / occasion 7.1).
+- Funnel: **94,643 raw → 87,603 clean → 6,041 complaints → 6 root-cause classes**
+  (6-class final: trust 55.4 / not-search-related 24.3 / budget 14.8 /
+  zero-wrong 3.2 / other 1.5 / occasion 0.8).
 
 ### 4.3 Catalogue build (36,045 SKUs)
 `scripts/build_catalog.py` + `catalog_india.py` + `catalog_supplement.py`.
@@ -282,9 +299,10 @@ Full documentation: `docs/followup_algorithm.md`.
   template is used. Any failure → template. Response always carries the full
   `decision` (type, reason, rescue flag, top category) for analytics/audit.
 - **4 question types**, each grounded in a mined root cause:
-  budget (31.4% of complaints; earliest — it collapses the candidate set
-  where it is widest), occasion (7.1%; for gift intent the occasion *is* the
-  product), category (19.3% zero/wrong; the rescue), brand (42.2% trust;
+  budget (14.8% of complaints; earliest — it collapses the candidate set
+  where it is widest), occasion (0.8%; for gift intent the occasion *is* the
+  product — kept because occasion is the spec, not the complaint count),
+  category (3.2% zero/wrong; the rescue), brand (55.4% trust;
   never the first question — refinement).
 - **Per-product-type flows**: electronics/phones/computers: [budget, brand];
   fashion/beauty: [occasion, budget, brand]; home: [budget, occasion];
@@ -462,8 +480,10 @@ Artifacts: `data/out/funnel.json`, `data/out/root_causes.json`,
   **6,041 shopping complaints** flagged → **6,041 root-cause labelled**
   (TF-IDF/k-means 4-cluster scaffold, silhouette checked in
   `data/out/cluster_check.json`; v6: 600-review Qwen-verified stratified
-  sample with 238 overrides; **v7: full-corpus Qwen re-label running**,
-  see STATUS.md — root-cause shares in the table below are the v6 values).
+  sample with 238 overrides; **v7: full-corpus Qwen re-label of all 4,639
+  LLM-eligible complaints (6-class taxonomy, thinking disabled, 4 shards,
+  ~15 min)** — the root-cause shares in this document are the v7 values,
+  and scorer-vs-LLM agreement is reported in `data/out/rc_agreement.json`).
 
   **Raw vs clean by source (T1)** — the v6 text conflated these; the two
   are different populations:
@@ -479,11 +499,24 @@ Artifacts: `data/out/funnel.json`, `data/out/root_causes.json`,
   T2: zero drops for Amazon/Trustpilot is expected (curated corpora), not
   a missing gate; per-gate per-source drop counts are exported to
   `data/out/gates_by_source.json` by the pipeline.
-- **Root-cause split** (share of complaints · apps touched):
-  - trust_gap — can't tell good from bad: **2,549 (42.2%)** · 352 apps
-  - budget_mismatch — price out of range: **1,898 (31.4%)** · 382
-  - zero_or_wrong — nothing / wrong thing: **1,165 (19.3%)** · 206
-  - occasion_blindness — wrong occasion: **429 (7.1%)** · 89
+- **Root-cause split** (6-class, final: LLM-labelled where available,
+  pattern-scorer fallback otherwise; share of 6,041 · apps touched):
+  - trust_gap — can't tell good from bad: **3,345 (55.4%)** · 516 apps
+  - not_search_related — passed the search gate but is about something
+    else (crashes, account, design): **1,466 (24.3%)** · 208 apps
+  - budget_mismatch — price out of range: **895 (14.8%)** · 230 apps
+  - zero_or_wrong — nothing / wrong thing: **196 (3.2%)** · 32 apps
+  - other — shopping-relevant, no other class: **88 (1.5%)** · 32 apps
+  - occasion_blindness — wrong occasion: **51 (0.8%)** · 17 apps
+- **T8 scorer-vs-LLM agreement** (n=4,639 labelled): accuracy **39.0%**,
+  macro-F1 **0.231** — the pattern scorer is not reliable on its own
+  (it has no `other` / `not_search_related` class and over-calls
+  budget/zero on trust complaints). Full confusion matrix, LLM-only vs
+  scorer-only shares, and the India-only cut (Play IN + India Reddit,
+  n=3,054: trust 52.5 / not-search-related 33.4 / budget 9.7 / zero 3.2)
+  in `data/out/rc_agreement.json` (regenerated by
+  `scripts/rc_agreement.py`). A 100-row founder-labelled subset is still
+  pending (needs a human) — agreement above is LLM↔scorer, not human↔*.
 - Each root cause maps 1:1 to a follow-up question type (docs in
   `docs/followup_algorithm.md` §2): trust→brand/best-rated, budget→budget,
   zero/wrong→category rescue, occasion→occasion.
@@ -1005,8 +1038,9 @@ Individual steps:
 - Extractor (agentic, HF-deployed): `space_askcart/` →
   https://pm-ai-18-askcart-extractor.static.hf.space/
   (rebuild: `scripts/build_hf_space.py` + `scripts/stage_deploy.py`).
-  Local: `.venv/bin/python extractor/extract_llm.py` (600-review
-  Qwen-verified sample, 35 min).
+  Local: `.venv/bin/python extractor/extract_llm.py` (full-corpus
+  Qwen-labelled, 4,639 reviews, `--slice i/4` for 4 parallel shards,
+  ~15 min with thinking disabled).
 - Pipeline: `.venv/bin/python pipeline/run_pipeline.py` →
   `data/out/{askcart.duckdb,funnel,root_causes,bayesian,cluster_check}`.
 - Catalogue: `scripts/build_catalog.py` (+ `catalog_india.py`,

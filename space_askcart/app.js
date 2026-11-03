@@ -7,11 +7,14 @@ const esc = (s) => String(s == null ? "" : s)
   .replace(/"/g, """).replace(/'/g, "'");
 
 const RC_NAME = { trust_gap: "trust_gap", budget_mismatch: "budget_mismatch",
-                  zero_or_wrong: "zero_or_wrong", occasion_blindness: "occasion_blindness" };
+                  zero_or_wrong: "zero_or_wrong", occasion_blindness: "occasion_blindness",
+                  not_search_related: "not_search_related", other: "other" };
 const RC_CLASS = { trust_gap: "rc-trust", budget_mismatch: "rc-budget",
-                   zero_or_wrong: "rc-zero", occasion_blindness: "rc-occ" };
+                   zero_or_wrong: "rc-zero", occasion_blindness: "rc-occ",
+                   not_search_related: "rc-nsr", other: "rc-other" };
 const RC_COLOR = { trust_gap: "#d6604d", budget_mismatch: "#e0a53c",
-                   zero_or_wrong: "#5b8bd9", occasion_blindness: "#6aa84f" };
+                   zero_or_wrong: "#5b8bd9", occasion_blindness: "#6aa84f",
+                   not_search_related: "#8a8f98", other: "#b9a888" };
 
 function barRow(label, value, max, color, valText) {
   const pct = max ? Math.max(1.5, value / max * 100) : 0;
@@ -27,7 +30,8 @@ function renderOverview() {
     [fmt(f.raw_total), "reviews collected", "5 sources: Play, App Store, Reddit, Amazon product, Trustpilot"],
     [fmt(f.clean), "clean", "dedup + language gate + PII scrub"],
     [fmt(f.complaints_flagged), "search-UX complaints", "lexicon + rating gate + 10% control"],
-    ["4", "root causes", "SQL scoring + Qwen-verified overrides"],
+    [String((D.root_causes || []).length), "root-cause classes",
+     "Qwen full-corpus labels (4,639); pattern-scorer fallback"],
     [fmt(D.catalog.skus), "SKU catalogue", "25K real Amazon products, INR, band-aware"],
     [`${fb.baseline_null_pct}% → ${fb.guided_null_pct}%`, "null results fixed", "guided follow-up (n=150 study)"],
     [`${fb.resolved_by_turn2_pct}%`, "resolved by turn 2", "deterministic guide; Qwen mode: " + (q.resolved_by_turn2_pct ?? "?") + "%"],

@@ -6,17 +6,18 @@ LLM: Qwen38-27B via the owner's LiteLLM proxy (OpenAI-compatible). No Gemini.
 
 ## 1. "Agentic extractor on Reddit, App Store, Play Store APIs (+ Amazon
 ## product reviews, Trustpilot); 6-stage SQL pipeline, Bayesian ratings:
-## cut ~95K reviews to 4 root causes"
+## cut ~95K reviews to 6 root-cause classes"
 
 | Figure | Value | Artifact | How it's computed |
 |---|---|---|---|
 | reviews collected | 94,643 (Play 33,172 / App Store 3,450 / Reddit 3,021 / Amazon product 40,000 / Trustpilot 15,000) | data/raw/*_raw.parquet | collectors (resume logs in logs/); agent LLM-planned cycles in logs/agent_decisions.jsonl |
 | after clean | 87,603 | data/out/askcart.duckdb: s2_clean | pipeline/02_clean.sql (dedup, language gate, PII scrub) |
 | complaint subset | 6,041 | data/out/askcart.duckdb: s4_gate | pipeline/04_complaints.sql (search-UX lexicon + rating gate + 10% control) |
-| 4 root causes | trust_gap 2,549 (42.2%) / budget_mismatch 1,898 (31.4%) / zero_or_wrong 1,165 (19.3%) / occasion_blindness 429 (7.1%) | data/out/root_causes.json, rc_summary | pipeline/05_root_causes.sql (weighted pattern scoring; 238 Qwen-verified labels override on a 600-review stratified sample) |
+| 6 root-cause classes | trust_gap 3,345 (55.4%) / not_search_related 1,466 (24.3%) / budget_mismatch 895 (14.8%) / zero_or_wrong 196 (3.2%) / other 88 (1.5%) / occasion_blindness 51 (0.8%) | data/out/root_causes.json, rc_summary | pipeline/05_root_causes.sql (LLM labels primary: full-corpus Qwen re-label of 4,639 complaints; pattern scorer fallback for the rest) |
+| scorer-vs-LLM agreement | accuracy 39.0%, macro-F1 0.231 (n=4,639); confusion matrix + LLM-only/scorer-only shares + India-only cut | data/out/rc_agreement.json | scripts/rc_agreement.py (reads rc_final, root_causes, llm_labeled.parquet) |
 | Bayesian ratings | per-app (C*m+sum)/(m+n), C=global mean, m=100 | data/out/bayesian.csv | pipeline/06_bayesian.sql |
 | funnel | data/out/funnel.json | .venv/bin/python pipeline/run_pipeline.py |
-| LLM-verified labels | data/out/llm_labeled.parquet (600 stratified complaints, model qwen38-27b) | extractor/extract_llm.py |
+| LLM-verified labels | data/out/llm_labeled.parquet (4,639 complaints, 4 shards, model qwen38-27b, thinking disabled) | extractor/extract_llm.py |
 | agent audit | logs/agent_decisions.jsonl (greedy + Qwen llm-agent cycles, 6-tool catalog) | extractor/agent.py |
 | demand/seasonality | data/out/trends_insights.json (Google Suggest IN + Wikipedia pageviews; Diwali peak 37% Oct, Rakhi 50% Aug, Eid 43% Mar) | extractor/collect_trends.py |
 

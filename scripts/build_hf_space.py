@@ -53,9 +53,10 @@ for x in cat:
 summ_fb = load_json("summary.txt", BASE / "eval" / "results")
 summ_llm = load_json("summary_llm.txt", BASE / "eval" / "results")
 
+from datetime import datetime, timezone
 data = {
     "title": "AskCart - Agentic E-Commerce Search Extractor",
-    "generated_utc": "2026-11-03",
+    "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
     "llm": "qwen38-27b (owner's LiteLLM proxy; no other model used)",
     "funnel": funnel,
     "counts": {k: v for k, v in counts.items() if not isinstance(v, list)},
