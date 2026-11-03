@@ -295,3 +295,51 @@ G12 outcome micro-survey.
 - B1 managed analytics store — needs an Upstash/Neon account + keys;
   adapter interface will be built, local store stays canonical until keys
   are provided.
+
+## Final work order (side-conversation plan, 2026-11-04 ~05:00 IST)
+
+Principle set by the user: **full coverage on every entry, minimum cost per LLM
+call** (shorter prompts, lower max_tokens, thinking off, batch 20). No skipping
+entries; where something is broken, one honest retry, then freeze with a
+nominal value + documented gap. **Vercel is out of scope: everything runs and
+verifies on localhost:3000 only** (vercel watcher killed 2026-11-04).
+
+Remaining token budget: **~100k tokens** (E3 judging ~60k, semantic tau
+calibration ~15k, chatbot LLM spot-check ~25k; embeddings = 0, local ONNX).
+Re-label already spent ~400k across runs.
+
+Work order:
+1. Close the re-label gap: 1,402 complaints (excess in trust_gap/budget groups
+   above the 1,510-per-group stratified cap) still lack LLM labels. One cheap
+   pass (`--sample 24164` so per-group cap > group size, 200-char truncation,
+   thinking off, ~71 batches) then re-merge. ~100k tokens, ~20 min background.
+   Then T8/T9 stats on the complete 6,041 corpus.
+2. Finish the in-flight T8/T9 evidence pass (PROJECT.md, root_causes.json,
+   figures, HF Space data.json via build_hf_space.py — local rebuild only,
+   no re-deploy). New 6-class shares (4,639 labeled): trust_gap 51.9,
+   not_search_related 31.6, budget 9.6, zero_or_wrong 4.2, other 1.9,
+   occasion 0.8.
+3. P2 remainder: S7 variant-family grouping -> C1 origin + C2 brand +
+   C3 is_accessory in ONE catalogue rebuild -> G3 (for-whom on fashion, plus
+   appliance capacity if cheap) -> G8 festival rails -> G12 micro-survey.
+4. P3-lite: B4 event rename (product_impression) + variant/lang props,
+   Guided-vs-Plain compare toggle (reuse naive mode; skip live A/B
+   randomisation - no real users on localhost), E3 eval: 100-query frozen
+   panel, 2 arms, Qwen-judged top-3, Wilson CIs, substitute_shown class.
+5. Chatbot MVP (Mode A): deterministic dialog manager + templates-first,
+   8 intents, 3 entry points (hero, E1 escalation, PDP), substring FAQ,
+   HMAC-signed client state, grounding guard 0-fail, 60 golden + 30
+   red-team, LLM phrasing off by default. Gemini switch = env var +
+   sparkle logo on AI surfaces.
+6. Semantic fallback: local ONNX multilingual-e5-small (build+runtime same
+   model, 0 API tokens), int8 index, gate on intentN<2, 100-query frozen
+   panel, one tau from dev dead-end distribution, arms A/B/C with CIs,
+   no-op guarantee test, summary.md generated from artifacts.
+7. Final: doc sync (sync_doc_numbers --check), full gate pass, STATUS/PROJECT
+   closeout.
+
+Cut list (agreed): S5 BM25F, G2 info-gain picker, S9 LLM query parser,
+S11 voice, dark theme, B8/B10. Floors that stay: canaries green per commit,
+CIs on all rates, 0 grounding failures, honest limitations section.
+
+ETA: ~5 h wall clock (range 4-6) from 2026-11-04 05:00 IST.
