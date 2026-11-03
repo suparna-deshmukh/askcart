@@ -43,7 +43,7 @@ PROMPT = (
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sample", type=int, default=600)
-    ap.add_argument("--batch", type=int, default=10)
+    ap.add_argument("--batch", type=int, default=20)
     ap.add_argument("--slice", default=None, help="i/n: shard the sample for parallel runs")
     a = ap.parse_args()
     if not is_available():
@@ -80,7 +80,7 @@ def main():
         listing = "\n".join(f"{i+1}. [{r.kw_type}] {str(r.text)[:400]}" for i, r in enumerate(chunk.itertuples()))
         try:
             obj, model_used = chat_json([{"role": "user", "content": PROMPT + listing}],
-                                        max_tokens=1500, max_retries=2)
+                                        max_tokens=2000, max_retries=3, thinking=False)
         except Exception as e:
             print(f"batch {start} failed: {type(e).__name__} {str(e)[:120]}", flush=True)
             continue

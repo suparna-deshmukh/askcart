@@ -56,10 +56,13 @@ def _cap_ok():
     return _state["calls"] < DAILY_CAP
 
 
-def _post(messages, model, temperature, max_tokens, timeout=90):
+def _post(messages, model, temperature, max_tokens, timeout=90, thinking=None):
     base, key, _ = _cfg()
-    body = json.dumps({"model": model, "messages": messages,
-                       "temperature": temperature, "max_tokens": max_tokens}).encode()
+    payload = {"model": model, "messages": messages,
+               "temperature": temperature, "max_tokens": max_tokens}
+    if thinking is False:
+        payload["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+    body = json.dumps(payload).encode()
     req = urllib.request.Request(base + "/chat/completions", data=body,
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
     r = json.load(urllib.request.urlopen(req, timeout=timeout))
@@ -77,7 +80,7 @@ class _NeedMoreTokens(RuntimeError):
     pass
 
 
-def chat(messages, temperature=0.2, max_tokens=800, max_retries=4):
+def chat(messages, temperature=0.2, max_tokens=800, max_retries=4, thinking=None):
     """messages: list of {role, content}. Returns (text, model) or raises."""
     if not is_available() or not _cap_ok():
         raise RuntimeError("LLM unavailable")
@@ -87,7 +90,7 @@ def chat(messages, temperature=0.2, max_tokens=800, max_retries=4):
         if not _cap_ok():
             raise RuntimeError("daily LLM cap reached")
         try:
-            text = _post(messages, model, temperature, max_tokens)
+            text = _post(messages, model, temperature, max_tokens, thinking=thinking)
             _state["calls"] += 1
             return text, model
         except _NeedMoreTokens:
@@ -105,10 +108,10 @@ def chat(messages, temperature=0.2, max_tokens=800, max_retries=4):
     raise last_err if last_err else RuntimeError("LLM failed")
 
 
-def chat_json(messages, temperature=0.1, max_tokens=1200, max_retries=4):
+def chat_json(messages, temperature=0.1, max_tokens=1200, max_retries=4, thinking=None):
     """Chat and parse JSON (handles fenced blocks). Returns (obj, model)."""
     text, model = chat(messages, temperature=temperature, max_tokens=max_tokens,
-                       max_retries=max_retries)
+                       max_retries=max_retries, thinking=thinking)
     t = text.strip()
     if t.startswith("```"):
         t = t.split("```", 2)[1]
