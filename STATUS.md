@@ -240,7 +240,7 @@ claim inflation, acceptance tests per item, commits `T3:`-style per item.
   `--success-bg`). 16/16 pairs pass.
 
 ## P2 (search engine + catalogue) — queue
-S1 DONE (see below) → S2 hinglish lexicon → S3 relation words → S4 spec
+S1 DONE (see below) → S2 DONE (see below) → S3 relation words → S4 spec
 slots →
 S7 family_id grouping → C2 brand extraction → C3 is_accessory →
 C1 origin field → G3 for-whom/size + capacity → G8 seasonal rails →
@@ -254,6 +254,17 @@ G12 outcome micro-survey.
   tokens per query; in-vocabulary tokens are never typo-rewritten (exact
   semantics preserved). 20 typo canaries added → 64/64 green. One-time
   index build includes the vocab; warm typo searches 130-245 ms.
+
+- **S2 DONE** — `app/lib/lexicon_hinglish.json` (data file, not code):
+  roman Hinglish product words → canonical tokens (ghadi→watch,
+  jooti/juti/jutti→shoes, sari→saree, mithai→sweets, bartan→utensils,
+  chaddar→bedsheet, rasoi→utensils — 'kitchen' is a context modifier in
+  the engine, sasta/accha/sabse map to stopword-grade modifiers),
+  Devanagari keys matched on the raw query before non-latin stripping
+  (घड़ी/साड़ी/फ़ोन/जूती/कुर्ता/मिठाई...), plus filler stopwords
+  (liye, kuch, sabse...). 30 Hinglish canaries added → 94/94 green.
+  One import-attribute quirk: Next dev wants
+  `import ... from "./lexicon_hinglish.json" with { type: "json" }`.
 
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written

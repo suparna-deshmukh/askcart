@@ -24,6 +24,14 @@ const STOP = new Set(["the", "a", "an", "for", "with", "and", "of", "in", "on", 
   "thoda", "thodi", "thode", "andhar", "andar", "wala", "kese", "kaise",
   "kon", "konsa", "konsi", "kaha", "kab", "kyu", "kyon", "please", "plz"]);
 
+// S2: Hinglish lexicon (data file, not code). Roman product words map to
+// canonical catalogue tokens; Devanagari words map before non-latin chars
+// are stripped (they would otherwise vanish from the query).
+import HINGLISH from "./lexicon_hinglish.json" with { type: "json" };
+const HINGLISH_ROMAN = HINGLISH.roman;
+const HINGLISH_DEV = HINGLISH.devanagari;
+for (const w of HINGLISH.stopwords) STOP.add(w);
+
 const OCCASIONS = {
   shaadi: "wedding", wedding: "wedding", bridal: "wedding", sangeet: "wedding",
   baraat: "wedding", birthday: "birthday", bday: "birthday", anniversary: "anniversary",
@@ -35,6 +43,14 @@ const OCCASIONS = {
 
 export function parseQuery(q) {
   let s = " " + String(q).toLowerCase().replace(/₹/g, " rs ") + " ";
+  // S2: Devanagari product words -> their mapped tokens, added as latin
+  // text; the original script is then stripped as usual.
+  const dev = String(q).match(/[\u0900-\u097F]+/g);
+  if (dev) for (const w of dev) {
+    const m = HINGLISH_DEV[w];
+    if (m) s += " " + m + " ";
+  }
+  s = s.replace(/[\u0900-\u097F]+/g, " ");
   // Spec units stuck to a number ("7kg", "1.5ton", "1100va", "500g") are
   // product specs, not budgets - normalise to "7 kg" so the tokens match
   // catalogue titles like "LG 7 kg Top Load Washing Machine". Bare "l" is
@@ -65,11 +81,12 @@ export function parseQuery(q) {
     .replace(/\d+(?:\.\d+)?\s*(k|l|lakh)\b/g, " ")
     .replace(/rs|rupees|₹/g, " ").replace(/[^a-z0-9\s-]/g, " ");
   for (const t of cleaned.split(/\s+/)) {
-    if (STOP.has(t)) continue;
-    if (/^\d+$/.test(t)) { if (t.length <= 4) out.tokens.push(t); continue; }
-    if (t.length < 2) continue;
-    if (wordInOCC(t, out)) continue;
-    out.tokens.push(t);
+    const tt = HINGLISH_ROMAN[t] || t; // S2: ghadi -> watch, jooti -> shoes, ...
+    if (STOP.has(tt)) continue;
+    if (/^\d+$/.test(tt)) { if (tt.length <= 4) out.tokens.push(tt); continue; }
+    if (tt.length < 2) continue;
+    if (wordInOCC(tt, out)) continue;
+    out.tokens.push(tt);
   }
   return out;
 }
