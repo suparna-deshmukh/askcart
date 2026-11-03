@@ -58,7 +58,7 @@ export function parseQuery(q) {
   // When a budget keyword is present, no expansion happens at all.
   // Spec units stuck to a number are product specs even when a budget word
   // is present ("7kg washing machine under 30k" must keep 7 + kg as tokens).
-  s = s.replace(/(\d(?:\.\d+)?)(kg|mg|ml|g|ton|va|w|mm|cm)\b/g, "$1 $2");
+  s = s.replace(/(\d(?:\.\d+)?)(kg|mg|ml|g|ton|va|w|mm|cm|gb)\b/g, "$1 $2");
   const out = { tokens: [], budgetMax: null, budgetMin: null, occasion: null, raw: q };
   let m = s.match(/(?:under|below|less than|within|up to|max|budget of|rs\.?|₹|rupees)?\s*(\d+(?:\.\d+)?)\s*(k|lakh|l)\b/);
   if (m) {
@@ -69,6 +69,7 @@ export function parseQuery(q) {
   }
   m = s.match(/(?:above|over|min)\s*(\d+(?:\.\d+)?)\s*(k|l)\b/);
   if (m) out.budgetMin = Math.round(parseFloat(m[1]) * (m[2] === "k" ? 1000 : 100000));
+  out.specs = parseSpecs(s); // S4: structured spec slots (never budgets)
   for (const [word, tag] of Object.entries(OCCASIONS)) {
     if (new RegExp(`\\b${word.replace("'", "")}\\b`).test(s)) { out.occasion = tag; break; }
   }
@@ -80,7 +81,14 @@ export function parseQuery(q) {
     .replace(/(?:above|over|min)\s*\d+(?:\.\d+)?\s*(k|l)\b/g, " ")
     .replace(/\d+(?:\.\d+)?\s*(k|l|lakh)\b/g, " ")
     .replace(/rs|rupees|₹/g, " ").replace(/[^a-z0-9\s-]/g, " ");
-  for (const t of cleaned.split(/\s+/)) {
+  // S4: spec phrases already captured into out.specs must not leave stray
+  // tokens ("5 year old" -> year/old, "size m" -> size, "1 litre" -> litre).
+  const cleaned2 = cleaned
+    .replace(/\d{1,2}\s*years?\s*old\b/g, " ")
+    .replace(/\d{1,2}\s*months?\b/g, " ")
+    .replace(/\bsize\s*(xxl|xl|l|m|s)\b/g, " ")
+    .replace(/\d{1,3}\s*(?:litre|liter)\b/g, " ");
+  for (const t of cleaned2.split(/\s+/)) {
     const tt = HINGLISH_ROMAN[t] || t; // S2: ghadi -> watch, jooti -> shoes, ...
     if (STOP.has(tt)) continue;
     if (/^\d+$/.test(tt)) { if (tt.length <= 4) out.tokens.push(tt); continue; }
@@ -89,6 +97,26 @@ export function parseQuery(q) {
     out.tokens.push(tt);
   }
   return out;
+}
+
+// S4: structured spec slots, parsed from the normalised query string.
+// These are SOFT ranking signals (boosts in scoreAll) - never budgets:
+// "128gb", "8gb ram", "1.5 ton", "43 inch", "5 star", "1 litre",
+// "size m", "5 year old", "6 months".
+function parseSpecs(s) {
+  const specs = {};
+  let m;
+  if ((m = s.match(/(\d{1,2})\s*years?\s*old\b/))) specs.age = parseInt(m[1], 10);
+  else if ((m = s.match(/(\d{1,2})\s*months?\b/))) specs.age = parseInt(m[1], 10) / 12;
+  if ((m = s.match(/\bsize\s*(xxl|xl|l|m|s)\b/))) specs.size = m[1];
+  if ((m = s.match(/(\d{1,2})\s*(?:gb|g)\s*ram\b/))) specs.ram = parseInt(m[1], 10);
+  else if ((m = s.match(/(\d{2,4})\s*gb\b/))) specs.storage = parseInt(m[1], 10);
+  if ((m = s.match(/(\d+(?:\.\d+)?)\s*ton\b/))) specs.tonnage = parseFloat(m[1]);
+  if ((m = s.match(/(\d)\s*stars?\b/))) specs.stars = parseInt(m[1], 10);
+  if ((m = s.match(/(\d{2,3})\s*(?:inch|inches)\b/))) specs.inches = parseInt(m[1], 10);
+  if ((m = s.match(/(\d{1,3})\s*(?:litre|liter)\b/))) specs.volume = parseInt(m[1], 10);
+  else if ((m = s.match(/(\d{1,3})l\b/))) specs.volume = parseInt(m[1], 10);
+  return specs;
 }
 
 function wordInOCC(t, out) {
@@ -247,13 +275,17 @@ const NO_LITERAL = new Set(["mobile", "cellphone", "phone"]);
 const ADULT_RECIPIENTS = new Set(["papa", "dad", "father", "husband", "brother",
   "grandfather", "uncle", "boss", "ammi", "amma", "mom", "mum", "mother",
   "wife", "sister", "grandmother", "bua", "didi", "jiju", "dada", "dadi",
-  "nani", "nana", "taiya", "mama", "tai", "phupha"]);
+  "nani", "nana", "taiya", "mama", "tai", "phupha", "maa", "mummy", "abba",
+  "bhai", "behen", "bhen", "saas", "sasur"]);
 const MALE_RECIPIENTS = new Set(["papa", "dad", "father", "husband", "brother",
   "grandfather", "uncle", "boss", "dada", "nana", "bhaiya", "jiju", "taiya",
-  "phupha"]);
+  "phupha", "abba", "bhai", "sasur"]);
 const FEMALE_RECIPIENTS = new Set(["ammi", "amma", "mom", "mum", "mother",
   "wife", "sister", "grandmother", "bua", "didi", "nani", "dadi", "tai",
-  "mama"]);
+  "mama", "maa", "mummy", "behen", "bhen", "saas"]);
+// S3: child recipients - kid-marked titles get a boost ("kurta for beta")
+const CHILD_RECIPIENTS = new Set(["beta", "beti", "bachcha", "bachchi",
+  "bachche", "bachchon", "kid", "kids", "child", "children"]);
 const KID_WORDS = new Set(["kids", "kid", "boy", "boys", "girls", "girl",
   "child", "children", "toddler", "baby"]);
 // Words that mark an item as an accessory of the queried product. The scorer
@@ -359,6 +391,7 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
   const typoPlan = planTypos(tokens, idx); // S1 (guided path only)
   const rawWords = new Set(String(q).toLowerCase().match(/[a-z']+/g) || []);
   const accHints = [...ACCESSORY_HINTS].filter((w) => !tokenSet.has(w));
+  const specs = parsed.specs || {};
   // Budget-only query ("under 500"): browse mode - top-rated items within
   // the cap (and the occasion, when one is given), instead of a null page.
   if (tokens.length === 0 && budget !== null) {
@@ -412,6 +445,30 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
       else if (wordHit(idx.cats[i], t)) { score += 1.5; matched++; matchedSet.add(t); }
     }
     let hits = matched;
+    // S4: structured spec slots as soft boosts/penalties (never budgets).
+    // A stated spec the item carries outranks one it contradicts.
+    if (specs.tonnage !== undefined) {
+      const hasTon = idx.pos[i].has("ton") || idx.pos[i].has("tons");
+      if (hasTon && idx.pos[i].has(String(specs.tonnage))) score += 1.5;
+      else if (hasTon) score -= 1.0;
+    }
+    if (specs.inches !== undefined) {
+      const hasIn = idx.pos[i].has("inch") || idx.pos[i].has("inches");
+      if (hasIn && idx.pos[i].has(String(specs.inches))) score += 1.5;
+      else if (hasIn) score -= 1.0;
+    }
+    if (specs.ram !== undefined && idx.pos[i].has("ram") &&
+        idx.pos[i].has(String(specs.ram))) score += 1.0;
+    if (specs.storage !== undefined && idx.pos[i].has("gb") &&
+        idx.pos[i].has(String(specs.storage))) score += 1.0;
+    if (specs.stars !== undefined) {
+      if ((item.rating || 0) >= specs.stars) score += 1.0;
+      else score -= 0.5;
+    }
+    if (specs.size !== undefined && idx.pos[i].has(specs.size)) score += 0.75;
+    if (specs.age !== undefined && specs.age <= 3) {
+      for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score += 1.0; break; }
+    }
     // phrase bonus: multi-token queries that appear as an actual phrase in
     // the title ("yoga mat") outrank scattered keyword matches
     if (nonMod.length >= 2 && required.every((t) => matchedSet.has(t))) {
@@ -438,13 +495,18 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     // ("sweater for grandfather" is not a women's sweater).
     if (matched > 0) {
       let adult = false, male = false, female = false;
+      let child = false;
       for (const w of rawWords) {
         if (ADULT_RECIPIENTS.has(w)) adult = true;
         if (MALE_RECIPIENTS.has(w)) male = true;
         if (FEMALE_RECIPIENTS.has(w)) female = true;
+        if (CHILD_RECIPIENTS.has(w)) child = true;
       }
       if (adult) {
         for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score -= 1.5; break; }
+      }
+      if (child) {
+        for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score += 1.0; break; }
       }
       if (male && (idx.pos[i].has("womens") || idx.pos[i].has("women"))) score -= 1.0;
       if (female && (idx.pos[i].has("men") || idx.pos[i].has("mens"))) score -= 1.0;
