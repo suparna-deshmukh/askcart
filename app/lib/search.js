@@ -87,20 +87,121 @@ function titleIndex(catalog) {
   const titles = [];
   const firstWords = [];
   const brandSet = new Set();
+  // S1: global vocabulary for typo candidates (length buckets + frequency)
+  const vlenMap = new Map();
+  const vocabFreq = new Map();
+  const vocabAdd = (w) => {
+    vocabFreq.set(w, (vocabFreq.get(w) || 0) + 1);
+    if (!vlenMap.has(w.length)) vlenMap.set(w.length, new Set());
+    vlenMap.get(w.length).add(w);
+  };
   for (const it of catalog) {
     const ws = String(it.title).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
     const pm = new Map();
     ws.forEach((w, i) => { if (!pm.has(w)) pm.set(w, i); });
+    for (const w of new Set(ws)) vocabAdd(w);
     pos.push(pm);
     words.push(pm);
     titles.push(String(it.title).toLowerCase());
     firstWords.push(ws[0] || "");
     cats.push(new Set(String(it.category).toLowerCase().split(/[^a-z0-9-]+/).filter(Boolean)));
     const b = String(it.brand || "").toLowerCase().trim();
-    if (b) { brandSet.add(b); brandSet.add(b.split(/\s+/)[0]); }
+    if (b) { brandSet.add(b); brandSet.add(b.split(/\s+/)[0]); vocabAdd(b); }
   }
-  _idx = { words, cats, pos, titles, firstWords, brandSet, len: catalog.length };
+  const vlen = new Map();
+  for (const [L, set] of vlenMap) vlen.set(L, [...set]);
+  _idx = { words, cats, pos, titles, firstWords, brandSet, vlen, vocabFreq,
+           len: catalog.length };
   return _idx;
+}
+
+// S1: typo tolerance. Damerau (OSA) edit distance with early exit; d is 1
+// or 2. Cheap on random word pairs (row-min bails out immediately).
+function damerauAtMost(a, b, d) {
+  const la = a.length, lb = b.length;
+  if (Math.abs(la - lb) > d) return false;
+  // 3-row DP: the transposition term needs D[i-2][j-2], so the row before
+  // `prev` must be kept (prev2).
+  let prev2 = new Array(lb + 1), prev = new Array(lb + 1), cur = new Array(lb + 1);
+  for (let j = 0; j <= lb; j++) { prev2[j] = 0; prev[j] = j; }
+  for (let i = 1; i <= la; i++) {
+    cur[0] = i;
+    let rowMin = i;
+    for (let j = 1; j <= lb; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      let v = prev[j] + 1;
+      if (cur[j - 1] + 1 < v) v = cur[j - 1] + 1;
+      if (prev[j - 1] + cost < v) v = prev[j - 1] + cost;
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1])
+        if (prev2[j - 2] + 1 < v) v = prev2[j - 2] + 1;
+      cur[j] = v;
+      if (v < rowMin) rowMin = v;
+    }
+    if (rowMin > d) return false;
+    // rotate all three buffers (they must stay distinct - `cur` is written
+    // next while `prev2` is still read for transpositions)
+    const oldPrev2 = prev2; prev2 = prev; prev = cur; cur = oldPrev2;
+  }
+  return prev[lb] <= d;
+}
+
+// Closest catalogue-vocabulary word within Damerau distance dmax of t
+// (frequency breaks ties - the common word wins). null when nothing close.
+function closestVocab(t, idx, dmax) {
+  for (let dd = 1; dd <= dmax; dd++) {
+    let best = null, bestFreq = -1;
+    for (let L = t.length - dd; L <= t.length + dd; L++) {
+      const bucket = idx.vlen.get(L);
+      if (!bucket) continue;
+      for (const w of bucket) {
+        if (w === t) continue;
+        if (!damerauAtMost(t, w, dd)) continue;
+        const f = idx.vocabFreq.get(w) || 0;
+        if (f > bestFreq) { best = w; bestFreq = f; }
+      }
+    }
+    if (best) return best;
+  }
+  return null;
+}
+
+// Per-query typo plan: at most 3 tokens, each resolved to a corrected word
+// (5-7 chars: distance 1; 8+ chars: distance 2) or an alphanumeric-glued
+// split ("iphone15" -> word part "iphone" + spec number "15";
+// "128gb" -> number "128" + unit word "gb"). Tokens that ARE catalogue
+// vocabulary are left alone - exact words must keep exact-match semantics.
+function planTypos(tokens, idx) {
+  const plan = new Map();
+  let budget = 3;
+  for (const t of tokens) {
+    if (t.length < 5 || budget <= 0) continue;
+    if (idx.vocabFreq.has(t)) continue;
+    budget--;
+    const glued = t.match(/^([a-z]{4,})(\d{1,4})$/) || t.match(/^(\d{1,4})([a-z]{2,})$/);
+    if (glued) {
+      if (glued.length === 3 && /^[a-z]+$/.test(glued[1])) {
+        // letters+digits: "iphone15"
+        const a0 = glued[1], d = glued[2];
+        const a = idx.vocabFreq.has(a0) ? a0 : (a0.length >= 5 ? closestVocab(a0, idx, 1) : null);
+        if (a && idx.vocabFreq.has(d)) plan.set(t, { kind: "split", a, d });
+      } else if (/^\d+$/.test(glued[1])) {
+        // digits+letters: "128gb"
+        const d = glued[1], a0 = glued[2];
+        const a = idx.vocabFreq.has(a0) ? a0 : (a0.length >= 5 ? closestVocab(a0, idx, 1) : null);
+        if (a && idx.vocabFreq.has(d)) plan.set(t, { kind: "split", a, d });
+      }
+      continue;
+    }
+    const w = closestVocab(t, idx, t.length >= 8 ? 2 : 1);
+    if (w) plan.set(t, w);
+  }
+  return plan;
+}
+
+function typoHit(posMap, spec) {
+  if (!spec) return false;
+  if (spec.kind === "split") return wordPos(posMap, spec.a) >= 0 && posMap.has(spec.d);
+  return posMap.has(spec) || posMap.has(spec + "s");
 }
 
 // Word matching: exact match, singular/plural agreement, and bounded
@@ -238,6 +339,7 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
   const nonMod = tokens.filter((t) => !isMod(t));
   const required = nonMod.length >= 2 ? nonMod : (nonMod.length === 1 ? nonMod : tokens);
   const tokenSet = new Set(tokens);
+  const typoPlan = planTypos(tokens, idx); // S1 (guided path only)
   const rawWords = new Set(String(q).toLowerCase().match(/[a-z']+/g) || []);
   const accHints = [...ACCESSORY_HINTS].filter((w) => !tokenSet.has(w));
   // Budget-only query ("under 500"): browse mode - top-rated items within
@@ -285,6 +387,10 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
         score += base; matched++; matchedSet.add(t);
         // "phone"/"mobile" matched via the canonical word -> genuine phone
         if (NO_LITERAL.has(t) && idx.pos[i].has("smartphone")) score += 0.5;
+      }
+      else if (typoHit(idx.pos[i], typoPlan.get(t))) {
+        // S1: typo candidate - counts as a match but ranks below exact (x0.7)
+        score += 1.4; matched++; matchedSet.add(t);
       }
       else if (wordHit(idx.cats[i], t)) { score += 1.5; matched++; matchedSet.add(t); }
     }

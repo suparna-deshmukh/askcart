@@ -53,6 +53,27 @@ CANARIES = [
     ("mojari for men", "ethnic_shoes"),
     ("steel lunch box under 1k", "tiffin"),
     ("dabur honey under 400", "ayurveda"),
+    # S1 typo canaries (Damerau-1/2 + glued alphanumeric)
+    ("samsng phone", "typo"),
+    ("heaphones under 3000", "typo"),
+    ("saaree under 3k", "typo"),
+    ("laptop under 60k", "typo"),
+    ("iphone15 128gb", "typo"),
+    ("microwve 23l", "typo"),
+    ("dumbell 10kg", "typo"),
+    ("bedsht queen under 2k", "typo"),
+    ("chappel for men", "typo"),
+    ("sweatre for papa under 2k", "typo"),
+    ("diamand ring under 30k", "typo"),
+    ("water purifer under 12k", "typo"),
+    ("air fryr under 7k", "typo"),
+    ("perum for men under 1500", "typo"),
+    ("gold bngle under 3k", "typo"),
+    ("tifin box under 1k", "typo"),
+    ("headphons under 3000", "typo"),
+    ("tshrit for men under 2k", "typo"),
+    ("lehenag bridal", "typo"),
+    ("refregirator under 40k", "typo"),
 ]
 
 def post(url, payload):

@@ -240,10 +240,20 @@ claim inflation, acceptance tests per item, commits `T3:`-style per item.
   `--success-bg`). 16/16 pairs pass.
 
 ## P2 (search engine + catalogue) — queue
-S1 typo (Damerau) → S2 hinglexicon → S3 relation words → S4 spec slots →
+S1 DONE (see below) → S2 hinglish lexicon → S3 relation words → S4 spec
+slots →
 S7 family_id grouping → C2 brand extraction → C3 is_accessory →
 C1 origin field → G3 for-whom/size + capacity → G8 seasonal rails →
 G12 outcome micro-survey.
+
+- **S1 DONE** — typo tolerance in the guided scorer: Damerau (OSA)
+  distance over a catalogue vocabulary built from titles+brands
+  (36,190 unique words); tokens 5-7 chars → distance 1, 8+ → distance 2;
+  glued alphanumerics split ("iphone15" → iphone+15, "128gb" → 128+gb);
+  typo candidates score 1.4 (x0.7 of the exact base 2.0), at most 3 typo
+  tokens per query; in-vocabulary tokens are never typo-rewritten (exact
+  semantics preserved). 20 typo canaries added → 64/64 green. One-time
+  index build includes the vocab; warm typo searches 130-245 ms.
 
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
