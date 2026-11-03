@@ -1,0 +1,187 @@
+{
+ "ts": "20261104_0117",
+ "n": 3000,
+ "errors": 0,
+ "baseline_null_pct": 2.8,
+ "baseline_strict_pct": 86.7,
+ "guided_null_pct": 0.0,
+ "resolved_pct": 100.0,
+ "strict_resolved_pct": 86.7,
+ "by_turn": {
+  "t1": 2914,
+  "t2": 45,
+  "t3": 41,
+  "t4+": 0
+ },
+ "by_turn2_pct": 98.6,
+ "guide_modes": {
+  "llm": 70,
+  "fallback": 16
+ },
+ "by_kind": {
+  "appliance": {
+   "n": 12,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 75.0,
+   "by_turn2_pct": 100.0
+  },
+  "ayurveda": {
+   "n": 4,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 100.0,
+   "by_turn2_pct": 100.0
+  },
+  "brand": {
+   "n": 217,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 100.0,
+   "by_turn2_pct": 100.0
+  },
+  "dead_end": {
+   "n": 25,
+   "baseline_null_pct": 84.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 8.0,
+   "by_turn2_pct": 16.0
+  },
+  "engagement": {
+   "n": 5,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 60.0,
+   "by_turn2_pct": 100.0
+  },
+  "ethnic_shoes": {
+   "n": 6,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 100.0,
+   "by_turn2_pct": 100.0
+  },
+  "featurephone": {
+   "n": 5,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 100.0,
+   "by_turn2_pct": 100.0
+  },
+  "festival": {
+   "n": 12,
+   "baseline_null_pct": 33.3,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 66.7,
+   "by_turn2_pct": 100.0
+  },
+  "gift_rel": {
+   "n": 10,
+   "baseline_null_pct": 70.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 20.0,
+   "by_turn2_pct": 100.0
+  },
+  "health": {
+   "n": 10,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 100.0,
+   "by_turn2_pct": 100.0
+  },
+  "hinglish": {
+   "n": 97,
+   "baseline_null_pct": 3.1,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 78.4,
+   "by_turn2_pct": 96.9
+  },
+  "hinglish2": {
+   "n": 10,
+   "baseline_null_pct": 10.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 90.0,
+   "by_turn2_pct": 100.0
+  },
+  "kitchen": {
+   "n": 14,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 100.0,
+   "by_turn2_pct": 100.0
+  },
+  "recipient": {
+   "n": 407,
+   "baseline_null_pct": 1.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 76.7,
+   "by_turn2_pct": 99.0
+  },
+  "regional": {
+   "n": 9,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 100.0,
+   "by_turn2_pct": 100.0
+  },
+  "spec": {
+   "n": 12,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 91.7,
+   "by_turn2_pct": 100.0
+  },
+  "stratum": {
+   "n": 9,
+   "baseline_null_pct": 44.4,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 55.6,
+   "by_turn2_pct": 100.0
+  },
+  "structured": {
+   "n": 1989,
+   "baseline_null_pct": 1.9,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 89.2,
+   "by_turn2_pct": 99.3
+  },
+  "tiffin": {
+   "n": 5,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 100.0,
+   "by_turn2_pct": 100.0
+  },
+  "travel": {
+   "n": 6,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 100.0,
+   "by_turn2_pct": 100.0
+  },
+  "vague": {
+   "n": 112,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 80.4,
+   "by_turn2_pct": 100.0
+  },
+  "wedding": {
+   "n": 14,
+   "baseline_null_pct": 7.1,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 92.9,
+   "by_turn2_pct": 100.0
+  },
+  "winter": {
+   "n": 10,
+   "baseline_null_pct": 0.0,
+   "resolved_pct": 100.0,
+   "strict_resolved_pct": 100.0,
+   "by_turn2_pct": 100.0
+  }
+ },
+ "sample_failures_non_dead": [],
+ "runtime_s": 269,
+ "log": "/Users/apple/askcart/logs/sim_20261104_0117.jsonl"
+}

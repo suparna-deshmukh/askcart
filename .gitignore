@@ -1,0 +1,13 @@
+.env
+.venv/
+data/raw/
+data/parts/
+data/out/
+logs/
+__pycache__/
+node_modules/
+.next/
+.DS_Store
+data/catalog_src/
+data/amazon_reviews/*.jsonl
+data/trustpilot/

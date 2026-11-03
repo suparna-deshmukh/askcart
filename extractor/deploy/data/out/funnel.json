@@ -1,0 +1,34 @@
+[
+ {
+  "k":"raw_total",
+  "v":94643.0
+ },
+ {
+  "k":"clean",
+  "v":87603.0
+ },
+ {
+  "k":"complaints_flagged",
+  "v":6041.0
+ },
+ {
+  "k":"root_cause_labeled",
+  "v":6041.0
+ },
+ {
+  "k":"rc_zero_or_wrong",
+  "v":1165.0
+ },
+ {
+  "k":"rc_budget_mismatch",
+  "v":1898.0
+ },
+ {
+  "k":"rc_occasion_blindness",
+  "v":429.0
+ },
+ {
+  "k":"rc_trust_gap",
+  "v":2549.0
+ }
+]

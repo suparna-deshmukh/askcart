@@ -1,0 +1,596 @@
+{
+ "generated_utc": "2026-11-03T11:26:28.883961+00:00",
+ "note": "Demand proxies: Google Suggest autocomplete (IN) shows real budget+gift query phrasing; Wikipedia monthly pageviews show occasion seasonality (Diwali/Wedding/Birthday peaks). Official Google Trends endpoint status recorded in trends_official.",
+ "suggest": {
+  "gift under 2000": [
+   "gift under 2000",
+   "gift under 2000 for men",
+   "gift under 2000 for women",
+   "gift under 20000",
+   "gift under 2000 for girls",
+   "gift under 2000 for marriage",
+   "gift under 2000 for boys",
+   "gift under 20000 for men",
+   "gift under 2000 for sister",
+   "gift under 2000 for wedding"
+  ],
+  "shaadi gift": [
+   "shaadi gift",
+   "shaadi gift ideas",
+   "shaadi gift packing",
+   "shaadi gift item",
+   "shaadi gift box",
+   "shaadi gift basket",
+   "shaadi gifting co uk",
+   "wedding gifting companies",
+   "what to gift in a friend's wedding",
+   "shaadi return gift ideas"
+  ],
+  "diwali gift ideas": [
+   "diwali gift ideas",
+   "diwali gift ideas for employees under 1000",
+   "diwali gift ideas for family",
+   "diwali gift ideas for employees",
+   "diwali gift ideas for friends",
+   "diwali gift ideas corporate",
+   "diwali gift ideas for employees under 500",
+   "diwali gift ideas for husband",
+   "diwali gift ideas for employees under 3000",
+   "diwali gift ideas for employees under 1500"
+  ],
+  "birthday gift for": [
+   "birthday gift for girls",
+   "birthday gift for boys",
+   "birthday gift for wife",
+   "birthday gift for husband",
+   "birthday gift for men",
+   "birthday gift for women",
+   "birthday gift for girl best friend",
+   "birthday gift for girlfriend",
+   "birthday gift for sister",
+   "birthday gift for boyfriend"
+  ],
+  "wedding gift under": [
+   "wedding gift under 1000",
+   "wedding gift under 500",
+   "wedding gift under 5000",
+   "wedding gift under 2000",
+   "wedding gift under 10000",
+   "wedding gift under 3000",
+   "wedding gift under 300",
+   "wedding gift under 1500",
+   "wedding gift under 200",
+   "wedding gift under 20k"
+  ],
+  "anniversary gift": [
+   "anniversary gift",
+   "anniversary gift for husband",
+   "anniversary gift for couple",
+   "anniversary gift for wife",
+   "anniversary gift for parents",
+   "anniversary gift ideas",
+   "anniversary gifts for him",
+   "anniversary gift for boyfriend",
+   "anniversary gift ideas for husband",
+   "anniversary gift for mom and dad"
+  ],
+  "housewarming gift": [
+   "housewarming gifts",
+   "housewarming gift ideas",
+   "housewarming gifts india",
+   "housewarming gifts for friends",
+   "housewarming gifts under \u20b91000",
+   "housewarming gift baskets",
+   "housewarming gift ideas for family",
+   "housewarming gifts under 500",
+   "housewarming gifts under 5000",
+   "housewarming gift shops near me"
+  ],
+  "gifts for mother": [
+   "gifts for mother",
+   "gifts for mother birthday",
+   "gifts for mother in law",
+   "gifts for mother in law birthday",
+   "gifts for mother on her birthday",
+   "gifts for mothers day",
+   "gifts for mother under 500",
+   "gifts for mothers on their birthday",
+   "gifts for mother under 200",
+   "gifts for mother's 50th birthday"
+  ],
+  "gift for newlyweds": [
+   "gift for newlyweds",
+   "gift for newlyweds couple",
+   "gift for newlyweds ideas",
+   "gift for newlyweds philippines",
+   "gift for newlyweds christmas",
+   "gifts for newlyweds that already live together",
+   "gifts for newlyweds who have everything",
+   "gifts for newlyweds first christmas",
+   "gifts for newlyweds home",
+   "gifts for newlyweds amazon"
+  ],
+  "cheap gifts online india": []
+ },
+ "seasonality": {
+  "Diwali": [
+   {
+    "month": "202409",
+    "views": 139194
+   },
+   {
+    "month": "202410",
+    "views": 1109764
+   },
+   {
+    "month": "202411",
+    "views": 649067
+   },
+   {
+    "month": "202412",
+    "views": 107100
+   },
+   {
+    "month": "202501",
+    "views": 68808
+   },
+   {
+    "month": "202502",
+    "views": 49564
+   },
+   {
+    "month": "202503",
+    "views": 61675
+   },
+   {
+    "month": "202504",
+    "views": 50425
+   },
+   {
+    "month": "202505",
+    "views": 42557
+   },
+   {
+    "month": "202506",
+    "views": 44256
+   },
+   {
+    "month": "202507",
+    "views": 48442
+   },
+   {
+    "month": "202508",
+    "views": 75528
+   },
+   {
+    "month": "202509",
+    "views": 154142
+   },
+   {
+    "month": "202510",
+    "views": 1713911
+   },
+   {
+    "month": "202511",
+    "views": 134909
+   },
+   {
+    "month": "202512",
+    "views": 97944
+   },
+   {
+    "month": "202601",
+    "views": 74630
+   },
+   {
+    "month": "202602",
+    "views": 2024
+   }
+  ],
+  "Christmas_in_India": [
+   {
+    "month": "202409",
+    "views": 9
+   },
+   {
+    "month": "202410",
+    "views": 7
+   },
+   {
+    "month": "202411",
+    "views": 26
+   },
+   {
+    "month": "202412",
+    "views": 81
+   },
+   {
+    "month": "202501",
+    "views": 11
+   },
+   {
+    "month": "202502",
+    "views": 9
+   },
+   {
+    "month": "202503",
+    "views": 13
+   },
+   {
+    "month": "202504",
+    "views": 59
+   },
+   {
+    "month": "202505",
+    "views": 7
+   },
+   {
+    "month": "202506",
+    "views": 10
+   },
+   {
+    "month": "202507",
+    "views": 16
+   },
+   {
+    "month": "202508",
+    "views": 19
+   },
+   {
+    "month": "202509",
+    "views": 21
+   },
+   {
+    "month": "202510",
+    "views": 19
+   },
+   {
+    "month": "202511",
+    "views": 23
+   },
+   {
+    "month": "202512",
+    "views": 145
+   },
+   {
+    "month": "202601",
+    "views": 69
+   },
+   {
+    "month": "202602",
+    "views": 0
+   }
+  ],
+  "Wedding": [
+   {
+    "month": "202409",
+    "views": 18094
+   },
+   {
+    "month": "202410",
+    "views": 23412
+   },
+   {
+    "month": "202411",
+    "views": 22374
+   },
+   {
+    "month": "202412",
+    "views": 20275
+   },
+   {
+    "month": "202501",
+    "views": 16418
+   },
+   {
+    "month": "202502",
+    "views": 13364
+   },
+   {
+    "month": "202503",
+    "views": 14718
+   },
+   {
+    "month": "202504",
+    "views": 13541
+   },
+   {
+    "month": "202505",
+    "views": 13496
+   },
+   {
+    "month": "202506",
+    "views": 11835
+   },
+   {
+    "month": "202507",
+    "views": 10987
+   },
+   {
+    "month": "202508",
+    "views": 11468
+   },
+   {
+    "month": "202509",
+    "views": 11252
+   },
+   {
+    "month": "202510",
+    "views": 10730
+   },
+   {
+    "month": "202511",
+    "views": 15483
+   },
+   {
+    "month": "202512",
+    "views": 10877
+   },
+   {
+    "month": "202601",
+    "views": 10773
+   },
+   {
+    "month": "202602",
+    "views": 331
+   }
+  ],
+  "Birthday": [
+   {
+    "month": "202409",
+    "views": 55711
+   },
+   {
+    "month": "202410",
+    "views": 57989
+   },
+   {
+    "month": "202411",
+    "views": 51685
+   },
+   {
+    "month": "202412",
+    "views": 39040
+   },
+   {
+    "month": "202501",
+    "views": 33308
+   },
+   {
+    "month": "202502",
+    "views": 24107
+   },
+   {
+    "month": "202503",
+    "views": 20390
+   },
+   {
+    "month": "202504",
+    "views": 19098
+   },
+   {
+    "month": "202505",
+    "views": 21482
+   },
+   {
+    "month": "202506",
+    "views": 17345
+   },
+   {
+    "month": "202507",
+    "views": 16628
+   },
+   {
+    "month": "202508",
+    "views": 16985
+   },
+   {
+    "month": "202509",
+    "views": 15764
+   },
+   {
+    "month": "202510",
+    "views": 16018
+   },
+   {
+    "month": "202511",
+    "views": 16069
+   },
+   {
+    "month": "202512",
+    "views": 15044
+   },
+   {
+    "month": "202601",
+    "views": 15600
+   },
+   {
+    "month": "202602",
+    "views": 499
+   }
+  ],
+  "Raksha_Bandhan": [
+   {
+    "month": "202409",
+    "views": 21227
+   },
+   {
+    "month": "202410",
+    "views": 15290
+   },
+   {
+    "month": "202411",
+    "views": 13026
+   },
+   {
+    "month": "202412",
+    "views": 10301
+   },
+   {
+    "month": "202501",
+    "views": 11459
+   },
+   {
+    "month": "202502",
+    "views": 9990
+   },
+   {
+    "month": "202503",
+    "views": 11806
+   },
+   {
+    "month": "202504",
+    "views": 10638
+   },
+   {
+    "month": "202505",
+    "views": 12213
+   },
+   {
+    "month": "202506",
+    "views": 17519
+   },
+   {
+    "month": "202507",
+    "views": 54859
+   },
+   {
+    "month": "202508",
+    "views": 249887
+   },
+   {
+    "month": "202509",
+    "views": 15171
+   },
+   {
+    "month": "202510",
+    "views": 13362
+   },
+   {
+    "month": "202511",
+    "views": 11694
+   },
+   {
+    "month": "202512",
+    "views": 8395
+   },
+   {
+    "month": "202601",
+    "views": 8839
+   },
+   {
+    "month": "202602",
+    "views": 235
+   }
+  ],
+  "Eid_al-Fitr": [
+   {
+    "month": "202409",
+    "views": 38938
+   },
+   {
+    "month": "202410",
+    "views": 42939
+   },
+   {
+    "month": "202411",
+    "views": 67168
+   },
+   {
+    "month": "202412",
+    "views": 67424
+   },
+   {
+    "month": "202501",
+    "views": 64355
+   },
+   {
+    "month": "202502",
+    "views": 75496
+   },
+   {
+    "month": "202503",
+    "views": 761141
+   },
+   {
+    "month": "202504",
+    "views": 164065
+   },
+   {
+    "month": "202505",
+    "views": 50425
+   },
+   {
+    "month": "202506",
+    "views": 126074
+   },
+   {
+    "month": "202507",
+    "views": 25464
+   },
+   {
+    "month": "202508",
+    "views": 29131
+   },
+   {
+    "month": "202509",
+    "views": 39448
+   },
+   {
+    "month": "202510",
+    "views": 35434
+   },
+   {
+    "month": "202511",
+    "views": 39215
+   },
+   {
+    "month": "202512",
+    "views": 55758
+   },
+   {
+    "month": "202601",
+    "views": 61310
+   },
+   {
+    "month": "202602",
+    "views": 4743
+   }
+  ]
+ },
+ "seasonal_peaks": {
+  "Diwali": {
+   "peak_month": "202510",
+   "peak_views": 1713911,
+   "peak_share_pct": 37.1
+  },
+  "Christmas_in_India": {
+   "peak_month": "202512",
+   "peak_views": 145,
+   "peak_share_pct": 26.7
+  },
+  "Wedding": {
+   "peak_month": "202410",
+   "peak_views": 23412,
+   "peak_share_pct": 9.4
+  },
+  "Birthday": {
+   "peak_month": "202410",
+   "peak_views": 57989,
+   "peak_share_pct": 12.8
+  },
+  "Raksha_Bandhan": {
+   "peak_month": "202508",
+   "peak_views": 249887,
+   "peak_share_pct": 50.4
+  },
+  "Eid_al-Fitr": {
+   "peak_month": "202503",
+   "peak_views": 761141,
+   "peak_share_pct": 43.5
+  }
+ },
+ "trends_official": {
+  "status": "unavailable: HTTPError HTTP Error 429: unknown"
+ }
+}

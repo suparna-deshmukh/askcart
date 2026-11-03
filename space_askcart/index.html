@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AskCart - Agentic E-Commerce Search Extractor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand"><span class="logo">🛒</span>
+      <div><h1>AskCart</h1>
+      <p class="tag">Agentic extractor for e-commerce search UX · 5 review sources · Qwen-planned · 6-stage SQL pipeline</p></div>
+    </div>
+    <nav id="tabs">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="causes">Root causes</button>
+      <button class="tab" data-tab="agent">Agent audit</button>
+      <button class="tab" data-tab="trends">Trends</button>
+      <button class="tab" data-tab="bayes">Bayesian</button>
+      <button class="tab" data-tab="probe">Live probe</button>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <section id="tab-overview" class="tabpane active">
+    <div class="stats" id="stat-row"></div>
+    <div class="grid2">
+      <div class="card"><h2>Pipeline funnel</h2><p class="sub" id="funnel-sub"></p>
+        <div id="funnel-chart"></div>
+        <img class="fig" src="figures/funnel.png" alt="funnel">
+      </div>
+      <div class="card"><h2>Corpus by source</h2><p class="sub">clean rows after dedup/language/PII stages</p>
+        <table id="source-table"></table>
+        <h2>Study results (n=150)</h2>
+        <table id="study-table"></table>
+      </div>
+    </div>
+    <div class="card"><h2>Evidence figures</h2><div id="fig-grid"></div></div>
+  </section>
+
+  <section id="tab-causes" class="tabpane">
+    <div class="card"><h2>Complaints by root cause</h2>
+      <p class="sub">SQL lexicon scoring over 6,041 complaints; 238 labels overridden by Qwen-verified labels (600 stratified sample).</p>
+      <div id="rc-chart"></div>
+      <img class="fig" src="figures/root_causes.png" alt="root causes">
+      <div id="rc-quotes"></div>
+    </div>
+  </section>
+
+  <section id="tab-agent" class="tabpane">
+    <div class="card"><h2>Agent decision audit</h2>
+      <p class="sub" id="agent-sub"></p>
+      <div id="agent-log"></div>
+    </div>
+  </section>
+
+  <section id="tab-trends" class="tabpane">
+    <div class="card"><h2>Occasion seasonality (Wikipedia pageviews, monthly)</h2>
+      <p class="sub">Peak-month share of each occasion article's monthly views, Sep 2024 - Jan 2026.</p>
+      <div id="season-chart"></div>
+      <img class="fig" src="figures/trends_seasonality.png" alt="seasonality">
+    </div>
+    <div class="card"><h2>What shoppers actually type (Google Suggest, IN)</h2>
+      <p class="sub">Live autocomplete phrasing captured 2026-11-03 (hl=en-IN, gl=in) - budget + gift + occasion in one query.</p>
+      <div id="suggest-grid"></div>
+      <p class="note" id="trends-note"></p>
+    </div>
+  </section>
+
+  <section id="tab-bayes" class="tabpane">
+    <div class="card"><h2>Bayesian app ratings</h2>
+      <p class="sub">(C·m + sum)/(m+n), C = global mean, m = 100. Low-Rating-heavy apps shrink toward the mean - the honest trust ranking.</p>
+      <table id="bayes-table"></table>
+      <img class="fig" src="figures/bayesian_ratings.png" alt="bayesian">
+    </div>
+  </section>
+
+  <section id="tab-probe" class="tabpane">
+    <div class="card"><h2>Live mini-extraction probe</h2>
+      <p class="sub">Pulls fresh public reviews right now - the same tool the agent uses. Source: Vercel probe API when deployed, else direct App Store RSS (CORS-open).</p>
+      <div class="probe-controls">
+        <label>App <select id="p-app"></select></label>
+        <label>Country <select id="p-cc"><option>us</option><option>in</option><option>gb</option></select></label>
+        <label>Source <select id="p-src"><option value="appstore">appstore</option><option value="play">play</option><option value="reddit">reddit</option></select></label>
+        <button id="p-run">Fetch 10 reviews</button>
+      </div>
+      <pre id="p-out" class="probe-out">Pick an app and fetch - results appear here.</pre>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap">
+  All numbers computed from bundled artifacts (pipeline runs 2026-11-03). LLM: Qwen38-27B via the owner's LiteLLM proxy - no Gemini/other vendor used anywhere.
+  Quotes are verbatim mined reviews (usernames stripped). Static HF Space - analysis runs in your browser; nothing is uploaded.
+</div></footer>
+<script src="app.js"></script>
+</body>
+</html>

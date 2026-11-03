@@ -1,0 +1,333 @@
+// AskCart product-analytics store.
+//
+// Shared, deployment-wide: every user of this deployment writes to the same
+// state (that is the point of the public dashboard). Singleton on globalThis
+// so Next dev HMR and route imports share one instance.
+//
+// State:
+//  - events: ring buffer, last 500 (live feed)
+//  - counts: all-time per-type counters
+//  - totals: funnel + outcome counters
+//  - queries: per-query rollups (searches, nulls, resolved, turns, views, carts, orders)
+//  - guide: per-question-type rollups
+//  - cats / brands: engagement rollups
+//  - cohorts: persona-cohort rollups
+//  - orders: last 50 orders
+// Persisted as JSON (snapshot) so history survives restarts; the sim harness
+// writes to a separate file (env "sim") and a separate in-memory store.
+
+import fs from "fs";
+import path from "path";
+
+const MAX_EVENTS = 500;
+const MAX_ORDERS = 50;
+const MAX_MAP = 500; // cap on keys per rollup map (drop oldest-ish by count)
+
+function file(env) {
+  return path.join(process.cwd(), env === "sim" ? ".analytics-state.sim.json" : ".analytics-state.json");
+}
+
+function fresh() {
+  return {
+    startedAt: Date.now(),
+    counts: {},
+    totals: {
+      searches: 0, zeroResults: 0, resolved: 0, unresolved: 0,
+      productsViewed: 0, cartAdds: 0, cartViews: 0, buyNow: 0,
+      checkouts: 0, orders: 0, orderValue: 0,
+      onboardingDone: 0, onboardingSkipped: 0,
+      filterApplies: 0, recommendationClicks: 0,
+      journeysTotal: 0, journeyMsSum: 0, journeyMsN: 0,
+      guideRefines: 0, guideRescues: 0, ttfcSum: 0, ttfcN: 0,
+      multiJourneySessions: 0,
+    },
+    events: [],
+    queries: {},
+    guide: {},
+    cats: {},
+    brands: {},
+    cohorts: {},
+    orders: [],
+    filters: {},
+    onboarding: {},
+    sessions: {},
+    journeys: { t1: 0, t2: 0, t3: 0, t4: 0, unresolved: 0 },
+  };
+}
+
+function bump(map, key, fields) {
+  if (!map[key]) map[key] = { searches: 0, nulls: 0, resolved: 0, turnsSum: 0, turnsN: 0, views: 0, carts: 0, orders: 0, orderValue: 0, questions: {}, options: {} };
+  for (const [k, v] of Object.entries(fields)) {
+    if (k === "questions" || k === "options") continue;
+    map[key][k] = (map[key][k] || 0) + v;
+  }
+  return map[key];
+}
+
+function capMap(map) {
+  const keys = Object.keys(map);
+  if (keys.length <= MAX_MAP) return;
+  keys.sort((a, b) => map[a].searches - map[b].searches);
+  for (const k of keys.slice(0, keys.length - MAX_MAP)) delete map[k];
+}
+
+function sanitize(st) {
+  // Defense against a stale/corrupted persisted snapshot: every counter is
+  // non-negative and sub-funnel counters can never exceed their parent.
+  const t = st.totals;
+  for (const k of Object.keys(t)) {
+    if (!Number.isFinite(t[k]) || t[k] < 0) t[k] = 0;
+  }
+  t.zeroResults = Math.min(t.zeroResults, t.searches);
+  t.resolved = Math.min(t.resolved, t.searches);
+  t.unresolved = Math.min(t.unresolved, t.searches);
+  t.orders = Math.min(t.orders, t.checkouts);
+  t.checkouts = Math.min(t.checkouts, t.cartAdds);
+  t.multiJourneySessions = Math.max(0, Math.min(t.multiJourneySessions, t.journeysTotal));
+  return st;
+}
+
+function load(env) {
+  const g = globalThis;
+  const key = env === "sim" ? "__askcartAnalyticsSim" : "__askcartAnalytics";
+  if (g[key]) return g[key];
+  const st = fresh();
+  try {
+    const saved = JSON.parse(fs.readFileSync(file(env), "utf8"));
+    Object.assign(st, saved);
+    st.totals = { ...fresh().totals, ...(st.totals || {}) };
+    st.events = (st.events || []).slice(-MAX_EVENTS);
+    st.orders = (st.orders || []).slice(-MAX_ORDERS);
+    sanitize(st);
+  } catch { /* first boot */ }
+  g[key] = st;
+  return st;
+}
+
+let saveTimer = {};
+function persist(st, env) {
+  const envKey = env || "public";
+  if (saveTimer[envKey]) return;
+  saveTimer[envKey] = setTimeout(() => {
+    saveTimer[envKey] = null;
+    try {
+      // atomic write: temp file + rename, so a crash can't leave a torn
+      // (partially-written) state file behind
+      const target = file(env);
+      const tmp = target + ".tmp";
+      fs.writeFileSync(tmp, JSON.stringify(st));
+      fs.renameSync(tmp, target);
+    } catch { /* best effort */ }
+  }, 500);
+}
+
+export function record(type, payload = {}, env = null) {
+  const st = load(env);
+  const ev = { type, at: Date.now(), payload };
+  st.events.push(ev);
+  if (st.events.length > MAX_EVENTS) st.events.shift();
+  st.counts[type] = (st.counts[type] || 0) + 1;
+
+  const p = payload || {};
+  const T = st.totals;
+  const qk = String(p.query || "").slice(0, 80);
+  switch (type) {
+    case "search_results":
+      T.searches++;
+      if (qk) {
+        const q = bump(st.queries, qk, { searches: 1, turnsSum: p.turn || 1, turnsN: 1 });
+      }
+      break;
+    case "zero_result":
+      T.zeroResults++;
+      if (qk) bump(st.queries, qk, { nulls: 1 });
+      break;
+    case "resolved":
+      T.resolved++;
+      if (qk) bump(st.queries, qk, { resolved: 1 });
+      // turn-bucket distribution is owned by journey_end (one per journey)
+      break;
+    case "unresolved":
+      T.unresolved++;
+      if (qk) bump(st.queries, qk, {});
+      break;
+    case "journey_end":
+      T.journeysTotal++;
+      // single source of truth for the journey turn distribution
+      if (p.resolved) {
+        if (p.turns <= 2) st.journeys.t1 += p.turns === 1 ? 1 : 0, st.journeys.t2 += p.turns === 2 ? 1 : 0;
+        else if (p.turns === 3) st.journeys.t3++;
+        else st.journeys.t4++;
+      } else {
+        st.journeys.unresolved++;
+      }
+      if (Number(p.ms) > 0) { T.journeyMsSum += Number(p.ms); T.journeyMsN++; }
+      if (p.session_id) {
+        const sid = String(p.session_id).slice(0, 40);
+        const sj = st.sessions[sid] || { journeys: 0 };
+        sj.journeys++;
+        st.sessions[sid] = sj;
+        if (sj.journeys === 2) T.multiJourneySessions++;
+      }
+      // per-query: resolution + turns only (views/carts/orders are counted
+      // by the individual events to avoid double counting)
+      if (qk) {
+        const q = bump(st.queries, qk, { turnsSum: p.turns || 1, turnsN: 1 });
+        if (p.resolved) q.resolved++;
+      }
+      if (p.cohort) {
+        const c = bump(st.cohorts, String(p.cohort).slice(0, 60), { searches: 1 });
+        if (p.added_to_cart) c.carts++;
+        if (p.ordered) c.orders++;
+        if (p.resolved) c.resolved++;
+        if (Number(p.ms) > 0) { c.msSum = (c.msSum || 0) + Number(p.ms); c.msN = (c.msN || 0) + 1; }
+      }
+      break;
+    case "guide_question_shown":
+      if (p.refine) T.guideRefines++; else T.guideRescues++;
+      if (p.question_type) {
+        const g = bump(st.guide, String(p.question_type).slice(0, 40), { searches: 1 });
+        g.questions[p.question_type] = (g.questions[p.question_type] || 0) + 1;
+      }
+      break;
+    case "guide_option_selected":
+      if (Number(p.ttfc_ms) > 0) { T.ttfcSum += Number(p.ttfc_ms); T.ttfcN++; }
+      if (p.question_type) {
+        const g = bump(st.guide, String(p.question_type).slice(0, 40), {});
+        g.options[p.option] = (g.options[p.option] || 0) + 1;
+      }
+      break;
+    case "product_view":
+      T.productsViewed++;
+      if (qk) bump(st.queries, qk, { views: 1 });
+      if (p.category) bump(st.cats, String(p.category).slice(0, 60), { views: 1 });
+      if (p.brand) bump(st.brands, String(p.brand).slice(0, 40), { views: 1 });
+      break;
+    case "add_to_cart":
+      T.cartAdds++;
+      if (qk) bump(st.queries, qk, { carts: 1 });
+      if (p.category) bump(st.cats, String(p.category).slice(0, 60), { carts: 1 });
+      if (p.brand) bump(st.brands, String(p.brand).slice(0, 40), { carts: 1 });
+      break;
+    case "cart_view": T.cartViews++; break;
+    case "buy_now": T.buyNow++; break;
+    case "checkout_start": T.checkouts++; break;
+    case "order_complete": {
+      T.orders++;
+      T.orderValue += Number(p.total) || 0;
+      if (qk) bump(st.queries, qk, { orders: 1, orderValue: Number(p.total) || 0 });
+      st.orders.push({
+        id: p.order_id, at: Date.now(), items: p.item_count, total: Number(p.total) || 0,
+        cohort: p.cohort || "no-persona", source: p.source || "cart",
+      });
+      if (st.orders.length > MAX_ORDERS) st.orders.shift();
+      break;
+    }
+    case "onboarding_complete":
+      T.onboardingDone++;
+      for (const f of ["userType", "spendStyle", "context"]) {
+        if (p[f]) bump(st.onboarding, String(f + ":" + p[f]).slice(0, 80), { searches: 1 });
+      }
+      break;
+    case "onboarding_skipped": T.onboardingSkipped++; break;
+    case "filter_applied":
+      T.filterApplies++;
+      if (p.filter_type && p.value !== undefined) {
+        bump(st.filters, String(p.filter_type + ":" + p.value).slice(0, 80), { searches: 1 });
+      }
+      break;
+    case "recommendation_click":
+      T.recommendationClicks++;
+      if (p.brand) bump(st.brands, String(p.brand).slice(0, 40), { recClicks: 1 });
+      break;
+    default: break;
+  }
+
+  capMap(st.queries); capMap(st.guide); capMap(st.cats); capMap(st.brands); capMap(st.cohorts); capMap(st.filters); capMap(st.sessions);
+  persist(st, env);
+  return ev;
+}
+
+export function snapshot(env = null) {
+  const st = load(env);
+  const T = st.totals;
+  const funnel = {
+    searches: T.searches,
+    searches_with_results: T.searches - T.zeroResults,
+    products_viewed: T.productsViewed,
+    add_to_cart: T.cartAdds,
+    checkouts: T.checkouts,
+    orders: T.orders,
+  };
+  const top = (map, n, by) => Object.entries(map)
+    .map(([k, v]) => ({ name: k, ...v })).sort((a, b) => (b[by] || 0) - (a[by] || 0)).slice(0, n);
+  const topByPrefix = (map, prefix, n) => Object.entries(map)
+    .filter(([k]) => k.startsWith(prefix + ":"))
+    .map(([k, v]) => ({ name: k.slice(prefix.length + 1), count: v.searches || 0 }))
+    .sort((a, b) => b.count - a.count).slice(0, n);
+  const queryRows = top(st.queries, 15, "searches").map((r) => ({
+    query: r.name, searches: r.searches, nulls: r.nulls || 0,
+    resolved: r.resolved || 0,
+    avgTurns: r.turnsN ? +(r.turnsSum / r.turnsN).toFixed(2) : null,
+    views: r.views || 0, carts: r.carts || 0, orders: r.orders || 0,
+    cartRate: r.searches ? +((100 * (r.carts || 0)) / r.searches).toFixed(1) : 0,
+  }));
+  const guideRows = top(st.guide, 8, "searches").map((r) => ({
+    type: r.name, asked: r.searches,
+    topOptions: Object.entries(r.options || {}).sort((a, b) => b[1] - a[1]).slice(0, 4),
+  }));
+  // activity: events per minute over the last 10 minutes (live ring buffer)
+  const now = Date.now();
+  const minutes = [];
+  for (let i = 9; i >= 0; i--) {
+    const end = now - i * 60000, start = end - 60000;
+    minutes.push({ label: i === 0 ? "now" : `-${i}m`, n: st.events.filter((e) => e.at > start && e.at <= end).length });
+  }
+  const asked = T.guideRefines + T.guideRescues;
+  return {
+    startedAt: st.startedAt,
+    lastEventAt: st.events.length ? st.events[st.events.length - 1].at : null,
+    counts: st.counts,
+    totals: T,
+    funnel,
+    nullRate: T.searches ? +((100 * T.zeroResults) / T.searches).toFixed(1) : null,
+    resolutionRate: T.searches ? +((100 * (T.searches - T.zeroResults)) / T.searches).toFixed(1) : null,
+    journeys: st.journeys,
+    journeyResolution: {
+      total: T.journeysTotal,
+      resolved: st.journeys.t1 + st.journeys.t2 + st.journeys.t3 + st.journeys.t4,
+      unresolved: st.journeys.unresolved,
+      pct: T.journeysTotal ? +((100 * (st.journeys.t1 + st.journeys.t2 + st.journeys.t3 + st.journeys.t4)) / T.journeysTotal).toFixed(1) : null,
+      byTurn2Pct: T.journeysTotal ? +((100 * (st.journeys.t1 + st.journeys.t2)) / T.journeysTotal).toFixed(1) : null,
+    },
+    journeyMsAvg: T.journeyMsN ? Math.round(T.journeyMsSum / T.journeyMsN) : null,
+    ttfcAvgMs: T.ttfcN ? Math.round(T.ttfcSum / T.ttfcN) : null,
+    guideTotals: { asked, rescues: T.guideRescues, refines: T.guideRefines,
+                   answerRate: asked ? +((100 * T.ttfcN) / asked).toFixed(1) : null },
+    aov: T.orders ? Math.round(T.orderValue / T.orders) : null,
+    cartToCheckoutPct: T.cartViews ? +((100 * T.checkouts) / T.cartViews).toFixed(1) : null,
+    sessions: { active: Object.keys(st.sessions).length, multiJourney: T.multiJourneySessions,
+               journeysPerSession: Object.keys(st.sessions).length ? +(T.journeysTotal / Object.keys(st.sessions).length).toFixed(2) : null },
+    activity: minutes,
+    topQueries: queryRows,
+    guide: guideRows,
+    categoryEngagement: top(st.cats, 12, "views").map((r) => ({ name: r.name, views: r.views || 0, carts: r.carts || 0, orders: 0 })),
+    brandEngagement: top(st.brands, 10, "views").map((r) => ({ name: r.name, views: r.views || 0, carts: r.carts || 0, recClicks: r.recClicks || 0 })),
+    filterUsage: top(st.filters, 14, "searches").map((r) => {
+      const i = r.name.indexOf(":");
+      return { type: r.name.slice(0, i), value: r.name.slice(i + 1), applies: r.searches || 0 };
+    }),
+    onboarding: {
+      userType: topByPrefix(st.onboarding, "userType", 6),
+      spendStyle: topByPrefix(st.onboarding, "spendStyle", 6),
+      context: topByPrefix(st.onboarding, "context", 6),
+    },
+    cohorts: top(st.cohorts, 10, "searches").map((r) => ({
+      name: r.name, searches: r.searches, resolved: r.resolved || 0,
+      carts: r.carts || 0, orders: r.orders || 0,
+      avgMs: r.msN ? Math.round(r.msSum / r.msN) : null,
+    })),
+    orders: st.orders.slice(-10).reverse(),
+    recent: st.events.slice(-40).reverse(),
+  };
+}

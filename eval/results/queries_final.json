@@ -1,0 +1,1502 @@
+[
+ {
+  "id": "Q001",
+  "query": "gift shopping under 3k",
+  "persona": "P6",
+  "budget": 3000,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t1"
+ },
+ {
+  "id": "Q002",
+  "query": "birthday candle under 1750",
+  "persona": "P3",
+  "budget": 3500,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q003",
+  "query": "rebem under 5k",
+  "persona": "P6",
+  "budget": 5000,
+  "occasion": "wedding",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q004",
+  "query": "bag under 6k",
+  "persona": "P3",
+  "budget": 6000,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q005",
+  "query": "curtain under 500",
+  "persona": "P4",
+  "budget": 500,
+  "occasion": "diwali",
+  "category": "home & decor",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q006",
+  "query": "tajima",
+  "persona": "P3",
+  "budget": 1000,
+  "occasion": "gift",
+  "category": "beauty",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q007",
+  "query": "metalic under 5k",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "diwali",
+  "category": "beauty",
+  "design_bucket": "marginal",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q008",
+  "query": "serum under 2500",
+  "persona": "P6",
+  "budget": 5000,
+  "occasion": "diwali",
+  "category": "beauty",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q009",
+  "query": "gift for my new neighbour's shaadi under 1500",
+  "persona": "P2",
+  "budget": 15000,
+  "occasion": "wedding",
+  "category": "home & decor",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q010",
+  "query": "bowden for home",
+  "persona": "P5",
+  "budget": 4000,
+  "occasion": "party",
+  "category": "electronics",
+  "design_bucket": "marginal",
+  "expected": "t1"
+ },
+ {
+  "id": "Q011",
+  "query": "something for my best friend's party",
+  "persona": "P1",
+  "budget": 3000,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "vague",
+  "expected": "t2"
+ },
+ {
+  "id": "Q012",
+  "query": "gift for my best friend under 2k",
+  "persona": "P4",
+  "budget": 2000,
+  "occasion": "diwali",
+  "category": "beauty",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q013",
+  "query": "gift basket under 7500",
+  "persona": "P2",
+  "budget": 15000,
+  "occasion": "gift",
+  "category": "home & decor",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q014",
+  "query": "vintage rotary phone under 8k",
+  "persona": "P2",
+  "budget": 8000,
+  "occasion": "diwali",
+  "category": "home & decor",
+  "design_bucket": "rare_mixed",
+  "expected": "t1"
+ },
+ {
+  "id": "Q015",
+  "query": "lamplust under 1k",
+  "persona": "P1",
+  "budget": 1500,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q016",
+  "query": "good yoga mat under 2k",
+  "persona": "P5",
+  "budget": 2500,
+  "occasion": "gift",
+  "category": "sports",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q017",
+  "query": "party gift under 3k",
+  "persona": "P3",
+  "budget": 3500,
+  "occasion": "party",
+  "category": "home & decor",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q018",
+  "query": "gift for my best friend under 1k",
+  "persona": "P6",
+  "budget": 1500,
+  "occasion": "diwali",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q019",
+  "query": "roush under 4k",
+  "persona": "P4",
+  "budget": 4000,
+  "occasion": "baby-shower",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q020",
+  "query": "last minute gift gift under 500",
+  "persona": "P2",
+  "budget": 15000,
+  "occasion": "gift",
+  "category": "electronics",
+  "design_bucket": "tight_occasion",
+  "expected": "t1"
+ },
+ {
+  "id": "Q021",
+  "query": "party charger under 2k",
+  "persona": "P5",
+  "budget": 2500,
+  "occasion": "party",
+  "category": "electronics",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q022",
+  "query": "last minute diwali gift under 1000",
+  "persona": "P6",
+  "budget": 5000,
+  "occasion": "diwali",
+  "category": "fashion",
+  "design_bucket": "tight_occasion",
+  "expected": "t1"
+ },
+ {
+  "id": "Q023",
+  "query": "gift for my mom under 1k",
+  "persona": "P5",
+  "budget": 1500,
+  "occasion": "party",
+  "category": "electronics",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q024",
+  "query": "mores",
+  "persona": "P2",
+  "budget": 8000,
+  "occasion": "anniversary",
+  "category": "beauty",
+  "design_bucket": "marginal",
+  "expected": "t1"
+ },
+ {
+  "id": "Q025",
+  "query": "decorative lights under 5k",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "diwali",
+  "category": "home & decor",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q026",
+  "query": "party shopping under 6k",
+  "persona": "P3",
+  "budget": 6000,
+  "occasion": "party",
+  "category": "home & decor",
+  "design_bucket": "occasion_only",
+  "expected": "t1"
+ },
+ {
+  "id": "Q027",
+  "query": "gift for my mom's gift under 800",
+  "persona": "P5",
+  "budget": 1500,
+  "occasion": "gift",
+  "category": "sports",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q028",
+  "query": "wall art under 800",
+  "persona": "P6",
+  "budget": 800,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q029",
+  "query": "gift wall art under 250",
+  "persona": "P4",
+  "budget": 500,
+  "occasion": "gift",
+  "category": "home & decor",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q030",
+  "query": "diwali decorative lights under 3k",
+  "persona": "P6",
+  "budget": 3000,
+  "occasion": "diwali",
+  "category": "home & decor",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q031",
+  "query": "gift for my mom's party under 1500",
+  "persona": "P1",
+  "budget": 1500,
+  "occasion": "party",
+  "category": "electronics",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q032",
+  "query": "gift for my husband's shaadi under 1500",
+  "persona": "P1",
+  "budget": 2000,
+  "occasion": "wedding",
+  "category": "home & decor",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q033",
+  "query": "organizer below 1000",
+  "persona": "P1",
+  "budget": 2000,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q034",
+  "query": "theremin under 500",
+  "persona": "P3",
+  "budget": 1000,
+  "occasion": null,
+  "category": "home & decor",
+  "design_bucket": "dead",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q035",
+  "query": "party gift under 1k",
+  "persona": "P1",
+  "budget": 1500,
+  "occasion": "party",
+  "category": "electronics",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q036",
+  "query": "handbag",
+  "persona": "P4",
+  "budget": 1000,
+  "occasion": "wedding",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q037",
+  "query": "smartwatch under 1500",
+  "persona": "P1",
+  "budget": 3000,
+  "occasion": "gift",
+  "category": "electronics",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q038",
+  "query": "gift shopping under 3k",
+  "persona": "P1",
+  "budget": 3000,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t1"
+ },
+ {
+  "id": "Q039",
+  "query": "gift for my mom under 2k",
+  "persona": "P1",
+  "budget": 2000,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q040",
+  "query": "real diamond stud earrings under 8k",
+  "persona": "P2",
+  "budget": 8000,
+  "occasion": "wedding",
+  "category": "beauty",
+  "design_bucket": "rare_mixed",
+  "expected": "t1"
+ },
+ {
+  "id": "Q041",
+  "query": "lawv",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "diwali",
+  "category": "electronics",
+  "design_bucket": "marginal",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q042",
+  "query": "birthday gift under 1500",
+  "persona": "P6",
+  "budget": 1500,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q043",
+  "query": "bauble under 1k",
+  "persona": "P1",
+  "budget": 1500,
+  "occasion": "party",
+  "category": "electronics",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q044",
+  "query": "diwali cap under 500",
+  "persona": "P4",
+  "budget": 1000,
+  "occasion": "diwali",
+  "category": "fashion",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q045",
+  "query": "shaadi present under 500",
+  "persona": "P4",
+  "budget": 1000,
+  "occasion": "wedding",
+  "category": "fashion",
+  "design_bucket": "tight_occasion",
+  "expected": "t1"
+ },
+ {
+  "id": "Q046",
+  "query": "floral dress",
+  "persona": "P6",
+  "budget": 5000,
+  "occasion": "birthday",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q047",
+  "query": "strimer under 1k",
+  "persona": "P1",
+  "budget": 1500,
+  "occasion": "party",
+  "category": "electronics",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q048",
+  "query": "wallet under 1k",
+  "persona": "P6",
+  "budget": 1500,
+  "occasion": "diwali",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q049",
+  "query": "vintage rotary phone under 1k",
+  "persona": "P6",
+  "budget": 1500,
+  "occasion": "wedding",
+  "category": "fashion",
+  "design_bucket": "rare_mixed",
+  "expected": "t1"
+ },
+ {
+  "id": "Q050",
+  "query": "shirt under 1250",
+  "persona": "P5",
+  "budget": 2500,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q051",
+  "query": "good dumbbells under 2k",
+  "persona": "P5",
+  "budget": 2500,
+  "occasion": "gift",
+  "category": "sports",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q052",
+  "query": "gift gift under 1000",
+  "persona": "P1",
+  "budget": 5000,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q053",
+  "query": "birthday wall art under 2k",
+  "persona": "P3",
+  "budget": 2000,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q054",
+  "query": "emery under 1k",
+  "persona": "P4",
+  "budget": 1000,
+  "occasion": "baby-shower",
+  "category": "home & decor",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q055",
+  "query": "gift for my colleague under 5k",
+  "persona": "P1",
+  "budget": 5000,
+  "occasion": "birthday",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q056",
+  "query": "genuine fur coat under 5k",
+  "persona": "P1",
+  "budget": 5000,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "rare_mixed",
+  "expected": "t1"
+ },
+ {
+  "id": "Q057",
+  "query": "surprise gift for my sister",
+  "persona": "P3",
+  "budget": 3500,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "vague",
+  "expected": "t1"
+ },
+ {
+  "id": "Q058",
+  "query": "gift for my best friend's gift under 1000",
+  "persona": "P2",
+  "budget": 2000,
+  "occasion": "gift",
+  "category": "home & decor",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q059",
+  "query": "something for my colleague's diwali",
+  "persona": "P4",
+  "budget": 500,
+  "occasion": "diwali",
+  "category": "fashion",
+  "design_bucket": "vague",
+  "expected": "t2"
+ },
+ {
+  "id": "Q060",
+  "query": "alphagal under 4k",
+  "persona": "P4",
+  "budget": 4000,
+  "occasion": "diwali",
+  "category": "beauty",
+  "design_bucket": "marginal",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q061",
+  "query": "gift gift under 2k",
+  "persona": "P2",
+  "budget": 2000,
+  "occasion": "gift",
+  "category": "beauty",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q062",
+  "query": "gift set",
+  "persona": "P3",
+  "budget": 1000,
+  "occasion": "party",
+  "category": "beauty",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q063",
+  "query": "flzosper under 3k",
+  "persona": "P6",
+  "budget": 3000,
+  "occasion": "diwali",
+  "category": "home & decor",
+  "design_bucket": "marginal",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q064",
+  "query": "wall art under 5k",
+  "persona": "P6",
+  "budget": 5000,
+  "occasion": "diwali",
+  "category": "home & decor",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q065",
+  "query": "gift for my sister under 2k",
+  "persona": "P3",
+  "budget": 2000,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q066",
+  "query": "espreso",
+  "persona": "P4",
+  "budget": 1000,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q067",
+  "query": "floral dress under 800",
+  "persona": "P6",
+  "budget": 800,
+  "occasion": "birthday",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q068",
+  "query": "jocher",
+  "persona": "P5",
+  "budget": 4000,
+  "occasion": "birthday",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q069",
+  "query": "party router under 1500",
+  "persona": "P1",
+  "budget": 3000,
+  "occasion": "party",
+  "category": "electronics",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q070",
+  "query": "party gift under 800",
+  "persona": "P1",
+  "budget": 3000,
+  "occasion": "party",
+  "category": "home & decor",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q071",
+  "query": "clutches for home",
+  "persona": "P5",
+  "budget": 2500,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t1"
+ },
+ {
+  "id": "Q072",
+  "query": "shaadi router under 8k",
+  "persona": "P2",
+  "budget": 8000,
+  "occasion": "wedding",
+  "category": "electronics",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q073",
+  "query": "something for my colleague's graduation",
+  "persona": "P5",
+  "budget": 7000,
+  "occasion": "graduation",
+  "category": "fashion",
+  "design_bucket": "vague",
+  "expected": "t2"
+ },
+ {
+  "id": "Q074",
+  "query": "real diamond stud earrings under 6k",
+  "persona": "P3",
+  "budget": 6000,
+  "occasion": "valentines",
+  "category": "beauty",
+  "design_bucket": "rare_mixed",
+  "expected": "t1"
+ },
+ {
+  "id": "Q075",
+  "query": "gift for my husband under 1k",
+  "persona": "P6",
+  "budget": 1500,
+  "occasion": "diwali",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q076",
+  "query": "gift idea under 8k",
+  "persona": "P2",
+  "budget": 8000,
+  "occasion": "gift",
+  "category": "home & decor",
+  "design_bucket": "vague",
+  "expected": "t1"
+ },
+ {
+  "id": "Q077",
+  "query": "gift for my new neighbour's gift under 800",
+  "persona": "P3",
+  "budget": 2000,
+  "occasion": "gift",
+  "category": "beauty",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q078",
+  "query": "cushion",
+  "persona": "P3",
+  "budget": 1000,
+  "occasion": "gift",
+  "category": "home & decor",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q079",
+  "query": "last minute birthday gift under 1500",
+  "persona": "P5",
+  "budget": 7000,
+  "occasion": "birthday",
+  "category": "electronics",
+  "design_bucket": "tight_occasion",
+  "expected": "t1"
+ },
+ {
+  "id": "Q080",
+  "query": "znbhepa",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "diwali",
+  "category": "electronics",
+  "design_bucket": "marginal",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q081",
+  "query": "skincare set for diwali",
+  "persona": "P6",
+  "budget": 5000,
+  "occasion": "diwali",
+  "category": "beauty",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q082",
+  "query": "sports watch",
+  "persona": "P5",
+  "budget": 7000,
+  "occasion": "party",
+  "category": "sports",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q083",
+  "query": "gift heels under 500",
+  "persona": "P4",
+  "budget": 500,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q084",
+  "query": "good heels under 4k",
+  "persona": "P5",
+  "budget": 4000,
+  "occasion": "birthday",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q085",
+  "query": "gift gift under 2k",
+  "persona": "P4",
+  "budget": 2000,
+  "occasion": "gift",
+  "category": "home & decor",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q086",
+  "query": "birthday gift under 1500",
+  "persona": "P5",
+  "budget": 1500,
+  "occasion": "birthday",
+  "category": "electronics",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q087",
+  "query": "diwali present under 1000",
+  "persona": "P6",
+  "budget": 3000,
+  "occasion": "diwali",
+  "category": "fashion",
+  "design_bucket": "tight_occasion",
+  "expected": "t1"
+ },
+ {
+  "id": "Q088",
+  "query": "gift for my best friend's party under 1500",
+  "persona": "P5",
+  "budget": 4000,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q089",
+  "query": "something for my new neighbour's party",
+  "persona": "P3",
+  "budget": 3500,
+  "occasion": "party",
+  "category": "beauty",
+  "design_bucket": "vague",
+  "expected": "t2"
+ },
+ {
+  "id": "Q090",
+  "query": "saree for birthday",
+  "persona": "P3",
+  "budget": 3500,
+  "occasion": "birthday",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q091",
+  "query": "shaadi gift under 1500",
+  "persona": "P4",
+  "budget": 500,
+  "occasion": "wedding",
+  "category": "home & decor",
+  "design_bucket": "tight_occasion",
+  "expected": "t2"
+ },
+ {
+  "id": "Q092",
+  "query": "gaming mouse for shaadi",
+  "persona": "P1",
+  "budget": 5000,
+  "occasion": "wedding",
+  "category": "electronics",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q093",
+  "query": "something for my new neighbour's party",
+  "persona": "P3",
+  "budget": 1000,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "vague",
+  "expected": "t2"
+ },
+ {
+  "id": "Q094",
+  "query": "shenanigans",
+  "persona": "P1",
+  "budget": 1500,
+  "occasion": "gift",
+  "category": "home & decor",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q095",
+  "query": "lider for home",
+  "persona": "P1",
+  "budget": 5000,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "marginal",
+  "expected": "t1"
+ },
+ {
+  "id": "Q096",
+  "query": "croso under 5k",
+  "persona": "P6",
+  "budget": 5000,
+  "occasion": "wedding",
+  "category": "beauty",
+  "design_bucket": "marginal",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q097",
+  "query": "nice party present under 1k",
+  "persona": "P5",
+  "budget": 1500,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t1"
+ },
+ {
+  "id": "Q098",
+  "query": "yoidesu",
+  "persona": "P5",
+  "budget": 4000,
+  "occasion": "graduation",
+  "category": "sports",
+  "design_bucket": "marginal",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q099",
+  "query": "decorative lights under 2000",
+  "persona": "P4",
+  "budget": 4000,
+  "occasion": "wedding",
+  "category": "home & decor",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q100",
+  "query": "something for my husband's gift",
+  "persona": "P6",
+  "budget": 1500,
+  "occasion": "gift",
+  "category": "beauty",
+  "design_bucket": "vague",
+  "expected": "t2"
+ },
+ {
+  "id": "Q101",
+  "query": "party heels under 2k",
+  "persona": "P3",
+  "budget": 2000,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q102",
+  "query": "gift for my new neighbour under 500",
+  "persona": "P4",
+  "budget": 500,
+  "occasion": "diwali",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q103",
+  "query": "gift set under 1k",
+  "persona": "P4",
+  "budget": 1000,
+  "occasion": "diwali",
+  "category": "beauty",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q104",
+  "query": "party floral dress under 5k",
+  "persona": "P1",
+  "budget": 5000,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q105",
+  "query": "smartwatch below 2500",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "gift",
+  "category": "electronics",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q106",
+  "query": "vintage rotary phone under 2k",
+  "persona": "P5",
+  "budget": 2500,
+  "occasion": "birthday",
+  "category": "electronics",
+  "design_bucket": "rare_mixed",
+  "expected": "t1"
+ },
+ {
+  "id": "Q107",
+  "query": "tiro under 2k",
+  "persona": "P1",
+  "budget": 2000,
+  "occasion": "birthday",
+  "category": "electronics",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q108",
+  "query": "camera for gift",
+  "persona": "P2",
+  "budget": 15000,
+  "occasion": "gift",
+  "category": "electronics",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q109",
+  "query": "monitor stand",
+  "persona": "P2",
+  "budget": 8000,
+  "occasion": "anniversary",
+  "category": "electronics",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q110",
+  "query": "shaadi handbag under 5k",
+  "persona": "P1",
+  "budget": 5000,
+  "occasion": "wedding",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q111",
+  "query": "good cap under 4k",
+  "persona": "P5",
+  "budget": 4000,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q112",
+  "query": "gift for my mom under 1k",
+  "persona": "P3",
+  "budget": 1000,
+  "occasion": "birthday",
+  "category": "beauty",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q113",
+  "query": "curtain below 500",
+  "persona": "P4",
+  "budget": 1000,
+  "occasion": "gift",
+  "category": "home & decor",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q114",
+  "query": "anniversary lip balm under 2500",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "anniversary",
+  "category": "beauty",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ },
+ {
+  "id": "Q115",
+  "query": "gift for my mom under 5k",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "wedding",
+  "category": "home & decor",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q116",
+  "query": "rug",
+  "persona": "P1",
+  "budget": 3000,
+  "occasion": "wedding",
+  "category": "home & decor",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q117",
+  "query": "shaadi gift under 5k",
+  "persona": "P1",
+  "budget": 5000,
+  "occasion": "wedding",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q118",
+  "query": "something for my new neighbour's birthday",
+  "persona": "P1",
+  "budget": 5000,
+  "occasion": "birthday",
+  "category": "electronics",
+  "design_bucket": "vague",
+  "expected": "t2"
+ },
+ {
+  "id": "Q119",
+  "query": "wall art",
+  "persona": "P4",
+  "budget": 500,
+  "occasion": "wedding",
+  "category": "home & decor",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q120",
+  "query": "bassoon for the house under 500",
+  "persona": "P4",
+  "budget": 4000,
+  "occasion": null,
+  "category": "fashion",
+  "design_bucket": "dead",
+  "expected": "t1"
+ },
+ {
+  "id": "Q121",
+  "query": "perseus under 7k",
+  "persona": "P5",
+  "budget": 7000,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t1"
+ },
+ {
+  "id": "Q122",
+  "query": "sitar under 1000",
+  "persona": "P5",
+  "budget": 1500,
+  "occasion": null,
+  "category": "sports",
+  "design_bucket": "dead",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q123",
+  "query": "ketones under 5k",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "gift",
+  "category": "beauty",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q124",
+  "query": "cornu under 2000",
+  "persona": "P5",
+  "budget": 4000,
+  "occasion": null,
+  "category": "fashion",
+  "design_bucket": "dead",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q125",
+  "query": "gift for my best friend under 3k",
+  "persona": "P3",
+  "budget": 3500,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q126",
+  "query": "party present under 800",
+  "persona": "P3",
+  "budget": 6000,
+  "occasion": "party",
+  "category": "home & decor",
+  "design_bucket": "tight_occasion",
+  "expected": "t1"
+ },
+ {
+  "id": "Q127",
+  "query": "last minute birthday gift under 800",
+  "persona": "P3",
+  "budget": 3500,
+  "occasion": "birthday",
+  "category": "beauty",
+  "design_bucket": "tight_occasion",
+  "expected": "t1"
+ },
+ {
+  "id": "Q128",
+  "query": "something practical for the office",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "anniversary",
+  "category": "beauty",
+  "design_bucket": "vague",
+  "expected": "t1"
+ },
+ {
+  "id": "Q129",
+  "query": "gift for my husband under 2k",
+  "persona": "P4",
+  "budget": 2000,
+  "occasion": "wedding",
+  "category": "home & decor",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q130",
+  "query": "dafengea under 1k",
+  "persona": "P6",
+  "budget": 1500,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q131",
+  "query": "preimum under 1k",
+  "persona": "P3",
+  "budget": 1000,
+  "occasion": "party",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q132",
+  "query": "surprise gift for my mom",
+  "persona": "P1",
+  "budget": 5000,
+  "occasion": "birthday",
+  "category": "home & decor",
+  "design_bucket": "vague",
+  "expected": "t1"
+ },
+ {
+  "id": "Q133",
+  "query": "sonny under 2k",
+  "persona": "P3",
+  "budget": 2000,
+  "occasion": "birthday",
+  "category": "beauty",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q134",
+  "query": "birthday gift under 1k",
+  "persona": "P5",
+  "budget": 1500,
+  "occasion": "birthday",
+  "category": "electronics",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q135",
+  "query": "myostorm under 2k",
+  "persona": "P4",
+  "budget": 2000,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q136",
+  "query": "charger for gift",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "gift",
+  "category": "electronics",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q137",
+  "query": "birthday mixer under 2k",
+  "persona": "P1",
+  "budget": 2000,
+  "occasion": "birthday",
+  "category": "electronics",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q138",
+  "query": "bathrom under 4k",
+  "persona": "P5",
+  "budget": 4000,
+  "occasion": "birthday",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q139",
+  "query": "belay",
+  "persona": "P1",
+  "budget": 1500,
+  "occasion": "party",
+  "category": "home & decor",
+  "design_bucket": "marginal",
+  "expected": "unresolved"
+ },
+ {
+  "id": "Q140",
+  "query": "diwali gift under 5k",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "diwali",
+  "category": "electronics",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q141",
+  "query": "shaadi shopping under 2k",
+  "persona": "P1",
+  "budget": 2000,
+  "occasion": "wedding",
+  "category": "fashion",
+  "design_bucket": "occasion_only",
+  "expected": "t1"
+ },
+ {
+  "id": "Q142",
+  "query": "lantime",
+  "persona": "P5",
+  "budget": 4000,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q143",
+  "query": "genuine fur coat under 1k",
+  "persona": "P1",
+  "budget": 1500,
+  "occasion": "wedding",
+  "category": "fashion",
+  "design_bucket": "rare_mixed",
+  "expected": "t1"
+ },
+ {
+  "id": "Q144",
+  "query": "readymade under 1k",
+  "persona": "P1",
+  "budget": 1500,
+  "occasion": "party",
+  "category": "home & decor",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q145",
+  "query": "good curtain under 3k",
+  "persona": "P1",
+  "budget": 3000,
+  "occasion": "gift",
+  "category": "home & decor",
+  "design_bucket": "clear",
+  "expected": "t1"
+ },
+ {
+  "id": "Q146",
+  "query": "gruhum",
+  "persona": "P6",
+  "budget": 800,
+  "occasion": "gift",
+  "category": "beauty",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q147",
+  "query": "miskeituo under 1k",
+  "persona": "P3",
+  "budget": 1000,
+  "occasion": "gift",
+  "category": "fashion",
+  "design_bucket": "marginal",
+  "expected": "t3"
+ },
+ {
+  "id": "Q148",
+  "query": "rotary phone under 500",
+  "persona": "P4",
+  "budget": 500,
+  "occasion": null,
+  "category": "beauty",
+  "design_bucket": "dead",
+  "expected": "t1"
+ },
+ {
+  "id": "Q149",
+  "query": "gift gift under 5k",
+  "persona": "P2",
+  "budget": 5000,
+  "occasion": "gift",
+  "category": "electronics",
+  "design_bucket": "occasion_only",
+  "expected": "t2"
+ },
+ {
+  "id": "Q150",
+  "query": "wallet under 2000",
+  "persona": "P4",
+  "budget": 4000,
+  "occasion": "diwali",
+  "category": "fashion",
+  "design_bucket": "budget_tight",
+  "expected": "t1"
+ }
+]

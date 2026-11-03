@@ -1,0 +1,19 @@
+{
+ "n": 150,
+ "baseline_null_pct": 27.3,
+ "guided_null_pct": 8.0,
+ "resolved_pct": 92.0,
+ "resolved_by_turn2_pct": 78.7,
+ "resolved_exactly_turn2_pct": 26.0,
+ "turn_distribution": {
+  "t1": 79,
+  "t2": 39,
+  "t3": 20,
+  "t4+": 0,
+  "unresolved": 12
+ },
+ "guide_mode": {
+  "policy": 12,
+  "fallback": 59
+ }
+}

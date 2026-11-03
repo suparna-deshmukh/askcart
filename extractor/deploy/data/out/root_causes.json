@@ -1,0 +1,30 @@
+[
+ {
+  "root_cause":"trust_gap",
+  "n":2549,
+  "pct":42.2,
+  "low_rating_share":1.0,
+  "n_apps":352
+ },
+ {
+  "root_cause":"budget_mismatch",
+  "n":1898,
+  "pct":31.4,
+  "low_rating_share":1.0,
+  "n_apps":382
+ },
+ {
+  "root_cause":"zero_or_wrong",
+  "n":1165,
+  "pct":19.3,
+  "low_rating_share":1.0,
+  "n_apps":206
+ },
+ {
+  "root_cause":"occasion_blindness",
+  "n":429,
+  "pct":7.1,
+  "low_rating_share":1.0,
+  "n_apps":89
+ }
+]

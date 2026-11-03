@@ -1,0 +1,108 @@
+# Data Source Notes
+
+## v7 addendum (T1/T2/E1) — raw vs clean vs complaints, per source
+
+| source | raw | clean | gated complaints | trust % | budget % | zero/wrong % | occasion % |
+|---|---|---|---|---|---|---|---|
+| Amazon product reviews | 40,000 | 40,000 | 939 | 16.3 | 53.4 | 9.7 | 20.7 |
+| Play Store | 33,172 | 26,663 | 2,467 | 66.0 | 11.6 | 20.7 | 1.7 |
+| Trustpilot | 15,000 | 15,000 | 1,181 | 35.2 | 40.3 | 17.7 | 6.8 |
+| App Store | 3,450 | 2,937 | 174 | 61.5 | 10.3 | 27.0 | 1.1 |
+| Reddit | 3,021 | 3,003 | 1,280 | 19.2 | 48.2 | 24.0 | 8.6 |
+| **total** | **94,643** | **87,603** | **6,041** | 42.2 | 31.4 | 19.3 | 7.1 |
+
+- The v6 PROJECT.md table mislabeled the *clean* per-source counts as raw;
+  the two populations are different (Play loses 6,509 rows to the length
+  gate, App Store 513, Reddit 18 to [deleted]; Amazon/Trustpilot lose
+  zero because they are curated HF datasets, pre-cleaned at source).
+  Per-gate counts: `data/out/gates_by_source.json`.
+- **Source dominance (honest read):** Play Store app reviews drive the
+  trust_gap share (66% of its complaints), Reddit/Amazon drive budget
+  (48/53%). The global 42.2% trust share is a Play-weighted artifact.
+  Amazon *product* reviews are about product quality, not searching —
+  only 939 of 40,000 passed the search-UX complaint gate; their budget
+  share ("reviewer expected X for the price") is the closest match but
+  is the weakest link in the "search UX" claim. An India-only cut and a
+  full-corpus LLM-only re-label are in flight (STATUS.md, T8/T9/E1).
+
+## Play Store (33,172 reviews) - LIVE API
+
+## Play Store (33,172 reviews) - LIVE API
+google-play-scraper 1.2.7 against play.google.com, per app x country x sort:
+Amazon (in/us/gb/au/ae), Flipkart (in), Myntra (in), Etsy (us), Temu (in/us),
+eBay (us), AliExpress (in), Walmart (us), Target (us). Newest + most-relevant
+sorts, 1s between requests, resume via part files (data/parts/play/).
+Meesho and Noon could not be resolved via the scraper's search (appId not
+exposed) - skipped, logged in logs/collect_play.log.
+
+## App Store (1,747 reviews) - DATASET FALLBACK
+Apple's customer-reviews RSS (https://itunes.apple.com/{cc}/rss/customerreviews/
+page=N/id=APP/sortby=mostrecent/json) returned EMPTY feeds (no entries) for
+every probed app id on 2026-11-03. Control test: Google Photos (id 962194608,
+collected successfully via this exact endpoint on 2026-10-06 in the previous
+project) also returned an empty feed - the endpoint appears retired.
+Fallback (agentic source substitution, logged):
+- reapxdev/app-store-reviews-scraper (Hugging Face): 23,048 App Store reviews;
+  we keep the 16 shopping/grocery/travel-shopping apps (noon, TikTok Shop,
+  talabat, Careem, Amazon, Temu, SHEIN, Walmart, Instacart, DoorDash,
+  Uber Eats, Grubhub, Booking.com, Skyscanner, trivago, idealo): 1,980 rows
+- Alpaca69B/reviews_appstore_amazon_absa (Hugging Face): Amazon app reviews: 494
+- 50 live RSS rows captured 2026-11-03 09:36 UTC (Walmart/us) before we
+  discovered the endpoint was globally empty
+After cross-source dedup: 1,747. reviewerName stripped (privacy).
+
+## Reddit (~2,900 posts) - LIVE API
+www.reddit.com/search.rss?q=...&limit=100 (no auth), 48 (subreddit, query)
+pairs across Amazon, ecommerce, Etsy, OnlineShopping, Deals, Flipping,
+BuyItForLife, frugal. 429 backoff 15s->60s with 5 attempts, 6s between pairs.
+Usernames stripped; [deleted]/[removed] skipped.
+
+## Catalogue (36,045 products: 24,998 US base + 11,047 India layer)
+milistu/AMAZON-Products-2023 (Hugging Face, 117,243 Amazon products with
+real prices + ratings). Band-aware stratified sample: category weights
+(gift/occasion-adjacent boosted) x price-band quotas (35% <=2k, 28% 2-5k,
+17% 5-10k, 12% 10-20k, 8% >20k INR; waterfill capped by source availability)
+so the catalogue keeps depth in the
+budget bands the study and demo exercise. Seed 42, deterministic. Prices
+USD->INR at fixed 83.5 (prototype store; conversion documented and
+reversible). Occasion tags from title/category keyword rules (4,194 items
+tagged, 16.8%).
+
+## Amazon product reviews (~40,000 reviews) - HF DATASET, RANGE-SAMPLED
+McAuley-Lab/Amazon-Reviews-2023 (Hugging Face). Full per-category files are
+0.3-1GB; each of 8 gift/occasion-adjacent categories (All_Beauty,
+Amazon_Fashion, Handmade_Products, Gift_Cards, Health_and_Personal_Care,
+Toys_and_Games, Clothing_Shoes_and_Jewelry, Home_and_Kitchen) is sampled as a
+12MB HTTP Range prefix (~16-25k raw reviews per category), parsed from
+JSONL (rating, title, text, asin, user_id, timestamp, helpful_vote),
+deterministic sample to 40,000 rows. Adds the *product-level* complaint
+voice (quality/trust, wrong item, price) that app-store reviews lack.
+
+## Trustpilot (~15,000 reviews) - HF MIRROR
+trustpilot.com's own API is behind an AWS WAF challenge (control-tested
+2026-11-03). Mirror: Kerassy/trustpilot-reviews-123k (Hugging Face, 123,181
+rows; category, company, title, review, stars). Kept rows matching a
+search/UX-relevance lexicon (search, find, recommend, price, quality, wrong,
+delivery, return, stock, size, ...): 73,388 relevant -> deterministic sample
+15,000. The company `description` field (repeated brand boilerplate) is
+excluded from the text.
+
+## Demand & seasonality signals (live APIs, no key)
+- Google Suggest autocomplete (hl=en-IN, gl=in) for 10 gift/budget seeds -
+  captures real query phrasing (e.g. "gift under 2000 for marriage",
+  "diwali gift ideas for employees under 1000").
+- Wikimedia pageviews (monthly, 2024-09..2026-01) for 6 occasion articles:
+  Diwali peaks 2025-10 (37% of views), Raksha Bandhan 2025-08 (50%),
+  Eid al-Fitr 2025-03 (43%), Christmas-in-India 2025-12. Corroborates
+  occasion_blindness (RC2) and festival seasonality.
+- Official Google Trends explore endpoint probed once: HTTP 429 from this
+  network (recorded in trends_insights.json.trends_official); the two
+  proxies above are used instead.
+Output: data/out/trends_insights.json (served by the deploy API at /trends).
+
+## LLM (all stages)
+Qwen38-27B via the owner's LiteLLM proxy (OpenAI-compatible chat
+completions; LLM_BASE_URL/LLM_API_KEY/LLM_MODEL in the repo .env). Used for:
+agent fetch planning (audit-logged), complaint root-cause label verification
+(stratified sample), and the app's guided follow-ups. No Gemini/other
+vendor is used anywhere in this project.

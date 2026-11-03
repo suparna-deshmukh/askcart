@@ -1,0 +1,2146 @@
+{
+ "summary": {
+  "n": 150,
+  "baseline_null_pct": 27.3,
+  "guided_null_pct": 8.0,
+  "resolved_pct": 92.0,
+  "resolved_by_turn2_pct": 78.7,
+  "resolved_exactly_turn2_pct": 26.0,
+  "turn_distribution": {
+   "t1": 79,
+   "t2": 39,
+   "t3": 20,
+   "t4+": 0,
+   "unresolved": 12
+  },
+  "guide_mode": {
+   "policy": 12,
+   "fallback": 59
+  }
+ },
+ "records": [
+  {
+   "id": "Q001",
+   "query": "gift shopping under 3k",
+   "persona": "P6",
+   "design_bucket": "occasion_only",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q002",
+   "query": "birthday candle under 1750",
+   "persona": "P3",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q003",
+   "query": "rebem under 5k",
+   "persona": "P6",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 1,
+   "guide_mode": "policy",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Wedding / Shaadi"
+   ]
+  },
+  {
+   "id": "Q004",
+   "query": "bag under 6k",
+   "persona": "P3",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q005",
+   "query": "curtain under 500",
+   "persona": "P4",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q006",
+   "query": "tajima",
+   "persona": "P3",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "budget:Not sure / flexible",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q007",
+   "query": "metalic under 5k",
+   "persona": "P2",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 0,
+   "guide_mode": "policy",
+   "answers": [
+    "occasion:Diwali / Festival",
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q008",
+   "query": "serum under 2500",
+   "persona": "P6",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q009",
+   "query": "gift for my new neighbour's shaadi under 1500",
+   "persona": "P2",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q010",
+   "query": "bowden for home",
+   "persona": "P5",
+   "design_bucket": "marginal",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q011",
+   "query": "something for my best friend's party",
+   "persona": "P1",
+   "design_bucket": "vague",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q012",
+   "query": "gift for my best friend under 2k",
+   "persona": "P4",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q013",
+   "query": "gift basket under 7500",
+   "persona": "P2",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q014",
+   "query": "vintage rotary phone under 8k",
+   "persona": "P2",
+   "design_bucket": "rare_mixed",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q015",
+   "query": "lamplust under 1k",
+   "persona": "P1",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q016",
+   "query": "good yoga mat under 2k",
+   "persona": "P5",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q017",
+   "query": "party gift under 3k",
+   "persona": "P3",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q018",
+   "query": "gift for my best friend under 1k",
+   "persona": "P6",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q019",
+   "query": "roush under 4k",
+   "persona": "P4",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q020",
+   "query": "last minute gift gift under 500",
+   "persona": "P2",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q021",
+   "query": "party charger under 2k",
+   "persona": "P5",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q022",
+   "query": "last minute diwali gift under 1000",
+   "persona": "P6",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q023",
+   "query": "gift for my mom under 1k",
+   "persona": "P5",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q024",
+   "query": "mores",
+   "persona": "P2",
+   "design_bucket": "marginal",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q025",
+   "query": "decorative lights under 5k",
+   "persona": "P2",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q026",
+   "query": "party shopping under 6k",
+   "persona": "P3",
+   "design_bucket": "occasion_only",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q027",
+   "query": "gift for my mom's gift under 800",
+   "persona": "P5",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q028",
+   "query": "wall art under 800",
+   "persona": "P6",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q029",
+   "query": "gift wall art under 250",
+   "persona": "P4",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q030",
+   "query": "diwali decorative lights under 3k",
+   "persona": "P6",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q031",
+   "query": "gift for my mom's party under 1500",
+   "persona": "P1",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q032",
+   "query": "gift for my husband's shaadi under 1500",
+   "persona": "P1",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q033",
+   "query": "organizer below 1000",
+   "persona": "P1",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q034",
+   "query": "theremin under 500",
+   "persona": "P3",
+   "design_bucket": "dead",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 0,
+   "guide_mode": "policy",
+   "answers": [
+    "category:Amazon Home",
+    "occasion:Everyday use"
+   ]
+  },
+  {
+   "id": "Q035",
+   "query": "party gift under 1k",
+   "persona": "P1",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q036",
+   "query": "handbag",
+   "persona": "P4",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q037",
+   "query": "smartwatch under 1500",
+   "persona": "P1",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q038",
+   "query": "gift shopping under 3k",
+   "persona": "P1",
+   "design_bucket": "occasion_only",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q039",
+   "query": "gift for my mom under 2k",
+   "persona": "P1",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q040",
+   "query": "real diamond stud earrings under 8k",
+   "persona": "P2",
+   "design_bucket": "rare_mixed",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q041",
+   "query": "lawv",
+   "persona": "P2",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 1,
+   "guide_mode": "policy",
+   "answers": [
+    "budget:Under \u20b94,000",
+    "category:Musical Instruments"
+   ]
+  },
+  {
+   "id": "Q042",
+   "query": "birthday gift under 1500",
+   "persona": "P6",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q043",
+   "query": "bauble under 1k",
+   "persona": "P1",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q044",
+   "query": "diwali cap under 500",
+   "persona": "P4",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q045",
+   "query": "shaadi present under 500",
+   "persona": "P4",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q046",
+   "query": "floral dress",
+   "persona": "P6",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q047",
+   "query": "strimer under 1k",
+   "persona": "P1",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q048",
+   "query": "wallet under 1k",
+   "persona": "P6",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q049",
+   "query": "vintage rotary phone under 1k",
+   "persona": "P6",
+   "design_bucket": "rare_mixed",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q050",
+   "query": "shirt under 1250",
+   "persona": "P5",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q051",
+   "query": "good dumbbells under 2k",
+   "persona": "P5",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q052",
+   "query": "gift gift under 1000",
+   "persona": "P1",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q053",
+   "query": "birthday wall art under 2k",
+   "persona": "P3",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q054",
+   "query": "emery under 1k",
+   "persona": "P4",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q055",
+   "query": "gift for my colleague under 5k",
+   "persona": "P1",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q056",
+   "query": "genuine fur coat under 5k",
+   "persona": "P1",
+   "design_bucket": "rare_mixed",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q057",
+   "query": "surprise gift for my sister",
+   "persona": "P3",
+   "design_bucket": "vague",
+   "baseline_n": 7,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 7,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q058",
+   "query": "gift for my best friend's gift under 1000",
+   "persona": "P2",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q059",
+   "query": "something for my colleague's diwali",
+   "persona": "P4",
+   "design_bucket": "vague",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 9,
+   "guide_mode": "fallback",
+   "answers": [
+    "budget:Under \u20b9500"
+   ]
+  },
+  {
+   "id": "Q060",
+   "query": "alphagal under 4k",
+   "persona": "P4",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 1,
+   "guide_mode": "policy",
+   "answers": [
+    "occasion:Diwali / Festival",
+    "category:Handmade"
+   ]
+  },
+  {
+   "id": "Q061",
+   "query": "gift gift under 2k",
+   "persona": "P2",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q062",
+   "query": "gift set",
+   "persona": "P3",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q063",
+   "query": "flzosper under 3k",
+   "persona": "P6",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 1,
+   "guide_mode": "policy",
+   "answers": [
+    "occasion:Diwali / Festival",
+    "category:Tools & Home Improvement"
+   ]
+  },
+  {
+   "id": "Q064",
+   "query": "wall art under 5k",
+   "persona": "P6",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q065",
+   "query": "gift for my sister under 2k",
+   "persona": "P3",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q066",
+   "query": "espreso",
+   "persona": "P4",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "budget:Not sure / flexible",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q067",
+   "query": "floral dress under 800",
+   "persona": "P6",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q068",
+   "query": "jocher",
+   "persona": "P5",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "budget:Under \u20b92,500",
+    "occasion:Birthday"
+   ]
+  },
+  {
+   "id": "Q069",
+   "query": "party router under 1500",
+   "persona": "P1",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q070",
+   "query": "party gift under 800",
+   "persona": "P1",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q071",
+   "query": "clutches for home",
+   "persona": "P5",
+   "design_bucket": "marginal",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q072",
+   "query": "shaadi router under 8k",
+   "persona": "P2",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q073",
+   "query": "something for my colleague's graduation",
+   "persona": "P5",
+   "design_bucket": "vague",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q074",
+   "query": "real diamond stud earrings under 6k",
+   "persona": "P3",
+   "design_bucket": "rare_mixed",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q075",
+   "query": "gift for my husband under 1k",
+   "persona": "P6",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q076",
+   "query": "gift idea under 8k",
+   "persona": "P2",
+   "design_bucket": "vague",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q077",
+   "query": "gift for my new neighbour's gift under 800",
+   "persona": "P3",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q078",
+   "query": "cushion",
+   "persona": "P3",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q079",
+   "query": "last minute birthday gift under 1500",
+   "persona": "P5",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q080",
+   "query": "znbhepa",
+   "persona": "P2",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 1,
+   "guide_mode": "policy",
+   "answers": [
+    "budget:Under \u20b91,750",
+    "category:Appliances"
+   ]
+  },
+  {
+   "id": "Q081",
+   "query": "skincare set for diwali",
+   "persona": "P6",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q082",
+   "query": "sports watch",
+   "persona": "P5",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q083",
+   "query": "gift heels under 500",
+   "persona": "P4",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q084",
+   "query": "good heels under 4k",
+   "persona": "P5",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q085",
+   "query": "gift gift under 2k",
+   "persona": "P4",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q086",
+   "query": "birthday gift under 1500",
+   "persona": "P5",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q087",
+   "query": "diwali present under 1000",
+   "persona": "P6",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q088",
+   "query": "gift for my best friend's party under 1500",
+   "persona": "P5",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q089",
+   "query": "something for my new neighbour's party",
+   "persona": "P3",
+   "design_bucket": "vague",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q090",
+   "query": "saree for birthday",
+   "persona": "P3",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q091",
+   "query": "shaadi gift under 1500",
+   "persona": "P4",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q092",
+   "query": "gaming mouse for shaadi",
+   "persona": "P1",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q093",
+   "query": "something for my new neighbour's party",
+   "persona": "P3",
+   "design_bucket": "vague",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q094",
+   "query": "shenanigans",
+   "persona": "P1",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "budget:Under \u20b91,500",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q095",
+   "query": "lider for home",
+   "persona": "P1",
+   "design_bucket": "marginal",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q096",
+   "query": "croso under 5k",
+   "persona": "P6",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": false,
+   "turns": 2,
+   "final_n": 1,
+   "guide_mode": "policy",
+   "answers": [
+    "category:All Electronics"
+   ]
+  },
+  {
+   "id": "Q097",
+   "query": "nice party present under 1k",
+   "persona": "P5",
+   "design_bucket": "occasion_only",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q098",
+   "query": "yoidesu",
+   "persona": "P5",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 0,
+   "guide_mode": "policy",
+   "answers": [
+    "budget:Under \u20b94,500",
+    "category:Computers"
+   ]
+  },
+  {
+   "id": "Q099",
+   "query": "decorative lights under 2000",
+   "persona": "P4",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q100",
+   "query": "something for my husband's gift",
+   "persona": "P6",
+   "design_bucket": "vague",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q101",
+   "query": "party heels under 2k",
+   "persona": "P3",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q102",
+   "query": "gift for my new neighbour under 500",
+   "persona": "P4",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q103",
+   "query": "gift set under 1k",
+   "persona": "P4",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q104",
+   "query": "party floral dress under 5k",
+   "persona": "P1",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q105",
+   "query": "smartwatch below 2500",
+   "persona": "P2",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q106",
+   "query": "vintage rotary phone under 2k",
+   "persona": "P5",
+   "design_bucket": "rare_mixed",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q107",
+   "query": "tiro under 2k",
+   "persona": "P1",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Birthday"
+   ]
+  },
+  {
+   "id": "Q108",
+   "query": "camera for gift",
+   "persona": "P2",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q109",
+   "query": "monitor stand",
+   "persona": "P2",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q110",
+   "query": "shaadi handbag under 5k",
+   "persona": "P1",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q111",
+   "query": "good cap under 4k",
+   "persona": "P5",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q112",
+   "query": "gift for my mom under 1k",
+   "persona": "P3",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q113",
+   "query": "curtain below 500",
+   "persona": "P4",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q114",
+   "query": "anniversary lip balm under 2500",
+   "persona": "P2",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q115",
+   "query": "gift for my mom under 5k",
+   "persona": "P2",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q116",
+   "query": "rug",
+   "persona": "P1",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q117",
+   "query": "shaadi gift under 5k",
+   "persona": "P1",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q118",
+   "query": "something for my new neighbour's birthday",
+   "persona": "P1",
+   "design_bucket": "vague",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q119",
+   "query": "wall art",
+   "persona": "P4",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q120",
+   "query": "bassoon for the house under 500",
+   "persona": "P4",
+   "design_bucket": "dead",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q121",
+   "query": "perseus under 7k",
+   "persona": "P5",
+   "design_bucket": "marginal",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q122",
+   "query": "sitar under 1000",
+   "persona": "P5",
+   "design_bucket": "dead",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 0,
+   "guide_mode": "policy",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Everyday use"
+   ]
+  },
+  {
+   "id": "Q123",
+   "query": "ketones under 5k",
+   "persona": "P2",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q124",
+   "query": "cornu under 2000",
+   "persona": "P5",
+   "design_bucket": "dead",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 0,
+   "guide_mode": "policy",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Everyday use"
+   ]
+  },
+  {
+   "id": "Q125",
+   "query": "gift for my best friend under 3k",
+   "persona": "P3",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q126",
+   "query": "party present under 800",
+   "persona": "P3",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q127",
+   "query": "last minute birthday gift under 800",
+   "persona": "P3",
+   "design_bucket": "tight_occasion",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q128",
+   "query": "something practical for the office",
+   "persona": "P2",
+   "design_bucket": "vague",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q129",
+   "query": "gift for my husband under 2k",
+   "persona": "P4",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q130",
+   "query": "dafengea under 1k",
+   "persona": "P6",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home",
+    "occasion:Birthday"
+   ]
+  },
+  {
+   "id": "Q131",
+   "query": "preimum under 1k",
+   "persona": "P3",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q132",
+   "query": "surprise gift for my mom",
+   "persona": "P1",
+   "design_bucket": "vague",
+   "baseline_n": 7,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 7,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q133",
+   "query": "sonny under 2k",
+   "persona": "P3",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Birthday"
+   ]
+  },
+  {
+   "id": "Q134",
+   "query": "birthday gift under 1k",
+   "persona": "P5",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION"
+   ]
+  },
+  {
+   "id": "Q135",
+   "query": "myostorm under 2k",
+   "persona": "P4",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q136",
+   "query": "charger for gift",
+   "persona": "P2",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q137",
+   "query": "birthday mixer under 2k",
+   "persona": "P1",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q138",
+   "query": "bathrom under 4k",
+   "persona": "P5",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Birthday"
+   ]
+  },
+  {
+   "id": "Q139",
+   "query": "belay",
+   "persona": "P1",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": false,
+   "turns": 3,
+   "final_n": 1,
+   "guide_mode": "policy",
+   "answers": [
+    "budget:Not sure / flexible",
+    "category:Sports & Outdoors"
+   ]
+  },
+  {
+   "id": "Q140",
+   "query": "diwali gift under 5k",
+   "persona": "P2",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q141",
+   "query": "shaadi shopping under 2k",
+   "persona": "P1",
+   "design_bucket": "occasion_only",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q142",
+   "query": "lantime",
+   "persona": "P5",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "budget:Not sure / flexible",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q143",
+   "query": "genuine fur coat under 1k",
+   "persona": "P1",
+   "design_bucket": "rare_mixed",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q144",
+   "query": "readymade under 1k",
+   "persona": "P1",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q145",
+   "query": "good curtain under 3k",
+   "persona": "P1",
+   "design_bucket": "clear",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q146",
+   "query": "gruhum",
+   "persona": "P6",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "budget:Not sure / flexible",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q147",
+   "query": "miskeituo under 1k",
+   "persona": "P3",
+   "design_bucket": "marginal",
+   "baseline_n": 1,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 3,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:AMAZON FASHION",
+    "occasion:Gift"
+   ]
+  },
+  {
+   "id": "Q148",
+   "query": "rotary phone under 500",
+   "persona": "P4",
+   "design_bucket": "dead",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  },
+  {
+   "id": "Q149",
+   "query": "gift gift under 5k",
+   "persona": "P2",
+   "design_bucket": "occasion_only",
+   "baseline_n": 0,
+   "baseline_null": true,
+   "resolved": true,
+   "turns": 2,
+   "final_n": 12,
+   "guide_mode": "fallback",
+   "answers": [
+    "category:Amazon Home"
+   ]
+  },
+  {
+   "id": "Q150",
+   "query": "wallet under 2000",
+   "persona": "P4",
+   "design_bucket": "budget_tight",
+   "baseline_n": 12,
+   "baseline_null": false,
+   "resolved": true,
+   "turns": 1,
+   "final_n": 12,
+   "guide_mode": null,
+   "answers": []
+  }
+ ]
+}
