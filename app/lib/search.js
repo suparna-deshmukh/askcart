@@ -352,7 +352,7 @@ const CAT_ALIAS = { "electronics": "electronics", "fashion": "fashion",
   "sports": "sports", "office": "office" };
 
 // Shared scorer: returns every matching item with its score (pre-sort).
-function scoreAll(catalog, q, { relax = false, category = null, occasion = null, budgetMax = null, brand = null, naive = false } = {}) {
+function scoreAll(catalog, q, { relax = false, category = null, occasion = null, budgetMax = null, brand = null, naive = false, forWhom = null, size = null, capacity = null } = {}) {
   const idx = titleIndex(catalog);
   const parsed = parseQuery(q);
   const tokens = parsed.tokens;
@@ -391,7 +391,22 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
   const typoPlan = planTypos(tokens, idx); // S1 (guided path only)
   const rawWords = new Set(String(q).toLowerCase().match(/[a-z']+/g) || []);
   const accHints = [...ACCESSORY_HINTS].filter((w) => !tokenSet.has(w));
-  const specs = parsed.specs || {};
+  // G3: guided facets (for-whom / size / capacity chips) reuse the exact
+  // same recipient and spec-slot boost mechanisms as parsed query slots.
+  let specs = parsed.specs || {};
+  const g3 = {};
+  if (size && /^(xxl|xl|l|m|s|xs)$/i.test(size)) g3.size = size.toLowerCase();
+  if (capacity) {
+    const cm = String(capacity).match(/([\d.]+)\s*(ton|kg|l)\b/i);
+    if (cm) {
+      const u = cm[2].toLowerCase();
+      if (u === "ton") g3.tonnage = parseFloat(cm[1]);
+      else if (u === "kg") g3.kg = parseInt(cm[1], 10);
+      else g3.volume = parseInt(cm[1], 10);
+    }
+  }
+  if (Object.keys(g3).length) specs = { ...specs, ...g3 };
+  const g3male = forWhom === "men", g3female = forWhom === "women", g3child = forWhom === "kids";
   // Budget-only query ("under 500"): browse mode - top-rated items within
   // the cap (and the occasion, when one is given), instead of a null page.
   if (tokens.length === 0 && budget !== null) {
@@ -452,6 +467,11 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
       if (hasTon && idx.pos[i].has(String(specs.tonnage))) score += 1.5;
       else if (hasTon) score -= 1.0;
     }
+    if (specs.kg !== undefined) {
+      const hasKg = idx.pos[i].has("kg");
+      if (hasKg && idx.pos[i].has(String(specs.kg))) score += 1.5;
+      else if (hasKg) score -= 1.0;
+    }
     if (specs.inches !== undefined) {
       const hasIn = idx.pos[i].has("inch") || idx.pos[i].has("inches");
       if (hasIn && idx.pos[i].has(String(specs.inches))) score += 1.5;
@@ -505,11 +525,20 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
       if (adult) {
         for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score -= 1.5; break; }
       }
-      if (child) {
+      if (child || g3child) {
         for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score += 1.0; break; }
       }
-      if (male && (idx.pos[i].has("womens") || idx.pos[i].has("women"))) score -= 1.0;
-      if (female && (idx.pos[i].has("men") || idx.pos[i].has("mens"))) score -= 1.0;
+      if ((male || g3male) && (idx.pos[i].has("womens") || idx.pos[i].has("women"))) score -= 1.0;
+      if ((female || g3female) && (idx.pos[i].has("men") || idx.pos[i].has("mens"))) score -= 1.0;
+      // G3: an explicit for-whom chip also boosts matching gender tokens,
+      // so the tap visibly re-ranks (penalty alone is a no-op on
+      // gender-token-poor candidate sets like India-layer kurtis).
+      if (g3female) {
+        for (const w of ["women", "womens", "ladies", "female"]) if (idx.pos[i].has(w)) { score += 2.0; break; }
+      }
+      if (g3male) {
+        for (const w of ["men", "mens", "male"]) if (idx.pos[i].has(w)) { score += 2.0; break; }
+      }
     }
     // Query modifiers that also appear in the title confirm the intended
     // product kind ("office chair" -> an "Office Chair", not a dining chair).
@@ -565,7 +594,9 @@ export function searchStats(catalog, q, opts = {}) {
     categories: top(catCounts, 4),
     brands: top(brandCounts, 4),
     priceP: { p25: pct(0.25), p50: pct(0.5), p75: pct(0.75) },
-    items: base.slice(0, 300), // G1: top-300 candidates for per-option facet counts
+    // G1: facet counts come from the top-300 candidates BY SCORE (the set
+    // the shopper can actually see), not catalogue order.
+    items: (hits.length ? [...base].sort((a, b) => (b.score || 0) - (a.score || 0)) : base).slice(0, 300),
     // G1: facet counts for question chips (candidate-set, not whole catalog)
     tagCounts: top(tagCounts, 12),
     priceMin: prices.length ? prices[0] : 0,

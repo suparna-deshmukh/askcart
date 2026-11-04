@@ -5,7 +5,7 @@ the live app and prints the top-3 so a human/reviewer can eyeball relevance
 after any search or catalog change.
 Usage: .venv/bin/python eval/canaries.py [--url http://localhost:3000]
 """
-import argparse, json, urllib.request
+import argparse, json, re, urllib.request
 
 CANARIES = [
     ("saree under 3k", "regional"),
@@ -132,6 +132,38 @@ def post(url, payload):
     with urllib.request.urlopen(req, timeout=60) as r:
         return json.load(r)
 
+# G3 guided-facet checks (assertions, not eyeball): the guide must only ask
+# a facet question when the candidate set can visibly act on the answer.
+G3_CHECKS = [
+    ("guide_for_whom", "shirt under 1k", {}, "for_whom"),
+    ("guide_no_gender_data", "kurti", {}, "not_for_whom"),
+    ("guide_recipient_hint", "kurti for ammi", {}, "not_for_whom"),
+    ("facet_size_l", "cotton kurti", {"size": "l"}, "L"),
+    ("facet_for_whom_women", "shirt under 1k", {"forWhom": "women"}, "women"),
+]
+
+def check_g3(url):
+    fails = 0
+    for kind, q, opts, expect in G3_CHECKS:
+        if kind.startswith("guide"):
+            d = post(url + "/api/guide", {"query": q, "n_results": 48, "turn": 1, "prev_types": []})
+            g = d.get("guide") or {}
+            t = g.get("type")
+            if expect == "for_whom":
+                named = sum(o.get("count", 0) for o in (g.get("optionCounts") or [])[:3])
+                ok = t == "for_whom" and named >= 15
+            else:
+                ok = t != "for_whom"
+        else:
+            d = post(url + "/api/search", {"query": q, **opts})
+            tops = d["results"][:3] if kind == "facet_size_l" else d["results"][:12]
+            pat = r"\bL\b" if kind == "facet_size_l" else r"\b(women|womens|ladies|female)\b"
+            ok = sum(1 for r in tops if re.search(pat, r["title"], re.I)) >= (2 if kind == "facet_size_l" else 5)
+        if not ok:
+            fails += 1
+        print(f"[{'OK ' if ok else 'FAIL'}] (g3:{kind}) {q!r} {opts or ''}")
+    return fails
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", default="http://localhost:3000")
@@ -146,7 +178,8 @@ def main():
         print(f"[{tag}] ({kind}) {q!r}")
         for i, r in enumerate(res[:3], 1):
             print(f"    {i}. [Rs{r['price']:>7}] {r['title'][:74]} | {r['category']}")
-    print(f"\ndone: {len(CANARIES)} canaries, {fails} unexpected empties")
+    fails += check_g3(a.url)
+    print(f"\ndone: {len(CANARIES)} canaries + {len(G3_CHECKS)} g3 checks, {fails} failures")
 
 if __name__ == "__main__":
     main()

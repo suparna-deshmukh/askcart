@@ -25,6 +25,10 @@ export async function POST(req) {
     occasion: body.occasion || null,
     budgetMax: numOrNull(body.budget),
     brand: body.brand || null,
+    // G3: guided facet answers (for-whom / size / capacity chips)
+    forWhom: ["women", "men", "kids", "unisex"].includes(body.forWhom) ? body.forWhom : null,
+    size: ["xxl", "xl", "l", "m", "s", "xs"].includes(String(body.size || "").toLowerCase()) ? String(body.size).toLowerCase() : null,
+    capacity: body.capacity && /^[\d.]+\s*(ton|kg|l)$/i.test(String(body.capacity)) ? String(body.capacity) : null,
     limit: Math.max(1, Math.min(96, Number(body.limit) || 12)),
   });
   return NextResponse.json({

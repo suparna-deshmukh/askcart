@@ -20,7 +20,10 @@ const CATEGORY_FLOWS = {
   electronics: ["budget", "brand"],
   phones: ["budget", "brand"],
   computers: ["budget", "brand"],
-  fashion: ["occasion", "budget", "brand"],
+  // G3: for-whom + size are the most decisive fashion facets (46.7% of the
+  // catalogue is fashion); occasion stays first for gift queries (override).
+  fashion: ["for_whom", "occasion", "size", "budget", "brand"],
+  appliances: ["budget", "capacity", "brand"],
   beauty: ["occasion", "budget", "brand"],
   home: ["budget", "occasion"],
   toys: ["occasion", "budget"],
@@ -39,7 +42,8 @@ function flowKey(category) {
   const c = String(category || "").toLowerCase();
   if (/cell phone|phone/.test(c)) return "phones";
   if (/computer/.test(c)) return "computers";
-  if (/electronic|camera|audio|appliance|video game/.test(c)) return "electronics";
+  if (/appliance/.test(c)) return "appliances";
+  if (/electronic|camera|audio|video game/.test(c)) return "electronics";
   if (/fashion/.test(c)) return "fashion";
   if (/beauty/.test(c)) return "beauty";
   if (/toys/.test(c)) return "toys";
@@ -101,6 +105,61 @@ function occasionOptions(region) {
   return opts.slice(0, 6);
 }
 
+// G3: for-whom / size / capacity option generators - counts come from the
+// candidate set (top-300), same rule as the budget/occasion/brand facets.
+const FOR_WHOM_WORDS = {
+  Women: /\b(women|womens|ladies|female)\b/i,
+  Men: /\b(men|mens|male|groom)\b/i,
+  Kids: /\b(kids|kid|children|child|toddler|baby|infant|boy|boys|girl|girls|school)\b/i,
+};
+export function forWhomOptions(items, n) {
+  const counts = {};
+  for (const [label, re] of Object.entries(FOR_WHOM_WORDS)) {
+    counts[label] = items.filter((it) => re.test(it.title)).length;
+  }
+  return [
+    { label: "Women", count: counts.Women },
+    { label: "Men", count: counts.Men },
+    { label: "Kids", count: counts.Kids },
+    { label: "Unisex / any", count: n },
+  ];
+}
+const SIZE_ORDER = ["xs", "s", "m", "l", "xl", "xxl"];
+export function sizeOptions(items, n) {
+  const counts = {};
+  for (const it of items) {
+    const ms = String(it.title).match(/\b(xxxl|xxl|xl|l|m|s|xs)\b/gi) || [];
+    for (const w of ms) {
+      const k = w.toLowerCase();
+      if (SIZE_ORDER.includes(k)) counts[k] = (counts[k] || 0) + 1;
+    }
+  }
+  const opts = SIZE_ORDER.filter((s) => counts[s])
+    .map((s) => ({ label: s.toUpperCase(), count: counts[s] }));
+  opts.push({ label: "Any size", count: n });
+  return opts;
+}
+export function capacityOptions(items, n) {
+  const counts = new Map();
+  for (const it of items) {
+    const ms = String(it.title).match(/(\d+(?:\.\d+)?)\s*(ton|kg|l)\b/g) || [];
+    for (const raw of ms) {
+      const m = raw.match(/(\d+(?:\.\d+)?)\s*(ton|kg|l)/i);
+      const u = m[2].toLowerCase();
+      const key = `${m[1]} ${u === "l" ? "L" : u}`;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+  }
+  const opts = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4)
+    .map(([label, count]) => ({ label, count }));
+  if (opts.length) opts.push({ label: "Any", count: n });
+  return opts;
+}
+
+// G3 eligibility: don't re-ask what the query already states.
+const RECIPIENT_HINT = /\b(papa|dad|father|husband|brother|ammi|amma|mom|mum|mummy|maa|dadi|nani|beta|beti|bachche|kid|kids|girl|boy|women|men|for her|for him)\b/i;
+function hasRecipientHint(query) { return RECIPIENT_HINT.test(String(query)); }
+
 function clean(n) {
   if (!n || n <= 0) return 0;
   const step = n < 2000 ? 250 : n < 10000 ? 500 : 1000;
@@ -156,6 +215,9 @@ const TEMPLATES = {
   occasion: "Quick one: what's the occasion?",
   category: "I can point you better - which of these are you after?",
   brand: "Any brand preference? Or I'll pick the best-rated ones.",
+  for_whom: "Quick one - who's it for?",
+  size: "Any size you need? (or I'll show all)",
+  capacity: "What size / capacity do you need?",
 };
 
 // Returns the decision. `context`: { turn, prevTypes } from the client.
@@ -178,6 +240,19 @@ export function decideGuide(catalog, query, nResults, context = {}) {
     // "gift" is a generic occasion tag: still worth refining to a real occasion
     if (t === "occasion" && parsed.occasion && parsed.occasion !== "gift") return false;
     if (t === "category" && !isRescue && dominantShare > 0.7) return false;
+    // G3: facet questions are only eligible when their data supports them
+    if (t === "for_whom" && hasRecipientHint(query)) return false;
+    if (t === "for_whom") {
+      // Gender tokens must actually exist in the candidate set, or the
+      // chip tap would re-rank nothing (India-layer titles carry no
+      // women/men tokens: "kurti" -> Women 1 / Men 0 / Kids 0).
+      const fw = forWhomOptions(stats.items, stats.n);
+      const named = fw[0].count + fw[1].count + fw[2].count;
+      if (stats.n < 20 || named < 15 || named / stats.n < 0.05) return false;
+    }
+    if (t === "size" && ((parsed.specs && parsed.specs.size) || sizeOptions(stats.items, stats.n).length < 3)) return false;
+    if (t === "capacity" && (capacityOptions(stats.items, stats.n).length < 3 ||
+        (parsed.specs && (parsed.specs.tonnage !== undefined || parsed.specs.kg !== undefined || parsed.specs.volume !== undefined)))) return false;
     return true;
   });
   // Rescue mode: disambiguation is the rescue - category question always
@@ -192,9 +267,9 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   if (isRescue && eligible.includes("category") && dominantShare < 0.5 && stats.categories.length > 1) {
     order = ["category", ...eligible.filter((t) => t !== "category")];
   }
-  // Gift-override: a gift query whose occasion is unknown should ask
-  // occasion before budget (the occasion IS the product).
-  if (gift && !parsed.occasion && order.includes("occasion") && order[0] === "budget") {
+  // Gift-override: a gift query whose occasion is unknown asks occasion
+  // first, whatever the flow (the occasion IS the product).
+  if (gift && !parsed.occasion && order.includes("occasion") && order[0] !== "occasion") {
     order = ["occasion", ...order.filter((t) => t !== "occasion")];
   }
 
@@ -208,13 +283,13 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   let reason = "";
   if (type === "budget") {
     options = budgetOptions(stats, { stepDown: context.persona?.userType === "Student" });
-    reason = `no explicit budget in query; candidate set price range p25 ${inr(stats.priceP.p25)} – p75 ${inr(stats.priceP.p75)} (budget_mismatch = 31.4% of mined complaints)`;
+    reason = `no explicit budget in query; candidate set price range p25 ${inr(stats.priceP.p25)} – p75 ${inr(stats.priceP.p75)} (budget_mismatch = 9.4% of mined complaints; price spread is the issue, not the label)`;
     optionCounts = options.map((o) => ({ label: o, count: countBudget(stats.items, stats.n, o) }));
   } else if (type === "occasion") {
     // G7: calendar- and region-aware ordering (Diwali leads in Nov 2026).
     options = occasionOptions(context.region);
     reason = gift
-      ? `gift intent without occasion; occasion tags decide ranking (occasion_blindness = 7.1% of mined complaints, top driver of gift-query failures)`
+      ? `gift intent without occasion; occasion tags decide ranking (occasion_blindness = 0.7% overall, but the top driver of gift-query failures in the corpus)`
       : `category flow prioritizes occasion (fashion/gift-adjacent)`;
     optionCounts = options.map((o) => ({ label: o, count: countOccasion(stats.items, stats.n, stats.tagCounts, o) }));
   } else if (type === "category") {
@@ -229,7 +304,7 @@ export function decideGuide(catalog, query, nResults, context = {}) {
       names = names.slice(0, 4);
     }
     options = names;
-    reason = `ambiguous across categories (top share ${(dominantShare * 100).toFixed(0)}%); zero_or_wrong = 19.3% of mined complaints`;
+    reason = `ambiguous across categories (top share ${(dominantShare * 100).toFixed(0)}%); zero_or_wrong = 3.5% of mined complaints`;
     const catCount = (name) => {
       if (stats.n > 0) return counts.get(name) || 0;
       return catalog.filter((x) => x.category === name).length; // dead-end: whole catalogue
@@ -238,9 +313,24 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   } else if (type === "brand") {
     options = stats.brands.slice(0, 3).map((b) => b.name);
     options.push("No preference - best rated");
-    reason = `brand-driven category, results fragmented (${stats.brands.length} brands in candidate set); brand = strongest trust proxy (trust_gap = 42.2% of mined complaints)`;
+    reason = `brand-driven category, results fragmented (${stats.brands.length} brands in candidate set); brand = strongest trust proxy (trust_gap = 54.4% of mined complaints)`;
     const brandCount = (name) => (stats.brands.find((b) => b.name === name) || { count: 0 }).count;
     optionCounts = options.map((o) => ({ label: o, count: o.startsWith("No preference") ? stats.n : brandCount(o) }));
+  } else if (type === "for_whom") {
+    // G3: fashion for-whom facet
+    optionCounts = forWhomOptions(stats.items, stats.n);
+    options = optionCounts.map((o) => o.label);
+    reason = `fashion candidate set spans women/men/kids lines; for-whom is the strongest single filter on fashion (46.7% of the catalogue is fashion)`;
+  } else if (type === "size") {
+    // G3: size facet, derived from title variants (S/M/L/XL)
+    optionCounts = sizeOptions(stats.items, stats.n);
+    options = optionCounts.map((o) => o.label);
+    reason = `size is stated in most candidate titles; picking one removes the largest cluster of near-duplicate variant cards`;
+  } else if (type === "capacity") {
+    // G3: appliance capacity facet (tonnage / kg / litres from titles)
+    optionCounts = capacityOptions(stats.items, stats.n);
+    options = optionCounts.map((o) => o.label);
+    reason = `appliance candidate set spans multiple capacities (tonnage/kg/litres); the spec slot re-ranks on it`;
   }
 
   return {

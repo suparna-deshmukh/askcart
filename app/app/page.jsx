@@ -325,13 +325,13 @@ function AskCartHome() {
     track("page_view", { screen: "analytics", subtab: next });
   }
 
-  async function doSearch(query, { relax = false, category = null, occasion = null, budget = null, turn = 1, limit = 48 } = {}) {
+  async function doSearch(query, { relax = false, category = null, occasion = null, budget = null, turn = 1, limit = 48, forWhom = null, size = null, capacity = null } = {}) {
     try {
       const t0 = Date.now();
       const r = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, relax, category, occasion, budget, limit }),
+        body: JSON.stringify({ query, relax, category, occasion, budget, limit, forWhom, size, capacity }),
       });
       const j = await r.json();
       if (!Array.isArray(j.results)) {
@@ -488,6 +488,13 @@ function AskCartHome() {
       opts = { occasion: map[key] !== undefined ? map[key] : null };
     } else if (guide.type === "brand") {
       opts = { brand: /no preference|best rated/i.test(chip) ? "best_rated" : chip };
+    } else if (guide.type === "for_whom") {
+      // G3: for-whom facet -> recipient-style re-rank (women/men/kids)
+      opts = { forWhom: /women/i.test(chip) ? "women" : /men/i.test(chip) ? "men" : /kids/i.test(chip) ? "kids" : "unisex" };
+    } else if (guide.type === "size") {
+      opts = { size: /any/i.test(chip) ? null : String(chip).toLowerCase() };
+    } else if (guide.type === "capacity") {
+      opts = { capacity: /any/i.test(chip) ? null : chip };
     } else {
       opts = { category: chip };
     }

@@ -241,7 +241,7 @@ claim inflation, acceptance tests per item, commits `T3:`-style per item.
 
 ## P2 (search engine + catalogue) — queue
 S1 DONE → S2 DONE → S3 DONE → S4 DONE → S7 DONE → C1+C2+C3 DONE
-(see below) → G3 for-whom/size + capacity → G8 seasonal rails →
+(see below) → G3 DONE → G8 seasonal rails →
 G12 outcome micro-survey.
 
 - **S1 DONE** — typo tolerance in the guided scorer: Damerau (OSA)
@@ -306,6 +306,41 @@ G12 outcome micro-survey.
   3.4. Docs + HF bundle refreshed locally (no redeploy — no HF token in
   env; manual step in `docs/evidence/deploy.md`).
 
+- **C1+C2+C3 DONE** — one catalogue rebuild. C1/T7: per-SKU `origin`
+  (us_converted 24,998 / india_layer 11,047); docs reworded to
+  "India-oriented demo catalogue (36k SKUs: ~25k US-sourced converted +
+  ~11k India layer)". C2/T5: `brand_of` reworked — leading position
+  preferred, mid-title brand preceded by for/compatible/fits/suitable/
+  replacement = compatibility mention (not the brand), device tokens
+  (iphone/ipad/airpods/macbook/galaxy) never brand accessory rows,
+  Myntra kept with `brand_type: "retailer"` and excluded from top-brand
+  stats. Apple 757→183 SKUs (residual = Apple-ecosystem/MFi), Samsung
+  634→259 (median ₹2,079→₹3,329), branded 37.2%→33.5% (12,084).
+  C3: `is_accessory` (accessory word + host device; 2,276 SKUs, 6.3%) +
+  "Hide accessories" filter facet in the filter bar (filter_applied
+  filter_type=accessories). /api/search + /api/analytics/catalog carry
+  the new fields (additive). Canaries 111/111, ui tour 16 shots,
+  contrast 16/16, sync check green.
+
+- **G3 DONE** — guided facet questions beyond budget/occasion/category/
+  brand. Fashion flow: for-whom (Women/Men/Kids counts from the candidate
+  set) before size (S/M/L/XL from title variants); appliances flow:
+  capacity (N ton/kg/L) — but the current catalogue has no large
+  appliances with capacity in titles (the `Appliances` category is 948
+  vacuum parts/filters), so the data-support guard keeps capacity in
+  reserve: it only asks when the candidate set carries 3+ capacity
+  values. Search: `forWhom` / `size` / `capacity` options (validated in
+  the route); for-whom chips boost matching gender tokens (+2.0,
+  brand-chip level) and demote the opposite, so a tap visibly re-ranks
+  (shirt under 1k: women tokens in top-12 go 0 -> 12). Guard: for_whom
+  is only asked when >=15 gender-token candidates are in the top-300 by
+  score AND >=5% of the set — otherwise the chip would re-rank nothing
+  (kurti: Women 1 / Men 0). Also fixed G1 count semantics:
+  `searchStats.items` is now top-300 by score (brief: "top-N=300 by
+  score"), not catalogue order. 5 new G3 canary assertions (guide type +
+  facet effects) -> canaries 111 + 5 green, ui tour 17 shots, contrast 0
+  fails, sync OK.
+
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
   when the eval harness is ready.
@@ -360,20 +395,3 @@ S11 voice, dark theme, B8/B10. Floors that stay: canaries green per commit,
 CIs on all rates, 0 grounding failures, honest limitations section.
 
 ETA: ~5 h wall clock (range 4-6) from 2026-11-04 05:00 IST.
-  3.4. Docs + HF bundle refreshed locally (no redeploy — no HF token in
-  env; manual step in `docs/evidence/deploy.md`).
-- **C1+C2+C3 DONE** — one catalogue rebuild. C1/T7: per-SKU `origin`
-  (us_converted 24,998 / india_layer 11,047); docs reworded to
-  "India-oriented demo catalogue (36k SKUs: ~25k US-sourced converted +
-  ~11k India layer)". C2/T5: `brand_of` reworked — leading position
-  preferred, mid-title brand preceded by for/compatible/fits/suitable/
-  replacement = compatibility mention (not the brand), device tokens
-  (iphone/ipad/airpods/macbook/galaxy) never brand accessory rows,
-  Myntra kept with `brand_type: "retailer"` and excluded from top-brand
-  stats. Apple 757→183 SKUs (residual = Apple-ecosystem/MFi), Samsung
-  634→259 (median ₹2,079→₹3,329), branded 37.2%→33.5% (12,084).
-  C3: `is_accessory` (accessory word + host device; 2,276 SKUs, 6.3%) +
-  "Hide accessories" filter facet in the filter bar (filter_applied
-  filter_type=accessories). /api/search + /api/analytics/catalog carry
-  the new fields (additive). Canaries 111/111, ui tour 16 shots,
-  contrast 16/16, sync check green.
