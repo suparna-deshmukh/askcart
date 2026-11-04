@@ -36,17 +36,19 @@ export function llmAvailable() {
   return !!BASE && !!KEY;
 }
 
-export async function chat(messages, { maxTokens = 500, temperature = 0.2 } = {}) {
+export async function chat(messages, { maxTokens = 500, temperature = 0.2, timeoutMs = 45000, thinking = null } = {}) {
   if (!llmAvailable()) throw new Error("NO_KEY");
   let budget = maxTokens;
   let lastErr = null;
   for (let attempt = 0; attempt < 4; attempt++) {
     try {
+      const payload = { model: MODEL, messages, temperature, max_tokens: budget };
+      if (thinking === false) payload.extra_body = { chat_template_kwargs: { enable_thinking: false } };
       const r = await fetch(BASE + "/chat/completions", {
         method: "POST",
-        signal: AbortSignal.timeout(45000),
+        signal: AbortSignal.timeout(timeoutMs),
         headers: { "Authorization": `Bearer ${KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: MODEL, messages, temperature, max_tokens: budget }),
+        body: JSON.stringify(payload),
       });
       if (!r.ok) {
         lastErr = new Error(`HTTP ${r.status} ${(await r.text()).slice(0, 150)}`);

@@ -21,6 +21,13 @@ echo "== 4. pipeline pass 2 (merge labels) =="
 .venv/bin/python pipeline/run_pipeline.py
 echo "== 5. catalogue (36,045 SKUs: US base + India layer) =="
 .venv/bin/python scripts/build_catalog.py
+echo "== 5b. semantic index + unit gates (local ONNX, ~3-10 min, 0 API tokens) =="
+(cd app && node ../scripts/build_embeddings.mjs && \
+ node --import ../eval/chat/register-shim.mjs lib/__tests__/semantic.test.js)
+# NOTE: the committed study numbers (27.3 -> 8.0) were generated with
+# SEMANTIC_FALLBACK=0. To reproduce them exactly, run the dev server with
+# SEMANTIC_FALLBACK=0. The semantic layer's own (frozen-panel) numbers
+# live in eval/semantic/results/ (see docs/semantic_fallback.md).
 echo "== 6. study (needs: cd app && npm run dev  on :3000) =="
 .venv/bin/python eval/calibrate.py
 .venv/bin/python eval/run_eval.py

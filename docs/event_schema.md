@@ -22,7 +22,7 @@ All events carry (added client-side, `app/app/lib/track.js`):
 | `onboarding_complete` | 3-question persona v2 done | `userType`, `spendStyle`, `context` (+ back-compat `forWhom`, `budgetStyle`, `shopStyle`), `ms` |
 | `onboarding_skipped` | skip tapped | `step` |
 | `search_start` | user submits a query | `query`, `source` (input/example/deep_link), `journey_id` |
-| `search_results` | every /api/search response | `query`, `n_results` (raw count), `intent_n` (on-intent count), `ms`, `turn`, `relax`, `null` (true when `intent_n < 2` — the study's failed-search definition), `journey_id` |
+| `search_results` | every /api/search response | `query`, `n_results` (raw count), `intent_n` (on-intent count), `ms`, `turn`, `relax`, `null` (true when `intent_n < 2` — the study's failed-search definition), `journey_id`, `semantic_used`, `semantic_added`, `semantic_ms`, `semantic_reason` (optional — present when the embedding fallback is active; see `docs/semantic_fallback.md`) |
 | `zero_result` | a search returned <2 on-intent results | `query`, `turn`, `intent_n` |
 | `search_error` | search request failed | `query`, `turn`, `error` |
 | `guide_question_shown` | follow-up question shown | `query`, `question_type` (budget/occasion/category/brand), `turn`, `options_count`, `mode` (llm/policy/fallback), `refine` (true = optional refinement, not rescue), `reason` (policy rationale) |

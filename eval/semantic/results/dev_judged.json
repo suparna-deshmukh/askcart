@@ -1,0 +1,1652 @@
+[
+ {
+  "id": "s001",
+  "q": "shaadi gift packing",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 39,
+  "top": [
+   {
+    "sku": "AC-14756",
+    "title": "Pink Checkered Bouquet",
+    "price": 2079,
+    "cos": 0.844
+   },
+   {
+    "sku": "AC-31257",
+    "title": "Solimo Rakhi with Gift Set",
+    "price": 489,
+    "cos": 0.842
+   },
+   {
+    "sku": "AC-33321",
+    "title": "Dabur Henna Cones for Shaadi (25 g)",
+    "price": 89,
+    "cos": 0.842
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "id": "s002",
+  "q": "shaadi gifting co uk",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 21,
+  "top": [
+   {
+    "sku": "AC-07537",
+    "title": "Organic Hair Butter",
+    "price": 1919,
+    "cos": 0.832
+   },
+   {
+    "sku": "AC-14688",
+    "title": "Celebration Day Candle",
+    "price": 2369,
+    "cos": 0.831
+   },
+   {
+    "sku": "AC-14714",
+    "title": "Personalized Engraved Marble Coasters",
+    "price": 2499,
+    "cos": 0.83
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "id": "s003",
+  "q": "what to gift in a friend's wedding",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 541,
+  "top": [
+   {
+    "sku": "AC-07663",
+    "title": "Gift for Best Friends Engraved Bracelet with 'Sh-nk a B-tch' Message with Gift Box - Unique gift for Best Friends",
+    "price": 829,
+    "cos": 0.861
+   },
+   {
+    "sku": "AC-02919",
+    "title": "Giveena 10th 2023 Wedding Anniversary Ornament - Christmas Ceramic Ornament Gift Anniversary for Couple, Parents, Friend Her Him - 10th Wedding Anniversary Present Holiday Decoration Hanging Ornament",
+    "price": 1329,
+    "cos": 0.858
+   },
+   {
+    "sku": "AC-04242",
+    "title": "Nina Gifts Customized My First Apartment Ornament 2021 Christmas Christmas Tree Hanging Decoration for New Couple Bestfriend from Colleague Friend On Christmas Wedding Decoration (Multi 6)",
+    "price": 1489,
+    "cos": 0.853
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "id": "s004",
+  "q": "diwali gift ideas corporate",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 24,
+  "top": [
+   {
+    "sku": "AC-31257",
+    "title": "Solimo Rakhi with Gift Set",
+    "price": 489,
+    "cos": 0.867
+   },
+   {
+    "sku": "AC-33767",
+    "title": "Wipro AG Diwali Gifting Box",
+    "price": 1489,
+    "cos": 0.856
+   },
+   {
+    "sku": "AC-29640",
+    "title": "Myntra Rakhi Gift Box",
+    "price": 389,
+    "cos": 0.853
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   1,
+   2
+  ]
+ },
+ {
+  "id": "s005",
+  "q": "diwali gift ideas for employees under 1500",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 32,
+  "top": [
+   {
+    "sku": "AC-31257",
+    "title": "Solimo Rakhi with Gift Set",
+    "price": 489,
+    "cos": 0.868
+   },
+   {
+    "sku": "AC-33767",
+    "title": "Wipro AG Diwali Gifting Box",
+    "price": 1489,
+    "cos": 0.853
+   },
+   {
+    "sku": "AC-29640",
+    "title": "Myntra Rakhi Gift Box",
+    "price": 389,
+    "cos": 0.849
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   1,
+   2
+  ]
+ },
+ {
+  "id": "s006",
+  "q": "birthday gift for boys",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 36,
+  "top": [
+   {
+    "sku": "AC-00804",
+    "title": "Boys T-Shirt Kids Short Sleeve Pop Superstar 3D Printing Crewneck Birthday Gifts Novelty Tops Tee for Youth 6-12 Years",
+    "price": 1579,
+    "cos": 0.863
+   },
+   {
+    "sku": "AC-02956",
+    "title": "COZYMATE Dad Birthday Gifts from Daughter Kids, Fathers Day Gift Boxes for Men 20oz Dad Tumbler Multitool Hammer Set (love you forever your litter girl)",
+    "price": 1249,
+    "cos": 0.862
+   },
+   {
+    "sku": "AC-12517",
+    "title": "Kids Smart Watch Boys Gifts for 4-12 Year Old Boys, Rotatable Camera Habit Tracking Music Player Games Interactive Pet 1.69'' Touchscreen Smart Watch for Kids Toys Birthday Gift for Girls Ages 6 7 8",
+    "price": 2829,
+    "cos": 0.86
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   2,
+   1
+  ]
+ },
+ {
+  "id": "s007",
+  "q": "birthday gift for men",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 26,
+  "top": [
+   {
+    "sku": "AC-02928",
+    "title": "Henghere 50th Birthday Gifts for Men Women, 50th Birthday Present, 50 Year Old Birthday Party Decorations, Vintage - Fifty Birthday Decorations Coffee Mug, Black & Rose Gold 2",
+    "price": 1249,
+    "cos": 0.851
+   },
+   {
+    "sku": "AC-07603",
+    "title": "Personalized Dad Grandpa Mug, Father's Day Mug, Husband Father Grandpa Legend, Grandfather Custom Dates, Funny Dad Birthday Gift for Men",
+    "price": 749,
+    "cos": 0.849
+   },
+   {
+    "sku": "AC-11065",
+    "title": "Vintage 1983 Etched 16oz Glass Beer Mug Stein – Happy 40th Birthday Gifts for Men Women, Cheers to Turning 40 Year Old Man Decoration Decor, Anniversary Bday Party Supplies Favors Gift Idea Him 1.0",
+    "price": 2169,
+    "cos": 0.849
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s008",
+  "q": "birthday gift for girl best friend",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 24,
+  "top": [
+   {
+    "sku": "AC-03393",
+    "title": "Hyturtle Personalized Naughty Friendship Gifts For Bestie BFF Best Friend Sister - Birthday Christmas - Partners Just Remember Custom Name & Appearances 20oz Stainless Steel Tumbler",
+    "price": 1989,
+    "cos": 0.864
+   },
+   {
+    "sku": "AC-02335",
+    "title": "Caiyao Stretchy Natrual Stone Bead Love Heart Charm Bracelet for Best Friend Teen Girl Women Sister Nana Aunt Grandma Mom Daughter Granddauter Meditation Jewelry Birthday Mother's Day Gift",
+    "price": 579,
+    "cos": 0.86
+   },
+   {
+    "sku": "AC-03180",
+    "title": "Vakuny Gifts for Women - Gifts for Friends Female - Birthday Gifts for Coworker, Teacher, Best Friends, Mom, Her, Wife, Boss Lady - Inspirational Friendship Gifts - 16 Oz Beer Can Glass…",
+    "price": 999,
+    "cos": 0.858
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s009",
+  "q": "wedding gift under",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 27,
+  "top": [
+   {
+    "sku": "AC-14690",
+    "title": "Personalized Wood Engraved Cutting Board - Custom Unique Gift for couples - Wedding Gift, Anniversary Gift, Housewarming Gift,",
+    "price": 2499,
+    "cos": 0.889
+   },
+   {
+    "sku": "AC-04288",
+    "title": "Custom Personalized Walnut Wood Hanger - Engraved for Bride Groom Bridesmaid Groomsmen Wedding Bridal Party Gift",
+    "price": 739,
+    "cos": 0.884
+   },
+   {
+    "sku": "AC-18174",
+    "title": "Jozen Gift Wedding Cake Knife and Sever Set & Toasting Champagne Glass",
+    "price": 8339,
+    "cos": 0.882
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s010",
+  "q": "wedding gift under 3000",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 19,
+  "top": [
+   {
+    "sku": "AC-14690",
+    "title": "Personalized Wood Engraved Cutting Board - Custom Unique Gift for couples - Wedding Gift, Anniversary Gift, Housewarming Gift,",
+    "price": 2499,
+    "cos": 0.889
+   },
+   {
+    "sku": "AC-04288",
+    "title": "Custom Personalized Walnut Wood Hanger - Engraved for Bride Groom Bridesmaid Groomsmen Wedding Bridal Party Gift",
+    "price": 739,
+    "cos": 0.884
+   },
+   {
+    "sku": "AC-14825",
+    "title": "7th or 22nd Anniversary Gift, First Dance Wedding Song",
+    "price": 2829,
+    "cos": 0.879
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s011",
+  "q": "wedding gift under 1500",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 21,
+  "top": [
+   {
+    "sku": "AC-04288",
+    "title": "Custom Personalized Walnut Wood Hanger - Engraved for Bride Groom Bridesmaid Groomsmen Wedding Bridal Party Gift",
+    "price": 739,
+    "cos": 0.884
+   },
+   {
+    "sku": "AC-00446",
+    "title": "Funnli Custom Keychain Couple Gifts Personalized Keychains Gifts for Boyfriend Girlfriend Anniversary Wedding Gifts for Women",
+    "price": 909,
+    "cos": 0.873
+   },
+   {
+    "sku": "AC-08341",
+    "title": "Brass Handbell with Wooden Handle - Perfect for Weddings and Special Occasions",
+    "price": 1239,
+    "cos": 0.871
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s012",
+  "q": "anniversary gift",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 20,
+  "top": [
+   {
+    "sku": "AC-14784",
+    "title": "Personalized 1st Anniversary Gift for Him or Her, First Dance Song, Paper Anniversary Gift",
+    "price": 2419,
+    "cos": 0.89
+   },
+   {
+    "sku": "AC-07580",
+    "title": "Anniversary Gifts for Him - Gift for Husband - Keychain (Drive Safe- no one else will tolerate me)",
+    "price": 829,
+    "cos": 0.888
+   },
+   {
+    "sku": "AC-14776",
+    "title": "Personalized Leather 3rd Anniversary Gift for Him or Her, First Dance Song",
+    "price": 3079,
+    "cos": 0.884
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s013",
+  "q": "anniversary gift ideas",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-07580",
+    "title": "Anniversary Gifts for Him - Gift for Husband - Keychain (Drive Safe- no one else will tolerate me)",
+    "price": 829,
+    "cos": 0.873
+   },
+   {
+    "sku": "AC-14731",
+    "title": "Personalized Antique style Charcuterie, Cheese Board, Personalize Engraving, Ideal for Wedding Gift, Anniversary, Birthday or housewarming. (White)",
+    "price": 4089,
+    "cos": 0.872
+   },
+   {
+    "sku": "AC-07522",
+    "title": "Personalized 7th Anniversary Gift",
+    "price": 1999,
+    "cos": 0.872
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s014",
+  "q": "anniversary gift for boyfriend",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 23,
+  "top": [
+   {
+    "sku": "AC-07580",
+    "title": "Anniversary Gifts for Him - Gift for Husband - Keychain (Drive Safe- no one else will tolerate me)",
+    "price": 829,
+    "cos": 0.872
+   },
+   {
+    "sku": "AC-07540",
+    "title": "You Are The Best Thing I Ever Found On The Internet Mug, Boyfriend Valentines Day Gift for Him, Funny Gift for Him, Husband Anniversary Gift",
+    "price": 829,
+    "cos": 0.864
+   },
+   {
+    "sku": "AC-07579",
+    "title": "SINKAA Personalized Engraved Wallet Insert - Aluminum Metal Wallet Card Love Note, Anniversary Gifts for Men, Women, Husband, Wife, Boyfriend, Girlfriend, Romantic Birthday Gift for Him or Her",
+    "price": 579,
+    "cos": 0.861
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s015",
+  "q": "anniversary gift for mom and dad",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 21,
+  "top": [
+   {
+    "sku": "AC-04287",
+    "title": "Rockstar Dad and Mom Mug - Gift for Pregnancy Announcement - New Parent Gifts for Couples - Dad and Mom Coffee Mug Set for Christmas Anniversary Birthday 11 Oz With Gift Box (Black&White)",
+    "price": 1579,
+    "cos": 0.87
+   },
+   {
+    "sku": "AC-12120",
+    "title": "105Centuria Personalized 20oz Tumbler, Step Dad Father's Day Gifts Retro Look At You Landing My Mom Mug, Bonus Dad Gifts, Step Dad Gifts From Daughter",
+    "price": 2079,
+    "cos": 0.853
+   },
+   {
+    "sku": "AC-19365",
+    "title": "Wooden LAZY SUSAN Turntable, Personalized Gift for Mom, Lazy Susan, Engraved Wood Gift, Personalized Lazy Susan, Mothers Day gift, Anniversary Gift, Mom Gift, Wife Gift",
+    "price": 8759,
+    "cos": 0.851
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   2,
+   1
+  ]
+ },
+ {
+  "id": "s016",
+  "q": "housewarming gift ideas",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 21,
+  "top": [
+   {
+    "sku": "AC-00838",
+    "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
+    "price": 829,
+    "cos": 0.876
+   },
+   {
+    "sku": "AC-14810",
+    "title": "Last Name Metal Sign, Family Name Sign, Personalized Metal Wall Decor, Housewarming Gift, Sign for Front Porch, Metal Monogram Sign, Housewarming Gift (18\" Width)",
+    "price": 3749,
+    "cos": 0.87
+   },
+   {
+    "sku": "AC-12339",
+    "title": "Fall Wreath, Fall Door Wreath, Fall Wreath with Welcome Sign, Fall Decor, Farmhouse Wreath with Pumpkins Flower Wreath for Home Decor, Fall Decorations for Home, House Warming Gifts New Home",
+    "price": 2129,
+    "cos": 0.87
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s017",
+  "q": "housewarming gifts for friends",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 35,
+  "top": [
+   {
+    "sku": "AC-00838",
+    "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
+    "price": 829,
+    "cos": 0.876
+   },
+   {
+    "sku": "AC-12242",
+    "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
+    "price": 2579,
+    "cos": 0.875
+   },
+   {
+    "sku": "AC-22461",
+    "title": "Personalized Olive Wood and Resin Charcuterie Board, Wedding Gift, Engagement Gift, Anniversary Gift, Housewarming Gift (Pearl Blue)",
+    "price": 10849,
+    "cos": 0.868
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s018",
+  "q": "housewarming gift baskets",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 20,
+  "top": [
+   {
+    "sku": "AC-00838",
+    "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
+    "price": 829,
+    "cos": 0.866
+   },
+   {
+    "sku": "AC-11700",
+    "title": "Potter's Studio Gift Boxed Bunny Figurine Salt and Pepper Ceramic Shaker Set",
+    "price": 2229,
+    "cos": 0.865
+   },
+   {
+    "sku": "AC-12242",
+    "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
+    "price": 2579,
+    "cos": 0.865
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "id": "s019",
+  "q": "housewarming gift shops near me",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 24,
+  "top": [
+   {
+    "sku": "AC-00838",
+    "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
+    "price": 829,
+    "cos": 0.863
+   },
+   {
+    "sku": "AC-12242",
+    "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
+    "price": 2579,
+    "cos": 0.858
+   },
+   {
+    "sku": "AC-12339",
+    "title": "Fall Wreath, Fall Door Wreath, Fall Wreath with Welcome Sign, Fall Decor, Farmhouse Wreath with Pumpkins Flower Wreath for Home Decor, Fall Decorations for Home, House Warming Gifts New Home",
+    "price": 2129,
+    "cos": 0.853
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "id": "s020",
+  "q": "gifts for mother in law birthday",
+  "kind": "real_suggest",
+  "reason": null,
+  "ms": 24,
+  "top": [
+   {
+    "sku": "AC-04059",
+    "title": "Personalized You Are So Lucky I'm Your Mother-In-Law Mug, Daughter In Law Mug, Son-In-Law Mug Gift for Her, Wedding Gift For Daughter In Law, Son In Law on Birthday Thanksgiving Christmas Halloween",
+    "price": 909,
+    "cos": 0.871
+   },
+   {
+    "sku": "AC-03202",
+    "title": "GwaLod Daughter in Law Gifts, Gifts for Daughter in Law, Daughter in Law Gifts from Mother in Law, Future Daughter in Law Birthday Gifts 20oz Tumbler 1Pc, Unique Birthday Gifts for Daughter in Law",
+    "price": 1829,
+    "cos": 0.868
+   },
+   {
+    "sku": "AC-02966",
+    "title": "Ebmdsia Daughter in Law Blanket, Daughter in Law Birthday Gifts, Daughter in Law Gifts from Mother in Law, Birthday Gifts for Daughter in Law, Gifts for Future Daughter in Law Throw Blanket 60\"X50\"",
+    "price": 1659,
+    "cos": 0.868
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s021",
+  "q": "something for father birthday",
+  "kind": "vague",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-06534",
+    "title": "Hallmark Paper Wonder Shoebox Funny Pop Up Birthday Card, Encouragement Card, or Fathers Day Card (Pizza Bear)",
+    "price": 619,
+    "cos": 0.856
+   },
+   {
+    "sku": "AC-07603",
+    "title": "Personalized Dad Grandpa Mug, Father's Day Mug, Husband Father Grandpa Legend, Grandfather Custom Dates, Funny Dad Birthday Gift for Men",
+    "price": 749,
+    "cos": 0.854
+   },
+   {
+    "sku": "AC-12285",
+    "title": "Personalized Fathers Day Grilling Gifts for Dad - Premium Design Options Like Grill Father, BBQ Master - Best Gift from Son, Daughter for Dad's Birthday, Christmas, Anniversary",
+    "price": 4169,
+    "cos": 0.846
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s022",
+  "q": "party things for friends",
+  "kind": "vague",
+  "reason": null,
+  "ms": 23,
+  "top": [
+   {
+    "sku": "AC-06687",
+    "title": "LOVSTAY 20pcs Rainbow Friends Birthday Invitations,Rainbow Friends Party Invitations Birthday Party Supplies Decoration (1)",
+    "price": 749,
+    "cos": 0.853
+   },
+   {
+    "sku": "AC-10608",
+    "title": "TOPONSKY Women Club Ruffle Party Cocktail Formal Dress",
+    "price": 2669,
+    "cos": 0.844
+   },
+   {
+    "sku": "AC-03597",
+    "title": "Sunnyray 25 Pcs Fiesta Party Favors 1.2 Ounce Acrylic Shots Glass for Adults Cinco De Mayo Funny Shot Glasses for Table Party Decorations Mexican Theme Centerpiece",
+    "price": 1579,
+    "cos": 0.843
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   2,
+   1
+  ]
+ },
+ {
+  "id": "s023",
+  "q": "something cute for girlfriend birthday",
+  "kind": "vague",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-07716",
+    "title": "Gold Number Cupcake Toppers, Girl Birthday Party Decorations, First Birthday Party - 18CT",
+    "price": 829,
+    "cos": 0.838
+   },
+   {
+    "sku": "AC-12238",
+    "title": "CUBICER Personalized Coffee Tumbler Bug Jewelry Style Custom Name Cute Birthday Gifts For Women Teens Girls Kids Grandma Mom Insulated Cup Travel Mug With Lid Oz Cold Steel Cups",
+    "price": 2079,
+    "cos": 0.832
+   },
+   {
+    "sku": "AC-11165",
+    "title": "9SUNFLOWER Ladybugs Jewelry Style Coffee Tumbler Cute Birthday Gifts For Girls Women Animal Lovers Travel Mug With Lid Insulated Cup Inspirational Quotes Cold Drinking Vacuum Mugs",
+    "price": 2079,
+    "cos": 0.832
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s024",
+  "q": "travel stuff",
+  "kind": "vague",
+  "reason": null,
+  "ms": 21,
+  "top": [
+   {
+    "sku": "AC-10895",
+    "title": "Easy Spirit womens Travel Time",
+    "price": 3329,
+    "cos": 0.851
+   },
+   {
+    "sku": "AC-16214",
+    "title": "Easy Spirit Women's Traveltime616 Mule",
+    "price": 5139,
+    "cos": 0.845
+   },
+   {
+    "sku": "AC-07380",
+    "title": "Travel Storage Bags for Luggage, Waterproof Packing Cubes for Kids, Women, Adults,Travel Pouches for Suitcase Organizing(GREY)",
+    "price": 999,
+    "cos": 0.843
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s025",
+  "q": "office desk stuff",
+  "kind": "vague",
+  "reason": null,
+  "ms": 20,
+  "top": [
+   {
+    "sku": "AC-21535",
+    "title": "Tangkula White Desk with 4 Storage Drawers, Home Office Writing Desk, Modern Executive Desk, Laptop PC Desk, Vanity Makeup Table, Computer Workstation for Bedroom, Study Room, Office",
+    "price": 15859,
+    "cos": 0.877
+   },
+   {
+    "sku": "AC-18236",
+    "title": "Rhomtree Two Person Computer Desk Double Desk with Monitor Shelf Large Space Workstation Desk Writing Table Study Desk for Home Office (Rustic Brown)",
+    "price": 5829,
+    "cos": 0.872
+   },
+   {
+    "sku": "AC-12013",
+    "title": "COTUBLR Computer Writing Desk 31 inch, Sturdy Home Office Table, Work Desk with A Storage Bag and Headphone Hook, Black",
+    "price": 4999,
+    "cos": 0.871
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s026",
+  "q": "things for a new apartment",
+  "kind": "vague",
+  "reason": null,
+  "ms": 21,
+  "top": [
+   {
+    "sku": "AC-00697",
+    "title": "Genuine Fred Stranger Things, Hellfire Club Tote",
+    "price": 1249,
+    "cos": 0.836
+   },
+   {
+    "sku": "AC-06715",
+    "title": "Stranger Things, Milk Carton Notes",
+    "price": 999,
+    "cos": 0.836
+   },
+   {
+    "sku": "AC-06610",
+    "title": "Stranger Things, Surfer Boy Pizza, Magnetic Notepad",
+    "price": 829,
+    "cos": 0.834
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   3,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s027",
+  "q": "essentials for a camping trip",
+  "kind": "vague",
+  "reason": null,
+  "ms": 24,
+  "top": [
+   {
+    "sku": "AC-17791",
+    "title": "S'more Double Wall Insulated Mug Titanium Cup for Camping Hiking Backpacking Traveling 17oz",
+    "price": 5419,
+    "cos": 0.856
+   },
+   {
+    "sku": "AC-03792",
+    "title": "ASR Outdoor Eating Utensil 4in1 Camping Multitool Spoon Fork Knife Bottle Opener",
+    "price": 679,
+    "cos": 0.852
+   },
+   {
+    "sku": "AC-00938",
+    "title": "Amazon Essentials Men's Slim-Fit Vacation Shirt",
+    "price": 1459,
+    "cos": 0.847
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   2
+  ]
+ },
+ {
+  "id": "s028",
+  "q": "accha phone 15k",
+  "kind": "hinglish",
+  "reason": null,
+  "ms": 25,
+  "top": [
+   {
+    "sku": "AC-22002",
+    "title": "ExAchat G22+ Ultra 5G Smartphone - Unlocked Cell Phone - Sleek Design with Built-in Computer, Qualcomm 888 Chip, 7.3-inch HD+ Screen, Face Recognition, and Powerful Cameras (Green)",
+    "price": 14189,
+    "cos": 0.826
+   },
+   {
+    "sku": "AC-12973",
+    "title": "Dash Camera",
+    "price": 3499,
+    "cos": 0.823
+   },
+   {
+    "sku": "AC-02699",
+    "title": "ACCENTHOME Tote Bag",
+    "price": 1079,
+    "cos": 0.821
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s029",
+  "q": "papa ke liye wallet",
+  "kind": "hinglish",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-06534",
+    "title": "Hallmark Paper Wonder Shoebox Funny Pop Up Birthday Card, Encouragement Card, or Fathers Day Card (Pizza Bear)",
+    "price": 619,
+    "cos": 0.828
+   },
+   {
+    "sku": "AC-15573",
+    "title": "ICE CARATS Gold Plated Kelly Waters Dollar Sign Money Clip Fashion Jewelry for Dad Mens Gifts for Him",
+    "price": 9129,
+    "cos": 0.818
+   },
+   {
+    "sku": "AC-06564",
+    "title": "Hallmark Funny Pop Up Fathers Day Card with Sound for Dad from Son or Daughter (Poop Emoji)",
+    "price": 569,
+    "cos": 0.818
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   3,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s030",
+  "q": "mithai ki thali",
+  "kind": "hinglish",
+  "reason": null,
+  "ms": 23,
+  "top": [
+   {
+    "sku": "AC-33926",
+    "title": "Butterfly Steel Thali Set 5 pc",
+    "price": 589,
+    "cos": 0.83
+   },
+   {
+    "sku": "AC-34459",
+    "title": "Prestige Steel Thali Set 5 pc",
+    "price": 589,
+    "cos": 0.814
+   },
+   {
+    "sku": "AC-33984",
+    "title": "Cello Steel Thali Set 5 pc",
+    "price": 589,
+    "cos": 0.812
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s031",
+  "q": "accha watch 5k",
+  "kind": "hinglish",
+  "reason": null,
+  "ms": 24,
+  "top": [
+   {
+    "sku": "AC-24741",
+    "title": "UKCOCO 2pcs Sports Pocket Watch Watches for Nurses Watches for Men Digital Digital Watch Sports Pendant Watch",
+    "price": 1149,
+    "cos": 0.833
+   },
+   {
+    "sku": "AC-09311",
+    "title": "Casio Illuminator Translucent Pink Alarm Chronograph Digital Watch LA-20WHS-4A",
+    "price": 2279,
+    "cos": 0.83
+   },
+   {
+    "sku": "AC-26882",
+    "title": "Casio F-91W Digital Watch (Steel)",
+    "price": 1989,
+    "cos": 0.826
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s032",
+  "q": "beta ke liye toy",
+  "kind": "hinglish",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-14655",
+    "title": "KidPlay T-Rex Battle Bot Dino Toy Dinosaur Blaster Space Gun",
+    "price": 2379,
+    "cos": 0.847
+   },
+   {
+    "sku": "AC-07494",
+    "title": "Ty Unisex Kid's Beanie",
+    "price": 939,
+    "cos": 0.834
+   },
+   {
+    "sku": "AC-12816",
+    "title": "MBETA Wireless Sports Clip TWS Bluetooth Headset do not Enter otica Conduction Earrings Smart Headset",
+    "price": 2499,
+    "cos": 0.832
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s033",
+  "q": "bachelor party gift",
+  "kind": "hinglish",
+  "reason": null,
+  "ms": 23,
+  "top": [
+   {
+    "sku": "AC-07833",
+    "title": "Bachelorette Party Decorations, 6 Pack Bachelorette Party Favors Hanging Pink Gold Rose Purple Backdrop Honeycomb Poms for Bridal Shower Bride Wedding Engagement Photo Booth Disco Birthday (Rose)",
+    "price": 1409,
+    "cos": 0.884
+   },
+   {
+    "sku": "AC-03697",
+    "title": "3 Pcs Bride To Be Gifts Including Bride Makeup Bag Bride Tumblers Scented Candle Jar Bridal Shower Favors Engagement Gift for The Bride To Be Bachelorette Party Supplies",
+    "price": 1909,
+    "cos": 0.872
+   },
+   {
+    "sku": "AC-02247",
+    "title": "Silkfly Bride Straw Shoulder Bag Beach Purses with Rhinestone Bride Earrings Crossbody Woven Summer Bag Envelope Straw Handbag for Gifts Bridal Party",
+    "price": 1879,
+    "cos": 0.871
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s034",
+  "q": "mummy ke liye dupatta",
+  "kind": "hinglish",
+  "reason": null,
+  "ms": 24,
+  "top": [
+   {
+    "sku": "AC-28717",
+    "title": "Manyavar Dupatta with Saree (Green)",
+    "price": 1689,
+    "cos": 0.839
+   },
+   {
+    "sku": "AC-28719",
+    "title": "Manyavar Dupatta with Saree (Red)",
+    "price": 789,
+    "cos": 0.836
+   },
+   {
+    "sku": "AC-25422",
+    "title": "Alinea Organza Dupatta (Maroon)",
+    "price": 389,
+    "cos": 0.834
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s035",
+  "q": "chacha ke liye gift",
+  "kind": "hinglish",
+  "reason": null,
+  "ms": 21,
+  "top": [
+   {
+    "sku": "AC-02790",
+    "title": "Invenko Tree of Life Seven Chakra Gemstone Crystal Fengshui Bonsai Fortune Money Tree Artificial Tree for Good Luck, Wealth Prosperity Home Office Décor Gift Golden Branch (7 chakrat Moon)",
+    "price": 1079,
+    "cos": 0.852
+   },
+   {
+    "sku": "AC-19352",
+    "title": "Chakra Bracelets, Dainty Gold Filled Healing Crystals Genuine 6x8MM Gemstones, Wire Wrapped, Adjustable",
+    "price": 6669,
+    "cos": 0.851
+   },
+   {
+    "sku": "AC-14756",
+    "title": "Pink Checkered Bouquet",
+    "price": 2079,
+    "cos": 0.85
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s036",
+  "q": "heaphones",
+  "kind": "typo",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-04651",
+    "title": "YLOMAY Bluetooth Headphones Wireless Earbuds with Microphone Powerful Subwoofer Earphones Lightweight Headset HiFi Stereo Sound Immersive Premium Sound for Travel Games Working",
+    "price": 1329,
+    "cos": 0.855
+   },
+   {
+    "sku": "AC-18571",
+    "title": "Urban Nirvana Newly Premium Bone Conduction Open-Ear Sport Headphones — Noise Cancelling Earphones - Built-in Mic Sweat Resistant Earphones for Workouts and Running with Deep Base (Green)",
+    "price": 9179,
+    "cos": 0.849
+   },
+   {
+    "sku": "AC-04646",
+    "title": "Premium Bone Conduction Open-Ear Open-Ear Bluetooth Bone Conduction Headphones - Sweat Resistant Earphones for Workouts and Running with Deep Base - Built-in Mic(Green)-002",
+    "price": 999,
+    "cos": 0.849
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s037",
+  "q": "ipone 15",
+  "kind": "typo",
+  "reason": null,
+  "ms": 20,
+  "top": [
+   {
+    "sku": "AC-33817",
+    "title": "Aquafine Storage Geyser 15 L",
+    "price": 8989,
+    "cos": 0.847
+   },
+   {
+    "sku": "AC-33323",
+    "title": "Dettol First Aid Kit 15",
+    "price": 289,
+    "cos": 0.847
+   },
+   {
+    "sku": "AC-35104",
+    "title": "Dell Inspiron 15 i5 16GB (Black)",
+    "price": 59989,
+    "cos": 0.843
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   3,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s038",
+  "q": "laptop hp paviln",
+  "kind": "typo",
+  "reason": null,
+  "ms": 26,
+  "top": [
+   {
+    "sku": "AC-24122",
+    "title": "HP 2022 Pavilion 15.6\" FHD IPS Touchscreen Laptop, Intel 12th Gen Core i5-1235U, 12GB RAM, 512GB PCIe SSD, Backlit Keyboard, 720P HD Camera, HDMI, Win 11, Wi-Fi 6, Silver, 32GB Snowbell USB Card",
+    "price": 56689,
+    "cos": 0.899
+   },
+   {
+    "sku": "AC-24636",
+    "title": "HP Pavilion Plus 14 inch Laptop, 2.8K OLED Display, 13th Generation Intel Core i7-1355U, 16 GB RAM, 1 TB SSD, NVIDIA GeForce RTX 2050 Graphics, Windows 11 Pro, 14-eh1299nr (2023)",
+    "price": 106039,
+    "cos": 0.897
+   },
+   {
+    "sku": "AC-24092",
+    "title": "HP Pavilion 17 Laptop, 17.3\" HD+ Anti-Glare Screen, AMD Athlon Gold 3150U Processor, 64 GB RAM,2TB PCIe NVMe SSD, Long Battery Life, Webcam, Mics, WiFi, Windows 11 Home, Silver",
+    "price": 60949,
+    "cos": 0.894
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s039",
+  "q": "kurtti",
+  "kind": "typo",
+  "reason": null,
+  "ms": 20,
+  "top": [
+   {
+    "sku": "AC-25476",
+    "title": "Alinea Printed Kurti (Red S)",
+    "price": 1189,
+    "cos": 0.854
+   },
+   {
+    "sku": "AC-25467",
+    "title": "Alinea Printed Kurti (Maroon M)",
+    "price": 529,
+    "cos": 0.852
+   },
+   {
+    "sku": "AC-25754",
+    "title": "Anouk Embroidered Kurti (White M)",
+    "price": 1259,
+    "cos": 0.851
+   }
+  ],
+  "intentN": 36,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s040",
+  "q": "dewal light",
+  "kind": "typo",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-07344",
+    "title": "Deitybless LED Closet Light Motion Activated, Under Cabinet Lights, Home Life Motion Sensor LED Lights, Battery Operated 10 LED Motion Sensor Night Light for Closet Hallway Stairway (2 Pack)",
+    "price": 829,
+    "cos": 0.845
+   },
+   {
+    "sku": "AC-24443",
+    "title": "Eagle Lights 8700CG2PK-G2 7\" LED Headlight with LED Spot/Passing Light Kit for Harley Davidson and Indian Motorcycles - Generation II/Chrome Kit/No Installation Accessories",
+    "price": 20869,
+    "cos": 0.836
+   },
+   {
+    "sku": "AC-12460",
+    "title": "100W Power Inverter for DeWALT 20V MAX Battery(NO Battery) Portable Power Station,for Milwaukee for Power Wheel USB Adapter with 18V/20V DC to AC110V Ports Outdoor Generator,for Dewalt Battery DIY",
+    "price": 3329,
+    "cos": 0.834
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s041",
+  "q": "cellphone under 10k",
+  "kind": "synonym",
+  "reason": null,
+  "ms": 21,
+  "top": [
+   {
+    "sku": "AC-05744",
+    "title": "Floral Boho Foliage Flower Plant Nature Vegetation Flowery PopSockets Standard PopGrip",
+    "price": 1409,
+    "cos": 0.86
+   },
+   {
+    "sku": "AC-35075",
+    "title": "boAt Power Bank 20000 mAh",
+    "price": 2489,
+    "cos": 0.86
+   },
+   {
+    "sku": "AC-24803",
+    "title": "Noise ColorFit Ultra 3E Smartwatch",
+    "price": 1995,
+    "cos": 0.859
+   }
+  ],
+  "intentN": 46,
+  "judge": [
+   3,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s042",
+  "q": "tshirt for bhai",
+  "kind": "synonym",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-25190",
+    "title": "Adidas Printed T-Shirt for Men (Beige XL)",
+    "price": 1289,
+    "cos": 0.858
+   },
+   {
+    "sku": "AC-25188",
+    "title": "Adidas Printed T-Shirt for Men (Beige L)",
+    "price": 1219,
+    "cos": 0.857
+   },
+   {
+    "sku": "AC-29628",
+    "title": "Myntra Printed T-Shirt for Men (Beige L)",
+    "price": 1219,
+    "cos": 0.857
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s043",
+  "q": "ear buds under 1k",
+  "kind": "synonym",
+  "reason": null,
+  "ms": 24,
+  "top": [
+   {
+    "sku": "AC-04948",
+    "title": "JacobsParts 2-Pack Earbuds in-Ear Sound Isolating Headphones Headset Ear Buds with Mic & Volume, Green",
+    "price": 499,
+    "cos": 0.874
+   },
+   {
+    "sku": "AC-24640",
+    "title": "Wireless Earbuds Bluetooth Headphones with 30H Cycle Playtime Built-in Mic Stereo Earphones Sound IP67 Waterproof Sports Headsets Air Buds Pro Touch Control Smart Pop-up Auto Pairing",
+    "price": 659,
+    "cos": 0.872
+   },
+   {
+    "sku": "AC-24902",
+    "title": "Noise Buds VS105 True Wireless Earbuds",
+    "price": 999,
+    "cos": 0.867
+   }
+  ],
+  "intentN": 38,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s044",
+  "q": "footwear for men",
+  "kind": "synonym",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-17102",
+    "title": "Cat Footwear Men's Founder Wp Tx Construction Boot",
+    "price": 9339,
+    "cos": 0.873
+   },
+   {
+    "sku": "AC-24712",
+    "title": "Men Athletic Shoes Mesh Blade Running Walking Sneakers",
+    "price": 1919,
+    "cos": 0.867
+   },
+   {
+    "sku": "AC-20776",
+    "title": "Cat Footwear Men's Situate Wp Oxford",
+    "price": 10849,
+    "cos": 0.866
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "id": "s045",
+  "q": "shoe for wedding guest",
+  "kind": "synonym",
+  "reason": null,
+  "ms": 24,
+  "top": [
+   {
+    "sku": "AC-00266",
+    "title": "Hee grand Women Square Toe Crystals Shoes Glittering Rhinestone Wedding Dress Shoes Fashion Bridesmaid Shoes",
+    "price": 1829,
+    "cos": 0.846
+   },
+   {
+    "sku": "AC-17054",
+    "title": "FSJ Women Stylish Peep Toe Slouch Ankle Boots Chunky Stacked Heels Party Prom Nightclub Evening Wedding Dress Shoes Size 4-15 US",
+    "price": 7509,
+    "cos": 0.846
+   },
+   {
+    "sku": "AC-08635",
+    "title": "richealnini Sexy Open Toe Stiletto Heels Sandals with Zippers Low Platform Wedding Party Dress",
+    "price": 3329,
+    "cos": 0.843
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   1,
+   2,
+   2
+  ]
+ },
+ {
+  "id": "s046",
+  "q": "conga drum",
+  "kind": "dead_end",
+  "reason": null,
+  "ms": 23,
+  "top": [
+   {
+    "sku": "AC-15369",
+    "title": "Glory Bongo Drums 6” and 7” Wood Percussion Instrument Bongos with bag and tuning Key,Orange Color",
+    "price": 3579,
+    "cos": 0.822
+   },
+   {
+    "sku": "AC-22652",
+    "title": "Luna Artistic Great Wave Soprano Uke w/TMS Polishing Cloth",
+    "price": 10769,
+    "cos": 0.813
+   },
+   {
+    "sku": "AC-22649",
+    "title": "Yamaha Stage Custom Birch 14x5.5 Snare Drum, Cranberry Red",
+    "price": 11249,
+    "cos": 0.809
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   3,
+   2
+  ]
+ },
+ {
+  "id": "s047",
+  "q": "theremin",
+  "kind": "dead_end",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-18940",
+    "title": "CORE-SPUN BY THERAFIRM Men's Modern",
+    "price": 5329,
+    "cos": 0.826
+   },
+   {
+    "sku": "AC-18910",
+    "title": "CORE-SPUN BY THERAFIRM Long Modern",
+    "price": 7049,
+    "cos": 0.823
+   },
+   {
+    "sku": "AC-18934",
+    "title": "CORE-SPUN BY THERAFIRM Modern",
+    "price": 5499,
+    "cos": 0.823
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   3,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s048",
+  "q": "dinghy",
+  "kind": "dead_end",
+  "reason": null,
+  "ms": 21,
+  "top": [
+   {
+    "sku": "AC-03230",
+    "title": "WitnyStore 1½\" Crouching Baby Donkey Ceramic Figurine Small Tiny Mule Miniature Porcelain Animals Dollhouse Pottery Collectible Table Display Gifts",
+    "price": 1249,
+    "cos": 0.85
+   },
+   {
+    "sku": "AC-10333",
+    "title": "vineyard vines Boys' Arawak Gingham On-The-go Nylon Performance Whale Shirt",
+    "price": 4849,
+    "cos": 0.831
+   },
+   {
+    "sku": "AC-09582",
+    "title": "DKNY Women's Litewear Wirefree Bra",
+    "price": 2199,
+    "cos": 0.831
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   3,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s049",
+  "q": "ice skate",
+  "kind": "dead_end",
+  "reason": null,
+  "ms": 21,
+  "top": [
+   {
+    "sku": "AC-20581",
+    "title": "SG.MODA Figure Ice Skating Dress Italian Fabric, Handmade in Europe",
+    "price": 13019,
+    "cos": 0.847
+   },
+   {
+    "sku": "AC-19248",
+    "title": "ICE Bath Tub Recovery Cold Plunge for Athletes - Large Polar Plunge Tub with Lid Inflatable Portable Cold Water Arctic Therapy Wellnes Mental Alertness Refreshing Vitality",
+    "price": 7089,
+    "cos": 0.844
+   },
+   {
+    "sku": "AC-18440",
+    "title": "Electactic Ice Maker Countertop Portable Ice Maker Machine Self-Cleaning 30lbs/5Mins/24Hrs 2 Mode Ice Machine Counter Ice Maker with Scoop&Basket for Home/Office/Bar/RV Use",
+    "price": 7089,
+    "cos": 0.837
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   2,
+   3,
+   3
+  ]
+ },
+ {
+  "id": "s050",
+  "q": "slinky",
+  "kind": "dead_end",
+  "reason": null,
+  "ms": 22,
+  "top": [
+   {
+    "sku": "AC-07064",
+    "title": "Sanuk Women's Yoga Sling 2 Metallic Lx Sandal",
+    "price": 1489,
+    "cos": 0.83
+   },
+   {
+    "sku": "AC-17039",
+    "title": "Travelon Anti-Theft Heritage Sling",
+    "price": 5379,
+    "cos": 0.829
+   },
+   {
+    "sku": "AC-14375",
+    "title": "Sanuk Women's Yoga Sling 2 Solid Vintage Sandal",
+    "price": 3169,
+    "cos": 0.829
+   }
+  ],
+  "intentN": 48,
+  "judge": [
+   3,
+   3,
+   3
+  ]
+ }
+]

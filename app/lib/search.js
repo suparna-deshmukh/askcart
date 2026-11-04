@@ -288,6 +288,55 @@ export const CHILD_RECIPIENTS = new Set(["beta", "beti", "bachcha", "bachchi",
   "bachche", "bachchon", "kid", "kids", "child", "children"]);
 export const KID_WORDS = new Set(["kids", "kid", "boy", "boys", "girls", "girl",
   "child", "children", "toddler", "baby"]);
+
+// ---- shared helpers (exported for the semantic fallback, app/lib/semantic.js) ----
+// Budget relaxation factor used when a strict budget leaves <2 results.
+export const BUDGET_RELAX = 1.6;
+
+// Car/auto context: a "speaker" shopper does not want a car speaker
+// (only penalised when the query did not ask for car/automotive).
+export function autoContextDelta(tokenSet, itemPos) {
+  if (!tokenSet.has("car") && !tokenSet.has("automotive") &&
+      (itemPos.has("car") || itemPos.has("automotive"))) return -1.0;
+  return 0;
+}
+
+// Adult/male/female/child recipient vs item gender/kids tokens, plus the G3
+// for-whom boosts. Returns the score delta (0 when nothing applies).
+export function audienceDelta(rawWords, itemPos, forWhom = null) {
+  let adult = false, male = false, female = false, child = false;
+  for (const w of rawWords) {
+    if (ADULT_RECIPIENTS.has(w)) adult = true;
+    if (MALE_RECIPIENTS.has(w)) male = true;
+    if (FEMALE_RECIPIENTS.has(w)) female = true;
+    if (CHILD_RECIPIENTS.has(w)) child = true;
+  }
+  const g3male = forWhom === "men", g3female = forWhom === "women", g3child = forWhom === "kids";
+  let delta = 0;
+  if (adult) {
+    for (const w of KID_WORDS) if (itemPos.has(w)) { delta -= 1.5; break; }
+  }
+  if (child || g3child) {
+    for (const w of KID_WORDS) if (itemPos.has(w)) { delta += 1.0; break; }
+  }
+  if ((male || g3male) && (itemPos.has("womens") || itemPos.has("women"))) delta -= 1.0;
+  if ((female || g3female) && (itemPos.has("men") || itemPos.has("mens"))) delta -= 1.0;
+  if (g3female) {
+    for (const w of ["women", "womens", "ladies", "female"]) if (itemPos.has(w)) { delta += 2.0; break; }
+  }
+  if (g3male) {
+    for (const w of ["men", "mens", "male"]) if (itemPos.has(w)) { delta += 2.0; break; }
+  }
+  return delta;
+}
+
+// Accessory-hint penalty: "phone" should not surface phone cases first
+// (checks plural forms too: "liners" penalises a "air fryer" query).
+export function accessoryDelta(accHints, itemPos) {
+  if (accHints.length &&
+      accHints.some((w) => itemPos.has(w) || itemPos.has(w + "s"))) return -1.5;
+  return 0;
+}
 // Words that mark an item as an accessory of the queried product. The scorer
 // penalises them - but only when they are not part of the query itself
 // ("phone case" is a case query; "phone" is not).
@@ -406,7 +455,6 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     }
   }
   if (Object.keys(g3).length) specs = { ...specs, ...g3 };
-  const g3male = forWhom === "men", g3female = forWhom === "women", g3child = forWhom === "kids";
   // Budget-only query ("under 500"): browse mode - top-rated items within
   // the cap (and the occasion, when one is given), instead of a null page.
   if (tokens.length === 0 && budget !== null) {
@@ -506,40 +554,10 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     // Brand-leading titles ("Redmi 13C ...", "JBL Flip 6 ...") are genuine
     // product listings; keyword-stuffed titles lead with junk words.
     if (idx.firstWords[i] && idx.brandSet.has(idx.firstWords[i])) score += 0.75;
-    // Car/auto context: a "speaker" shopper does not want a car speaker
-    // (same mechanism as the accessory penalty - only when not queried).
-    if (matched > 0 && !tokenSet.has("car") && !tokenSet.has("automotive") &&
-        (idx.pos[i].has("car") || idx.pos[i].has("automotive"))) score -= 1.0;
-    // Adult recipient vs kids product: "sweater for papa" should not
-    // surface kids' sweaters; male/female recipients vs the opposite gender
-    // ("sweater for grandfather" is not a women's sweater).
-    if (matched > 0) {
-      let adult = false, male = false, female = false;
-      let child = false;
-      for (const w of rawWords) {
-        if (ADULT_RECIPIENTS.has(w)) adult = true;
-        if (MALE_RECIPIENTS.has(w)) male = true;
-        if (FEMALE_RECIPIENTS.has(w)) female = true;
-        if (CHILD_RECIPIENTS.has(w)) child = true;
-      }
-      if (adult) {
-        for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score -= 1.5; break; }
-      }
-      if (child || g3child) {
-        for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score += 1.0; break; }
-      }
-      if ((male || g3male) && (idx.pos[i].has("womens") || idx.pos[i].has("women"))) score -= 1.0;
-      if ((female || g3female) && (idx.pos[i].has("men") || idx.pos[i].has("mens"))) score -= 1.0;
-      // G3: an explicit for-whom chip also boosts matching gender tokens,
-      // so the tap visibly re-ranks (penalty alone is a no-op on
-      // gender-token-poor candidate sets like India-layer kurtis).
-      if (g3female) {
-        for (const w of ["women", "womens", "ladies", "female"]) if (idx.pos[i].has(w)) { score += 2.0; break; }
-      }
-      if (g3male) {
-        for (const w of ["men", "mens", "male"]) if (idx.pos[i].has(w)) { score += 2.0; break; }
-      }
-    }
+    // Car/auto context + recipient/gender/kids adjustments + for-whom G3
+    // boosts (shared with the semantic fallback via the exported helpers).
+    if (matched > 0) score += autoContextDelta(tokenSet, idx.pos[i]);
+    if (matched > 0) score += audienceDelta(rawWords, idx.pos[i], forWhom);
     // Query modifiers that also appear in the title confirm the intended
     // product kind ("office chair" -> an "Office Chair", not a dining chair).
     let modBonus = 0;
@@ -547,16 +565,14 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     if (modBonus) score += Math.min(modBonus, 1.5);
     if (hits === 0) continue;
     if (budget !== null) {
-      const cap = relax ? budget * 1.6 : budget * 1.0;
+      const cap = relax ? budget * BUDGET_RELAX : budget * 1.0;
       if (item.price > cap) continue;
       if (item.price <= budget) score += 1;
     }
     if (bestRated) score += (item.rating || 0); // "no preference - best rated"
     else score += (item.rating || 0) * 0.15;   // small quality tiebreak
     // accessory penalty: "phone" should not surface phone cases first
-    // (checks plural forms too: "liners" penalises a "air fryer" query)
-    if (accHints.length && matched > 0 &&
-        accHints.some((w) => idx.pos[i].has(w) || idx.pos[i].has(w + "s"))) score -= 1.5;
+    if (matched > 0) score += accessoryDelta(accHints, idx.pos[i]);
     const allRequired = required.length > 0 && required.every((t) => matchedSet.has(t));
     results.push({ ...item, score, intent: allRequired || occHit });
   }

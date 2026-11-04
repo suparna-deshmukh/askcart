@@ -440,9 +440,14 @@ function AskCartHome() {
       // failed search). A search that returns many loosely-related items
       // but nothing on-intent is a null for the shopper.
       const intentN = j.results.filter((r) => r.intent).length;
+      const sm = j.semantic || {};
       track("search_results", {
         query, n_results: j.results.length, intent_n: intentN, ms: Date.now() - t0,
         turn, relax, null: intentN < 2, journey_id: jn ? jn.id : null,
+        semantic_used: !!sm.used,
+        semantic_added: sm.added != null ? sm.added : null,
+        semantic_ms: sm.ms != null ? sm.ms : null,
+        semantic_reason: sm.reason || null,
       });
       if (intentN < 2) track("zero_result", { query, turn, intent_n: intentN });
       return j;

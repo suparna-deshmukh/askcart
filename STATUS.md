@@ -441,6 +441,51 @@ G12 outcome micro-survey.
   Gates: canaries 111+5, ui tour 17 shots, contrast 0 fails, sync OK,
   browser JS errors 0.
 
+- **Semantic fallback (work order item 6) DONE** — embedding-based
+  rescue inside the existing /api/search, invoked ONLY when lexical
+  returns <2 on-intent results. Local ONNX Xenova/multilingual-e5-small
+  (int8, 384-dim) builds the 36,045-vector index offline
+  (scripts/build_embeddings.mjs — JS so index and runtime share one
+  model/tokenizer; spec's .py adapted) and embeds queries at runtime;
+  brute-force int8 cosine (~20 ms), hard constraints reusing the
+  lexical engine's exported penalties (search.js extraction,
+  canaries-green), tau+margin threshold, merge after lexical on-intent,
+  `semantic` meta field, kill switch SEMANTIC_FALLBACK=0, EVAL_MODE
+  ?semantic=0|1|only. Gates: unit suite ALL PASS incl. **no-op
+  guarantee** (358 canary+study+eval-v2 queries: 293 resolved, 0
+  mismatches SEMANTIC_FALLBACK 1 vs 0), parity float/int8 top-10 avg
+  9.8/10, index integrity (shuffled catalog -> index_mismatch),
+  canaries 111+5, ui tour 17, contrast 0. Calibration (dev, n=50,
+  Qwen judge thinking-off): **tau=0.845 margin=0.03**, hit 31/41,
+  dev dead-end false-resolve 0/5, precision@3 92.1%. Test split
+  (n=50, frozen panel, run once): null 8% [3.2-18.8] -> 6% [2.1-16.2],
+  Qwen success@3 52% -> 58%, usable@3 flat 82%, questions/journey
+  0.46 -> 0.34, semantic p95 23 ms, used on 36/50 queries — CIs
+  overlap everywhere, reported as **directional, not significant**.
+  Ablation B (pure semantic, no lexical fallback): 32% null. Honest
+  finding: 4/4 dead-end "false-resolve" is the baseline category-rescue
+  path (identical in arm A; Qwen judged all top-3s irrelevant in both
+  arms); the semantic layer rejected all 4 (below threshold) and added
+  zero dead-end items. Per-query diff: 7 top-3s improved / 4 degraded
+  (gift-shaped). Dev finding: positive vs dead-end top-1 cosine
+  distributions overlap heavily (0.826-0.899 vs 0.822-0.850) —
+  separation comes from constraints+margin, not a cosine gap.
+  LLM spend this item: ~12 Qwen batch calls (calibrate 3 + arms 6 +
+  3 reruns of calibrate/arms absorbed transient proxy timeouts),
+  thinking off; judge verdicts reuse on rerun when top-3s unchanged.
+  Bugs caught in this pass: batched-tensor shape in build script
+  (564 rows vs 36,045), judge needed thinking:false + 90 s timeout
+  (45 s default timed out), run.mjs Wilson centreing (c not divided
+  by 1+z^2/n; produced 107% bounds), `?semantic=only` silently
+  fell back to lexical on dead-ends (ablation contamination; now
+  returns empty), thresholdPicks test fixture stale after tau
+  calibration. app/data policy: .i8 + scales gitignored (rebuild
+  documented in run_all.sh step 5b + docs), meta + query_emb_cache
+  committed. Docs: docs/semantic_fallback.md (design/failure
+  modes/limitations), PROJECT.md 4.4/5.9/11/12, event_schema
+  semantic_* props, run_all.sh 5b, summary generated from artifacts
+  by eval/semantic/make_summary.py.
+
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
   when the eval harness is ready.
@@ -489,7 +534,7 @@ Work order:
 6. Semantic fallback: local ONNX multilingual-e5-small (build+runtime same
    model, 0 API tokens), int8 index, gate on intentN<2, 100-query frozen
    panel, one tau from dev dead-end distribution, arms A/B/C with CIs,
-   no-op guarantee test, summary.md generated from artifacts.
+   no-op guarantee test, summary.md generated from artifacts. DONE 2026-11-04.
 7. Final: doc sync (sync_doc_numbers --check), full gate pass, STATUS/PROJECT
    closeout.
 

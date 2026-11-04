@@ -1,0 +1,13 @@
+{
+  "provider": "local_onnx",
+  "model": "Xenova/multilingual-e5-small",
+  "dim": 384,
+  "query_prefix": "query: ",
+  "doc_prefix": "passage: ",
+  "K": 200,
+  "tau": 0.845,
+  "margin": 0.03,
+  "floor": 0.7,
+  "timeout_ms": 400,
+  "doc_template_version": 1
+}
