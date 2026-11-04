@@ -1,0 +1,781 @@
+{
+  "panel_n": 100,
+  "arms": {
+    "baseline_naive": {
+      "n": 100,
+      "null_strict": {
+        "k": 24,
+        "n": 100,
+        "pct": 24.0,
+        "ci95": [
+          16.7,
+          33.2
+        ]
+      },
+      "null_app_lt2_intent": {
+        "k": 28,
+        "n": 100,
+        "pct": 28.0,
+        "ci95": [
+          20.1,
+          37.5
+        ]
+      },
+      "success_at3": {
+        "k": 34,
+        "n": 76,
+        "pct": 44.7,
+        "ci95": [
+          34.1,
+          55.9
+        ]
+      },
+      "usable_at3": {
+        "k": 63,
+        "n": 76,
+        "pct": 82.9,
+        "ci95": [
+          72.9,
+          89.7
+        ]
+      },
+      "outcomes": {
+        "null": 23,
+        "resolved": 72,
+        "weak": 4,
+        "not_in_catalogue": 1
+      },
+      "verdicts": {
+        "R": 71,
+        "P": 78,
+        "I": 69
+      },
+      "latency_ms": {
+        "p50": 54,
+        "p95": 131
+      }
+    },
+    "guided": {
+      "n": 100,
+      "null_strict": {
+        "k": 0,
+        "n": 100,
+        "pct": 0.0,
+        "ci95": [
+          0.0,
+          3.7
+        ]
+      },
+      "null_app_lt2_intent": {
+        "k": 10,
+        "n": 100,
+        "pct": 10.0,
+        "ci95": [
+          5.5,
+          17.4
+        ]
+      },
+      "success_at3": {
+        "k": 52,
+        "n": 100,
+        "pct": 52.0,
+        "ci95": [
+          42.3,
+          61.5
+        ]
+      },
+      "usable_at3": {
+        "k": 75,
+        "n": 100,
+        "pct": 75.0,
+        "ci95": [
+          65.7,
+          82.5
+        ]
+      },
+      "outcomes": {
+        "resolved": 90,
+        "weak": 7,
+        "substitute_shown": 3
+      },
+      "verdicts": {
+        "R": 110,
+        "P": 87,
+        "I": 54
+      },
+      "latency_ms": {
+        "p50": 64,
+        "p95": 737
+      },
+      "questions_avg": 0.36,
+      "questions_max": 3,
+      "rollback_turns": 8,
+      "rollback_rate_pct_queries": 5.0
+    }
+  },
+  "by_kind": {
+    "real_suggest": {
+      "n": 41,
+      "a": {
+        "n": 41,
+        "null_strict": {
+          "k": 16,
+          "n": 41,
+          "pct": 39.0,
+          "ci95": [
+            25.7,
+            54.3
+          ]
+        },
+        "null_app_lt2_intent": {
+          "k": 18,
+          "n": 41,
+          "pct": 43.9,
+          "ci95": [
+            29.9,
+            59.0
+          ]
+        },
+        "success_at3": {
+          "k": 7,
+          "n": 25,
+          "pct": 28.0,
+          "ci95": [
+            14.3,
+            47.6
+          ]
+        },
+        "usable_at3": {
+          "k": 22,
+          "n": 25,
+          "pct": 88.0,
+          "ci95": [
+            70.0,
+            95.8
+          ]
+        },
+        "outcomes": {
+          "null": 16,
+          "resolved": 23,
+          "weak": 2
+        },
+        "verdicts": {
+          "R": 15,
+          "P": 34,
+          "I": 22
+        },
+        "latency_ms": {
+          "p50": 54,
+          "p95": 134
+        }
+      },
+      "b": {
+        "n": 41,
+        "null_strict": {
+          "k": 0,
+          "n": 41,
+          "pct": 0.0,
+          "ci95": [
+            0.0,
+            8.6
+          ]
+        },
+        "null_app_lt2_intent": {
+          "k": 1,
+          "n": 41,
+          "pct": 2.4,
+          "ci95": [
+            0.4,
+            12.6
+          ]
+        },
+        "success_at3": {
+          "k": 22,
+          "n": 41,
+          "pct": 53.7,
+          "ci95": [
+            38.7,
+            67.9
+          ]
+        },
+        "usable_at3": {
+          "k": 33,
+          "n": 41,
+          "pct": 80.5,
+          "ci95": [
+            66.0,
+            89.8
+          ]
+        },
+        "outcomes": {
+          "resolved": 40,
+          "weak": 1
+        },
+        "verdicts": {
+          "R": 39,
+          "P": 48,
+          "I": 12
+        },
+        "latency_ms": {
+          "p50": 64,
+          "p95": 141
+        },
+        "questions_avg": 0.07,
+        "questions_max": 3,
+        "rollback_turns": 0,
+        "rollback_rate_pct_queries": 0.0
+      }
+    },
+    "vague": {
+      "n": 25,
+      "a": {
+        "n": 25,
+        "null_strict": {
+          "k": 1,
+          "n": 25,
+          "pct": 4.0,
+          "ci95": [
+            0.7,
+            19.5
+          ]
+        },
+        "null_app_lt2_intent": {
+          "k": 2,
+          "n": 25,
+          "pct": 8.0,
+          "ci95": [
+            2.2,
+            25.0
+          ]
+        },
+        "success_at3": {
+          "k": 17,
+          "n": 24,
+          "pct": 70.8,
+          "ci95": [
+            50.8,
+            85.1
+          ]
+        },
+        "usable_at3": {
+          "k": 23,
+          "n": 24,
+          "pct": 95.8,
+          "ci95": [
+            79.8,
+            99.3
+          ]
+        },
+        "outcomes": {
+          "resolved": 23,
+          "null": 1,
+          "weak": 1
+        },
+        "verdicts": {
+          "R": 39,
+          "I": 11,
+          "P": 20
+        },
+        "latency_ms": {
+          "p50": 71,
+          "p95": 111
+        }
+      },
+      "b": {
+        "n": 25,
+        "null_strict": {
+          "k": 0,
+          "n": 25,
+          "pct": 0.0,
+          "ci95": [
+            0.0,
+            13.3
+          ]
+        },
+        "null_app_lt2_intent": {
+          "k": 3,
+          "n": 25,
+          "pct": 12.0,
+          "ci95": [
+            4.2,
+            30.0
+          ]
+        },
+        "success_at3": {
+          "k": 12,
+          "n": 25,
+          "pct": 48.0,
+          "ci95": [
+            30.0,
+            66.5
+          ]
+        },
+        "usable_at3": {
+          "k": 21,
+          "n": 25,
+          "pct": 84.0,
+          "ci95": [
+            65.3,
+            93.6
+          ]
+        },
+        "outcomes": {
+          "substitute_shown": 2,
+          "resolved": 22,
+          "weak": 1
+        },
+        "verdicts": {
+          "I": 19,
+          "P": 27,
+          "R": 29
+        },
+        "latency_ms": {
+          "p50": 59,
+          "p95": 737
+        },
+        "questions_avg": 0.52,
+        "questions_max": 3,
+        "rollback_turns": 5,
+        "rollback_rate_pct_queries": 12.0
+      }
+    },
+    "hinglish": {
+      "n": 14,
+      "a": {
+        "n": 14,
+        "null_strict": {
+          "k": 4,
+          "n": 14,
+          "pct": 28.6,
+          "ci95": [
+            11.7,
+            54.6
+          ]
+        },
+        "null_app_lt2_intent": {
+          "k": 4,
+          "n": 14,
+          "pct": 28.6,
+          "ci95": [
+            11.7,
+            54.6
+          ]
+        },
+        "success_at3": {
+          "k": 2,
+          "n": 10,
+          "pct": 20.0,
+          "ci95": [
+            5.7,
+            51.0
+          ]
+        },
+        "usable_at3": {
+          "k": 8,
+          "n": 10,
+          "pct": 80.0,
+          "ci95": [
+            49.0,
+            94.3
+          ]
+        },
+        "outcomes": {
+          "resolved": 10,
+          "null": 4
+        },
+        "verdicts": {
+          "P": 20,
+          "I": 8,
+          "R": 2
+        },
+        "latency_ms": {
+          "p50": 49,
+          "p95": 96
+        }
+      },
+      "b": {
+        "n": 14,
+        "null_strict": {
+          "k": 0,
+          "n": 14,
+          "pct": 0.0,
+          "ci95": [
+            0.0,
+            21.5
+          ]
+        },
+        "null_app_lt2_intent": {
+          "k": 0,
+          "n": 14,
+          "pct": 0.0,
+          "ci95": [
+            0.0,
+            21.5
+          ]
+        },
+        "success_at3": {
+          "k": 9,
+          "n": 14,
+          "pct": 64.3,
+          "ci95": [
+            38.8,
+            83.7
+          ]
+        },
+        "usable_at3": {
+          "k": 10,
+          "n": 14,
+          "pct": 71.4,
+          "ci95": [
+            45.4,
+            88.3
+          ]
+        },
+        "outcomes": {
+          "resolved": 14
+        },
+        "verdicts": {
+          "R": 22,
+          "P": 8
+        },
+        "latency_ms": {
+          "p50": 56,
+          "p95": 100
+        },
+        "questions_avg": 0.0,
+        "questions_max": 0,
+        "rollback_turns": 0,
+        "rollback_rate_pct_queries": 0.0
+      }
+    },
+    "typo": {
+      "n": 10,
+      "a": {
+        "n": 10,
+        "null_strict": {
+          "k": 2,
+          "n": 10,
+          "pct": 20.0,
+          "ci95": [
+            5.7,
+            51.0
+          ]
+        },
+        "null_app_lt2_intent": {
+          "k": 3,
+          "n": 10,
+          "pct": 30.0,
+          "ci95": [
+            10.8,
+            60.3
+          ]
+        },
+        "success_at3": {
+          "k": 5,
+          "n": 8,
+          "pct": 62.5,
+          "ci95": [
+            30.6,
+            86.3
+          ]
+        },
+        "usable_at3": {
+          "k": 5,
+          "n": 8,
+          "pct": 62.5,
+          "ci95": [
+            30.6,
+            86.3
+          ]
+        },
+        "outcomes": {
+          "resolved": 7,
+          "weak": 1,
+          "null": 2
+        },
+        "verdicts": {
+          "I": 11,
+          "R": 11
+        },
+        "latency_ms": {
+          "p50": 55,
+          "p95": 167
+        }
+      },
+      "b": {
+        "n": 10,
+        "null_strict": {
+          "k": 0,
+          "n": 10,
+          "pct": 0.0,
+          "ci95": [
+            0.0,
+            27.8
+          ]
+        },
+        "null_app_lt2_intent": {
+          "k": 1,
+          "n": 10,
+          "pct": 10.0,
+          "ci95": [
+            1.8,
+            40.4
+          ]
+        },
+        "success_at3": {
+          "k": 6,
+          "n": 10,
+          "pct": 60.0,
+          "ci95": [
+            31.3,
+            83.2
+          ]
+        },
+        "usable_at3": {
+          "k": 6,
+          "n": 10,
+          "pct": 60.0,
+          "ci95": [
+            31.3,
+            83.2
+          ]
+        },
+        "outcomes": {
+          "resolved": 9,
+          "weak": 1
+        },
+        "verdicts": {
+          "R": 16,
+          "I": 6
+        },
+        "latency_ms": {
+          "p50": 74,
+          "p95": 669
+        },
+        "questions_avg": 0.3,
+        "questions_max": 3,
+        "rollback_turns": 0,
+        "rollback_rate_pct_queries": 0.0
+      }
+    },
+    "dead_end": {
+      "n": 10,
+      "a": {
+        "n": 10,
+        "null_strict": {
+          "k": 1,
+          "n": 10,
+          "pct": 10.0,
+          "ci95": [
+            1.8,
+            40.4
+          ]
+        },
+        "null_app_lt2_intent": {
+          "k": 1,
+          "n": 10,
+          "pct": 10.0,
+          "ci95": [
+            1.8,
+            40.4
+          ]
+        },
+        "success_at3": {
+          "k": 3,
+          "n": 9,
+          "pct": 33.3,
+          "ci95": [
+            12.1,
+            64.6
+          ]
+        },
+        "usable_at3": {
+          "k": 5,
+          "n": 9,
+          "pct": 55.6,
+          "ci95": [
+            26.7,
+            81.1
+          ]
+        },
+        "outcomes": {
+          "resolved": 9,
+          "not_in_catalogue": 1
+        },
+        "verdicts": {
+          "R": 4,
+          "I": 17,
+          "P": 4
+        },
+        "latency_ms": {
+          "p50": 86,
+          "p95": 124
+        }
+      },
+      "b": {
+        "n": 10,
+        "null_strict": {
+          "k": 0,
+          "n": 10,
+          "pct": 0.0,
+          "ci95": [
+            0.0,
+            27.8
+          ]
+        },
+        "null_app_lt2_intent": {
+          "k": 5,
+          "n": 10,
+          "pct": 50.0,
+          "ci95": [
+            23.7,
+            76.3
+          ]
+        },
+        "success_at3": {
+          "k": 3,
+          "n": 10,
+          "pct": 30.0,
+          "ci95": [
+            10.8,
+            60.3
+          ]
+        },
+        "usable_at3": {
+          "k": 5,
+          "n": 10,
+          "pct": 50.0,
+          "ci95": [
+            23.7,
+            76.3
+          ]
+        },
+        "outcomes": {
+          "resolved": 5,
+          "weak": 4,
+          "substitute_shown": 1
+        },
+        "verdicts": {
+          "R": 4,
+          "I": 17,
+          "P": 4
+        },
+        "latency_ms": {
+          "p50": 500,
+          "p95": 958
+        },
+        "questions_avg": 1.7,
+        "questions_max": 3,
+        "rollback_turns": 3,
+        "rollback_rate_pct_queries": 20.0
+      }
+    }
+  },
+  "absent_from_catalogue": [
+    "something for my room",
+    "office ke liye kuch",
+    "kettledrum"
+  ],
+  "failure_examples": [
+    {
+      "id": "e3_001",
+      "query": "gift under 2000",
+      "kind": "real_suggest",
+      "items": [
+        "Superhero Capes and Mask for Kids Superhero Costumes for Boy",
+        "SUNBVE Kids Girls Cute Fashion Soft Cotton Dress Socks Gift",
+        "Loritta 4 Pairs Womens Boot Socks Winter Warm Crochet Knitte"
+      ]
+    },
+    {
+      "id": "e3_002",
+      "query": "gift under 2000 for men",
+      "kind": "real_suggest",
+      "items": [
+        "Superhero Capes and Mask for Kids Superhero Costumes for Boy",
+        "SUNBVE Kids Girls Cute Fashion Soft Cotton Dress Socks Gift",
+        "Loritta 4 Pairs Womens Boot Socks Winter Warm Crochet Knitte"
+      ]
+    },
+    {
+      "id": "e3_003",
+      "query": "gift under 2000 for women",
+      "kind": "real_suggest",
+      "items": [
+        "Superhero Capes and Mask for Kids Superhero Costumes for Boy",
+        "SUNBVE Kids Girls Cute Fashion Soft Cotton Dress Socks Gift",
+        "Loritta 4 Pairs Womens Boot Socks Winter Warm Crochet Knitte"
+      ]
+    },
+    {
+      "id": "e3_004",
+      "query": "gift under 20000",
+      "kind": "real_suggest",
+      "items": [
+        "Superhero Capes and Mask for Kids Superhero Costumes for Boy",
+        "SUNBVE Kids Girls Cute Fashion Soft Cotton Dress Socks Gift",
+        "Loritta 4 Pairs Womens Boot Socks Winter Warm Crochet Knitte"
+      ]
+    },
+    {
+      "id": "e3_006",
+      "query": "gift under 2000 for marriage",
+      "kind": "real_suggest",
+      "items": [
+        "Cute Little Turtle Home Iwatch Bands, Smartwatch Bands Compa",
+        "Blue Rhinestone Bow Brooch Ladies Large Bow Badge Vintage Fa",
+        "Cute Cat Frog Rabbit Animal Pins, Personality Animation Enam"
+      ]
+    },
+    {
+      "id": "e3_008",
+      "query": "gift under 2000 for sister",
+      "kind": "real_suggest",
+      "items": [
+        "Superhero Capes and Mask for Kids Superhero Costumes for Boy",
+        "SUNBVE Kids Girls Cute Fashion Soft Cotton Dress Socks Gift",
+        "Loritta 4 Pairs Womens Boot Socks Winter Warm Crochet Knitte"
+      ]
+    },
+    {
+      "id": "e3_009",
+      "query": "gift under 2000 for wedding",
+      "kind": "real_suggest",
+      "items": [
+        "Sister Gifts from Sister Birthday Gift Ideas Sister Gifts fo",
+        "Funny Retro Vinyl Record Coasters for Drinks with Vinyl Reco",
+        "STREADVE Personalized Custom Pens with Name Engraved Logo Te"
+      ]
+    },
+    {
+      "id": "e3_010",
+      "query": "shaadi gift",
+      "kind": "real_suggest",
+      "items": [
+        "La Belleza red Rhinestones Luxury Hand-Made Bodice Beaded Ap",
+        "Urban Villa Tablecloth Cuisine Stripes Table Cloth Tabletop ",
+        "Anouk Bridal Lehenga Choli (Maroon)"
+      ]
+    },
+    {
+      "id": "e3_042",
+      "query": "something for my room",
+      "kind": "vague",
+      "items": [
+        "Bella Amici 925 Sterling Silver Necklaces For Women 1.3mm Ro",
+        "New Women's Cross-Body Casual Nylon Mobile Phone Cases Armba",
+        "LA LEELA Men's Regular Vacation Dashiki Sarong Long Pareo Be"
+      ]
+    },
+    {
+      "id": "e3_045",
+      "query": "new home stuff",
+      "kind": "vague",
+      "items": [
+        "Great Stuff LLC Polarized Square Sunglasses for Men and Wome",
+        "2023 Advent Calendar Christmas Countdown Calendar for Kids 2",
+        "Bookmarks for Women Funny Reader Gifts for Book Lovers Readi"
+      ]
+    }
+  ]
+}

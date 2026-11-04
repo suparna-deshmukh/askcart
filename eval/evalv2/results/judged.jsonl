@@ -1,0 +1,176 @@
+{"qid": "e3_001", "arm": "b", "verdicts": []}
+{"qid": "e3_002", "arm": "b", "verdicts": []}
+{"qid": "e3_003", "arm": "b", "verdicts": []}
+{"qid": "e3_004", "arm": "b", "verdicts": []}
+{"qid": "e3_005", "arm": "a", "verdicts": ["R", "P", "R"]}
+{"qid": "e3_005", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_006", "arm": "b", "verdicts": []}
+{"qid": "e3_007", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_007", "arm": "b", "verdicts": ["P", "P", "R"]}
+{"qid": "e3_008", "arm": "b", "verdicts": []}
+{"qid": "e3_009", "arm": "b", "verdicts": []}
+{"qid": "e3_010", "arm": "b", "verdicts": []}
+{"qid": "e3_011", "arm": "a", "verdicts": ["P", "I", "P"]}
+{"qid": "e3_011", "arm": "b", "verdicts": ["P", "P", "I"]}
+{"qid": "e3_012", "arm": "a", "verdicts": ["P", "I", "P"]}
+{"qid": "e3_012", "arm": "b", "verdicts": ["P", "I", "I"]}
+{"qid": "e3_013", "arm": "a", "verdicts": ["P", "I", "I"]}
+{"qid": "e3_013", "arm": "b", "verdicts": ["I", "I", "P"]}
+{"qid": "e3_014", "arm": "a", "verdicts": ["P", "I", "P"]}
+{"qid": "e3_014", "arm": "b", "verdicts": ["P", "P", "I"]}
+{"qid": "e3_015", "arm": "a", "verdicts": ["P", "I", "P"]}
+{"qid": "e3_015", "arm": "b", "verdicts": ["I", "I", "R"]}
+{"qid": "e3_016", "arm": "a", "verdicts": ["R", "R", "I"]}
+{"qid": "e3_016", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_017", "arm": "a", "verdicts": ["I", "I", "P"]}
+{"qid": "e3_070", "arm": "b", "verdicts": []}
+{"qid": "e3_089", "arm": "b", "verdicts": []}
+{"qid": "e3_095", "arm": "b", "verdicts": []}
+{"qid": "e3_075", "arm": "b", "verdicts": []}
+{"qid": "e3_078", "arm": "b", "verdicts": []}
+{"qid": "e3_079", "arm": "b", "verdicts": []}
+{"qid": "e3_084", "arm": "b", "verdicts": []}
+{"qid": "e3_017", "arm": "b", "verdicts": ["R", "P", "P"]}
+{"qid": "e3_018", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_018", "arm": "b", "verdicts": ["P", "P", "R"]}
+{"qid": "e3_019", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_019", "arm": "b", "verdicts": ["P", "P", "R"]}
+{"qid": "e3_020", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_020", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_021", "arm": "a", "verdicts": ["P", "R", "R"]}
+{"qid": "e3_021", "arm": "b", "verdicts": ["R", "P", "R"]}
+{"qid": "e3_022", "arm": "b", "verdicts": ["P", "I", "P"]}
+{"qid": "e3_023", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_023", "arm": "b", "verdicts": ["P", "P", "R"]}
+{"qid": "e3_024", "arm": "b", "verdicts": ["P", "I", "P"]}
+{"qid": "e3_025", "arm": "b", "verdicts": ["P", "R", "P"]}
+{"qid": "e3_026", "arm": "b", "verdicts": ["R", "R", "P"]}
+{"qid": "e3_027", "arm": "b", "verdicts": ["P", "R", "P"]}
+{"qid": "e3_028", "arm": "b", "verdicts": ["R", "P", "R"]}
+{"qid": "e3_029", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_030", "arm": "b", "verdicts": ["I", "P", "P"]}
+{"qid": "e3_031", "arm": "b", "verdicts": ["R", "I", "P"]}
+{"qid": "e3_032", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_032", "arm": "b", "verdicts": ["R", "R", "P"]}
+{"qid": "e3_033", "arm": "b", "verdicts": ["R", "R", "P"]}
+{"qid": "e3_034", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_034", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_035", "arm": "a", "verdicts": ["I", "I", "P"]}
+{"qid": "e3_035", "arm": "b", "verdicts": ["R", "R", "P"]}
+{"qid": "e3_036", "arm": "a", "verdicts": ["I", "P", "I"]}
+{"qid": "e3_036", "arm": "b", "verdicts": ["R", "R", "P"]}
+{"qid": "e3_037", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_037", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_038", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_038", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_039", "arm": "a", "verdicts": ["P", "R", "R"]}
+{"qid": "e3_039", "arm": "b", "verdicts": ["R", "R", "P"]}
+{"qid": "e3_040", "arm": "a", "verdicts": ["P", "I", "P"]}
+{"qid": "e3_040", "arm": "b", "verdicts": ["R", "P", "R"]}
+{"qid": "e3_041", "arm": "a", "verdicts": ["P", "P", "I"]}
+{"qid": "e3_041", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_042", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_042", "arm": "b", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_043", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_044", "arm": "a", "verdicts": ["I", "P", "P"]}
+{"qid": "e3_044", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_045", "arm": "a", "verdicts": ["P", "I", "P"]}
+{"qid": "e3_045", "arm": "b", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_046", "arm": "a", "verdicts": ["I", "R", "R"]}
+{"qid": "e3_046", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_060", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_060", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_061", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_061", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_062", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_063", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_063", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_064", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_064", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_065", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_065", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_074", "arm": "a", "verdicts": ["R", "P", "P"]}
+{"qid": "e3_074", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_076", "arm": "a", "verdicts": ["R", "P", "P"]}
+{"qid": "e3_076", "arm": "b", "verdicts": ["R", "R", "P"]}
+{"qid": "e3_077", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_077", "arm": "b", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_080", "arm": "a", "verdicts": ["P", "P", "I"]}
+{"qid": "e3_080", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_081", "arm": "a", "verdicts": ["P", "P", "I"]}
+{"qid": "e3_081", "arm": "b", "verdicts": ["R", "P", "P"]}
+{"qid": "e3_082", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_082", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_083", "arm": "a", "verdicts": ["R"]}
+{"qid": "e3_083", "arm": "b", "verdicts": ["R"]}
+{"qid": "e3_085", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_085", "arm": "b", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_086", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_086", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_087", "arm": "a", "verdicts": ["I", "R", "R"]}
+{"qid": "e3_087", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_088", "arm": "a", "verdicts": ["I", "R", "R"]}
+{"qid": "e3_088", "arm": "b", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_090", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_090", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_091", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_030", "arm": "a", "verdicts": ["I"]}
+{"qid": "e3_031", "arm": "a", "verdicts": ["R"]}
+{"qid": "e3_058", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_059", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_059", "arm": "b", "verdicts": ["I", "I", "R"]}
+{"qid": "e3_066", "arm": "a", "verdicts": ["R", "P", "P"]}
+{"qid": "e3_066", "arm": "b", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_068", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_068", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_069", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_069", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_071", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_071", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_072", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_072", "arm": "b", "verdicts": ["P", "R", "P"]}
+{"qid": "e3_073", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_073", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_091", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_093", "arm": "a", "verdicts": ["R", "R", "I"]}
+{"qid": "e3_093", "arm": "b", "verdicts": ["R", "R", "I"]}
+{"qid": "e3_094", "arm": "a", "verdicts": ["R", "I", "I"]}
+{"qid": "e3_094", "arm": "b", "verdicts": ["R", "I", "I"]}
+{"qid": "e3_096", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_096", "arm": "b", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_097", "arm": "a", "verdicts": ["P", "P"]}
+{"qid": "e3_097", "arm": "b", "verdicts": ["P", "P"]}
+{"qid": "e3_098", "arm": "a", "verdicts": ["P", "R"]}
+{"qid": "e3_098", "arm": "b", "verdicts": ["R", "P"]}
+{"qid": "e3_099", "arm": "a", "verdicts": ["I", "P", "I"]}
+{"qid": "e3_099", "arm": "b", "verdicts": ["P", "I", "I"]}
+{"qid": "e3_100", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_100", "arm": "b", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_101", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_101", "arm": "b", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_100", "arm": "a", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_100", "arm": "b", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_047", "arm": "a", "verdicts": ["R", "P", "P"]}
+{"qid": "e3_047", "arm": "b", "verdicts": ["I", "I", "I"]}
+{"qid": "e3_048", "arm": "a", "verdicts": ["R", "I", "R"]}
+{"qid": "e3_048", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_049", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_049", "arm": "b", "verdicts": ["P", "R", "R"]}
+{"qid": "e3_050", "arm": "a", "verdicts": ["I", "R", "R"]}
+{"qid": "e3_050", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_051", "arm": "a", "verdicts": ["P", "R", "R"]}
+{"qid": "e3_051", "arm": "b", "verdicts": ["R", "I", "I"]}
+{"qid": "e3_052", "arm": "a", "verdicts": ["R", "I", "I"]}
+{"qid": "e3_052", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_053", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_053", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_054", "arm": "a", "verdicts": ["P", "P", "I"]}
+{"qid": "e3_054", "arm": "b", "verdicts": ["I", "P", "I"]}
+{"qid": "e3_055", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_055", "arm": "b", "verdicts": ["R", "P", "I"]}
+{"qid": "e3_056", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_056", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_057", "arm": "a", "verdicts": ["P", "P", "P"]}
+{"qid": "e3_057", "arm": "b", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_058", "arm": "a", "verdicts": ["R", "R", "R"]}
+{"qid": "e3_062", "arm": "a", "verdicts": ["R"]}

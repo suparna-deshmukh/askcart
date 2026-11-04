@@ -595,6 +595,47 @@ Every metric below is computed server-side from the event store
 
 ---
 
+### 5.8 Eval v2 — held-out panel, two arms (the non-self-graded check)
+
+The n=150 study (§5.1) was calibrated against the live app, so it
+demonstrates mechanics. Eval v2 (`eval/evalv2/`) is the held-out check:
+a **100-query panel frozen in git before any arm was run** (41
+real Google-Suggest-shaped autocompletes, 25 vague, 14 Hinglish, 10
+typo, 10 dead-end; deduped against the canaries and the old 150 dev
+set), two arms, top-3 of each arm Qwen-judged (R/P/I, single judge,
+0 unknowns), Wilson 95% CIs on every rate.
+
+| Metric | A baseline (naive) | B guided |
+|---|---|---|
+| Null rate (0 results) | 24.0% [16.7–33.2] | 0.0% [0.0–3.7] |
+| App null (final < 2 intent-matched) | 28.0% [20.1–37.5] | 10.0% [5.5–17.4] |
+| success@3 (≥1 relevant, Qwen) | 44.7% [34.1–55.9] | 52.0% [42.3–61.5] |
+| usable@3 (≥1 relevant/partial) | 82.9% [72.9–89.7] | 75.0% [65.7–82.5] |
+| p50 / p95 latency (ms) | 54 / 131 | 64 / 737 |
+| Questions / journey | – | 0.36 avg (max 3) |
+| Rollback events | – | 8 turns, 5.0% of journeys |
+
+Honest reads (full text: `eval/evalv2/results/summary.md`):
+
+- Strict nulls disappear (24% → 0%) and app-nulls roughly halve
+  (28% → 10%; CIs non-overlapping) — the guided path's headline job.
+- success@3 improves directionally (44.7 → 52.0; CIs overlap).
+- usable@3 dips slightly (82.9 → 75.0; CIs overlap): guided
+  re-ranking narrows candidate sets, so some vague queries lose
+  diversity in the top-3. Biggest per-kind wins: real_suggest
+  28.0 → 53.7, hinglish 20.0 → 64.3; vague drops 70.8 → 48.0.
+- Outcome classes: `resolved` 72 → 90; the guided arm surfaces
+  `substitute_shown` 3× (honest label for out-of-catalogue product
+  classes — e.g. "kettledrum") instead of silently calling it resolved.
+- Failure mode exposed: browse-mode ("gift under 2000") top-3 ranking
+  by raw rating puts a kids' costume cape first — a pre-existing
+  ranking-quality gap, visible in both arms.
+
+Reproduce: `.venv/bin/python eval/evalv2/run.py &&
+.venv/bin/python eval/evalv2/judge.py &&
+.venv/bin/python eval/evalv2/report.py` (judge ≈ 10 batch calls,
+thinking off; run.py is pure HTTP, 0 tokens).
+
 ## 6. Event schema (what "every event" means, precisely)
 
 Full reference: `docs/event_schema.md`. **One event type per user action**,
@@ -743,6 +784,11 @@ Left → right:
    - loose results + question pending: "These are close, not exact — the
      question above should get you there."
 7. **Filter bar** (one row, chips):
+   - `Mode` — Guided · Plain. Guided (default) is the full experience;
+     Plain re-runs the current query through the legacy naive keyword
+     baseline (no budget/occasion understanding, no questions) so a
+     reviewer can A/B the two in one session. An explainer line is
+     shown in Plain mode. Not persisted — fresh visitors land on Guided.
    - `Sort` — Relevance · Price ↑ · Price ↓ · Top rated
    - separator · `Price` — under ₹1k · ₹1k–3k · ₹3k–10k · ₹10k & up
    - `4★ & up`
@@ -753,11 +799,15 @@ Left → right:
    - **Clear all** (red, appears only when ≥1 filter active)
    - meta: `N of M products · X ms`
    - every change fires `filter_applied` with `n_before/n_after`.
-8. **Results layout** (never one flat grid):
-   - **Recommended for you** — top 3 by persona `recommendScore`, header
-     note "ranked by your profile · price fit, brand preference, quality &
-     trust"; #1 wears a **Top pick** badge; acting on any of the three
-     fires `recommendation_click`.
+8. **Results layout** (single ranked grid when the top category is ≥ 60%
+   of the results — "Best matches"; shelves only for ambiguous/rescue):
+   - **Best matches** — highest-scoring picks; header note
+     "ranked for your profile …" only when a persona with learned
+     behaviour exists, else "highest-scoring picks for this search";
+     #1 wears a **Best match** badge; the "close" tier is labelled
+     "Close matches (relaxed budget / fewer terms)" — never silently
+     relaxed. (The v6 "Recommended for you / Top pick" naming was a
+     false personalisation claim and was removed in v7.)
    - **Category shelves** — the 2–3 biggest categories in the remaining
      set (≥2 items each), 4 cards per shelf, header `N picks from this
      match`.
@@ -1106,5 +1156,12 @@ Individual steps:
   prototype); no historical retention.
 - **Relevance audit is LLM-judged** (Qwen as judge, 150 results) — a
   human spot-check would tighten the 4.0% irrelevant figure.
+- **Eval v2 is the held-out check but still single-judge** (Qwen,
+  thinking off; no human spot-check this pass), its `real_suggest`
+  queries are autocompletes (gift-heavy, a bias that favours this app),
+  and the guided arm is answered by a neutral deterministic simulator —
+  there are no real users on this deployment. The old n=150 study
+  remains the dev-set result; the two are reported side by side, never
+  blended.
 - Full provenance: `docs/claim_provenance.md`, `docs/reviewer_pass.md`,
   `docs/source_notes.md`.

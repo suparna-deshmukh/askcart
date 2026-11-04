@@ -389,6 +389,29 @@ G12 outcome micro-survey.
   with no question UI. Canaries 111+5, ui tour, contrast 0 fails, sync
   OK.
 
+- **E3 (Eval v2) DONE** — held-out evaluation, non-self-graded. Panel:
+  100 queries frozen in git BEFORE any arm ran (41 real
+  Google-Suggest-shaped autocompletes from trends_insights.json, 25
+  vague, 14 Hinglish, 10 typo, 10 dead-end; deduped vs canaries + old
+  150 dev set). Arms: A = naive keyword baseline (one shot, no
+  questions), B = live app path (guided scorer + <=3 questions answered
+  by a neutral deterministic simulator, client re-search + rollback
+  semantics). Top-3 per arm judged by Qwen (single judge, thinking off,
+  0 unknowns). Results (Wilson 95% CIs, from
+  eval/evalv2/results/evalv2.json): strict null 24.0% [16.7-33.2] ->
+  0.0% [0-3.7]; app-null (final <2 intent) 28.0% [20.1-37.5] -> 10.0%
+  [5.5-17.4] (non-overlapping); success@3 44.7% -> 52.0% (overlapping);
+  usable@3 82.9% -> 75.0% (overlapping — honest dip: guided re-ranking
+  narrows top-3 diversity on vague queries); 0.36 questions/journey;
+  8 rollback turns (5% of journeys); p95 131 -> 737 ms. Honest
+  findings: many "dead ends" actually exist in the catalogue (digital
+  saxophone, acoustic violin, spyglass) — the lexical probe
+  reclassifies them; browse-mode ("gift under 2000") top-3 ranking
+  exposes a pre-existing ranking gap (kids' costume cape first) in both
+  arms. Old n=150 study stays as dev-set result, reported side by
+  side, never blended. LLM spend: ~10 batch judge calls (~25k tokens).
+  Gates green.
+
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
   when the eval harness is ready.
@@ -424,8 +447,10 @@ Work order:
    appliance capacity if cheap) -> G8 festival rails -> G12 micro-survey.
 4. P3-lite: B4 event rename (product_impression) + variant/lang props DONE,
    Guided-vs-Plain compare toggle DONE (reuse naive mode; no live A/B -
-   no real users on localhost), E3 eval: 100-query frozen panel, 2 arms,
-   Qwen-judged top-3, Wilson CIs, substitute_shown class.
+   no real users on localhost), E3 eval DONE: 100-query frozen panel
+   (committed before arms), 2 arms, Qwen-judged top-3, Wilson CIs,
+   substitute_shown class (eval/evalv2/, summary generated from
+   artifacts).
 5. Chatbot MVP (Mode A): deterministic dialog manager + templates-first,
    8 intents, 3 entry points (hero, E1 escalation, PDP), substring FAQ,
    HMAC-signed client state, grounding guard 0-fail, 60 golden + 30
