@@ -162,6 +162,13 @@ body.largetext { font-size: 16.5px; }
 
 /* ---------- Product cards ---------- */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 12px; }
+/* G8: festival budget rails (horizontal scroll, same card size as the grid) */
+.rail { margin-top: 18px; }
+.rail-head { display: flex; align-items: baseline; gap: 8px; margin: 0 2px 8px; }
+.rail-head h3 { margin: 0; font-size: 15px; font-weight: 650; color: var(--ink); }
+.rail-head .gc { font-size: 12px; color: var(--faint); }
+.rail-row { display: grid; grid-auto-flow: column; grid-auto-columns: 235px; gap: 12px;
+            overflow-x: auto; padding: 2px 2px 8px; }
 .card {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 14px 15px; display: flex; flex-direction: column; gap: 6px;

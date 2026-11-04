@@ -274,7 +274,7 @@ function AskCartHome() {
   const guideShownAtRef = useRef(0);
 
   useEffect(() => {
-    fetch("/api/catalog-preview").then(r => r.json()).then(j => {
+    fetch("/api/catalog-preview?festival=1").then(r => r.json()).then(j => {
       if (Array.isArray(j.items)) setPreview(j);
     }).catch(() => {});
   }, []);
@@ -1053,18 +1053,48 @@ function AskCartHome() {
               )}
 
               {!s && preview && (
-                <div>
-                  <div className="sec-head">
-                    <h2>Trending across price bands</h2>
-                    <span className="count">{preview.catalogSize.toLocaleString("en-IN")} products loaded · best-rated per band</span>
-                  </div>
-                  <div className="grid">
-                    {preview.items.map((r) => (
-                      <ProductCard key={r.sku} r={r} onAdd={(x) => addToCart(x, "preview")}
-                                   onOpen={(x) => openPdpSku(x.sku, preview.items, "preview")} />
+                preview.rails ? (
+                  // G8: festival window -> time-aware budget rails replace
+                  // the static trending grid (occasion-awareness before
+                  // the first search).
+                  <div>
+                    <div className="sec-head">
+                      <h2>{preview.rails.festival} gift ideas</h2>
+                      <span className="count">
+                        {preview.rails.festival} is {preview.rails.days === 0 ? "today" :
+                          preview.rails.days < 0 ? `${Math.abs(preview.rails.days)} days ago` :
+                          `${preview.rails.days} day${preview.rails.days === 1 ? "" : "s"} away`} · best-rated per budget · {preview.catalogSize.toLocaleString("en-IN")} products loaded
+                      </span>
+                    </div>
+                    {preview.rails.bands.map((b) => (
+                      <div className="rail" key={b.label}>
+                        <div className="rail-head">
+                          <h3>{b.label}</h3>
+                          <span className="gc">{b.items.length} picks · festive goods & gifts</span>
+                        </div>
+                        <div className="rail-row">
+                          {b.items.map((r) => (
+                            <ProductCard key={r.sku} r={r} onAdd={(x) => addToCart(x, "preview")}
+                                         onOpen={(x) => openPdpSku(x.sku, preview.rails.bands.flatMap((z) => z.items), "preview")} />
+                          ))}
+                        </div>
+                      </div>
                     ))}
                   </div>
-                </div>
+                ) : (
+                  <div>
+                    <div className="sec-head">
+                      <h2>Trending across price bands</h2>
+                      <span className="count">{preview.catalogSize.toLocaleString("en-IN")} products loaded · best-rated per band</span>
+                    </div>
+                    <div className="grid">
+                      {preview.items.map((r) => (
+                        <ProductCard key={r.sku} r={r} onAdd={(x) => addToCart(x, "preview")}
+                                     onOpen={(x) => openPdpSku(x.sku, preview.items, "preview")} />
+                      ))}
+                    </div>
+                  </div>
+                )
               )}
             </>
           )

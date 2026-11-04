@@ -1,5 +1,48 @@
 import { NextResponse, NextRequest } from "next/server";
 import { loadCatalog } from "../../../lib/catalog";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "node:url";
+
+// G8: festival rails for the home page. During the Diwali gifting window
+// (up to 14 days before the date, 3 days after) the hero shows 4 budget
+// rails of best-rated Diwali-adjacent items instead of the static
+// price-band grid. Pool = diwali-tagged SKUs + titles with Diwali-family
+// keywords (diya, rangoli, mithai, dry fruits, ...). 372 SKUs qualify;
+// per exclusive band: 32 / 63 / 103 / 111 items. No festival active ->
+// no `rails` field, page falls back to the trending grid.
+function festivalRails(catalog) {
+  let cal;
+  try {
+    const f = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../../lib/festivals_2026_27.json");
+    cal = JSON.parse(fs.readFileSync(f, "utf8"));
+  } catch { return null; }
+  const now = new Date();
+  const t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const diy = (cal.festivals || []).find((f) => f.name === "Diwali" && f.date);
+  if (!diy) return null;
+  const days = Math.round((new Date(diy.date + "T00:00:00").getTime() - t0) / 86400000);
+  if (days < -3 || days > 14) return null;
+  const KW = /diwali|deepawali|diya|rangoli|mithai|dry fruit|chand ka/i;
+  const pool = catalog.filter((x) => (x.tags || []).includes("diwali") || KW.test(x.title));
+  const bands = [
+    { label: "under \u20b9500", min: 0, cap: 500 },
+    { label: "\u20b9500 \u2013 \u20b91,000", min: 500, cap: 1000 },
+    { label: "\u20b91,000 \u2013 \u20b92,000", min: 1000, cap: 2000 },
+    { label: "\u20b92,000 \u2013 \u20b95,000", min: 2000, cap: 5000 },
+  ];
+  const out = bands.map((b) => ({
+    label: b.label,
+    items: pool.filter((x) => x.price > b.min && x.price <= b.cap)
+      .sort((a, c) => (c.num_ratings || 0) - (a.num_ratings || 0))
+      .slice(0, 8)
+      .map((x) => ({ sku: x.sku, title: x.title, category: x.category,
+                     brand: x.brand || "", price: x.price, rating: x.rating,
+                     num_ratings: x.num_ratings })),
+  }));
+  if (out.every((b) => b.items.length < 4)) return null;
+  return { festival: diy.name, date: diy.date, days, bands: out };
+}
 
 // Deterministic home-page preview: the best-rated ("trending") items per
 // price band, so the store feels alive before the first search.
@@ -41,5 +84,10 @@ export async function GET(req) {
     .map((x) => ({ sku: x.sku, title: x.title, category: x.category,
                     brand: x.brand || "",
                     price: x.price, rating: x.rating, num_ratings: x.num_ratings }));
-  return NextResponse.json({ items, catalogSize: catalog.length });
+  const resp = { items, catalogSize: catalog.length };
+  if (new URL(req.url).searchParams.get("festival")) {
+    const rails = festivalRails(catalog);
+    if (rails) resp.rails = rails;
+  }
+  return NextResponse.json(resp);
 }

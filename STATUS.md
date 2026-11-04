@@ -241,7 +241,7 @@ claim inflation, acceptance tests per item, commits `T3:`-style per item.
 
 ## P2 (search engine + catalogue) — queue
 S1 DONE → S2 DONE → S3 DONE → S4 DONE → S7 DONE → C1+C2+C3 DONE
-(see below) → G3 DONE → G8 seasonal rails →
+(see below) → G3 DONE → G8 DONE →
 G12 outcome micro-survey.
 
 - **S1 DONE** — typo tolerance in the guided scorer: Damerau (OSA)
@@ -340,6 +340,21 @@ G12 outcome micro-survey.
   score"), not catalogue order. 5 new G3 canary assertions (guide type +
   facet effects) -> canaries 111 + 5 green, ui tour 17 shots, contrast 0
   fails, sync OK.
+
+- **G8 DONE** — seasonal hero rails. During the Diwali gifting window
+  (server checks `app/lib/festivals_2026_27.json` against today; active
+  from 14 days before to 3 days after the date — 4 days out on
+  2026-11-04) the home preview replaces "Trending across price bands"
+  with 4 budget rails (under ₹500 / ₹500–1k / ₹1k–2k / ₹2k–5k, 8
+  cards each, best-rated) from `/api/catalog-preview?festival=1`.
+  Pool = diwali-tagged SKUs + Diwali-family title keywords (diya,
+  rangoli, mithai, dry fruits; 372 SKUs; per-band 32/63/103/111,
+  bands are exclusive so rails never repeat items). Festival inactive
+  or pool < 4 per band → no `rails` field → the static trending grid
+  renders instead (fallback preserved). No catalogue rebuild: the
+  keyword pool is computed in the endpoint, so tag counts and the
+  catalog artifact are untouched. Canaries 111+5 green, ui tour 17
+  shots (home hero now shows the rails), contrast 0 fails, sync OK.
 
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
