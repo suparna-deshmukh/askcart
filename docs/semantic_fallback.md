@@ -115,6 +115,8 @@ node --import ../eval/chat/register-shim.mjs ../eval/semantic/run.mjs
 | no meaningful query text (pure budget) | `reason: no_semantic_text` (browse mode) |
 | nothing passes τ/margin | `reason: below_threshold`; v6 rescue path |
 | `SEMANTIC_FALLBACK=0` | v6 exactly (kill switch, tested) |
+| semantic-eligible calls > 30/min/IP (EVAL_MODE exempt) | `reason: rate_limited`; v6 results |
+| query text > 200 chars | truncated to 200 before embedding |
 
 ## Honest limitations
 

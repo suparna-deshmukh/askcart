@@ -167,7 +167,7 @@ export function buildSemanticText(parsed, rawQuery) {
     keep.push(w);
     prevRaw = w;
   }
-  return keep.length >= 1 ? keep.join(" ") : null;
+  return keep.length >= 1 ? keep.join(" ").slice(0, 200) : null;
 }
 
 // ---- constraints + thresholds ----------------------------------------------

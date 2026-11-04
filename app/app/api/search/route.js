@@ -48,14 +48,28 @@ export async function POST(req) {
   // ?semantic=0|1|only for the eval harness (ignored in production).
   const budget = numOrNull(body.budget) != null ? numOrNull(body.budget) : parsed.budgetMax;
   const sem = { used: false };
+  const ipOf = (r) => String(r.headers.get("x-forwarded-for") || r.headers.get("x-real-ip") || "local").split(",")[0].trim();
+  const SEM_RATE_PER_MIN = 30;
+  const semHits = new Map();
+  const semRateLimited = (ip) => {
+    if (process.env.EVAL_MODE === "1") return false; // eval harness is exempt by design
+    const now = Date.now();
+    const arr = (semHits.get(ip) || []).filter((t) => now - t < 60000);
+    if (arr.length >= SEM_RATE_PER_MIN) { semHits.set(ip, arr); return true; }
+    arr.push(now); semHits.set(ip, arr);
+    if (semHits.size > 5000) semHits.clear();
+    return false;
+  };
   let out = results;
   const override = process.env.EVAL_MODE === "1"
     ? new URL(req.url).searchParams.get("semantic") : null;
   const lexIntentN = results.filter((r) => r.intent).length;
   const browseOnly = parsed.tokens.length === 0 && budget != null;
-  const runSemantic = override
+  const rateLimited = !override && semRateLimited(ipOf(req));
+  const runSemantic = !rateLimited && (override
     ? (override === "1" || override === "only")
-    : (process.env.SEMANTIC_FALLBACK !== "0" && lexIntentN < 2 && !browseOnly && !naive);
+    : (process.env.SEMANTIC_FALLBACK !== "0" && lexIntentN < 2 && !browseOnly && !naive));
+  if (rateLimited) sem.reason = "rate_limited";
   if (runSemantic) {
     const t0 = Date.now();
     try {
