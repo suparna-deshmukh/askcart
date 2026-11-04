@@ -96,9 +96,33 @@ function recommendScore(r, persona) {
   return base;
 }
 
+// S7: fold variant families into one card and cap 2 cards per (brand, model)
+// in the ranked grid, so near-duplicate listings can't fill the top of the page.
+const VARIANT_PAREN = /\s*\([^()]+\)$/;
+function groupGrid(items) {
+  const out = [];
+  const famSeen = new Set();
+  const modelCount = new Map();
+  for (const r of items) {
+    const key = (r.brand || "") + "·" + String(r.title).replace(VARIANT_PAREN, "").toLowerCase();
+    if (r.family_id) {
+      if (famSeen.has(r.family_id)) continue; // one card per variant family
+    }
+    const n = modelCount.get(key) || 0;
+    if (n >= 2) continue;                     // MMR: 2 cards per (brand, model)
+    modelCount.set(key, n + 1);
+    if (r.family_id) famSeen.add(r.family_id);
+    out.push(r);
+  }
+  return out;
+}
+
 // 9.7 card v2: designed placeholder image, whole card opens the PDP,
 // single Add button (Buy now moved to the PDP), Best match badge.
 function ProductCard({ r, onAdd, onOpen, best, close, overBudget }) {
+  const isFam = !!r.family_id;
+  const title = isFam ? String(r.title).replace(VARIANT_PAREN, "") : r.title;
+  const from = isFam && r.family_min_price != null && r.family_min_price < r.price;
   return (
     <div className="card" role="link" tabIndex={0} onClick={() => onOpen(r)}
          onKeyDown={(e) => e.key === "Enter" && onOpen(r)}>
@@ -108,9 +132,11 @@ function ProductCard({ r, onAdd, onOpen, best, close, overBudget }) {
         <Tile item={r} size={215} />
       </div>
       <div className="cat">{displayCat(r.category)}</div>
-      <div className="t">{r.title}</div>
+      <div className="t">{title}</div>
+      {isFam && r.variant_summary && <div className="vline">{r.variant_summary}</div>}
       {r.brand ? <span className="brandb">{r.brand}</span> : null}
-      <div className="prow"><span className="p">₹{r.price.toLocaleString("en-IN")}</span></div>
+      <div className="prow"><span className="p">₹{r.price.toLocaleString("en-IN")}</span>
+        {from && <span className="onwards">from ₹{r.family_min_price.toLocaleString("en-IN")}</span>}</div>
       <div className="rline">
         <span className={"rpill " + (r.rating >= 4 ? "good" : r.rating >= 3 ? "mid" : "low")}>★ {r.rating}</span>
         <span className="rc">{r.num_ratings.toLocaleString("en-IN")} ratings</span>
@@ -262,7 +288,7 @@ function AskCartHome() {
     const sku = params.get("sku");
     if (sku) {
       fetch(`/api/catalog-preview?sku=${encodeURIComponent(sku)}`).then((r) => r.json())
-        .then((j) => { if (j.item) setPdp({ ...j.item, _from: "deep_link", _position: 0 }); })
+        .then((j) => { if (j.item) setPdp({ ...j.item, family: j.family || null, _from: "deep_link", _position: 0 }); })
         .catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -697,7 +723,7 @@ function AskCartHome() {
     for (const r of filtered) catCount.set(r.category, (catCount.get(r.category) || 0) + 1);
     const topEntry = [...catCount.entries()].sort((a, b) => b[1] - a[1])[0] || [null, 0];
     if (topEntry[1] / filtered.length >= 0.6) {
-      const grid = filtered; // API order = relevance
+      const grid = groupGrid(filtered); // API order = relevance; S7: family-folded
       return { filtered, single: true, grid, best: new Set(grid.slice(0, 3).map((r) => r.sku)),
                rec: [], groups: [], more: [] };
     }

@@ -28,13 +28,21 @@ export async function POST(req) {
     limit: Math.max(1, Math.min(96, Number(body.limit) || 12)),
   });
   return NextResponse.json({
-    results: results.map((r) => ({
-      sku: r.sku, title: r.title, category: r.category,
-      price: r.price, rating: r.rating, num_ratings: r.num_ratings, tags: r.tags,
-      brand: r.brand || "",
-      score: Math.round((r.score || 0) * 100) / 100,
-      intent: !!r.intent,
-    })),
+    results: results.map((r) => {
+      const o = {
+        sku: r.sku, title: r.title, category: r.category,
+        price: r.price, rating: r.rating, num_ratings: r.num_ratings, tags: r.tags,
+        brand: r.brand || "",
+        score: Math.round((r.score || 0) * 100) / 100,
+        intent: !!r.intent,
+      };
+      // S7: variant-family fields (present only for India listing-matrix rows)
+      if (r.family_id) o.family_id = r.family_id;
+      if (r.variant) o.variant = r.variant;
+      if (r.variant_summary) o.variant_summary = r.variant_summary;
+      if (r.family_min_price != null) o.family_min_price = r.family_min_price;
+      return o;
+    }),
     parsed,
     catalogSize: catalog.length,
   });

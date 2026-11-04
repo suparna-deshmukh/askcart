@@ -1136,6 +1136,9 @@ def expand():
     rows = []
     for i, (brand, model, cat, base, spread, rating, nrat, variants) in enumerate(ROWS):
         n = len(variants)
+        # S7: stable content-based family id for the listing-matrix family,
+        # shared by all its variant rows (UI groups them into one card).
+        fam = hashlib.sha1(f"{brand}|{model}|{cat}".encode()).hexdigest()[:10]
         for j, v in enumerate(variants):
             if n == 1:
                 variant, price = None, base
@@ -1152,6 +1155,8 @@ def expand():
                 "price_inr": _x9(price),
                 "average_rating": r,
                 "rating_number": nr,
+                "family_id": fam if n > 1 else None,
+                "variant": variant,
             })
     return rows
 
@@ -1186,7 +1191,7 @@ def india_frame(band_id, verbose=True):
     out = out.sort_values(["main_category", "title"], kind="mergesort").reset_index(drop=True)
     out.insert(0, "parent_asin", [f"IND-{i+1:05d}" for i in range(len(out))])
     out = out[["parent_asin", "title", "main_category", "price_inr",
-               "average_rating", "rating_number"]]
+               "average_rating", "rating_number", "family_id", "variant"]]
     if verbose:
         med = int(out["price_inr"].median())
         print(f"india frame kept: {len(out)} SKUs, median Rs {med}")

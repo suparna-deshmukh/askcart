@@ -85,8 +85,20 @@ function inr(n) { return "₹" + Number(n || 0).toLocaleString("en-IN"); }
 export function ProductDetail({ item, onClose, onAdd, onBuy, similar, parsed, region, onOpenSku }) {
   const [t0] = useState(() => Date.now());
   const [open, setOpen] = useState(true);
+  // S7: selected variant (defaults to the opened SKU); family siblings are
+  // fetched once when the opened SKU belongs to a listing-matrix family.
+  const [sel, setSel] = useState(item);
+  const [family, setFamily] = useState((item && item.family) || null);
   useEffect(() => {
     if (!item) return;
+    setSel(item);
+    setFamily(item.family || null);
+    if (!item.family && item.family_id) {
+      fetch(`/api/catalog-preview?sku=${encodeURIComponent(item.sku)}`)
+        .then((r) => r.json())
+        .then((j) => { if (j.family) setFamily(j.family); })
+        .catch(() => {});
+    }
     const from = (item._from || "results");
     const pos = item._position || 0;
     track("product_open", { sku: item.sku, from, position: pos });
@@ -99,11 +111,11 @@ export function ProductDetail({ item, onClose, onAdd, onBuy, similar, parsed, re
   }, [item && item.sku]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!open || !item) return null;
 
-  const adj = adjustedRating(item.rating, item.num_ratings);
+  const adj = adjustedRating(sel.rating, sel.num_ratings);
   const reasons = [];
-  if (parsed && parsed.budgetMax && item.price <= parsed.budgetMax) reasons.push(`Under ${inr(parsed.budgetMax)}`);
-  if (parsed && parsed.occasion && (item.tags || []).includes(parsed.occasion)) reasons.push(`Tagged ${parsed.occasion}`);
-  if (parsed && parsed.brand && item.brand === parsed.brand) reasons.push(`Brand: ${item.brand}`);
+  if (parsed && parsed.budgetMax && sel.price <= parsed.budgetMax) reasons.push(`Under ${inr(parsed.budgetMax)}`);
+  if (parsed && parsed.occasion && (sel.tags || []).includes(parsed.occasion)) reasons.push(`Tagged ${parsed.occasion}`);
+  if (parsed && parsed.brand && sel.brand === parsed.brand) reasons.push(`Brand: ${parsed.brand}`);
   if (parsed && (parsed.gender === "women" || parsed.gender === "men")) reasons.push(parsed.gender === "women" ? "For women" : "For men");
   if (!reasons.length) reasons.push("Best score for your search");
 
@@ -120,20 +132,37 @@ export function ProductDetail({ item, onClose, onAdd, onBuy, similar, parsed, re
         </div>
         <div className="pdp-body">
           <div className="pdp-top">
-            <Tile item={item} size={128} />
+            <Tile item={sel} size={128} />
             <div className="pdp-id">
-              <h2 className="pdp-title">{item.title}</h2>
-              {item.brand ? <span className="brandb">{item.brand}</span> : null}
+              <h2 className="pdp-title">{sel.title}</h2>
+              {sel.brand ? <span className="brandb">{sel.brand}</span> : null}
               <div className="pdp-rate">
-                <span className={"rpill " + (item.rating >= 4 ? "good" : item.rating >= 3 ? "mid" : "low")}>★ {item.rating}</span>
-                <span className="pdp-rc">{(item.num_ratings || 0).toLocaleString("en-IN")} ratings · {adj.toFixed(1)} adjusted for rating count</span>
+                <span className={"rpill " + (sel.rating >= 4 ? "good" : sel.rating >= 3 ? "mid" : "low")}>★ {sel.rating}</span>
+                <span className="pdp-rc">{(sel.num_ratings || 0).toLocaleString("en-IN")} ratings · {adj.toFixed(1)} adjusted for rating count</span>
               </div>
             </div>
           </div>
           <div className="pdp-price">
-            <span className="pdp-p">{inr(item.price)}</span>
+            <span className="pdp-p">{inr(sel.price)}</span>
             <span className="pdp-tax">inclusive of all taxes (demo)</span>
           </div>
+          {family && family.length > 0 && (
+            <div className="pdp-sec">
+              <div className="pdp-sec-t">Variants ({family.length + 1} in this catalogue)</div>
+              <div className="pdp-vars" role="radiogroup" aria-label="Variants">
+                {family.map((v) => (
+                  <button key={v.sku} role="radio" aria-checked={sel.sku === v.sku}
+                          className={"pdp-var" + (sel.sku === v.sku ? " on" : "")}
+                          onClick={() => {
+                            track("variant_select", { sku: v.sku, from: sel.sku, variant: v.variant || "" });
+                            setSel(v);
+                          }}>
+                    {v.variant || v.sku}<span className="pdp-var-p">{inr(v.price)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="pdp-sec">
             <div className="pdp-sec-t">Why this matched</div>
             <div className="pdp-why">
@@ -145,7 +174,7 @@ export function ProductDetail({ item, onClose, onAdd, onBuy, similar, parsed, re
             <div className="pdp-note">
               <div>{delivery}.</div>
               <div>7-day return window (demo policy).</div>
-              {item.rating_basis === "synthetic" && <div>Demo rating — indicative, not live marketplace data.</div>}
+              {sel.rating_basis === "synthetic" && <div>Demo rating — indicative, not live marketplace data.</div>}
             </div>
           </div>
           {similar && similar.length > 0 && (
@@ -164,8 +193,8 @@ export function ProductDetail({ item, onClose, onAdd, onBuy, similar, parsed, re
           )}
         </div>
         <div className="pdp-actions">
-          <button className="pdp-add" onClick={() => onAdd(item)}>Add to cart</button>
-          <button className="pdp-buy" onClick={() => onBuy(item)}>Buy now</button>
+          <button className="pdp-add" onClick={() => onAdd(sel)}>Add to cart</button>
+          <button className="pdp-buy" onClick={() => onBuy(sel)}>Buy now</button>
         </div>
       </div>
     </div>

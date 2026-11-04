@@ -50,6 +50,58 @@ USD_TO_INR = 83.5
 TARGET = 25000
 PRICE_CAP_INR = 300000
 
+# S7: variant-string classification for listing-matrix families.
+# size  = a size token (S/M/L/XL, UK n, jean size) or a capacity/weight unit
+# colour = a colour word, or the non-size part of a "Colour Size" string
+# other = packs ("12 colors"), materials ("Glass"), neutrals ("Standard")
+SIZE_TOKEN_RE = re.compile(r"^(UK\s?\d+|\d{1,3}(?:\s?in)?|XXS|XS|S|M|L|XL|XXL|M/L|L/XL)$", re.I)
+CAPACITY_RE = re.compile(r"^\d+(?:\.\d+)?\s?(ml|l|kg|g|gm|oz|lb|grams?)$", re.I)
+PACK_RE = re.compile(r"^\d+\s?(?:colors?|pcs?|packs?|pack|sets?|pairs?)$", re.I)
+NEUTRAL_VARIANTS = {"standard", "default", "regular", "one size", "multicolor", "multi", "assorted",
+                    "glass", "plastic", "metal", "wooden", "leather", "silicone", "stainless steel"}
+
+
+def split_variant(v):
+    """Split one variant string -> (colour_part, size_part); either may be None.
+    (None, None) means pack/neutral -> counted as a plain variant."""
+    v = v.strip()
+    if not v:
+        return (None, None)
+    if v.lower() in NEUTRAL_VARIANTS:
+        return (None, None)
+    if SIZE_TOKEN_RE.match(v) or CAPACITY_RE.match(v):
+        return (None, v)
+    if PACK_RE.match(v):
+        return (None, None)
+    m = re.match(r"^(.*?)\s+(\S+)$", v)
+    if m and (SIZE_TOKEN_RE.match(m.group(2)) or CAPACITY_RE.match(m.group(2))):
+        return (m.group(1) or None, m.group(2))
+    return (v, None)
+
+
+def family_summary(members):
+    """'6 colours · 4 sizes' style label, or None when nothing worth showing."""
+    colours, sizes, others = set(), set(), set()
+    for x in members:
+        v = (x.get("variant") or "").strip()
+        if not v:
+            continue
+        c, s = split_variant(v)
+        if c:
+            colours.add(c)
+        if s:
+            sizes.add(s)
+        if not c and not s:
+            others.add(v)
+    parts = []
+    if colours:
+        parts.append(f"{len(colours)} colour" + ("" if len(colours) == 1 else "s"))
+    if sizes:
+        parts.append(f"{len(sizes)} size" + ("" if len(sizes) == 1 else "s"))
+    if not parts and (others or len(members) > 1):
+        parts.append(f"{len(members)} variants")
+    return " · ".join(parts) if parts else None
+
 EXCLUDE_CATS = {
     "Industrial & Scientific", "Digital Music", "Appstore for Android",
     "GPS & Navigation", "Collectible Coins", "Portable Audio & Accessories",
@@ -349,7 +401,7 @@ def main():
 
     items = []
     for i, r in enumerate(sel.itertuples()):
-        items.append({
+        item = {
             "sku": f"AC-{i+1:05d}",
             "title": str(r.title).strip()[:200],
             "category": str(r.main_category).strip(),
@@ -358,7 +410,32 @@ def main():
             "rating": round(float(r.average_rating), 2) if pd.notna(r.average_rating) else 0.0,
             "num_ratings": int(r.rating_number) if pd.notna(r.rating_number) else 0,
             "tags": occasion_tags(str(r.main_category), str(r.title)),
-        })
+        }
+        # S7: India listing-matrix rows carry family_id/variant (NaN for US rows)
+        if pd.notna(getattr(r, "family_id", None)):
+            item["family_id"] = r.family_id
+        if pd.notna(getattr(r, "variant", None)):
+            item["variant"] = r.variant
+        items.append(item)
+    # S7: per-family summary (colour/size counts + min price) over the FINAL
+    # members, so the UI can render one card per variant family.
+    fam_members = {}
+    for x in items:
+        if x.get("family_id"):
+            fam_members.setdefault(x["family_id"], []).append(x)
+    for fam, members in fam_members.items():
+        if len(members) < 2:
+            continue
+        summary = family_summary(members)
+        if not summary:
+            continue
+        mn = min(x["price"] for x in members)
+        for x in members:
+            x["variant_summary"] = summary
+            x["family_min_price"] = mn
+    n_fam = sum(1 for x in items if x.get("variant_summary"))
+    print(f"variant families: {len(fam_members)} (with summary: {sum(1 for m in fam_members.values() if len(m) > 1)}, "
+          f"SKUs with summary: {n_fam})")
     print("final:", len(items))
     print(pd.Series([x["category"] for x in items]).value_counts().to_string()[:700])
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
