@@ -241,7 +241,7 @@ claim inflation, acceptance tests per item, commits `T3:`-style per item.
 
 ## P2 (search engine + catalogue) — queue
 S1 DONE → S2 DONE → S3 DONE → S4 DONE → S7 DONE → C1+C2+C3 DONE
-(see below) → G3 DONE → G8 DONE →
+(see below) → G3 DONE → G8 DONE → G12 DONE
 G12 outcome micro-survey.
 
 - **S1 DONE** — typo tolerance in the guided scorer: Damerau (OSA)
@@ -355,6 +355,21 @@ G12 outcome micro-survey.
   keyword pool is computed in the endpoint, so tag counts and the
   catalog artifact are untouched. Canaries 111+5 green, ui tour 17
   shots (home hero now shows the rails), contrast 0 fails, sync OK.
+
+- **G12 DONE** — outcome micro-survey. 1-tap survey ("Did you find what
+  you were looking for?" -> Yes / Not really -> 5 root-cause chips using
+  the SAME labels as the mined taxonomy: wrong kind of product / too
+  expensive / didn't trust these results / not right for the occasion /
+  something else). Triggers: add_to_cart (always), order placed
+  (always), leaving a no-action journey with the tab hidden (25% sample,
+  deterministic per-journey id hash; one offer per journey). Emits
+  `outcome_feedback {query, journey_id, value, reason, trigger}`
+  (already on the B2 allowlist). Store: all-time `outcome` rollup in
+  analyticsStore (survives the 500-event ring; hot-reload-safe init).
+  Validation tab: live distribution rendered next to the mined shares
+  (same labels, directly comparable). Verified end-to-end in the
+  browser: add -> strip -> Not really -> reason chip -> event ->
+  Validation bars. Canaries 111+5, ui tour, contrast 0 fails, sync OK.
 
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written

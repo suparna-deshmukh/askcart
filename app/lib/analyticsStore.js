@@ -52,6 +52,8 @@ function fresh() {
     onboarding: {},
     sessions: {},
     journeys: { t1: 0, t2: 0, t3: 0, t4: 0, unresolved: 0 },
+    // G12: outcome micro-survey rollup (all-time, survives the 500-event ring)
+    outcome: { yes: 0, no: 0, reasons: {} },
   };
 }
 
@@ -84,6 +86,11 @@ function sanitize(st) {
   t.orders = Math.min(t.orders, t.checkouts);
   t.checkouts = Math.min(t.checkouts, t.cartAdds);
   t.multiJourneySessions = Math.max(0, Math.min(t.multiJourneySessions, t.journeysTotal));
+  st.outcome.yes = Math.max(0, Math.round(st.outcome.yes || 0));
+  st.outcome.no = Math.max(0, Math.round(st.outcome.no || 0));
+  for (const k of Object.keys(st.outcome.reasons)) {
+    if (!Number.isFinite(st.outcome.reasons[k]) || st.outcome.reasons[k] < 0) delete st.outcome.reasons[k];
+  }
   return st;
 }
 
@@ -96,6 +103,8 @@ function load(env) {
     const saved = JSON.parse(fs.readFileSync(file(env), "utf8"));
     Object.assign(st, saved);
     st.totals = { ...fresh().totals, ...(st.totals || {}) };
+    st.outcome = { ...fresh().outcome, reasons: {}, ...(st.outcome || {}) };
+    st.outcome.reasons = { ...(st.outcome.reasons || {}) };
     st.events = (st.events || []).slice(-MAX_EVENTS);
     st.orders = (st.orders || []).slice(-MAX_ORDERS);
     sanitize(st);
@@ -123,6 +132,7 @@ function persist(st, env) {
 
 export function record(type, payload = {}, env = null) {
   const st = load(env);
+  if (!st.outcome) st.outcome = { yes: 0, no: 0, reasons: {} }; // hot-reload safety
   const ev = { type, at: Date.now(), payload };
   st.events.push(ev);
   if (st.events.length > MAX_EVENTS) st.events.shift();
@@ -230,6 +240,14 @@ export function record(type, payload = {}, env = null) {
       }
       break;
     case "onboarding_skipped": T.onboardingSkipped++; break;
+    case "outcome_feedback":
+      if (p.value === "yes") st.outcome.yes++;
+      else if (p.value === "no") {
+        st.outcome.no++;
+        const rk = String(p.reason).slice(0, 40);
+        if (p.reason) st.outcome.reasons[rk] = (st.outcome.reasons[rk] || 0) + 1;
+      }
+      break;
     case "filter_applied":
       T.filterApplies++;
       if (p.filter_type && p.value !== undefined) {
@@ -293,6 +311,7 @@ export function snapshot(env = null) {
     nullRate: T.searches ? +((100 * T.zeroResults) / T.searches).toFixed(1) : null,
     resolutionRate: T.searches ? +((100 * (T.searches - T.zeroResults)) / T.searches).toFixed(1) : null,
     journeys: st.journeys,
+    outcome: st.outcome,
     journeyResolution: {
       total: T.journeysTotal,
       resolved: st.journeys.t1 + st.journeys.t2 + st.journeys.t3 + st.journeys.t4,

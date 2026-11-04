@@ -461,6 +461,25 @@ function ValidationPanel({ sum, ev }) {
           </tbody>
         </table>
       </div>
+      {sum && sum.outcome && (
+        <div className="dim">
+          <h3>Outcome micro-survey (live) · did you find what you were looking for?</h3>
+          {(() => {
+            const o = sum.outcome, tot = o.yes + o.no;
+            const REASON_LABELS = { wrong_product: "👎 Wrong kind of product", too_expensive: "👎 Too expensive",
+              no_trust: "👎 Didn't trust these results", wrong_occasion: "👎 Not right for the occasion", other: "👎 Something else" };
+            if (!tot) return <div className="feedempty">No survey responses yet — it appears after a cart add / order (and on a 25% sample of no-action journeys).</div>;
+            return (<>
+              <BarRow label="👍 Yes — found it" count={o.yes} max={tot} />
+              <BarRow label="👎 Not really" count={o.no} max={tot} />
+              {Object.entries(o.reasons).sort((a, b) => b[1] - a[1]).map(([k, v]) => (
+                <BarRow key={k} label={REASON_LABELS[k] || k} count={v} max={tot} />
+              ))}
+              <div className="meta">Same labels as the mined root-cause taxonomy (corpus: trust_gap 54.4% · not_search_related 30.2% · budget 9.4% · zero_or_wrong 3.5%), so the live distribution is directly comparable to the mined one.</div>
+            </>);
+          })()}
+        </div>
+      )}
       <div className="dim">
         <h3>Artifacts behind every number</h3>
         {Object.entries(ev.artifacts).map(([k, v]) => (

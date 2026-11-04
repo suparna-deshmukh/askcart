@@ -162,6 +162,15 @@ body.largetext { font-size: 16.5px; }
 
 /* ---------- Product cards ---------- */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 12px; }
+/* G12: outcome micro-survey strip */
+.survey { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 2px 12px;
+          padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--border);
+          border-radius: 12px; font-size: 13px; }
+.survey-q { font-weight: 650; color: var(--ink); margin-right: 2px; }
+.survey .fchip { padding: 6px 12px; font-size: 12.5px; }
+.survey-x { margin-left: auto; background: none; border: none; color: var(--faint); cursor: pointer;
+            font-size: 14px; padding: 6px 8px; border-radius: 8px; }
+.survey-x:hover { color: var(--ink); background: var(--surface); }
 /* G8: festival budget rails (horizontal scroll, same card size as the grid) */
 .rail { margin-top: 18px; }
 .rail-head { display: flex; align-items: baseline; gap: 8px; margin: 0 2px 8px; }

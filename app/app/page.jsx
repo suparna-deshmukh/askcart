@@ -267,6 +267,44 @@ function AskCartHome() {
   // 7.1: product detail drawer (linkable via ?sku=)
   const [pdp, setPdp] = useState(null);
   const [moreN, setMoreN] = useState(24); // 7.3: "Show more" page size
+  // G12: outcome micro-survey (1 tap + root-cause chips, same labels as
+  // the mined taxonomy). Triggers: add_to_cart / order (always), leaving a
+  // no-action journey with the tab hidden (25% sample, per-journey hash).
+  const [survey, setSurvey] = useState(null); // {j, trigger, stage}
+  const SURVEY_REASONS = [
+    ["wrong_product", "Wrong kind of product"],
+    ["too_expensive", "Too expensive"],
+    ["no_trust", "Didn't trust these results"],
+    ["wrong_occasion", "Not right for the occasion"],
+    ["other", "Something else"],
+  ];
+  const surveySample = (j) => [...j.id].reduce((a, c) => a + c.charCodeAt(0), 0) % 4 === 0;
+  function offerSurvey(j, trigger) {
+    if (!j || j._surveyed || survey) return;
+    j._surveyed = true;
+    setSurvey({ j, trigger, stage: "ask" });
+  }
+  function answerSurvey(value, reason) {
+    if (!survey) return;
+    track("outcome_feedback", {
+      query: survey.j.query, journey_id: survey.j.id, value,
+      reason: reason || null, trigger: survey.trigger,
+    });
+    setSurvey(null);
+  }
+  useEffect(() => {
+    const onVis = () => {
+      const j = journeyRef.current;
+      if (document.visibilityState === "hidden") {
+        if (j && !j.ended && !j.added && !j.ordered && surveySample(j)) j._surveyOnReturn = true;
+      } else if (j && j._surveyOnReturn) {
+        j._surveyOnReturn = false;
+        offerSurvey(j, "exit_no_action");
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [survey]);
   const [isNewSession, setIsNewSession] = useState(() => {
     try { return !localStorage.getItem("askcart_session"); } catch { return true; }
   });
@@ -680,6 +718,7 @@ function AskCartHome() {
       track("recommendation_click", { sku: item.sku, query: jn.query, brand: item.brand || "", journey_id: jn.id });
     }
     setCart((c) => ({ ...c, [item.sku]: { item, qty: (c[item.sku] ? c[item.sku].qty : 0) + 1 } }));
+    offerSurvey(jn, "add_to_cart");
   }
   function buyNow(item) {
     const jn = journeyRef.current;
@@ -697,6 +736,7 @@ function AskCartHome() {
     const jn = journeyRef.current;
     if (jn) {
       jn.ordered = true;
+      offerSurvey(jn, "order_complete");
       if (!jn.ended) endJourney(jn, { resolved: true, turns: s ? s.turn : 1, ordered: true });
     }
     const id = "ord_" + Math.random().toString(36).slice(2, 8);
@@ -904,6 +944,26 @@ function AskCartHome() {
               )}
               {s && s.echo && (
                 <div className="meta echo" role="status">{s.echo}</div>
+              )}
+              {survey && (
+                <div className="survey" role="group" aria-label="quick feedback">
+                  {survey.stage === "ask" ? (
+                    <span className="survey-q">Did you find what you were looking for?</span>
+                  ) : (
+                    <span className="survey-q">What held you back?</span>
+                  )}
+                  {survey.stage === "ask" ? (
+                    <>
+                      <button className="fchip" onClick={() => answerSurvey("yes")}>Yes</button>
+                      <button className="fchip" onClick={() => setSurvey({ ...survey, stage: "reasons" })}>Not really</button>
+                    </>
+                  ) : (
+                    SURVEY_REASONS.map(([id, label]) => (
+                      <button key={id} className="fchip" onClick={() => answerSurvey("no", id)}>{label}</button>
+                    ))
+                  )}
+                  <button className="survey-x" aria-label="dismiss survey" onClick={() => setSurvey(null)}>✕</button>
+                </div>
               )}
 
               {s && s.guide && (
