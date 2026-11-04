@@ -1,0 +1,100 @@
+{"id": "s001", "query": "shaadi gift packing", "kind": "real_suggest", "split": "dev"}
+{"id": "s002", "query": "shaadi gifting co uk", "kind": "real_suggest", "split": "dev"}
+{"id": "s003", "query": "what to gift in a friend's wedding", "kind": "real_suggest", "split": "dev"}
+{"id": "s004", "query": "diwali gift ideas corporate", "kind": "real_suggest", "split": "dev"}
+{"id": "s005", "query": "diwali gift ideas for employees under 1500", "kind": "real_suggest", "split": "dev"}
+{"id": "s006", "query": "birthday gift for boys", "kind": "real_suggest", "split": "dev"}
+{"id": "s007", "query": "birthday gift for men", "kind": "real_suggest", "split": "dev"}
+{"id": "s008", "query": "birthday gift for girl best friend", "kind": "real_suggest", "split": "dev"}
+{"id": "s009", "query": "wedding gift under", "kind": "real_suggest", "split": "dev"}
+{"id": "s010", "query": "wedding gift under 3000", "kind": "real_suggest", "split": "dev"}
+{"id": "s011", "query": "wedding gift under 1500", "kind": "real_suggest", "split": "dev"}
+{"id": "s012", "query": "anniversary gift", "kind": "real_suggest", "split": "dev"}
+{"id": "s013", "query": "anniversary gift ideas", "kind": "real_suggest", "split": "dev"}
+{"id": "s014", "query": "anniversary gift for boyfriend", "kind": "real_suggest", "split": "dev"}
+{"id": "s015", "query": "anniversary gift for mom and dad", "kind": "real_suggest", "split": "dev"}
+{"id": "s016", "query": "housewarming gift ideas", "kind": "real_suggest", "split": "dev"}
+{"id": "s017", "query": "housewarming gifts for friends", "kind": "real_suggest", "split": "dev"}
+{"id": "s018", "query": "housewarming gift baskets", "kind": "real_suggest", "split": "dev"}
+{"id": "s019", "query": "housewarming gift shops near me", "kind": "real_suggest", "split": "dev"}
+{"id": "s020", "query": "gifts for mother in law birthday", "kind": "real_suggest", "split": "dev"}
+{"id": "s021", "query": "something for father birthday", "kind": "vague", "split": "dev"}
+{"id": "s022", "query": "party things for friends", "kind": "vague", "split": "dev"}
+{"id": "s023", "query": "something cute for girlfriend birthday", "kind": "vague", "split": "dev"}
+{"id": "s024", "query": "travel stuff", "kind": "vague", "split": "dev"}
+{"id": "s025", "query": "office desk stuff", "kind": "vague", "split": "dev"}
+{"id": "s026", "query": "things for a new apartment", "kind": "vague", "split": "dev"}
+{"id": "s027", "query": "essentials for a camping trip", "kind": "vague", "split": "dev"}
+{"id": "s028", "query": "accha phone 15k", "kind": "hinglish", "split": "dev"}
+{"id": "s029", "query": "papa ke liye wallet", "kind": "hinglish", "split": "dev"}
+{"id": "s030", "query": "mithai ki thali", "kind": "hinglish", "split": "dev"}
+{"id": "s031", "query": "accha watch 5k", "kind": "hinglish", "split": "dev"}
+{"id": "s032", "query": "beta ke liye toy", "kind": "hinglish", "split": "dev"}
+{"id": "s033", "query": "bachelor party gift", "kind": "hinglish", "split": "dev"}
+{"id": "s034", "query": "mummy ke liye dupatta", "kind": "hinglish", "split": "dev"}
+{"id": "s035", "query": "chacha ke liye gift", "kind": "hinglish", "split": "dev"}
+{"id": "s036", "query": "heaphones", "kind": "typo", "split": "dev"}
+{"id": "s037", "query": "ipone 15", "kind": "typo", "split": "dev"}
+{"id": "s038", "query": "laptop hp paviln", "kind": "typo", "split": "dev"}
+{"id": "s039", "query": "kurtti", "kind": "typo", "split": "dev"}
+{"id": "s040", "query": "dewal light", "kind": "typo", "split": "dev"}
+{"id": "s041", "query": "cellphone under 10k", "kind": "synonym", "split": "dev"}
+{"id": "s042", "query": "tshirt for bhai", "kind": "synonym", "split": "dev"}
+{"id": "s043", "query": "ear buds under 1k", "kind": "synonym", "split": "dev"}
+{"id": "s044", "query": "footwear for men", "kind": "synonym", "split": "dev"}
+{"id": "s045", "query": "shoe for wedding guest", "kind": "synonym", "split": "dev"}
+{"id": "s046", "query": "conga drum", "kind": "dead_end", "split": "dev"}
+{"id": "s047", "query": "theremin", "kind": "dead_end", "split": "dev"}
+{"id": "s048", "query": "dinghy", "kind": "dead_end", "split": "dev"}
+{"id": "s049", "query": "ice skate", "kind": "dead_end", "split": "dev"}
+{"id": "s050", "query": "slinky", "kind": "dead_end", "split": "dev"}
+{"id": "s051", "query": "gift under 20000 for men", "kind": "real_suggest", "split": "test"}
+{"id": "s052", "query": "shaadi gift item", "kind": "real_suggest", "split": "test"}
+{"id": "s053", "query": "wedding gifting companies", "kind": "real_suggest", "split": "test"}
+{"id": "s054", "query": "diwali gift ideas for employees", "kind": "real_suggest", "split": "test"}
+{"id": "s055", "query": "diwali gift ideas for employees under 500", "kind": "real_suggest", "split": "test"}
+{"id": "s056", "query": "birthday gift for", "kind": "real_suggest", "split": "test"}
+{"id": "s057", "query": "birthday gift for husband", "kind": "real_suggest", "split": "test"}
+{"id": "s058", "query": "birthday gift for women", "kind": "real_suggest", "split": "test"}
+{"id": "s059", "query": "birthday gift for boyfriend", "kind": "real_suggest", "split": "test"}
+{"id": "s060", "query": "wedding gift under 5000", "kind": "real_suggest", "split": "test"}
+{"id": "s061", "query": "wedding gift under 300", "kind": "real_suggest", "split": "test"}
+{"id": "s062", "query": "wedding gift under 20k", "kind": "real_suggest", "split": "test"}
+{"id": "s063", "query": "anniversary gift for couple", "kind": "real_suggest", "split": "test"}
+{"id": "s064", "query": "anniversary gifts for him", "kind": "real_suggest", "split": "test"}
+{"id": "s065", "query": "anniversary gift ideas for husband", "kind": "real_suggest", "split": "test"}
+{"id": "s066", "query": "housewarming gifts", "kind": "real_suggest", "split": "test"}
+{"id": "s067", "query": "housewarming gifts india", "kind": "real_suggest", "split": "test"}
+{"id": "s068", "query": "housewarming gifts under ₹1000", "kind": "real_suggest", "split": "test"}
+{"id": "s069", "query": "housewarming gifts under 5000", "kind": "real_suggest", "split": "test"}
+{"id": "s070", "query": "gifts for mother birthday", "kind": "real_suggest", "split": "test"}
+{"id": "s071", "query": "gift for new home", "kind": "vague", "split": "test"}
+{"id": "s072", "query": "kitchen organizer stuff", "kind": "vague", "split": "test"}
+{"id": "s073", "query": "room decoration ideas", "kind": "vague", "split": "test"}
+{"id": "s074", "query": "baby shower items", "kind": "vague", "split": "test"}
+{"id": "s075", "query": "wedding return gifts", "kind": "vague", "split": "test"}
+{"id": "s076", "query": "something to keep the room cool in summer", "kind": "vague", "split": "test"}
+{"id": "s077", "query": "gift for a colleague retirement", "kind": "vague", "split": "test"}
+{"id": "s078", "query": "gift for a teacher appreciation day", "kind": "vague", "split": "test"}
+{"id": "s079", "query": "bhai ke liye gift", "kind": "hinglish", "split": "test"}
+{"id": "s080", "query": "didi ki shaadi ke liye kuch", "kind": "hinglish", "split": "test"}
+{"id": "s081", "query": "chappal for office", "kind": "hinglish", "split": "test"}
+{"id": "s082", "query": "mummy ke liye gift diwali", "kind": "hinglish", "split": "test"}
+{"id": "s083", "query": "sas ke liye bangle", "kind": "hinglish", "split": "test"}
+{"id": "s084", "query": "koi acha gift 2k", "kind": "hinglish", "split": "test"}
+{"id": "s085", "query": "bhaiya ke liye watch", "kind": "hinglish", "split": "test"}
+{"id": "s086", "query": "cousin ki birthday gift", "kind": "hinglish", "split": "test"}
+{"id": "s087", "query": "samsng tv", "kind": "typo", "split": "test"}
+{"id": "s088", "query": "sareee", "kind": "typo", "split": "test"}
+{"id": "s089", "query": "mictrowave", "kind": "typo", "split": "test"}
+{"id": "s090", "query": "watsh for men", "kind": "typo", "split": "test"}
+{"id": "s091", "query": "gld bangle", "kind": "typo", "split": "test"}
+{"id": "s092", "query": "couch for living room", "kind": "synonym", "split": "test"}
+{"id": "s093", "query": "slacks for office", "kind": "synonym", "split": "test"}
+{"id": "s094", "query": "blazer for wedding guest", "kind": "synonym", "split": "test"}
+{"id": "s095", "query": "gadget for tech lover", "kind": "synonym", "split": "test"}
+{"id": "s096", "query": "mobile under 5k", "kind": "synonym", "split": "test"}
+{"id": "s097", "query": "didgeridoo", "kind": "dead_end", "split": "test"}
+{"id": "s098", "query": "hoverboard", "kind": "dead_end", "split": "test"}
+{"id": "s099", "query": "periscope", "kind": "dead_end", "split": "test"}
+{"id": "s100", "query": "bobsled", "kind": "dead_end", "split": "test"}
