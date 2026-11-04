@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-04T03:51:50.240Z",
+ "generated_at": "2026-11-04T09:43:06.774Z",
  "panel": "eval/semantic/panel.jsonl (frozen pre-run)",
  "arms": {
   "A": {
@@ -250,7 +250,7 @@
      0
     ]
    },
-   "questions_avg": 0.94,
+   "questions_avg": 0.88,
    "by_kind": {
     "real_suggest": {
      "n": 20,
@@ -343,7 +343,7 @@
        0
       ]
      },
-     "questions_avg": 1.5
+     "questions_avg": 1.38
     },
     "typo": {
      "n": 5,
@@ -374,7 +374,7 @@
        0
       ]
      },
-     "questions_avg": 2.4
+     "questions_avg": 2.2
     },
     "synonym": {
      "n": 5,
@@ -405,7 +405,7 @@
        0
       ]
      },
-     "questions_avg": 2.2
+     "questions_avg": 2
     },
     "dead_end": {
      "n": 4,
@@ -676,8 +676,8 @@
    "used": 36,
    "below_threshold": 14
   },
-  "p50_ms": 20,
-  "p95_ms": 23
+  "p50_ms": 55,
+  "p95_ms": 83
  },
  "cfg": {
   "provider": "local_onnx",
@@ -984,7 +984,7 @@
     "sem": {
      "used": false
     },
-    "ms": 146,
+    "ms": 322,
     "judge": [
      2,
      3,
@@ -1027,7 +1027,7 @@
     "sem": {
      "used": false
     },
-    "ms": 35,
+    "ms": 107,
     "judge": [
      3,
      2,
@@ -1070,7 +1070,7 @@
     "sem": {
      "used": false
     },
-    "ms": 55,
+    "ms": 205,
     "judge": [
      2,
      2,
@@ -1113,7 +1113,7 @@
     "sem": {
      "used": false
     },
-    "ms": 59,
+    "ms": 216,
     "judge": [
      3,
      1,
@@ -1156,7 +1156,7 @@
     "sem": {
      "used": false
     },
-    "ms": 61,
+    "ms": 131,
     "judge": [
      2,
      2,
@@ -1199,7 +1199,7 @@
     "sem": {
      "used": false
     },
-    "ms": 3,
+    "ms": 7,
     "judge": [
      2,
      3,
@@ -1242,7 +1242,7 @@
     "sem": {
      "used": false
     },
-    "ms": 3,
+    "ms": 5,
     "judge": [
      3,
      3,
@@ -1285,7 +1285,7 @@
     "sem": {
      "used": false
     },
-    "ms": 3,
+    "ms": 6,
     "judge": [
      2,
      3,
@@ -1328,7 +1328,7 @@
     "sem": {
      "used": false
     },
-    "ms": 24,
+    "ms": 59,
     "judge": [
      2,
      2,
@@ -1371,7 +1371,7 @@
     "sem": {
      "used": false
     },
-    "ms": 2,
+    "ms": 4,
     "judge": [
      1,
      2,
@@ -1414,7 +1414,7 @@
     "sem": {
      "used": false
     },
-    "ms": 2,
+    "ms": 3,
     "judge": [
      2,
      2,
@@ -1457,7 +1457,7 @@
     "sem": {
      "used": false
     },
-    "ms": 1,
+    "ms": 3,
     "judge": [
      1,
      2,
@@ -1500,7 +1500,7 @@
     "sem": {
      "used": false
     },
-    "ms": 72,
+    "ms": 213,
     "judge": [
      1,
      1,
@@ -1543,7 +1543,7 @@
     "sem": {
      "used": false
     },
-    "ms": 108,
+    "ms": 345,
     "judge": [
      1,
      1,
@@ -1586,7 +1586,7 @@
     "sem": {
      "used": false
     },
-    "ms": 73,
+    "ms": 221,
     "judge": [
      3,
      3,
@@ -1629,7 +1629,7 @@
     "sem": {
      "used": false
     },
-    "ms": 47,
+    "ms": 110,
     "judge": [
      1,
      1,
@@ -1672,7 +1672,7 @@
     "sem": {
      "used": false
     },
-    "ms": 64,
+    "ms": 167,
     "judge": [
      1,
      1,
@@ -1715,7 +1715,7 @@
     "sem": {
      "used": false
     },
-    "ms": 63,
+    "ms": 168,
     "judge": [
      3,
      3,
@@ -1758,7 +1758,7 @@
     "sem": {
      "used": false
     },
-    "ms": 40,
+    "ms": 122,
     "judge": [
      1,
      1,
@@ -1801,7 +1801,7 @@
     "sem": {
      "used": false
     },
-    "ms": 49,
+    "ms": 181,
     "judge": [
      3,
      3,
@@ -1844,7 +1844,7 @@
     "sem": {
      "used": false
     },
-    "ms": 59,
+    "ms": 161,
     "judge": [
      2,
      2,
@@ -1892,7 +1892,7 @@
     "sem": {
      "used": false
     },
-    "ms": 422,
+    "ms": 1241,
     "judge": [
      1,
      3,
@@ -1935,7 +1935,7 @@
     "sem": {
      "used": false
     },
-    "ms": 59,
+    "ms": 179,
     "judge": [
      2,
      2,
@@ -1978,7 +1978,7 @@
     "sem": {
      "used": false
     },
-    "ms": 80,
+    "ms": 189,
     "judge": [
      1,
      2,
@@ -2021,7 +2021,7 @@
     "sem": {
      "used": false
     },
-    "ms": 68,
+    "ms": 162,
     "judge": [
      1,
      1,
@@ -2068,7 +2068,7 @@
     "sem": {
      "used": false
     },
-    "ms": 375,
+    "ms": 939,
     "judge": [
      3,
      3,
@@ -2111,7 +2111,7 @@
     "sem": {
      "used": false
     },
-    "ms": 25,
+    "ms": 60,
     "judge": [
      1,
      1,
@@ -2154,7 +2154,7 @@
     "sem": {
      "used": false
     },
-    "ms": 70,
+    "ms": 177,
     "judge": [
      1,
      1,
@@ -2197,7 +2197,7 @@
     "sem": {
      "used": false
     },
-    "ms": 3,
+    "ms": 7,
     "judge": [
      2,
      2,
@@ -2240,7 +2240,7 @@
     "sem": {
      "used": false
     },
-    "ms": 2,
+    "ms": 5,
     "judge": [
      2,
      2,
@@ -2283,7 +2283,7 @@
     "sem": {
      "used": false
     },
-    "ms": 31,
+    "ms": 64,
     "judge": [
      1,
      1,
@@ -2326,7 +2326,7 @@
     "sem": {
      "used": false
     },
-    "ms": 2,
+    "ms": 5,
     "judge": [
      2,
      1,
@@ -2374,7 +2374,7 @@
     "sem": {
      "used": false
     },
-    "ms": 363,
+    "ms": 841,
     "judge": [
      1,
      1,
@@ -2417,7 +2417,7 @@
     "sem": {
      "used": false
     },
-    "ms": 25,
+    "ms": 58,
     "judge": [
      2,
      2,
@@ -2460,7 +2460,7 @@
     "sem": {
      "used": false
     },
-    "ms": 43,
+    "ms": 110,
     "judge": [
      2,
      2,
@@ -2503,7 +2503,7 @@
     "sem": {
      "used": false
     },
-    "ms": 2,
+    "ms": 15,
     "judge": [
      2,
      2,
@@ -2546,7 +2546,7 @@
     "sem": {
      "used": false
     },
-    "ms": 138,
+    "ms": 396,
     "judge": [
      1,
      1,
@@ -2589,7 +2589,7 @@
     "sem": {
      "used": false
     },
-    "ms": 34,
+    "ms": 79,
     "judge": [
      1,
      1,
@@ -2632,7 +2632,7 @@
     "sem": {
      "used": false
     },
-    "ms": 29,
+    "ms": 66,
     "judge": [
      1,
      1,
@@ -2675,7 +2675,7 @@
     "sem": {
      "used": false
     },
-    "ms": 33,
+    "ms": 80,
     "judge": [
      3,
      2,
@@ -2723,7 +2723,7 @@
     "sem": {
      "used": false
     },
-    "ms": 343,
+    "ms": 1012,
     "judge": [
      1,
      1,
@@ -2766,7 +2766,7 @@
     "sem": {
      "used": false
     },
-    "ms": 67,
+    "ms": 235,
     "judge": [
      3,
      1,
@@ -2809,7 +2809,7 @@
     "sem": {
      "used": false
     },
-    "ms": 29,
+    "ms": 83,
     "judge": [
      1,
      2,
@@ -2852,7 +2852,7 @@
     "sem": {
      "used": false
     },
-    "ms": 55,
+    "ms": 173,
     "judge": [
      3,
      3,
@@ -2900,7 +2900,7 @@
     "sem": {
      "used": false
     },
-    "ms": 524,
+    "ms": 1464,
     "judge": [
      3,
      3,
@@ -2943,7 +2943,7 @@
     "sem": {
      "used": false
     },
-    "ms": 108,
+    "ms": 125,
     "judge": [
      3,
      3,
@@ -2989,7 +2989,7 @@
     "sem": {
      "used": false
     },
-    "ms": 173,
+    "ms": 577,
     "judge": [
      3,
      3,
@@ -3035,7 +3035,7 @@
     "sem": {
      "used": false
     },
-    "ms": 171,
+    "ms": 400,
     "judge": [
      3,
      3,
@@ -3081,7 +3081,7 @@
     "sem": {
      "used": false
     },
-    "ms": 180,
+    "ms": 579,
     "judge": [
      3,
      3,
@@ -3127,7 +3127,7 @@
     "sem": {
      "used": false
     },
-    "ms": 173,
+    "ms": 410,
     "judge": [
      3,
      3,
@@ -3164,7 +3164,7 @@
     "n_results": 2,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07653",
@@ -3187,9 +3187,9 @@
      ],
      "added": 2,
      "top_cos": 0.851,
-     "ms": 569
+     "ms": 1190
     },
-    "ms": 571
+    "ms": 1196
    },
    {
     "id": "s052",
@@ -3226,7 +3226,7 @@
     "n_results": 20,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00112",
@@ -3249,9 +3249,9 @@
      ],
      "added": 20,
      "top_cos": 0.856,
-     "ms": 23
+     "ms": 46
     },
-    "ms": 57
+    "ms": 140
    },
    {
     "id": "s053",
@@ -3288,7 +3288,7 @@
     "n_results": 6,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-04288",
@@ -3311,9 +3311,9 @@
      ],
      "added": 6,
      "top_cos": 0.852,
-     "ms": 22
+     "ms": 42
     },
-    "ms": 76
+    "ms": 127
    },
    {
     "id": "s054",
@@ -3350,7 +3350,7 @@
     "n_results": 5,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-31257",
@@ -3373,9 +3373,9 @@
      ],
      "added": 5,
      "top_cos": 0.868,
-     "ms": 23
+     "ms": 43
     },
-    "ms": 77
+    "ms": 140
    },
    {
     "id": "s055",
@@ -3412,7 +3412,7 @@
     "n_results": 3,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-31257",
@@ -3435,9 +3435,9 @@
      ],
      "added": 3,
      "top_cos": 0.868,
-     "ms": 21
+     "ms": 35
     },
-    "ms": 76
+    "ms": 129
    },
    {
     "id": "s056",
@@ -3474,7 +3474,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07415",
@@ -3497,9 +3497,9 @@
      ],
      "added": 48,
      "top_cos": 0.88,
-     "ms": 24
+     "ms": 39
     },
-    "ms": 26
+    "ms": 43
    },
    {
     "id": "s057",
@@ -3536,7 +3536,7 @@
     "n_results": 5,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07603",
@@ -3559,9 +3559,9 @@
      ],
      "added": 5,
      "top_cos": 0.858,
-     "ms": 24
+     "ms": 40
     },
-    "ms": 28
+    "ms": 43
    },
    {
     "id": "s058",
@@ -3598,7 +3598,7 @@
     "n_results": 28,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-02972",
@@ -3621,9 +3621,9 @@
      ],
      "added": 28,
      "top_cos": 0.873,
-     "ms": 26
+     "ms": 43
     },
-    "ms": 28
+    "ms": 47
    },
    {
     "id": "s059",
@@ -3653,7 +3653,7 @@
     "n_results": 2,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-06660",
@@ -3676,9 +3676,9 @@
      ],
      "added": 2,
      "top_cos": 0.88,
-     "ms": 23
+     "ms": 55
     },
-    "ms": 49
+    "ms": 108
    },
    {
     "id": "s060",
@@ -3715,7 +3715,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-14690",
@@ -3738,9 +3738,9 @@
      ],
      "added": 48,
      "top_cos": 0.889,
-     "ms": 23
+     "ms": 54
     },
-    "ms": 25
+    "ms": 56
    },
    {
     "id": "s061",
@@ -3770,7 +3770,7 @@
     "n_results": 2,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-01205",
@@ -3787,9 +3787,9 @@
      ],
      "added": 2,
      "top_cos": 0.856,
-     "ms": 32
+     "ms": 65
     },
-    "ms": 33
+    "ms": 67
    },
    {
     "id": "s062",
@@ -3826,7 +3826,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-14690",
@@ -3849,9 +3849,9 @@
      ],
      "added": 48,
      "top_cos": 0.889,
-     "ms": 33
+     "ms": 59
     },
-    "ms": 34
+    "ms": 61
    },
    {
     "id": "s063",
@@ -3888,7 +3888,7 @@
     "n_results": 16,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-03687",
@@ -3911,9 +3911,9 @@
      ],
      "added": 16,
      "top_cos": 0.868,
-     "ms": 23
+     "ms": 37
     },
-    "ms": 113
+    "ms": 170
    },
    {
     "id": "s064",
@@ -3950,7 +3950,7 @@
     "n_results": 7,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07580",
@@ -3973,9 +3973,9 @@
      ],
      "added": 7,
      "top_cos": 0.886,
-     "ms": 22
+     "ms": 36
     },
-    "ms": 142
+    "ms": 240
    },
    {
     "id": "s065",
@@ -4012,7 +4012,7 @@
     "n_results": 8,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07580",
@@ -4035,9 +4035,9 @@
      ],
      "added": 8,
      "top_cos": 0.89,
-     "ms": 21
+     "ms": 36
     },
-    "ms": 101
+    "ms": 167
    },
    {
     "id": "s066",
@@ -4074,7 +4074,7 @@
     "n_results": 43,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00838",
@@ -4097,9 +4097,9 @@
      ],
      "added": 43,
      "top_cos": 0.882,
-     "ms": 19
+     "ms": 43
     },
-    "ms": 67
+    "ms": 145
    },
    {
     "id": "s067",
@@ -4136,7 +4136,7 @@
     "n_results": 6,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00838",
@@ -4159,9 +4159,9 @@
      ],
      "added": 6,
      "top_cos": 0.855,
-     "ms": 22
+     "ms": 33
     },
-    "ms": 94
+    "ms": 182
    },
    {
     "id": "s068",
@@ -4198,7 +4198,7 @@
     "n_results": 43,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00838",
@@ -4221,9 +4221,9 @@
      ],
      "added": 43,
      "top_cos": 0.882,
-     "ms": 18
+     "ms": 33
     },
-    "ms": 88
+    "ms": 151
    },
    {
     "id": "s069",
@@ -4260,7 +4260,7 @@
     "n_results": 40,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00838",
@@ -4283,9 +4283,9 @@
      ],
      "added": 40,
      "top_cos": 0.882,
-     "ms": 20
+     "ms": 35
     },
-    "ms": 60
+    "ms": 106
    },
    {
     "id": "s070",
@@ -4322,7 +4322,7 @@
     "n_results": 32,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-04147",
@@ -4345,9 +4345,9 @@
      ],
      "added": 32,
      "top_cos": 0.887,
-     "ms": 24
+     "ms": 37
     },
-    "ms": 71
+    "ms": 119
    },
    {
     "id": "s071",
@@ -4384,7 +4384,7 @@
     "n_results": 32,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07653",
@@ -4407,9 +4407,9 @@
      ],
      "added": 32,
      "top_cos": 0.862,
-     "ms": 26
+     "ms": 47
     },
-    "ms": 34
+    "ms": 58
    },
    {
     "id": "s072",
@@ -4446,7 +4446,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-14471",
@@ -4469,9 +4469,9 @@
      ],
      "added": 48,
      "top_cos": 0.88,
-     "ms": 22
+     "ms": 56
     },
-    "ms": 83
+    "ms": 274
    },
    {
     "id": "s073",
@@ -4508,7 +4508,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-14811",
@@ -4531,9 +4531,9 @@
      ],
      "added": 48,
      "top_cos": 0.87,
-     "ms": 21
+     "ms": 54
     },
-    "ms": 84
+    "ms": 216
    },
    {
     "id": "s074",
@@ -4570,7 +4570,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-11316",
@@ -4593,9 +4593,9 @@
      ],
      "added": 48,
      "top_cos": 0.888,
-     "ms": 20
+     "ms": 46
     },
-    "ms": 109
+    "ms": 290
    },
    {
     "id": "s075",
@@ -4632,7 +4632,7 @@
     "n_results": 47,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-22461",
@@ -4655,9 +4655,9 @@
      ],
      "added": 47,
      "top_cos": 0.867,
-     "ms": 19
+     "ms": 47
     },
-    "ms": 91
+    "ms": 213
    },
    {
     "id": "s076",
@@ -4694,7 +4694,7 @@
     "n_results": 5,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-17853",
@@ -4717,9 +4717,9 @@
      ],
      "added": 5,
      "top_cos": 0.853,
-     "ms": 20
+     "ms": 69
     },
-    "ms": 72
+    "ms": 215
    },
    {
     "id": "s077",
@@ -4756,7 +4756,7 @@
     "n_results": 4,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-02204",
@@ -4779,9 +4779,9 @@
      ],
      "added": 4,
      "top_cos": 0.865,
-     "ms": 23
+     "ms": 54
     },
-    "ms": 48
+    "ms": 157
    },
    {
     "id": "s078",
@@ -4818,7 +4818,7 @@
     "n_results": 10,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00298",
@@ -4841,9 +4841,9 @@
      ],
      "added": 10,
      "top_cos": 0.889,
-     "ms": 22
+     "ms": 50
     },
-    "ms": 98
+    "ms": 225
    },
    {
     "id": "s079",
@@ -4880,7 +4880,7 @@
     "n_results": 13,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07537",
@@ -4903,9 +4903,9 @@
      ],
      "added": 13,
      "top_cos": 0.854,
-     "ms": 21
+     "ms": 62
     },
-    "ms": 24
+    "ms": 68
    },
    {
     "id": "s080",
@@ -4914,17 +4914,16 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
+    "questions": 2,
     "slots": {
      "category": "amazon fashion",
-     "forWhom": "women",
-     "size": "s"
+     "forWhom": "women"
     },
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-02875",
@@ -4946,9 +4945,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 50
     },
-    "ms": 125
+    "ms": 221
    },
    {
     "id": "s081",
@@ -4968,12 +4967,12 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 44
     },
-    "ms": 282
+    "ms": 732
    },
    {
     "id": "s082",
@@ -5010,7 +5009,7 @@
     "n_results": 8,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-31257",
@@ -5033,9 +5032,9 @@
      ],
      "added": 8,
      "top_cos": 0.881,
-     "ms": 23
+     "ms": 51
     },
-    "ms": 26
+    "ms": 56
    },
    {
     "id": "s083",
@@ -5055,7 +5054,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-01397",
@@ -5077,9 +5076,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 32
     },
-    "ms": 505
+    "ms": 801
    },
    {
     "id": "s084",
@@ -5116,7 +5115,7 @@
     "n_results": 11,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-31257",
@@ -5139,9 +5138,9 @@
      ],
      "added": 11,
      "top_cos": 0.858,
-     "ms": 20
+     "ms": 36
     },
-    "ms": 46
+    "ms": 83
    },
    {
     "id": "s085",
@@ -5168,7 +5167,7 @@
     "n_results": 1,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-12588",
@@ -5191,9 +5190,9 @@
      ],
      "added": 1,
      "top_cos": 0.847,
-     "ms": 19
+     "ms": 32
     },
-    "ms": 363
+    "ms": 600
    },
    {
     "id": "s086",
@@ -5230,7 +5229,7 @@
     "n_results": 14,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-09480",
@@ -5253,9 +5252,9 @@
      ],
      "added": 14,
      "top_cos": 0.868,
-     "ms": 21
+     "ms": 37
     },
-    "ms": 24
+    "ms": 40
    },
    {
     "id": "s087",
@@ -5275,12 +5274,12 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 43
     },
-    "ms": 507
+    "ms": 1155
    },
    {
     "id": "s088",
@@ -5317,7 +5316,7 @@
     "n_results": 19,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-31139",
@@ -5340,9 +5339,9 @@
      ],
      "added": 19,
      "top_cos": 0.859,
-     "ms": 20
+     "ms": 53
     },
-    "ms": 58
+    "ms": 155
    },
    {
     "id": "s089",
@@ -5362,12 +5361,12 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 43
     },
-    "ms": 280
+    "ms": 755
    },
    {
     "id": "s090",
@@ -5376,42 +5375,40 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
+    "questions": 2,
     "slots": {
      "occasion": "birthday",
-     "size": "xs",
-     "budget": 1250,
-     "flexible": false
+     "size": "xs"
     },
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
-       "sku": "AC-27799",
-       "title": "HRX by Hrithik Roshan Slim Fit Jeans for Men (Dark Wash)",
-       "price": 989,
-       "cos": 0.808
+       "sku": "AC-17143",
+       "title": "Hush Puppies Men's Heath Wt Oxford",
+       "price": 5769,
+       "cos": 0.825
       },
       {
-       "sku": "AC-27859",
-       "title": "Jockey Wallet for Men (Black)",
-       "price": 589,
-       "cos": 0.808
+       "sku": "AC-23199",
+       "title": "Lucchese Bootmaker Men's Rudy Square Toe Cowboy Boots Western",
+       "price": 26289,
+       "cos": 0.825
       },
       {
-       "sku": "AC-27854",
-       "title": "Jockey Vests 2 Pack for Men (L)",
-       "price": 1029,
-       "cos": 0.807
+       "sku": "AC-19884",
+       "title": "ARIAT Men's Wexford Waterproof Country Boot",
+       "price": 16019,
+       "cos": 0.823
       }
      ],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 45
     },
-    "ms": 300
+    "ms": 712
    },
    {
     "id": "s091",
@@ -5431,7 +5428,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00993",
@@ -5453,9 +5450,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 45
     },
-    "ms": 448
+    "ms": 1179
    },
    {
     "id": "s092",
@@ -5492,7 +5489,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-23254",
@@ -5515,9 +5512,9 @@
      ],
      "added": 48,
      "top_cos": 0.879,
-     "ms": 22
+     "ms": 62
     },
-    "ms": 83
+    "ms": 267
    },
    {
     "id": "s093",
@@ -5537,12 +5534,12 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 63
     },
-    "ms": 309
+    "ms": 792
    },
    {
     "id": "s094",
@@ -5551,11 +5548,10 @@
     "arm": "only",
     "intentN": 1,
     "null": true,
-    "questions": 3,
+    "questions": 2,
     "slots": {
      "category": "amazon fashion",
-     "forWhom": "women",
-     "size": "s"
+     "forWhom": "women"
     },
     "top3": [
      {
@@ -5569,7 +5565,7 @@
     "n_results": 1,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-10077",
@@ -5592,9 +5588,9 @@
      ],
      "added": 1,
      "top_cos": 0.846,
-     "ms": 22
+     "ms": 54
     },
-    "ms": 474
+    "ms": 1128
    },
    {
     "id": "s095",
@@ -5614,7 +5610,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-05459",
@@ -5636,9 +5632,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 21
+     "ms": 44
     },
-    "ms": 630
+    "ms": 1753
    },
    {
     "id": "s096",
@@ -5656,12 +5652,12 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 46
     },
-    "ms": 346
+    "ms": 867
    },
    {
     "id": "s097",
@@ -5680,7 +5676,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-20213",
@@ -5702,9 +5698,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 20
+     "ms": 45
     },
-    "ms": 325
+    "ms": 877
    },
    {
     "id": "s098",
@@ -5723,7 +5719,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-22561",
@@ -5745,9 +5741,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 53
     },
-    "ms": 329
+    "ms": 1100
    },
    {
     "id": "s099",
@@ -5766,7 +5762,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00834",
@@ -5788,9 +5784,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 20
+     "ms": 51
     },
-    "ms": 344
+    "ms": 955
    },
    {
     "id": "s100",
@@ -5809,7 +5805,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-06144",
@@ -5831,9 +5827,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 48
     },
-    "ms": 331
+    "ms": 913
    }
   ],
   "C": [
@@ -5872,7 +5868,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07653",
@@ -5895,9 +5891,9 @@
      ],
      "added": 1,
      "top_cos": 0.851,
-     "ms": 19
+     "ms": 45
     },
-    "ms": 22,
+    "ms": 49,
     "judge": [
      3,
      3,
@@ -5939,7 +5935,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00112",
@@ -5962,9 +5958,9 @@
      ],
      "added": 1,
      "top_cos": 0.856,
-     "ms": 19
+     "ms": 40
     },
-    "ms": 45,
+    "ms": 101,
     "judge": [
      3,
      2,
@@ -6006,7 +6002,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-04288",
@@ -6029,9 +6025,9 @@
      ],
      "added": 1,
      "top_cos": 0.852,
-     "ms": 18
+     "ms": 47
     },
-    "ms": 73,
+    "ms": 166,
     "judge": [
      2,
      2,
@@ -6073,7 +6069,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-31257",
@@ -6096,9 +6092,9 @@
      ],
      "added": 3,
      "top_cos": 0.868,
-     "ms": 21
+     "ms": 45
     },
-    "ms": 79,
+    "ms": 243,
     "judge": [
      2,
      1,
@@ -6140,7 +6136,7 @@
     "n_results": 15,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-31257",
@@ -6163,9 +6159,9 @@
      ],
      "added": 0,
      "top_cos": 0.868,
-     "ms": 21
+     "ms": 39
     },
-    "ms": 84,
+    "ms": 168,
     "judge": [
      3,
      3,
@@ -6207,7 +6203,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07415",
@@ -6230,9 +6226,9 @@
      ],
      "added": 1,
      "top_cos": 0.88,
-     "ms": 22
+     "ms": 41
     },
-    "ms": 25,
+    "ms": 45,
     "judge": [
      2,
      3,
@@ -6274,7 +6270,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07603",
@@ -6297,9 +6293,9 @@
      ],
      "added": 1,
      "top_cos": 0.858,
-     "ms": 22
+     "ms": 45
     },
-    "ms": 24,
+    "ms": 49,
     "judge": [
      3,
      3,
@@ -6341,7 +6337,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-02972",
@@ -6364,9 +6360,9 @@
      ],
      "added": 1,
      "top_cos": 0.873,
-     "ms": 22
+     "ms": 48
     },
-    "ms": 26,
+    "ms": 54,
     "judge": [
      2,
      3,
@@ -6408,7 +6404,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-06660",
@@ -6431,9 +6427,9 @@
      ],
      "added": 0,
      "top_cos": 0.88,
-     "ms": 19
+     "ms": 61
     },
-    "ms": 46,
+    "ms": 126,
     "judge": [
      2,
      2,
@@ -6475,7 +6471,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-14690",
@@ -6498,9 +6494,9 @@
      ],
      "added": 0,
      "top_cos": 0.889,
-     "ms": 18
+     "ms": 68
     },
-    "ms": 19,
+    "ms": 77,
     "judge": [
      1,
      2,
@@ -6542,7 +6538,7 @@
     "n_results": 7,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-01205",
@@ -6559,9 +6555,9 @@
      ],
      "added": 1,
      "top_cos": 0.856,
-     "ms": 18
+     "ms": 60
     },
-    "ms": 19,
+    "ms": 65,
     "judge": [
      2,
      2,
@@ -6603,7 +6599,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-14690",
@@ -6626,9 +6622,9 @@
      ],
      "added": 0,
      "top_cos": 0.889,
-     "ms": 19
+     "ms": 60
     },
-    "ms": 20,
+    "ms": 69,
     "judge": [
      1,
      2,
@@ -6670,7 +6666,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-03687",
@@ -6693,9 +6689,9 @@
      ],
      "added": 6,
      "top_cos": 0.868,
-     "ms": 23
+     "ms": 45
     },
-    "ms": 103,
+    "ms": 278,
     "judge": [
      1,
      1,
@@ -6737,7 +6733,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07580",
@@ -6760,9 +6756,9 @@
      ],
      "added": 1,
      "top_cos": 0.886,
-     "ms": 21
+     "ms": 66
     },
-    "ms": 150,
+    "ms": 385,
     "judge": [
      1,
      1,
@@ -6804,7 +6800,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07580",
@@ -6827,9 +6823,9 @@
      ],
      "added": 2,
      "top_cos": 0.89,
-     "ms": 23
+     "ms": 60
     },
-    "ms": 129,
+    "ms": 307,
     "judge": [
      3,
      3,
@@ -6871,7 +6867,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00838",
@@ -6894,9 +6890,9 @@
      ],
      "added": 1,
      "top_cos": 0.882,
-     "ms": 20
+     "ms": 93
     },
-    "ms": 71,
+    "ms": 238,
     "judge": [
      2,
      2,
@@ -6938,7 +6934,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00838",
@@ -6961,9 +6957,9 @@
      ],
      "added": 3,
      "top_cos": 0.855,
-     "ms": 19
+     "ms": 47
     },
-    "ms": 93,
+    "ms": 265,
     "judge": [
      2,
      2,
@@ -7005,7 +7001,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00838",
@@ -7028,9 +7024,9 @@
      ],
      "added": 23,
      "top_cos": 0.882,
-     "ms": 21
+     "ms": 50
     },
-    "ms": 95,
+    "ms": 220,
     "judge": [
      3,
      3,
@@ -7072,7 +7068,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00838",
@@ -7095,9 +7091,9 @@
      ],
      "added": 1,
      "top_cos": 0.882,
-     "ms": 19
+     "ms": 67
     },
-    "ms": 63,
+    "ms": 239,
     "judge": [
      1,
      1,
@@ -7139,7 +7135,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-04147",
@@ -7162,9 +7158,9 @@
      ],
      "added": 1,
      "top_cos": 0.887,
-     "ms": 18
+     "ms": 68
     },
-    "ms": 68,
+    "ms": 222,
     "judge": [
      3,
      3,
@@ -7206,7 +7202,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07653",
@@ -7229,9 +7225,9 @@
      ],
      "added": 1,
      "top_cos": 0.862,
-     "ms": 23
+     "ms": 57
     },
-    "ms": 31,
+    "ms": 87,
     "judge": [
      2,
      1,
@@ -7273,7 +7269,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-14471",
@@ -7296,9 +7292,9 @@
      ],
      "added": 48,
      "top_cos": 0.88,
-     "ms": 20
+     "ms": 72
     },
-    "ms": 74,
+    "ms": 226,
     "judge": [
      1,
      1,
@@ -7340,7 +7336,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-14811",
@@ -7363,9 +7359,9 @@
      ],
      "added": 38,
      "top_cos": 0.87,
-     "ms": 19
+     "ms": 46
     },
-    "ms": 77,
+    "ms": 184,
     "judge": [
      2,
      2,
@@ -7407,7 +7403,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-11316",
@@ -7430,9 +7426,9 @@
      ],
      "added": 7,
      "top_cos": 0.888,
-     "ms": 20
+     "ms": 46
     },
-    "ms": 111,
+    "ms": 242,
     "judge": [
      1,
      2,
@@ -7474,7 +7470,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-22461",
@@ -7497,9 +7493,9 @@
      ],
      "added": 3,
      "top_cos": 0.867,
-     "ms": 21
+     "ms": 61
     },
-    "ms": 99,
+    "ms": 325,
     "judge": [
      1,
      1,
@@ -7541,7 +7537,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-17853",
@@ -7564,9 +7560,9 @@
      ],
      "added": 5,
      "top_cos": 0.853,
-     "ms": 20
+     "ms": 52
     },
-    "ms": 75,
+    "ms": 264,
     "judge": [
      2,
      3,
@@ -7608,7 +7604,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-02204",
@@ -7631,9 +7627,9 @@
      ],
      "added": 0,
      "top_cos": 0.865,
-     "ms": 20
+     "ms": 46
     },
-    "ms": 48,
+    "ms": 108,
     "judge": [
      1,
      1,
@@ -7675,7 +7671,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00298",
@@ -7698,9 +7694,9 @@
      ],
      "added": 0,
      "top_cos": 0.889,
-     "ms": 22
+     "ms": 72
     },
-    "ms": 103,
+    "ms": 259,
     "judge": [
      1,
      1,
@@ -7742,7 +7738,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-07537",
@@ -7765,9 +7761,9 @@
      ],
      "added": 1,
      "top_cos": 0.854,
-     "ms": 19
+     "ms": 57
     },
-    "ms": 24,
+    "ms": 75,
     "judge": [
      2,
      2,
@@ -7809,7 +7805,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-02875",
@@ -7831,9 +7827,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 63
     },
-    "ms": 22,
+    "ms": 81,
     "judge": [
      2,
      2,
@@ -7875,7 +7871,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-28580",
@@ -7897,9 +7893,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 58
     },
-    "ms": 47,
+    "ms": 157,
     "judge": [
      1,
      1,
@@ -7941,7 +7937,7 @@
     "n_results": 28,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-31257",
@@ -7964,9 +7960,9 @@
      ],
      "added": 1,
      "top_cos": 0.881,
-     "ms": 21
+     "ms": 83
     },
-    "ms": 23,
+    "ms": 95,
     "judge": [
      2,
      1,
@@ -8013,7 +8009,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-01397",
@@ -8035,9 +8031,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 20
+     "ms": 49
     },
-    "ms": 487,
+    "ms": 1324,
     "judge": [
      1,
      1,
@@ -8079,7 +8075,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-31257",
@@ -8102,9 +8098,9 @@
      ],
      "added": 1,
      "top_cos": 0.858,
-     "ms": 16
+     "ms": 51
     },
-    "ms": 42,
+    "ms": 151,
     "judge": [
      2,
      2,
@@ -8146,7 +8142,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-12588",
@@ -8169,9 +8165,9 @@
      ],
      "added": 1,
      "top_cos": 0.847,
-     "ms": 19
+     "ms": 55
     },
-    "ms": 56,
+    "ms": 170,
     "judge": [
      1,
      1,
@@ -8213,7 +8209,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-09480",
@@ -8236,9 +8232,9 @@
      ],
      "added": 1,
      "top_cos": 0.868,
-     "ms": 22
+     "ms": 61
     },
-    "ms": 24,
+    "ms": 76,
     "judge": [
      2,
      2,
@@ -8280,7 +8276,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-24841",
@@ -8302,9 +8298,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 97
     },
-    "ms": 78,
+    "ms": 271,
     "judge": [
      1,
      1,
@@ -8346,7 +8342,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-31139",
@@ -8369,9 +8365,9 @@
      ],
      "added": 1,
      "top_cos": 0.859,
-     "ms": 18
+     "ms": 37
     },
-    "ms": 52,
+    "ms": 222,
     "judge": [
      1,
      1,
@@ -8413,7 +8409,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-21952",
@@ -8435,9 +8431,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 38
     },
-    "ms": 48,
+    "ms": 93,
     "judge": [
      1,
      1,
@@ -8479,7 +8475,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-17143",
@@ -8501,9 +8497,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 22
+     "ms": 48
     },
-    "ms": 56,
+    "ms": 117,
     "judge": [
      3,
      1,
@@ -8550,7 +8546,7 @@
     "n_results": 45,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00993",
@@ -8572,9 +8568,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 20
+     "ms": 56
     },
-    "ms": 457,
+    "ms": 1316,
     "judge": [
      1,
      1,
@@ -8616,7 +8612,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-23254",
@@ -8639,9 +8635,9 @@
      ],
      "added": 0,
      "top_cos": 0.879,
-     "ms": 19
+     "ms": 66
     },
-    "ms": 77,
+    "ms": 241,
     "judge": [
      3,
      1,
@@ -8683,7 +8679,7 @@
     "n_results": 3,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-09625",
@@ -8705,9 +8701,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 22
+     "ms": 46
     },
-    "ms": 56,
+    "ms": 124,
     "judge": [
      1,
      2,
@@ -8749,7 +8745,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-10077",
@@ -8772,9 +8768,9 @@
      ],
      "added": 0,
      "top_cos": 0.846,
-     "ms": 18
+     "ms": 45
     },
-    "ms": 75,
+    "ms": 167,
     "judge": [
      3,
      3,
@@ -8821,7 +8817,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-05459",
@@ -8843,9 +8839,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 50
     },
-    "ms": 623,
+    "ms": 1644,
     "judge": [
      3,
      3,
@@ -8887,7 +8883,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-35075",
@@ -8909,9 +8905,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 22
+     "ms": 57
     },
-    "ms": 49,
+    "ms": 146,
     "judge": [
      3,
      3,
@@ -8956,7 +8952,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-20213",
@@ -8978,9 +8974,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 21
+     "ms": 44
     },
-    "ms": 234,
+    "ms": 654,
     "judge": [
      3,
      3,
@@ -9025,7 +9021,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-22561",
@@ -9047,9 +9043,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 20
+     "ms": 54
     },
-    "ms": 240,
+    "ms": 645,
     "judge": [
      3,
      3,
@@ -9094,7 +9090,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-00834",
@@ -9116,9 +9112,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 56
     },
-    "ms": 241,
+    "ms": 663,
     "judge": [
      3,
      3,
@@ -9163,7 +9159,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 8,
      "top": [
       {
        "sku": "AC-06144",
@@ -9185,9 +9181,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 21
+     "ms": 64
     },
-    "ms": 225,
+    "ms": 608,
     "judge": [
      3,
      3,

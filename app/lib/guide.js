@@ -1,9 +1,10 @@
 // Follow-up question policy for AskCart.
 //
 // Design: the policy DECIDES (type + data-driven options + reason); the LLM
-// only phrases it naturally (see api/guide). This keeps behaviour stable,
-// auditable and minimal - at most one question per turn, up to three per
-// journey (4-turn budget, the same turn budget the n=150 study measures).
+// only phrases it naturally (see api/guide). This keeps behaviour stable
+// and auditable: at most one question per turn, up to four follow-ups per
+// journey. Every search gets a follow-up while the ladder has an eligible
+// facet (UNIVERSAL_TAIL below; docs/followup_algorithm.md section 3).
 //
 // Grounding (corpus of 94,643 reviews -> 6,041 complaints -> 4 root causes):
 //   trust_gap 42.2%  -> brand/trust question (asked late, as refinement)
@@ -37,6 +38,17 @@ const CATEGORY_FLOWS = {
   automotive: ["budget", "category"],
 };
 const DEFAULT_FLOW = ["budget", "category", "brand"];
+// G7: gift queries without a parsed recipient ask recipient (for-whom)
+// first - the recipient decides what "a gift" even means - then occasion,
+// budget, brand. Ineligible facets drop out automatically via the data
+// guards, so a gift query with no gender data falls through to occasion.
+const GIFT_FLOW = ["for_whom", "occasion", "budget", "brand"];
+// Universal refinement tail: appended to every category flow so a resolved
+// search never dead-ends at "no more questions" while a decisive,
+// data-supported facet is still unasked. Order mirrors the mined root
+// causes: personal fit (for-whom) -> trust (brand) -> spec fit (size,
+// capacity). Each is only asked when its eligibility guard passes.
+const UNIVERSAL_TAIL = ["for_whom", "brand", "size", "capacity"];
 
 function flowKey(category) {
   const c = String(category || "").toLowerCase();
@@ -231,12 +243,23 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   // O5: a Gifting persona gets the gift ordering even on non-"gift" queries.
   const gift = hasGiftIntent(query) || context.persona?.context === "Gifting";
 
+  // Stage logic (docs/followup_algorithm.md section 3): rescue searches
+  // disambiguate first; gift queries run the GIFT_FLOW; every other search
+  // runs the category flow then the universal tail - so there is almost
+  // always a next question until the query is fully specified or the
+  // ladder is dry (hard stop: 3 known facets or 4 follow-ups, client cap).
+  const baseFlow = (gift && !hasRecipientHint(query)) ? GIFT_FLOW : flow;
+  const ladder = [...baseFlow, ...UNIVERSAL_TAIL.filter((t) => !baseFlow.includes(t))];
+
   const isRescue = nResults < 2;
   // brand is a refinement: never the first question of a journey
-  const eligible = flow.filter((t) => {
+  const eligible = ladder.filter((t) => {
     if (prev.has(t)) return false;
     if (t === "brand" && context.turn <= 1) return false;
     if (t === "budget" && parsed.budgetMax !== null) return false;
+    // A stated spec slot (1.5 ton, 23l, 7kg...) signals a direct-buy call,
+    // not an event: "which occasion" is noise on "1.5 ton ac under 45k".
+    if (t === "occasion" && !gift && parsed.specs && Object.keys(parsed.specs).length >= 1) return false;
     // "gift" is a generic occasion tag: still worth refining to a real occasion
     if (t === "occasion" && parsed.occasion && parsed.occasion !== "gift") return false;
     if (t === "category" && !isRescue && dominantShare > 0.7) return false;
@@ -248,7 +271,10 @@ export function decideGuide(catalog, query, nResults, context = {}) {
       // women/men tokens: "kurti" -> Women 1 / Men 0 / Kids 0).
       const fw = forWhomOptions(stats.items, stats.n);
       const named = fw[0].count + fw[1].count + fw[2].count;
-      if (stats.n < 20 || named < 15 || named / stats.n < 0.05) return false;
+      // From the universal tail (not the fashion flow's own for-whom) the
+      // set must be clearly mixed, or the question is noise ("phones").
+      const minShare = baseFlow.includes("for_whom") ? 0.05 : 0.10;
+      if (stats.n < 20 || named < 15 || named / stats.n < minShare) return false;
     }
     if (t === "size" && ((parsed.specs && parsed.specs.size) || sizeOptions(stats.items, stats.n).length < 3)) return false;
     if (t === "capacity" && (capacityOptions(stats.items, stats.n).length < 3 ||
@@ -267,15 +293,27 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   if (isRescue && eligible.includes("category") && dominantShare < 0.5 && stats.categories.length > 1) {
     order = ["category", ...eligible.filter((t) => t !== "category")];
   }
-  // Gift-override: a gift query whose occasion is unknown asks occasion
-  // first, whatever the flow (the occasion IS the product).
-  if (gift && !parsed.occasion && order.includes("occasion") && order[0] !== "occasion") {
-    order = ["occasion", ...order.filter((t) => t !== "occasion")];
+  // Destination heuristic: the query is already fully specified (3 of the
+  // 5 knowable facets stated in the query text or already answered) - the
+  // shopper is at their destination, stop asking.
+  const knownFacets = [
+    parsed.budgetMax !== null && "budget",
+    parsed.occasion && parsed.occasion !== "gift" && "occasion",
+    hasRecipientHint(query) && "for_whom",
+    parsed.specs && parsed.specs.size && "size",
+    parsed.specs && (parsed.specs.tonnage !== undefined || parsed.specs.kg !== undefined ||
+                     parsed.specs.volume !== undefined) && "capacity",
+  ].filter(Boolean);
+  const settled = new Set([...knownFacets, ...prev]);
+  if (settled.size >= 3) {
+    return { ask: false, type: null, options: [], question: "",
+             reason: "query fully specified (" + [...settled].join(", ") + ") - at the destination",
+             stats };
   }
 
   const type = order[0] || null;
   if (!type) {
-    return { ask: false, type: null, options: [], question: "", reason: "no actionable question left (all constraints present)", stats };
+    return { ask: false, type: null, options: [], question: "", reason: "no eligible facet left (all constraints present or data-thin)", stats };
   }
 
   let options = [];

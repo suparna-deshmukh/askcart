@@ -29,8 +29,7 @@ export function ChatLauncher({ onOpen, nudge, onNudgeOpen, onNudgeDismiss, label
         aria-label="Open AskCart assistant"
       >
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M4 5h16v11H9l-5 4V5z" fill="currentColor" opacity="0.9" />
-          <path d="M13.5 3.5l1 2.1 2.1 1-2.1 1-1 2.1-1-2.1-2.1-1 2.1-1z" fill="currentColor" />
+          <path d="M12 1.75 14.6 9.4 22.25 12 14.6 14.6 12 22.25 9.4 14.6 1.75 12 9.4 9.4 Z" fill="currentColor" />
         </svg>
       </button>
     </>

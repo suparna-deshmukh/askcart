@@ -63,11 +63,28 @@ function lsCart() {
   try { return JSON.parse(localStorage.getItem("askcart_cart") || "{}"); } catch { return {}; }
 }
 
-function applyFilters(items, f) {
+const fmtK = (n) => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n);
+// Price bands adapt to the query's stated budget: "gift under 2000" never
+// offers a band above ₹2,000, and a band that can't narrow the set (the
+// query already bounds it) is hidden entirely.
+function priceBandsFor(budget) {
+  if (!budget) return PRICE_BANDS;
+  const out = [];
+  for (const b of PRICE_BANDS) {
+    if (b.min >= budget) break;
+    const max = Math.min(b.max === Infinity ? budget : b.max, budget);
+    if (max <= b.min) break;
+    out.push({ ...b, max, label: b.min === 0 ? `under ₹${fmtK(max)}` : `₹${fmtK(b.min)}–${fmtK(max)}` });
+  }
+  if (out.length === 1 && out[0].min === 0 && out[0].max >= budget) return [];
+  return out;
+}
+
+function applyFilters(items, f, bands) {
   let out = items;
   if (f.brands.length) out = out.filter((r) => r.brand && f.brands.includes(r.brand));
   if (f.band) {
-    const b = PRICE_BANDS.find((x) => x.id === f.band);
+    const b = (bands || PRICE_BANDS).find((x) => x.id === f.band);
     out = out.filter((r) => r.price >= b.min && r.price < b.max);
   }
   if (f.rating4) out = out.filter((r) => (r.rating || 0) >= 4);
@@ -172,6 +189,7 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip }) {
     return (
       <div className="qstrip" role="group" aria-label={t(lang, "qOptional")}>
         <span className="qstrip-lbl">{t(lang, "qOptional")}</span>
+        <span className="qstrip-q">{guide.question}</span>
         <div className="qstrip-chips">
           {guide.options.map((c) => (
             <button key={c} className="qchip" onClick={() => onChip(c)} disabled={busy || counts[c] === 0}>
@@ -179,6 +197,7 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip }) {
             </button>
           ))}
         </div>
+        {guide.reason && <span className="qstrip-why" title={guide.reason}>{guide.reason}</span>}
         <button className="qstrip-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
       </div>
     );
@@ -240,6 +259,7 @@ function AskCartHome() {
   }, []);
   const [stripOpen, setStripOpen] = useState(false);
   const [obToast, setObToast] = useState(null);
+  const [cartToast, setCartToast] = useState(null);
   useEffect(() => { try { document.documentElement.lang = lang === "hi" ? "hi" : lang === "hinglish" ? "hi-Latn" : "en"; } catch {} }, [lang]);
   function setLang(l) {
     setLangState(l);
@@ -547,7 +567,7 @@ function AskCartHome() {
         track("chat_nudge_shown", { trigger: "null_search", query });
       }
     }
-    for (let turn = 2; turn <= 4; turn++) {
+    for (let turn = 2; turn <= 5; turn++) {
       const g = await askGuide(query, res.results.filter((r) => r.intent).length, turn);
       const guide = g.guide;
       if (!guide) {
@@ -648,15 +668,33 @@ function AskCartHome() {
            echo: echoFor(trailLabel, finalResults, s.results), error: null });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: finalResults.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
+      // Keep guiding: a resolved result is a start, not the destination.
+      // Ask the next ladder question until the query is fully specified,
+      // the 4-follow-up cap is hit, or the shopper skips.
+      if (!plainMode && turnNow < 5) {
+        const g2 = await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1);
+        if (g2.guide) {
+          journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g2.guide.type];
+          guideShownAtRef.current = Date.now();
+          track("guide_question_shown", {
+            query: s.query, question_type: g2.guide.type, turn: turnNow + 1,
+            options_count: g2.guide.options.length, mode: g2.mode, refine: true,
+            reason: g2.decision && g2.decision.reason, journey_id: journeyRef.current.id,
+          });
+          setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true } });
+          setBusy(false);
+          return;
+        }
+      }
       endJourney(journeyRef.current, { resolved: true, turns: turnNow, ordered: journeyRef.current.ordered });
       setBusy(false);
       return;
     }
     // Keep guiding: if the results are still thin, the policy may have
-    // another question type left (up to 3 follow-ups / 4 turns per journey,
-    // the same turn budget the n=150 study measures). We only stop when
-    // the shopper is at their destination or no question is left.
-    if (turnNow < 4) {
+    // another question type left (up to 4 follow-ups / 5 turns per journey).
+    // We only stop when the shopper is at their destination (3 known facets),
+    // the shopper skips, or no eligible facet is left.
+    if (turnNow < 5) {
       const g = await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1);
       if (g.guide) {
         journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g.guide.type];
@@ -741,7 +779,11 @@ function AskCartHome() {
     track("guide_skipped", {
       query: s.query, question_type: g.type, turn: s.turn, mode: g.mode || "policy",
     });
-    if (journeyRef.current) journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g.type];
+    if (journeyRef.current) {
+      journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g.type];
+      // Skipping is a destination decision: end the journey (browse on).
+      if (!journeyRef.current.ended) endJourney(journeyRef.current, { resolved: s.ok !== false, turns: s.turn });
+    }
     setS((st) => st && { ...st, guide: null });
   }
 
@@ -801,8 +843,15 @@ function AskCartHome() {
       track("recommendation_click", { sku: item.sku, query: jn.query, brand: item.brand || "", journey_id: jn.id });
     }
     setCart((c) => ({ ...c, [item.sku]: { item, qty: (c[item.sku] ? c[item.sku].qty : 0) + 1 } }));
+    // Visible confirmation: the count bump alone is too quiet.
+    setCartToast(lang === "hi" ? "कार्ट में जोड़ा गया ✓" : lang === "hinglish" ? "Cart mein add ho gaya ✓" : "Added to cart ✓");
     offerSurvey(jn, "add_to_cart");
   }
+  useEffect(() => {
+    if (!cartToast) return;
+    const t2 = setTimeout(() => setCartToast(null), 1800);
+    return () => clearTimeout(t2);
+  }, [cartToast]);
   function buyNow(item) {
     const jn = journeyRef.current;
     if (jn) jn.added = true;
@@ -846,9 +895,11 @@ function AskCartHome() {
   const cartCount = Object.values(cart).reduce((a, e) => a + e.qty, 0);
 
   // ---- derived search layout -------------------------------------------
+  const priceBands = useMemo(
+    () => priceBandsFor(s && s.parsed && s.parsed.budgetMax ? s.parsed.budgetMax : null), [s]);
   const layout = useMemo(() => {
     if (!s || !s.results.length) return null;
-    const filtered = applyFilters(s.results, s.filters);
+    const filtered = applyFilters(s.results, s.filters, priceBands);
     if (!filtered.length) return { filtered, single: false, grid: [], best: new Set(), rec: [], groups: [], more: [] };
     // 7.3: clear queries (top category >= 60%) get ONE ranked grid;
     // ambiguous queries get curated category shelves.
@@ -915,7 +966,8 @@ function AskCartHome() {
   }
 
   return (
-    <>
+    <div className={"appshell" + (chatOpen ? " chat-open" : "")}>
+      <div className="appshell-main">
       <div className="topbar">
         <div className="topbar-inner">
           <div className="logo" onClick={() => { setTab("search"); window.scrollTo({ top: 0 }); }}>
@@ -933,15 +985,16 @@ function AskCartHome() {
             ))}
           </span>
           <button className={"anbtn" + (tab === "analytics" ? " on" : "")} onClick={() => switchTab("analytics")}>
-            <span className="anbtn-dot" /> Behind the scenes
+            <span className="anbtn-dot" /> Analytics
           </button>
           <button className={"cartbtn" + (cartOpen ? " on" : "")} onClick={() => { setCartOpen(true); track("cart_view", { item_count: cartCount, total: Object.values(cart).reduce((a, e) => a + e.item.price * e.qty, 0) }); }}>
             <span className="carticon">🛒</span> Cart
-            {cartCount > 0 && <span className="cartcount">{cartCount}</span>}
+            {cartCount > 0 && <span className="cartcount" key={cartCount}>{cartCount}</span>}
           </button>
         </div>
       </div>
       {obToast && <div className="obtoast" role="status">{obToast}</div>}
+      {cartToast && <div className="carttoast" role="status">{cartToast}</div>}
       <div className="wrap">
         {tab === "search" ? (
           params.get("onboard") === "1" && !onboarded ? <Onboarding onDone={onOnboarded} /> : (
@@ -962,6 +1015,7 @@ function AskCartHome() {
                         <div className="strip-card">
                           <div className="strip-row">
                             <span className="strip-lbl">{t(lang, "stripLang")}</span>
+                            <button className={lang === "en" ? "seg on" : "seg"} onClick={() => setLang("en")}>English</button>
                             <button className={lang === "hi" ? "seg on" : "seg"} onClick={() => setLang("hi")}>हिन्दी</button>
                             <button className={lang === "hinglish" ? "seg on" : "seg"} onClick={() => setLang("hinglish")}>Hinglish</button>
                             <span className="strip-sep" />
@@ -1072,7 +1126,7 @@ function AskCartHome() {
                         ? "We ran out of follow-up questions — try one of these instead, or rephrase."
                         : "Picking an option above usually fixes this.")
                       : (s.exhausted
-                        ? "We asked all three quick questions, so these are the closest picks from your last answer — browse them, or rephrase for a sharper search."
+                        ? "We asked a few quick questions, so these are the closest picks from your last answer — browse them, or rephrase for a sharper search."
                         : "These are close, not exact — the question above should get you there.")}
                   </div>
                   {s.results.length === 0 && s.exhausted && (
@@ -1101,11 +1155,11 @@ function AskCartHome() {
                       {SORTS.map((x) => (
                         <button key={x.id} className={f.sort === x.id ? "fchip on" : "fchip"} onClick={() => setFilter("sort", x.id)}>{x.label}</button>
                       ))}
-                      <span className="fsep" />
-                      <span className="flabel">Price</span>
-                      {PRICE_BANDS.map((b) => (
-                        <button key={b.id} className={f.band === b.id ? "fchip on" : "fchip"} onClick={() => setFilter("price_band", b.id)}>{b.label}</button>
-                      ))}
+                      {priceBands.length > 0 && (<><span className="fsep" /><span className="flabel">Price</span>
+                        {priceBands.map((b) => (
+                          <button key={b.id} className={f.band === b.id ? "fchip on" : "fchip"} onClick={() => setFilter("price_band", b.id)}>{b.label}</button>
+                        ))}
+                      </>)}
                       <button className={f.rating4 ? "fchip on" : "fchip"} onClick={() => setFilter("rating", "4★+")}>4★ & up</button>
                       <button className={f.noAccessories ? "fchip on" : "fchip"} onClick={() => setFilter("accessories", "hide")}>Hide accessories</button>
                       {brandOpts.length > 0 && (<><span className="fsep" /><span className="flabel">Brand</span>
@@ -1113,7 +1167,7 @@ function AskCartHome() {
                           <button key={b} className={f.brands.includes(b) ? "fchip on" : "fchip"} onClick={() => setFilter("brand", b)}>{b}</button>
                         ))}
                       </>)}
-                      {catOpts.length > 0 && (<><span className="fsep" /><span className="flabel">Category</span>
+                      {catOpts.length > 0 && !layout.single && (<><span className="fsep" /><span className="flabel">Category</span>
                         {catOpts.map((c) => (
                           <button key={c} className={f.category === c ? "fchip on" : "fchip"} onClick={() => setFilter("category", c)}>{displayCat(c)}</button>
                         ))}
@@ -1256,7 +1310,7 @@ function AskCartHome() {
         <div className="foot-inner">
           <div className="foot-brand">Ask<span>Cart</span> · guided shopping search</div>
           <div className="foot-col">Demo catalogue: 36,045 SKUs (≈25k US-sourced listings converted to INR + ≈11k India layer) with indicative prices and ratings — not a live marketplace. Checkout is simulated: no payments, addresses or real delivery.</div>
-          <div className="foot-note">Every interaction event is public in Behind the scenes · AI answers only from catalogue fields · method & evidence: PROJECT.md</div>
+          <div className="foot-note">Every interaction event is public in Analytics · AI answers only from catalogue fields · method & evidence: PROJECT.md</div>
         </div>
       </footer>
       {tab === "search" && (
@@ -1276,6 +1330,7 @@ function AskCartHome() {
           }}
         />
       )}
+      </div>
       <ChatPanel
         open={chatOpen}
         onClose={() => setChatOpen(false)}
@@ -1297,7 +1352,7 @@ function AskCartHome() {
                   onCheckout={(total) => { setCartOpen(false); setCheckoutOpen(true); }} />
       <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} cart={cart} onPlaced={placeOrder} />
       <OrderToast order={order} onClose={() => setOrder(null)} />
-    </>
+    </div>
   );
 }
 

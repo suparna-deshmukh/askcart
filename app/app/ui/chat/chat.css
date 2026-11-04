@@ -30,11 +30,18 @@
 .cht-nudge button:hover { color: var(--text); background: var(--surface-2); }
 
 .cht-panel {
-  position: fixed; top: 59px; right: 0; bottom: 0; z-index: 90;
-  width: 400px; max-width: 100vw;
+  /* split-screen: an in-flow column - the main content shifts left */
+  position: sticky; top: 0; z-index: 90;
+  height: 100vh; width: 400px; flex: 0 0 400px;
   background: var(--bg); border-left: 1px solid var(--border);
   display: flex; flex-direction: column;
   animation: cht-slide 180ms ease-out;
+}
+@media (max-width: 1023px) {
+  .cht-panel { position: fixed; top: 59px; right: 0; bottom: 0; height: auto; max-width: 100vw; }
+}
+@media (min-width: 1024px) {
+  .appshell.chat-open .cht-fab { display: none; }
 }
 @keyframes cht-slide { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 .cht-header {

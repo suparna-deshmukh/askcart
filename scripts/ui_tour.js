@@ -65,12 +65,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   // 3. shaadi deep link (guided search)
   await page.goto("http://localhost:3000/?q=shaadi+gift+under+2k&noob=1", { waitUntil: "networkidle0", timeout: 90000 });
   await sleep(3000);
-  const tAdds = await page.$$(".grid .cardbtns .add");
+  const tAdds = await page.$$(".grid .card-add");
   if (tAdds.length) { await tAdds[0].click(); await sleep(700); }
   await shot("mvp_search_shaadi_gift");
 
   // 4b. mid-search filter: price band ₹1k–3k
-  const filtered = await clickByText(".filters .fchip", "₹1k–3k");
+  const filtered = await clickByText(".filters .fchip", "₹1k–2k"); // adaptive bands: capped at the query budget (2k)
   if (filtered) await sleep(700);
   await shot("mvp_search_filtered");
 
@@ -92,10 +92,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   }
   if (chips.length > 1) { await chips[1].click(); }
   for (let w = 0; w < 15; w++) {
-    if ((await page.$$(".grid .cardbtns .add")).length) break;
+    if ((await page.$$(".grid .card-add")).length) break;
     await sleep(1000);
   }
-  const hpAdds = await page.$$(".grid .cardbtns .add");
+  const hpAdds = await page.$$(".grid .card-add");
   if (hpAdds.length) { await hpAdds[0].click(); await sleep(600); }
   await shot("mvp_search_headphones_guided");
 

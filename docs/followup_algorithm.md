@@ -93,6 +93,21 @@ ambiguity differs:
 | Sports / Office / Pets / Automotive | budget → category | use-case (category) ambiguity dominates |
 | Anything else / multi-category | budget → category → brand | default ladder, biggest lever first |
 
+Two cross-cutting rules override/extend the table:
+
+- **Gift flow** — a gift query with *no parsed recipient* runs
+  `for_whom → occasion → budget → brand` regardless of category. The
+  recipient decides what "a gift" even means (a gift for ammi is a women's
+  line; for beta, a kids' line), so it is asked before the occasion. A gift
+  query whose recipient is already known (via the relation lexicon, e.g.
+  "kurti for ammi") keeps its normal category flow.
+- **Universal tail** — every category flow is followed by
+  `for_whom → brand → size → capacity`, de-duplicated. So a resolved search
+  never dead-ends at "no more questions" while a decisive, data-supported
+  facet is still unasked ("headphones" → budget → brand → size;
+  "shaadi gift under 2k" → for_whom after the occasion is known). Each tail
+  facet is still gated by its eligibility guard below.
+
 ### 3.3 Eligibility rules (what is a *minimum-valuable* question)
 
 A question type is eligible only if:
@@ -105,7 +120,18 @@ A question type is eligible only if:
 - `category` (non-rescue): only if the top category holds **< 55%** of the
   candidate set (if results are already one category, category is noise);
 - `brand`: only from turn 2, and only when the candidate set actually
-  contains ≥ 2 brands.
+  contains ≥ 2 brands;
+- `occasion`: skipped for non-gift queries that carry a **spec slot**
+  ("1.5 ton ac under 45k") — a spec-driven query is a direct-buy call, and
+  "which occasion?" is noise on it;
+- `for_whom`: needs ≥ 20 candidates and ≥ 15 with a named gender line in
+  the title. In the *category flow's own* for-whom (fashion) the named share
+  may be as low as 5%; from the *universal tail* it must be ≥ 10%, so a
+  near-unisex set (phones) does not get a noisy for-whom question;
+- `size`: only if the candidate titles carry ≥ 3 distinct size tokens
+  (S/M/L/XL…) and the query did not already state a size;
+- `capacity`: only if the candidate titles carry ≥ 3 distinct capacities
+  (tonnage / kg / litres) and the query did not already state one.
 
 ### 3.4 Rescue vs refinement
 
@@ -114,10 +140,24 @@ A question type is eligible only if:
   gift-adjacent category options for gift queries ("Toys & Games / Handmade /
   Arts & Crafts & Sewing / AMAZON FASHION").
 - **Refinement mode (nResults ≥ 2)**: the first eligible type in the
-  category's flow — at most **one** question per turn, up to **three**
-  questions per journey total (4-turn budget, the same budget the n=150
-  study measures). If nothing is eligible, the policy returns "ask nothing"
-  and the journey resolves as-is (minimum-question principle).
+  category's flow, then the universal tail — at most **one** question per
+  turn, up to **four** follow-up questions per journey (5-turn budget).
+  If nothing is eligible, the policy returns "ask nothing" and the journey
+  resolves as-is (minimum-question principle).
+
+  Every search gets a follow-up while the ladder has an eligible facet —
+  a resolved result is a *start*, not a destination. After a chip answer
+  resolves the search, the UI asks the next ladder question inline (a
+  compact strip above the filter bar, never pushing results below the
+  fold). The journey stops when any of:
+
+  1. **At the destination** — 3 of the 5 knowable facets
+     (budget, occasion, for-whom via recipient hint, size, capacity) are
+     stated in the query or already answered;
+  2. **The shopper skips** — skipping is a destination decision and ends
+     the journey (logged `guide_skipped`);
+  3. **The 4-follow-up cap** is hit;
+  4. **No eligible facet** remains (data-thin candidate set).
 
   The live UI honours this: if a chip answer still leaves <2 results, the
   next eligible question type is shown on the next turn (rescue keeps
@@ -139,7 +179,44 @@ A question type is eligible only if:
 - **Brand** — top-3 brands in the candidate set + "No preference — best
   rated".
 
-## 4. Why this maximizes conversion
+### 3.6 Stage logic — what is asked, in what order, and why
+
+The sequence is a function of four things: **stage**, **call type**,
+**product type**, and **user context**.
+
+**Stage (where the journey is):**
+
+| Stage | Behaviour | Reasoning |
+|---|---|---|
+| Dead end (< 2 on-intent results) | category disambiguation first (rescue) | the query is ambiguous or absent from the catalogue; fixing *what* beats refining *which* |
+| First answer turn | category-flow head (budget for electronics, occasion for fashion…) | biggest ambiguity of that product family first; budget first when price variance is an order of magnitude, occasion first when the occasion *is* the product |
+| Refinement turns | rest of the category flow, then universal tail (for_whom → brand → size → capacity) | each facet removes a measurable slice of the candidate set; brand comes last in the journey because it is a trust proxy, not a requirement (trust_gap mined from reviews) |
+| After a resolved answer | next ladder question inline, until the stop conditions in §3.4 | "resolved" means *a* match was found, not *the* match; the shopper is usually one facet away from the actual product |
+
+**Call type:** a spec-slot query ("1.5 ton ac under 45k", "128gb phone
+under 20k") is a direct-buy call — occasion and for-whom are skipped, and
+the ladder goes straight to brand/size. A relationship-hint query
+("saree for ammi") already knows its recipient, so for-whom is skipped. A
+vague query ("kuch gift dena hai") runs the gift flow from the top.
+
+**Product type:** the per-family flows in §3.2 (budget-led for electronics
+and appliances, occasion-led for fashion, category-led for
+use-case-ambiguous families).
+
+**User context:** a Gifting persona (set via `/?onboard=1`) runs the gift
+ordering even on non-"gift" queries in fashion/home; a region set in the
+personalise strip reorders occasion options by the local festival
+calendar (Pongal/Onam/Durga Puja/Bihu by state, Diwali/Dhanteras/Bhai Dooj
+in the Oct–Nov window); the chosen language switches all question text and
+option labels via static translation tables (no LLM).
+
+**Why this order converts:** every facet is asked only when (a) it is
+unknown, (b) the candidate set is actually split on it (facet counts are
+computed from the top-N candidates and zero-count options are disabled),
+and (c) answering it would eliminate a meaningful fraction of the set.
+The question card shows *why* (one-line reason grounded in the mined
+root-cause data) and the results page shows the facet counts, so the
+shopper can see that answering is worth it.
 
 1. **Every question removes a known failure mode.** Each question type maps
    to a measured complaint root cause (§2.1) or a measured interview

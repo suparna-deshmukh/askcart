@@ -77,7 +77,8 @@ See `eval/semantic/results/summary.md` (generated from artifacts).
 Headline: tau=0.845 / margin=0.03 calibrated on the dev split; hybrid
 fallback vs lexical-only — null 8% [3.2-18.8] -> 6% [2.1-16.2]
 (directional, CIs overlap), Qwen success@3 52% -> 58%, questions/journey
-0.46 -> 0.34, semantic p95 23 ms; the 4/4 dead-end app-level
+0.46 -> 0.34, semantic p95 23 ms idle (67-83 ms under machine
+load; index warm); the 4/4 dead-end app-level
 "false-resolve" is inherited from the baseline category-rescue path
 (identical in the lexical arm) and the semantic layer itself rejected all
 4 out-of-catalogue queries (below threshold).

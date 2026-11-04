@@ -1,4 +1,4 @@
-# AskCart - Build Status (2026-11-15, v6 - 36,045-SKU catalogue, search v6, production UI)
+# AskCart - Build Status (last updated 2026-11-04, v6 - 36,045-SKU catalogue, search v6, production UI)
 
 ## Point 1 - Agentic extractor: DONE (LIVE on Hugging Face)
 - HF Space (same pattern as the photo project):
@@ -556,3 +556,59 @@ S11 voice, dark theme, B8/B10. Floors that stay: canaries green per commit,
 CIs on all rates, 0 grounding failures, honest limitations section.
 
 ETA: ~5 h wall clock (range 4-6) from 2026-11-04 05:00 IST.
+
+## UX batch — 8 user requests (2026-11-04 PM, post-work-order)
+
+All 8 done, all gates green, localhost only (no Vercel, no GitHub remote —
+repo stays local).
+
+1. **Language strip: English added** — strip now shows English · हिन्दी ·
+   Hinglish (was only the last two). Verified: `mvp_strip_set.png`,
+   `verify_*` browser runs.
+2. **Follow-up question on every search** — policy rebuilt in
+   `app/lib/guide.js`: category flow + **UNIVERSAL_TAIL**
+   (for_whom → brand → size → capacity) so a resolved search almost always
+   has a next data-supported question; **GIFT_FLOW** (for_whom → occasion →
+   budget → brand) for gift queries without a parsed recipient;
+   **destination heuristic** (3 of 5 knowable facets known → stop, "at the
+   destination"); spec-slot queries skip occasion; client loop: up to
+   **4 follow-ups** (5-turn budget), skip = destination decision (ends
+   journey), inline strip shows the question text + one-line *why* and
+   disables zero-count chips. "shaadi gift under 2k" now asks for-whom after
+   the occasion is known; "headphones" asks budget → brand → size.
+3. **"Behind the scenes" → "Analytics"** — top-bar button and footer copy
+   (the only two live mentions; STATUS.md history references left as-is).
+4. **Add-to-cart feedback** — "Added to cart ✓" toast (1.8 s) + cart-count
+   bounce animation (keyed remount). Verified: `verify_cart_toast.png`.
+5. **Gemini icon + split-screen chat** — FAB icon is now the Gemini 4-point
+   spark; on desktop (≥1024 px) the chat panel is an in-flow sticky 400 px
+   column: main content shifts left (measured 1040 + 400 = 1440), FAB hides
+   while open. Mobile (<1024 px) keeps the fixed dock/sheet (verified
+   360 px: fixed, full-width, FAB visible). Verified: `verify_chat_split.png`,
+   `verify_mobile_chat.png`.
+6. **Margins / full-bleed** — wrap widened 1180 → 1400 px, hero padding
+   tightened, personalise strip now full-bleed (dashed borders edge to
+   edge) starting from the left edge, moved up. Verified: `mvp_strip_set.png`.
+7. **Solid question logic** — documented in `docs/followup_algorithm.md`
+   §3.2/§3.3/§3.4 + new **§3.6 Stage logic** (stage × call type × product
+   type × user context, with the reasoning per stage). PROJECT.md §4.5
+   updated to match (7 question types, gift flow, tail, stop conditions).
+8. **Filters respect the query** — price bands adapt to the stated budget:
+   "gift under ₹2,000" offers only `under ₹1k` + `₹1k–2k` (no band above
+   ₹2,000; a single band that can't narrow hides the price row entirely).
+   Category row hidden when one category dominates (≥60%, single-grid
+   layout). Verified: `mvp_search_shaadi_gift.png` (2 bands),
+   `mvp_search_filtered.png` (₹1k–2k active, 12 of 19).
+
+Gates (all after the full batch): canaries 111+5 (0 failures), semantic
+suite ALL PASS (no-op guarantee intact), chat eval CHAT_LLM=0 100% intent
+(76/76) / 0 grounding / 37-37 safe, ui tour 17 shots, contrast 16/16.
+Semantic eval re-run (frozen panel, 0 LLM tokens — verdicts reused):
+headline metrics unchanged (null 8% → 6%, Qwen s@3 52% → 58%, q 0.46 →
+0.34, dead-end FR 4/4 inherited from baseline rescue); only arm-B
+per-journey question counts and the semantic-path latency moved (p95
+23 ms idle → 67-83 ms under machine load, same code) — docs now state the
+range; results.json + summary.md regenerated from artifacts.
+`scripts/ui_tour.js` also fixed: stale `.cardbtns .add` selector →
+`.card-add` (tour now really adds to cart) and the mid-search filter chip
+now clicks the adaptive `₹1k–2k` band.
