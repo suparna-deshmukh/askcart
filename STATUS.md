@@ -412,6 +412,35 @@ G12 outcome micro-survey.
   side, never blended. LLM spend: ~10 batch judge calls (~25k tokens).
   Gates green.
 
+- **J10 (Chatbot MVP, Mode A) DONE** — AI shopping assistant,
+  deterministic dialog manager + templates-first, LLM OFF by default
+  (CHAT_LLM=0). Server: POST /api/chat -> input guard (500-char cap,
+  injection/crisis/PII redaction) -> HMAC-signed state (tamper -> 400)
+  -> rules-first NLU (8 intents + chips; brand answers validated against
+  the catalogue brand set so a pending question can't swallow "cheaper
+  wala dikhao"/"show more"/numbers) -> dialog (search/refine with
+  rollback guard, gift concierge with query-pre-filled slots, grounded
+  product Q&A with honest answer_unknown, compare, explain, Demo-tagged
+  FAQ, cart help that never order_complete) -> grounding guard
+  (currency/SKU/brand checks; banned phrases; <=40 words). Client:
+  ChatLauncher (FAB + once-per-session E1 nudge after null search),
+  ChatPanel (desktop 400px dock / mobile sheet), radiogroup chips with
+  facet counts, ProductMini cards, per-reply thumbs with the 5 root-
+  cause reasons. Page<->chat share one session: chat answers push
+  apply_search ui_actions (grid + trail chips update); chat reads PDP
+  context. Eval (in-process, real route handler, CHAT_LLM=0): 60 golden
+  + 30 red-team conversations -> intent 100% (76/76), grounding
+  failures 0, safe handling 37/37, 0 word violations
+  (eval/chat/results/chat_eval.json). Browser-verified: search->cards+
+  question, chip answer updates page trail, compare, ask_product,
+  chat add-to-cart, gift flow (occasion parsed from "shaadi" -> budget
+  -> shortlist), null-search nudge, PDP context, Esc close. Also fixed
+  a pre-existing hero-strip hydration mismatch (SSR/localStorage
+  initial-state split -> mount-time sync). Docs: docs/chat_spec.md,
+  event_schema chat_* table, README, PROJECT.md (2.3/4.8/J10/12).
+  Gates: canaries 111+5, ui tour 17 shots, contrast 0 fails, sync OK,
+  browser JS errors 0.
+
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
   when the eval harness is ready.
@@ -451,7 +480,8 @@ Work order:
    (committed before arms), 2 arms, Qwen-judged top-3, Wilson CIs,
    substitute_shown class (eval/evalv2/, summary generated from
    artifacts).
-5. Chatbot MVP (Mode A): deterministic dialog manager + templates-first,
+5. Chatbot MVP (Mode A): DONE 2026-11-04 (see J10 entry above) —
+   deterministic dialog manager + templates-first,
    8 intents, 3 entry points (hero, E1 escalation, PDP), substring FAQ,
    HMAC-signed client state, grounding guard 0-fail, 60 golden + 30
    red-team, LLM phrasing off by default. Gemini switch = env var +

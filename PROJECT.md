@@ -113,6 +113,13 @@ INR pricing, 299 brand names) with:
    deployment, refreshed every 2.5 s, with a **Validation & Study** tab that
    reads the eval artifacts live so recruiters/evaluators see the claimed
    numbers and the artifacts behind them on the product itself.
+7. **An AI shopping assistant (J10)** — a chat panel (desktop dock / mobile
+   sheet) that searches, refines, compares, answers product questions, runs
+   the gift concierge and handles cart help. Deterministic dialog manager
+   with templates-first copy; the LLM is off by default
+   (`CHAT_LLM=0`), and even when on it only phrases or labels — every reply
+   passes a grounding guard (0 ungrounded SKU/price/brand allowed).
+   Design: `docs/chat_spec.md`.
 
 ---
 
@@ -388,6 +395,27 @@ See §7 for the full UI map with button placement.
   `api/analytics/evidence` (reads `eval/results/*` + canary count + live
   catalogue profile at request time — nothing preset).
 - 5-tab dashboard (see §7.3).
+
+### 4.8 AskCart Assistant (J10) — `app/lib/chat/`, `app/app/ui/chat/`
+Mode A per `docs/chat_spec.md`: `POST /api/chat` → input guard →
+HMAC-verified signed state → rules-first NLU (8 intents + chips) →
+deterministic dialog manager → template reply → grounding guard. The
+page and chat share one session: chat answers push `apply_search`
+ui_actions that update the results grid + trail chips, and chat reads
+page context (PDP sku, last query) for "the second one" / "yeh acche
+hain kya" references. Gift flow (recipient → occasion → budget →
+brand-diverse shortlist; slots pre-filled from the query are skipped),
+product Q&A that answers only from catalogue fields (honest
+`answer_unknown` when data is missing), substring/alias FAQ over
+`Demo:`-tagged policy passages, compare, explain, cart help (never
+`order_complete`). Entry points: hero FAB, PDP context, and the E1
+escalation nudge (once per session, after a null search). Safety:
+rate limit 20/min/IP, 30-turn cap, injection/crisis/PII guards,
+state-tamper → 400, banned-phrase + currency/SKU/brand grounding checks
+with template fallback. Eval: 60 golden + 30 red-team conversations run
+against the real route handler in-process (`CHAT_LLM=0`) — last run:
+intent 100 % (76/76), grounding failures 0, safe handling 37/37,
+0 word-count violations (`eval/chat/results/chat_eval.json`).
 
 ---
 
@@ -980,6 +1008,20 @@ user does on the Search tab appears within one poll — the dashboard
 state; `/?tab=analytics&anview=validation` lands on the evidence tab.
 `/?noob=1` skips onboarding (used by the UI tour).
 
+### J10 — Ask the assistant (chat)
+Shopper opens the assistant from the hero FAB, the PDP, or the E1
+nudge after a null search. Then any of: type "saree for ammi under 2k"
+→ 3 product cards + (policy-decided) refinement question with counted
+chips; tap a chip or type an answer → the page grid + trail update;
+"compare the first and second" → compare table; "is the first one a
+good gift" → grounded answer (tag-based, honest unknowns);
+"didi ki shaadi gift under 1500" → gift concierge (occasion already
+parsed from "shaadi", so recipient → budget → brand-diverse shortlist);
+"add this to cart" → ui_action adds to the cart. 👍/👎 per reply, 👎
+expands the 5 root-cause reasons (same labels as the mined taxonomy).
+Every reply ≤ 40 words, template mode by default, grounding-guarded.
+Events: the `chat_*` set (see `docs/event_schema.md`).
+
 ### 8.10 How the persona changes what the shopper sees
 - **Budget caps** (`BUDGET_STYLE_MAX`): Best price → ₹2,000 default ·
   Fair price → ₹5,000 · Brand & build → ₹8,000 · Premium → no cap.
@@ -1163,5 +1205,15 @@ Individual steps:
   there are no real users on this deployment. The old n=150 study
   remains the dev-set result; the two are reported side by side, never
   blended.
+- **Assistant Q&A is data-limited by design** — the catalogue has titles,
+  prices, ratings, tags and parsed specs only (no descriptions, reviews or
+  real delivery/return policy); the assistant answers only from those
+  fields, says "I don't have that detail" otherwise, and every policy
+  passage is `Demo:`-tagged. Language coverage is EN + Hinglish + basic
+  Hindi via lexicon rules (not full translation). The chat eval runs the
+  deterministic mode (`CHAT_LLM=0`) against the real route handler —
+  60 golden + 30 red-team conversations, 0 grounding failures — but it is
+  an automated panel, not real shoppers, and no real A/B traffic exists on
+  this deployment.
 - Full provenance: `docs/claim_provenance.md`, `docs/reviewer_pass.md`,
   `docs/source_notes.md`.

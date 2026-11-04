@@ -37,7 +37,10 @@ extractor/           agentic extractor (agent loop + 6 source collectors + LLM l
 pipeline/            6-stage DuckDB pipeline (01 ingest -> 06 bayesian) + runner
 eval/                n=150 study: candidate calibration + final eval harness
 app/                 Next.js 15 MVP (catalogue, search, guided follow-up,
-                     filters, recommender, live product-analytics dashboard)
+                     filters, recommender, live product-analytics dashboard,
+                     AI assistant - app/lib/chat + app/app/ui/chat)
+eval/chat/           assistant eval: 60 golden + 30 red-team conversations,
+                     in-process harness against the real route handler
 scripts/             build_catalog (36k), make_figures, run_all, deploy staging
 docs/interviews/     interview kit, P1-P12 records, journey map + drop-off matrix
 docs/evidence/       claim -> artifact provenance, source notes, figures
@@ -62,6 +65,8 @@ cd app && npm run dev                      # http://localhost:3000
 .venv/bin/python eval/relevance_audit.py       # Qwen-judged relevance audit (top-3)
 .venv/bin/python eval/simulate.py --total 3000 # large-scale query simulation
 .venv/bin/python eval/canaries.py              # 44 eyeball canaries (post-change regression)
+cd app && node --import ../eval/chat/register-shim.mjs \
+  ../eval/chat/run_chat_eval.js                 # assistant gates (golden + red-team)
 .venv/bin/python scripts/make_figures.py        # docs/evidence/figures/*.png
 ```
 
@@ -109,6 +114,15 @@ cd app && npm run dev                      # http://localhost:3000
   reviews (Trustpilot) answer "what do buyers complain about after purchase?";
   Google Suggest + Wikipedia pageviews answer "what do people actually type,
   and when do they want to buy?". See docs/evidence/source_notes.md.
+
+- **Assistant (J10)**: deterministic dialog manager + templates-first
+  chat (8 intents: search/refine/gift help/product Q&A/compare/explain/
+  FAQ/cart). The LLM is off by default (`CHAT_LLM=0`); when on it only
+  phrases or labels low-confidence NLU. Signed conversation state
+  (HMAC, tamper -> 400), grounding guard (0 ungrounded SKU/price/brand),
+  rate limit, 30-turn cap. Q&A answers only from catalogue fields -
+  honest "I don't have that detail" otherwise. Spec + gates:
+  `docs/chat_spec.md`.
 
 ## Live links
 - Agentic extractor (HF Space, static, browser-computed):

@@ -11,3 +11,5 @@ node_modules/
 data/catalog_src/
 data/amazon_reviews/*.jsonl
 data/trustpilot/
+.chat-secret-dev
+app/.chat-secret-dev

@@ -7,6 +7,8 @@ import { Onboarding, BUDGET_STYLE_MAX, SPEND_BIAS, SPEND_BRAND_AFFINITY } from "
 import { CartDrawer, CheckoutModal, OrderToast } from "./ui/cart";
 import { AnalyticsView } from "./ui/analytics";
 import { ProductDetail, Tile } from "./ui/pdp";
+import { ChatLauncher } from "./ui/chat/ChatLauncher";
+import { ChatPanel } from "./ui/chat/ChatPanel";
 
 const EXAMPLES = [
   "shaadi gift under 2k",
@@ -216,24 +218,26 @@ function AskCartHome() {
     const v = params.get("anview");
     return v && ["overview", "search", "catalog", "journeys", "validation"].includes(v) ? v : "overview";
   });
-  const [onboarded, setOnboarded] = useState(() => {
-    try {
-      if (new URLSearchParams(window.location.search).get("noob") === "1") return true;
-      return localStorage.getItem("askcart_onboarded") === "1";
-    } catch { return true; }
-  });
+  // SSR-safe: server and first client render must agree; localStorage state is
+  // synced after mount (prevents hydration mismatches on the hero strip).
+  const [onboarded, setOnboarded] = useState(true);
   const [persona, setPersonaState] = useState(null);
   // O1/O2: language + pincode strip (non-blocking), persona v3 learning later.
-  const [lang, setLangState] = useState(() => {
-    try { return ["en", "hi", "hinglish"].includes(localStorage.getItem("askcart_lang")) ? localStorage.getItem("askcart_lang") : "en"; } catch { return "en"; }
-  });
+  const [lang, setLangState] = useState("en");
   const [pin, setPin] = useState("");
-  const [region, setRegion] = useState(() => {
-    try { const v = JSON.parse(localStorage.getItem("askcart_region") || "null"); return v && v.region ? v.region : null; } catch { return null; }
-  });
-  const [stripDismissed, setStripDismissed] = useState(() => {
-    try { return localStorage.getItem("askcart_strip_dismissed") === "1"; } catch { return true; }
-  });
+  const [region, setRegion] = useState(null);
+  const [stripDismissed, setStripDismissed] = useState(true);
+  useEffect(() => {
+    try {
+      const noob = new URLSearchParams(window.location.search).get("noob") === "1";
+      if (!noob && localStorage.getItem("askcart_onboarded") !== "1") setOnboarded(false);
+      const l = localStorage.getItem("askcart_lang");
+      if (["en", "hi", "hinglish"].includes(l)) setLangState(l);
+      const rv = JSON.parse(localStorage.getItem("askcart_region") || "null");
+      if (rv && rv.region) setRegion(rv.region);
+      setStripDismissed(localStorage.getItem("askcart_strip_dismissed") === "1");
+    } catch {}
+  }, []);
   const [stripOpen, setStripOpen] = useState(false);
   const [obToast, setObToast] = useState(null);
   useEffect(() => { try { document.documentElement.lang = lang === "hi" ? "hi" : lang === "hinglish" ? "hi-Latn" : "en"; } catch {} }, [lang]);
@@ -272,6 +276,50 @@ function AskCartHome() {
   // so a reviewer can A/B the two in the same session. Not persisted: a
   // fresh visitor always lands on the guided experience.
   const [plainMode, setPlainMode] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatNudge, setChatNudge] = useState(false);
+  // Chat-shared session: a search the assistant applies re-runs the SAME
+  // guided engine with the assistant's slots; the page never asks its own
+  // question on top (the chat is the question UI). Trail chips stay removable.
+  async function chatApplySearch(query, opts = {}, meta = {}) {
+    if (!query || !query.trim() || busy) return;
+    if (journeyRef.current && !journeyRef.current.ended) {
+      endJourney(journeyRef.current, { resolved: !!s && s.ok === true, turns: s ? s.turn : 1 });
+    }
+    setBusy(true);
+    const t0 = Date.now();
+    const res = await doSearch(query, { ...opts, turn: 1, limit: 48 });
+    setBusy(false);
+    if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
+    const ok = res.results.filter((r) => r.intent).length >= 2;
+    journeyRef.current = ensureJourney(query);
+    markResultsShown(query, res.results, 1, "chat");
+    track("chat_apply_to_results", { query, slots_changed: Object.keys(opts).filter((k) => opts[k] != null).length, journey_id: journeyRef.current.id });
+    const trail = [query];
+    if (meta.trailLabel) trail.push({ label: meta.trailLabel, opts: { budget: opts.budget || null, occasion: opts.occasion || null, category: opts.category || null, brand: opts.brand || null, forWhom: opts.forWhom || null, size: opts.size || null, capacity: opts.capacity || null } });
+    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, parsed: res.parsed,
+           filters: { ...DEFAULT_FILTERS }, guide: null, trail, exhausted: !ok, error: null,
+           echo: meta.echo || null });
+    setMoreN(24);
+    if (ok) endJourney(journeyRef.current, { resolved: true, turns: 1 });
+  }
+  // Chat add-to-cart: resolve the full catalogue item by sku.
+  function chatAddToCart(sku) {
+    const pool = [...(s ? s.results : []), ...(pdp ? [pdp] : []), ...(preview ? preview.items : [])];
+    const item = pool.find((x) => x.sku === sku);
+    if (item) addToCart(item, "chat");
+  }
+  function chatOpenPdp(sku) {
+    const pool = [...(s ? s.results : []), ...(preview ? preview.items : [])];
+    openPdpSku(sku, pool, "chat");
+  }
+  const chatContext = {
+    sku: pdp ? pdp.sku : null,
+    query: s ? s.query : null,
+    region,
+    source: pdp ? "pdp" : (chatNudge ? "null_escalation" : "hero"),
+  };
+
   function switchPlainMode(on) {
     if (on === plainMode) return;
     setPlainMode(on);
@@ -484,6 +532,15 @@ function AskCartHome() {
       setS((st) => st && { ...st, exhausted: true });
       endJourney(journeyRef.current, { resolved: false, turns: 1 });
       setBusy(false); return;
+    }
+    // E1 null-search escalation: offer the assistant once per session.
+    if (!plainMode) {
+      let nudged = false;
+      try { nudged = sessionStorage.getItem("askcart_chat_nudged") === "1"; } catch {}
+      if (!nudged) {
+        setChatNudge(true);
+        track("chat_nudge_shown", { trigger: "null_search", query });
+      }
     }
     for (let turn = 2; turn <= 4; turn++) {
       const g = await askGuide(query, res.results.filter((r) => r.intent).length, turn);
@@ -1197,6 +1254,33 @@ function AskCartHome() {
           <div className="foot-note">Every interaction event is public in Behind the scenes · AI answers only from catalogue fields · method & evidence: PROJECT.md</div>
         </div>
       </footer>
+      {tab === "search" && (
+        <ChatLauncher
+          nudge={chatNudge}
+          onOpen={() => {
+            if (chatNudge) {
+              track("chat_nudge_accepted", { trigger: "null_search" });
+              try { sessionStorage.setItem("askcart_chat_nudged", "1"); } catch {}
+              setChatNudge(false);
+            }
+            setChatOpen(true);
+          }}
+          onNudgeDismiss={() => {
+            track("chat_nudge_dismissed", { trigger: "null_search" });
+            setChatNudge(false);
+          }}
+        />
+      )}
+      <ChatPanel
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        context={chatContext}
+        onApplySearch={(q, opts, meta) => chatApplySearch(q, opts, meta)}
+        onAddToCart={(sku) => chatAddToCart(sku)}
+        onOpenPdp={(sku) => { setChatOpen(false); chatOpenPdp(sku); }}
+        onOpenCart={() => { setCartOpen(true); track("cart_view", { item_count: cartCount, source: "chat" }); }}
+        itemPool={[...(s ? s.results : []), ...(pdp ? [pdp] : []), ...(preview ? preview.items : [])]}
+      />
       <ProductDetail item={pdp} onClose={closePdp}
                      onAdd={(r) => addToCart(r, "pdp")}
                      onBuy={(r) => buyNow({ ...r, _from: "pdp" })}

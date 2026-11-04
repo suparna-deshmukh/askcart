@@ -1,0 +1,18 @@
+{
+  "llm_mode": "off (CHAT_LLM=0, deterministic)",
+  "golden_conversations": 60,
+  "redteam_conversations": 30,
+  "intent_accuracy": "100%",
+  "intent": "76/76",
+  "grounding_failures_reaching_user": 0,
+  "max_words_violations": 0,
+  "safe_handling": "37/37 (100%)",
+  "hard_failures": 0,
+  "failures": [],
+  "gates": {
+    "intent_ge_92": true,
+    "grounding_zero": true,
+    "safe_ge_95": true,
+    "words_le_40": true
+  }
+}

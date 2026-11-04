@@ -93,7 +93,7 @@ function upcomingFestivals(region, today, days = 45) {
   return out.sort((a, b) => a.delta - b.delta).map((f) => f.name);
 }
 
-function occasionOptions(region) {
+export function occasionOptions(region) {
   const fest = upcomingFestivals(region).slice(0, 3);
   const opts = [...fest];
   for (const base of ["Wedding / Shaadi", "Birthday", "Anniversary"]) {

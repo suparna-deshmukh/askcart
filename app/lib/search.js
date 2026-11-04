@@ -272,21 +272,21 @@ const NO_LITERAL = new Set(["mobile", "cellphone", "phone"]);
 
 // Recipient words implying an ADULT ("sweater for papa" is not a kids
 // sweater): when present, kid-marked titles are penalised.
-const ADULT_RECIPIENTS = new Set(["papa", "dad", "father", "husband", "brother",
+export const ADULT_RECIPIENTS = new Set(["papa", "dad", "father", "husband", "brother",
   "grandfather", "uncle", "boss", "ammi", "amma", "mom", "mum", "mother",
   "wife", "sister", "grandmother", "bua", "didi", "jiju", "dada", "dadi",
   "nani", "nana", "taiya", "mama", "tai", "phupha", "maa", "mummy", "abba",
   "bhai", "behen", "bhen", "saas", "sasur"]);
-const MALE_RECIPIENTS = new Set(["papa", "dad", "father", "husband", "brother",
+export const MALE_RECIPIENTS = new Set(["papa", "dad", "father", "husband", "brother",
   "grandfather", "uncle", "boss", "dada", "nana", "bhaiya", "jiju", "taiya",
   "phupha", "abba", "bhai", "sasur"]);
-const FEMALE_RECIPIENTS = new Set(["ammi", "amma", "mom", "mum", "mother",
+export const FEMALE_RECIPIENTS = new Set(["ammi", "amma", "mom", "mum", "mother",
   "wife", "sister", "grandmother", "bua", "didi", "nani", "dadi", "tai",
   "mama", "maa", "mummy", "behen", "bhen", "saas"]);
 // S3: child recipients - kid-marked titles get a boost ("kurta for beta")
-const CHILD_RECIPIENTS = new Set(["beta", "beti", "bachcha", "bachchi",
+export const CHILD_RECIPIENTS = new Set(["beta", "beti", "bachcha", "bachchi",
   "bachche", "bachchon", "kid", "kids", "child", "children"]);
-const KID_WORDS = new Set(["kids", "kid", "boy", "boys", "girls", "girl",
+export const KID_WORDS = new Set(["kids", "kid", "boy", "boys", "girls", "girl",
   "child", "children", "toddler", "baby"]);
 // Words that mark an item as an accessory of the queried product. The scorer
 // penalises them - but only when they are not part of the query itself

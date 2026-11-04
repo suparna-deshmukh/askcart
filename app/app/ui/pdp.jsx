@@ -111,11 +111,15 @@ export function ProductDetail({ item, onClose, onAdd, onBuy, similar, parsed, re
   }, [item && item.sku]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!open || !item) return null;
 
-  const adj = adjustedRating(sel.rating, sel.num_ratings);
+  // sel lags item by one effect tick on first open; fall back to item when
+  // sel is null or belongs to a different family (deterministic render).
+  const selValid = sel && (sel.sku === item.sku || (family && family.some((f) => f.sku === sel.sku)));
+  const cur = selValid ? sel : item;
+  const adj = adjustedRating(cur.rating, cur.num_ratings);
   const reasons = [];
-  if (parsed && parsed.budgetMax && sel.price <= parsed.budgetMax) reasons.push(`Under ${inr(parsed.budgetMax)}`);
-  if (parsed && parsed.occasion && (sel.tags || []).includes(parsed.occasion)) reasons.push(`Tagged ${parsed.occasion}`);
-  if (parsed && parsed.brand && sel.brand === parsed.brand) reasons.push(`Brand: ${parsed.brand}`);
+  if (parsed && parsed.budgetMax && cur.price <= parsed.budgetMax) reasons.push(`Under ${inr(parsed.budgetMax)}`);
+  if (parsed && parsed.occasion && (cur.tags || []).includes(parsed.occasion)) reasons.push(`Tagged ${parsed.occasion}`);
+  if (parsed && parsed.brand && cur.brand === parsed.brand) reasons.push(`Brand: ${parsed.brand}`);
   if (parsed && (parsed.gender === "women" || parsed.gender === "men")) reasons.push(parsed.gender === "women" ? "For women" : "For men");
   if (!reasons.length) reasons.push("Best score for your search");
 
@@ -134,16 +138,16 @@ export function ProductDetail({ item, onClose, onAdd, onBuy, similar, parsed, re
           <div className="pdp-top">
             <Tile item={sel} size={128} />
             <div className="pdp-id">
-              <h2 className="pdp-title">{sel.title}</h2>
-              {sel.brand ? <span className="brandb">{sel.brand}</span> : null}
+              <h2 className="pdp-title">{cur.title}</h2>
+              {cur.brand ? <span className="brandb">{cur.brand}</span> : null}
               <div className="pdp-rate">
-                <span className={"rpill " + (sel.rating >= 4 ? "good" : sel.rating >= 3 ? "mid" : "low")}>★ {sel.rating}</span>
-                <span className="pdp-rc">{(sel.num_ratings || 0).toLocaleString("en-IN")} ratings · {adj.toFixed(1)} adjusted for rating count</span>
+                <span className={"rpill " + (cur.rating >= 4 ? "good" : cur.rating >= 3 ? "mid" : "low")}>★ {cur.rating}</span>
+                <span className="pdp-rc">{(cur.num_ratings || 0).toLocaleString("en-IN")} ratings · {adj.toFixed(1)} adjusted for rating count</span>
               </div>
             </div>
           </div>
           <div className="pdp-price">
-            <span className="pdp-p">{inr(sel.price)}</span>
+            <span className="pdp-p">{inr(cur.price)}</span>
             <span className="pdp-tax">inclusive of all taxes (demo)</span>
           </div>
           {family && family.length > 0 && (
@@ -152,9 +156,9 @@ export function ProductDetail({ item, onClose, onAdd, onBuy, similar, parsed, re
               <div className="pdp-vars" role="radiogroup" aria-label="Variants">
                 {family.map((v) => (
                   <button key={v.sku} role="radio" aria-checked={sel.sku === v.sku}
-                          className={"pdp-var" + (sel.sku === v.sku ? " on" : "")}
+                          className={"pdp-var" + (cur.sku === v.sku ? " on" : "")}
                           onClick={() => {
-                            track("variant_select", { sku: v.sku, from: sel.sku, variant: v.variant || "" });
+                            track("variant_select", { sku: v.sku, from: cur.sku, variant: v.variant || "" });
                             setSel(v);
                           }}>
                     {v.variant || v.sku}<span className="pdp-var-p">{inr(v.price)}</span>
@@ -174,7 +178,7 @@ export function ProductDetail({ item, onClose, onAdd, onBuy, similar, parsed, re
             <div className="pdp-note">
               <div>{delivery}.</div>
               <div>7-day return window (demo policy).</div>
-              {sel.rating_basis === "synthetic" && <div>Demo rating — indicative, not live marketplace data.</div>}
+              {cur.rating_basis === "synthetic" && <div>Demo rating — indicative, not live marketplace data.</div>}
             </div>
           </div>
           {similar && similar.length > 0 && (
