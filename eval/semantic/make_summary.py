@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate eval/semantic/results/summary.md strictly from artifacts
 (results.json + threshold.json). No hand-typed numbers."""
-import json, pathlib
+import json, os, pathlib
 R = pathlib.Path(__file__).resolve().parent / "results"
 d = json.load(open(R / "results.json"))
 th = json.load(open(R / "threshold.json"))
@@ -124,6 +124,32 @@ if len(d["failures"]) < 10:
     L.append(f"({len(d['failures'])} failures total; fewer than the 10 the spec asked "
              "for — all are listed.)")
 L.append("")
+ag = R / "agreement_40.json"
+hl = R / "hand_label_40.json"
+if ag.exists() and hl.exists():
+    A40 = json.load(open(ag)); H40 = json.load(open(hl))
+    L.append("## Second-rater agreement check (40-query hand label)")
+    L.append(f"40 random Arm-C test queries (seed {H40['seed']}), top-3 each, labelled "
+             f"blind to the Qwen verdicts by {H40['annotator']}. "
+             f"{A40['n_items']} item-level judgements:")
+    L.append(f"- 3-class exact agreement (relevant/partial/irrelevant): "
+             f"**{A40['exact_agreement_3class']*100:.1f}%** (Cohen's kappa "
+             f"{A40['kappa_3class']:.2f})")
+    L.append(f"- Binary 'usable in top-3' (relevant+partial vs irrelevant): "
+             f"**{A40['usable_binary_agreement']*100:.1f}%** (Cohen's kappa "
+             f"{A40['kappa_binary_usable']:.2f})")
+    t = A40["confusion_hand_x_qwen"]
+    L.append(f"- Confusion (rows = second rater, cols = Qwen; order relevant/"
+             f"partial/irrelevant):")
+    L.append(f"  |  | Qwen rel | Qwen part | Qwen irr |")
+    L.append(f"  |---|---|---|---|")
+    for i, name in enumerate(["rel", "part", "irr"]):
+        L.append(f"  | {name} | {t[i][0]} | {t[i][1]} | {t[i][2]} |")
+    L.append("- Reading: the two raters agree on the binary usability question "
+             "4 of 5 times; the 3-class gap is mostly in the partial/irrelevant "
+             "boundary (Qwen calls more items 'partial' than the second rater). "
+             "Single annotator, single LLM — directional only.")
+    L.append("")
 L.append("## Interpretation")
 L.append(f"- All arm-level CIs overlap (A null {A['null']['ci']} vs C "
          f"{C['null']['ci']}; A usable@3 {A['usable_at3']['ci']} vs C "

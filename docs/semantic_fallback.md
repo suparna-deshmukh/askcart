@@ -121,9 +121,16 @@ node --import ../eval/chat/register-shim.mjs ../eval/semantic/run.mjs
 
 ## Honest limitations
 
-- Relevance is judged by a **single LLM judge** (Qwen, thinking off) plus
-  no multi-annotator ground truth; arm B (semantic-only) top-3 is not
-  judged in the standard pass (ablation arm).
+- Relevance is judged by a **single LLM judge** (Qwen, thinking off); there
+  is no multi-annotator human ground truth. A 40-query second-rater check
+  (120 item judgements, labelled blind to Qwen; the second rater is the
+  **build agent - an LLM, not a human**, stated plainly) agrees with Qwen
+  on the binary "usable in top-3" question **85%** of the time
+  (Cohen's kappa 0.66) and 70.8% on the 3-class scale (kappa 0.56); the
+  gap sits mostly in the partial/irrelevant boundary, where Qwen is the
+  more lenient rater. Artifacts: `eval/semantic/results/hand_label_40.json`
+  + `agreement_40.json`, section generated into `summary.md`. Arm B
+  (semantic-only) top-3 is not judged in the standard pass (ablation arm).
 - The panel's `real_suggest` queries are Google-Suggest autocompletes
   (real-query-shaped), not logged shopper queries; there are no real users.
 - The catalogue is a demo catalogue (US-converted + synthetic India

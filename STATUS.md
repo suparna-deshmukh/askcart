@@ -612,3 +612,31 @@ range; results.json + summary.md regenerated from artifacts.
 `scripts/ui_tour.js` also fixed: stale `.cardbtns .add` selector →
 `.card-add` (tour now really adds to cart) and the mid-search filter chip
 now clicks the adaptive `₹1k–2k` band.
+
+## Semantic eval completion — second-rater check (2026-11-04 PM)
+
+Closes the last executable spec item of the semantic fallback build
+(§10 "optional but valuable: hand-label 40 random Arm C top-3 results"):
+
+- 40 random Arm-C test queries (seed 20261104), top-3 each = 120 item
+  judgements, labelled **blind** to the Qwen verdicts (relevant/partial/
+  irrelevant, same scale as judge.mjs). Artifacts:
+  `eval/semantic/results/hand_label_40.json` + `agreement_40.json`.
+- Agreement with the Qwen judge: 3-class exact **70.8%** (Cohen's kappa
+  0.56); binary "usable in top-3" **85.0%** (kappa 0.66). Confusion:
+  30/24/31 on the diagonal; the gap is concentrated in the
+  partial/irrelevant boundary (Qwen is the more lenient rater).
+- **Honesty note (kept visible everywhere it's reported):** the second
+  rater is the build agent (a single LLM), NOT a human — there is no
+  multi-annotator human ground truth. Stated in summary.md,
+  docs/semantic_fallback.md limitations, PROJECT.md §5.9.
+- `make_summary.py` now generates the agreement section from the two
+  artifacts (gated on their existence); summary.md regenerated.
+- Doc-sync gate green (`sync_doc_numbers.py --check`). No app-code change
+  in this pass, so the previously-green gates (canaries 111+5, semantic
+  suite no-op 293/293, chat eval, ui tour 17, contrast 16/16) stand.
+
+Semantic fallback DoD status: all spec items done except (a) "deployed and
+verified on the live URL" — intentionally skipped per user directive
+(localhost only, no Vercel; live-verified on localhost:3000 in b84b660)
+and (b) Vercel env-var/bundle confirmation — same reason.

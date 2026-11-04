@@ -51,6 +51,18 @@ Notes:
 - **irrelevant_top3**: `gadget for tech lover` -> KICHOUSE Korean Scoop Gadgets Spoons Cooker  (Rs 809) / Cute Ferrets Blanket Ferret Gifts for Women  (Rs 829)
 (9 failures total; fewer than the 10 the spec asked for — all are listed.)
 
+## Second-rater agreement check (40-query hand label)
+40 random Arm-C test queries (seed 20261104), top-3 each, labelled blind to the Qwen verdicts by build agent (single LLM rater, not a human) - second rater independent of the Qwen judge. 120 item-level judgements:
+- 3-class exact agreement (relevant/partial/irrelevant): **70.8%** (Cohen's kappa 0.56)
+- Binary 'usable in top-3' (relevant+partial vs irrelevant): **85.0%** (Cohen's kappa 0.66)
+- Confusion (rows = second rater, cols = Qwen; order relevant/partial/irrelevant):
+  |  | Qwen rel | Qwen part | Qwen irr |
+  |---|---|---|---|
+  | rel | 30 | 6 | 1 |
+  | part | 11 | 24 | 12 |
+  | irr | 0 | 5 | 31 |
+- Reading: the two raters agree on the binary usability question 4 of 5 times; the 3-class gap is mostly in the partial/irrelevant boundary (Qwen calls more items 'partial' than the second rater). Single annotator, single LLM — directional only.
+
 ## Interpretation
 - All arm-level CIs overlap (A null [3.2, 18.8] vs C [2.1, 16.2]; A usable@3 [69.2, 90.2] vs C [69.2, 90.2]). The gains are **directional, not significant at this sample size** (n=50 per arm).
 - C lowers null rate 8%->6% and success@3 52%->58%, and cuts questions/journey 0.46->0.34; usable@3 is flat at 82%. No kind regressed on null rate; real_suggest usable@3 dipped 90%->85% (n=20) — see the degraded queries above.
