@@ -964,3 +964,34 @@ BEFORE any run (2b81ab5), then ran it.
   moments: 150 + 29 + 1 calls across the three passes).
 - Local commit only (`T3:` prefix), no GitHub/remote; localhost dev
   server :3000.
+
+## 2026-11-05 — Unified Analytics sub-tab widths (CSS fix)
+- **User report:** in the Analytics tab the 5 sub-tabs rendered
+  inconsistently — Catalogue & Brands (3rd) and Validation & Study (5th)
+  filled the full width, while Overview / Search & Guide / Journeys &
+  Orders (1st/2nd/4th) rendered as narrow centered strips with huge
+  left/right margins. User asked for uniform full width, using the 3rd
+  and 5th tabs as the norm.
+- **Root cause:** side effect of the chat split-screen appshell, not the
+  panels. `.wrap` is a flex item inside `.appshell-main` (flex column);
+  `.wrap { max-width:1400px; margin: 0 auto }` — auto cross-axis margins
+  disable flexbox stretch, so `.wrap` sized to its content and centered.
+  Wide-table tabs had ~1280px of content → full width; sparse tabs
+  shrank to ~840–870px (@x≈206–220) → the "vertical strip".
+- **Fix (1 line, `app/app/globals.css:83`):** added `width: 100%` →
+  `.wrap { width: 100%; max-width: 1400px; margin: 0 auto; padding:
+  20px 28px 80px; }`. `max-width` + `margin:0 auto` still cap/center on
+  ultra-wide screens (original intent preserved).
+- **Verified (puppeteer-core on live :3000):** all 5 anviews now
+  `.wrap = 1280 @x0` at vw=1280 (was 840–870 @x≈206–220 for the 3 sparse
+  tabs); split-screen (Search → open chat → Analytics, no reload):
+  `wrap 880@x0, main 880@x0, chat 400@x880, vw=1280` — `.wrap` fills the
+  880px main area exactly, no overflow. Screenshots: /tmp/an_fix/
+  (overview/search/journeys + split_analytics.png, eyeballed).
+- **Gates (all green post-fix):** canaries 111+6 0-fail; semantic suite
+  ALL TESTS PASS (no-op guarantee); chat eval CHAT_LLM=0 76/76 intent /
+  0 grounding / 37/37 safe, GATES PASS; ui tour 17 shots regenerated
+  with the fixed layout (mvp_analytics_*.png); contrast 16/16;
+  sync_doc_numbers --check OK. CSS-only — zero LLM tokens.
+- Local commit only (`T3:` prefix), no GitHub/remote; localhost dev
+  server :3000.
