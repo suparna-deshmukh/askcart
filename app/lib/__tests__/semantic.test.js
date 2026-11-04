@@ -154,5 +154,53 @@ if (idx && idx.ok) {
     `${checked} resolved queries, ${mismatches} mismatches, ${nulls} null queries skipped`);
 }
 
+// ---- failure path (spec): index unavailable -> exact v6 behaviour ---------
+// Subprocesses with temp cwds: (1) no data dir -> index_missing;
+// (2) data dir + reordered catalogue -> index_mismatch (the production
+// "catalogue rebuilt without re-embed" case). SEMANTIC_FALLBACK=1 must
+// report the reason and return a response identical to =0 (ignoring the
+// `semantic` field).
+{
+  const os = await import("node:os");
+  for (const sc of [{ name: "missing", withData: false }, { name: "stale", withData: true }]) {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "askcart-semfail-"));
+    fs.mkdirSync(path.join(tmp, "public"), { recursive: true });
+    fs.mkdirSync(path.join(tmp, "lib"), { recursive: true });
+    const shuf = [catalog[catalog.length - 1], ...catalog.slice(0, -1)];
+    fs.writeFileSync(path.join(tmp, "public", "catalog.json"), JSON.stringify(shuf));
+    fs.copyFileSync(path.join(APP, "lib", "semantic_config.json"), path.join(tmp, "lib", "semantic_config.json"));
+    if (sc.withData) fs.cpSync(path.join(APP, "data"), path.join(tmp, "data"), { recursive: true });
+    const helper = path.join(tmp, "probe.mjs");
+    fs.writeFileSync(helper, `
+      const { POST } = await import(${JSON.stringify(path.join(APP, "app", "api", "search", "route.js"))});
+      for (const env of ["0", "1"]) {
+        process.env.SEMANTIC_FALLBACK = env;
+        const j = await (await POST(new Request("http://eval/api/search", {
+          method: "POST", body: JSON.stringify({ query: "didgeridoo", limit: 48 }),
+        }))).json();
+        const { semantic, ...rest } = j;
+        process.stdout.write(env + "\\t" + JSON.stringify(rest) + "\\t" + ((semantic && semantic.reason) || "") + "\\n");
+      }
+    `);
+    try {
+      const out = execFileSync(process.execPath,
+        ["--import", path.join(REPO, "eval", "chat", "register-shim.mjs"), helper],
+        { cwd: tmp, encoding: "utf8" });
+      const lines = out.trim().split("\n");
+      const j0 = JSON.parse(lines[0].slice(lines[0].indexOf("\t") + 1, lines[0].lastIndexOf("\t")));
+      const j1 = JSON.parse(lines[1].slice(lines[1].indexOf("\t") + 1, lines[1].lastIndexOf("\t")));
+      const reason = lines[1].slice(lines[1].lastIndexOf("\t") + 1);
+      const expected = sc.withData ? "index_mismatch" : "index_missing";
+      ok(reason === expected, "failure path: " + sc.name + " index reports " + expected, reason);
+      ok(JSON.stringify(j0) === JSON.stringify(j1),
+         "failure path: " + sc.name + " index -> response identical to v6 (SEMANTIC_FALLBACK 1 vs 0)");
+    } catch (e) {
+      ok(false, "failure path: " + sc.name + " subprocess", String(e.message || e).slice(0, 120));
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  }
+}
+
 console.log(fails ? `\n${fails} FAILURES` : "\nALL TESTS PASS");
 process.exit(fails ? 1 : 0);
