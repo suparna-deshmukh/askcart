@@ -640,3 +640,82 @@ Semantic fallback DoD status: all spec items done except (a) "deployed and
 verified on the live URL" — intentionally skipped per user directive
 (localhost only, no Vercel; live-verified on localhost:3000 in b84b660)
 and (b) Vercel env-var/bundle confirmation — same reason.
+
+## Persona-sim test → fix pass → re-test → deep-dive MD (2026-11-04 evening)
+
+User work order: (1) run a 300-persona × 10-dimension simulated test,
+(2) identify improvements, (3) implement, (4) re-run, (5) deliver an
+extremely detailed standalone MD of the whole project. All five done.
+
+- **Test harness (new)**: `eval/persona_sim.py` — 300 personas (3
+  languages en/hinglish/hi-Devanagari × 10 segments × 10 regions) × 10
+  fixed dimensions (elec+budget, fashion+recipient, gift+occasion,
+  vague, typo, spec, intentional dead-end, plain browse, tight-price,
+  relation-words) = 3,000 real guided journeys over HTTP, persona
+  ground-truth answers, `mode:"fallback"` guide (**0 LLM tokens**),
+  max 4 follow-ups; 8 workers ~15 min; Wilson CIs, by dim/lang/
+  segment, question mix, zero-chip journeys. Runs: v1
+  `logs/persona_sim_20261104_172125.jsonl`, v2
+  `logs/persona_sim_20261104_180504.jsonl`; aggregates
+  `eval/results/persona_sim_summary.json`.
+- **v1 findings** (null 27.6%, resolved 76.1%): hi-Devanagari
+  catastrophic (null 47.2% vs en 15.5%) — Devanagari product nouns
+  outside the 17-entry lexicon, "से कम/तक/में" budgets never parsed,
+  Devanagari digits stripped; pronouns ("him/her") parsed as required
+  product tokens; D6 spec 20% null = catalogue had no budget-tier ACs
+  (all ≥₹37k) behind "5 star ac under 30k"; 131 zero-chip journeys
+  (facet offered where most options had 0 counts); 593 size questions
+  incl. non-apparel ("what size AC?").
+- **Fixes (5)**: (1) `search.js` — pronouns → stop-words; Devanagari
+  digits ०–९→0–9; Hinglish/Devanagari budget normalisation **before**
+  script-strip ("se kam/से कम/के अंदर/तक/में" after a number → "under
+  N"; "2 हज़ार" → "2k") with `(?![a-z])` boundaries (`\b` fails at
+  Devanagari edges); unit words replaced in place (टन→ton, लीटर→litre,
+  इंच→inch, किलो→kg, वाट→w). (2) `lexicon_hinglish.json` devanagari
+  17→65 entries (हेडफ़ोन, लैपटॉप, टीवी, एसी, फ्रिज…), roman 34→38.
+  (3) `guide.js` — sparse-question guard (skip a facet when >50% of
+  its data options are zero-count, escape hatches excluded; all-sparse
+  → ask first as before) + size facet restricted to apparel
+  categories. (4) `scripts/catalog_india.py` — 11 budget-AC base rows
+  (1-ton 3★/5★, ₹19,990–33,990, Voltas/LG/Haier/Crompton/Midea/
+  Samsung/Daikin/Panasonic/Blue Star; 5 five-star ≤₹30k) → catalog
+  36,045→36,060. (5) rebuilt catalog.json + semantic index (36,060
+  vectors). Verified in-process: "5 star ac under 30k" 0→5 intent,
+  "1.5 टन ac 45000 में" 0→48, "watch for him" 0→48, "हेडफ़ोन 2000
+  से कम" 0→48; canary queries unchanged.
+- **v2 results (re-test)**: overall **null 27.6%→19.1%** [17.7–20.5],
+  **resolved 76.1%→83.8%** [82.4–85.1], t1 72.4%→80.9%, **avg
+  questions 0.76→0.53**, zero-chip journeys 131→27, semantic used
+  315→120×, 0 errors. By lang: hi **47.2%→29.7% null, 56.4%→73.6%
+  resolved**; hinglish 20.1→15.2; en 15.5→12.3. D6 spec 20→0 (data
+  fix), D3 gift 10→0, D1 12→3.7, D2 45→27.7 (residual = long-tail
+  fashion nouns, honest remainder), D8 29.3→14.3, D9 24→12.7; D7
+  dead-end unchanged 85.7/32.7 (documented baseline-rescue behaviour).
+  Question mix: size 593→378, brand 49→88 (ladder fires where
+  occasion was over-asked), capacity 2→0.
+- **Deep-dive MD delivered**: `docs/ASKCART_FULL_DEEP_DIVE.md` (1,219
+  lines, new standalone file) — §1 thesis, §2 evidence base (raw/clean
+  94,643→87,603→6,041, RC shares, scorer-vs-LLM 44.1%/F1 0.240,
+  India-only cut), §3 catalogue (36,060, every price/rating/brand
+  number, origin field), §4 search engine (parseQuery, scoring,
+  tiers, semantic fallback), §5 guide policy (7 question types,
+  flows, EIG, sparse guard, always-ask ladder), §6 UI screen-by-screen
+  (every token hex, every button's placement/colour, PDP/cart/checkout
+ /chat split-screen/festival rails, a11y), §7 journeys J1–J10,
+  §8 chat architecture (file/line map, 10 intents, NLU/guard/breaker,
+  76/76 gates), §9 analytics (store, full event list, derived
+  metrics), §10 evaluations (n=150 27.3→8.0, 3,000-sim, relevance
+  audit 96% usable, canaries 111+5, eval v2 100 frozen, semantic
+  A/B/C + second rater κ0.66, **persona sim v1 vs v2 tables**),
+  §11 architecture/file map/runbook/env, §12 honest limitations
+  (10 items incl. simulated interviews, single-LLM judging,
+  localhost-only).
+- **Also**: page.jsx footer stale "36,045 SKUs" → 36,060 (truth fix).
+- **Gates re-run after fixes**: canaries 111+5 (0 fail), semantic
+  suite ALL PASS (no-op 293/293, parity ok), chat eval CHAT_LLM=0
+  100% intent 76/76 / 0 grounding / 37-37 safe (re-run this session,
+  0 tokens), ui tour 17, contrast 16/16, doc-sync --check green.
+  Semantic frozen-panel re-run after the policy+catalogue change:
+  A null 10% [4.3–21.4], C null 6% [2.1–16.2], C u@3 88% [76.2–94.4]
+  (was 82), s@3 58%, q 0.46→0.34, p50/p95 19/32 ms; only the
+  changed frozen-panel top-3s were re-judged (small Qwen spend).

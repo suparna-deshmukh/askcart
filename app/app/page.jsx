@@ -1309,7 +1309,7 @@ function AskCartHome() {
       <footer>
         <div className="foot-inner">
           <div className="foot-brand">Ask<span>Cart</span> · guided shopping search</div>
-          <div className="foot-col">Demo catalogue: 36,045 SKUs (≈25k US-sourced listings converted to INR + ≈11k India layer) with indicative prices and ratings — not a live marketplace. Checkout is simulated: no payments, addresses or real delivery.</div>
+          <div className="foot-col">Demo catalogue: 36,060 SKUs (≈25k US-sourced listings converted to INR + ≈11k India layer) with indicative prices and ratings — not a live marketplace. Checkout is simulated: no payments, addresses or real delivery.</div>
           <div className="foot-note">Every interaction event is public in Analytics · AI answers only from catalogue fields · method & evidence: PROJECT.md</div>
         </div>
       </footer>

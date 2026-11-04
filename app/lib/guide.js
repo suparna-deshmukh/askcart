@@ -276,7 +276,11 @@ export function decideGuide(catalog, query, nResults, context = {}) {
       const minShare = baseFlow.includes("for_whom") ? 0.05 : 0.10;
       if (stats.n < 20 || named < 15 || named / stats.n < minShare) return false;
     }
-    if (t === "size" && ((parsed.specs && parsed.specs.size) || sizeOptions(stats.items, stats.n).length < 3)) return false;
+    // Size (S/M/L/XL) only makes sense on apparel-style categories - a
+    // "size?" question on an AC or laptop is noise (persona sim 2026-11-04:
+    // 593/3000 journeys got size questions, most on non-apparel sets).
+    if (t === "size" && ((parsed.specs && parsed.specs.size) || sizeOptions(stats.items, stats.n).length < 3 ||
+        !dominant || !["AMAZON FASHION", "All Beauty", "Handmade", "Arts, Crafts & Sewing", "Baby", "Toys & Games"].includes(dominant.name))) return false;
     if (t === "capacity" && (capacityOptions(stats.items, stats.n).length < 3 ||
         (parsed.specs && (parsed.specs.tonnage !== undefined || parsed.specs.kg !== undefined || parsed.specs.volume !== undefined)))) return false;
     return true;
@@ -311,15 +315,30 @@ export function decideGuide(catalog, query, nResults, context = {}) {
              stats };
   }
 
-  const type = order[0] || null;
-  if (!type) {
+  if (!order.length) {
     return { ask: false, type: null, options: [], question: "", reason: "no eligible facet left (all constraints present or data-thin)", stats };
   }
 
+  // Sparse-question guard (persona sim 2026-11-04: 131/3000 journeys were
+  // offered a question whose candidate set had zero items for most of its
+  // options): a facet is only asked when at most half of its DATA options
+  // (the "Any / No preference / Not sure" escape hatches excluded) have a
+  // count; otherwise the next eligible facet is tried. If every eligible
+  // facet is sparse, the first one is asked as before (zero chips disabled).
+  const isSparse = (counts) => {
+    const data = counts.filter((c) => !/^(No preference|Not sure|Any)/.test(String(c.label)));
+    if (!data.length) return false;
+    return data.filter((c) => (c.count || 0) === 0).length / data.length >= 0.5;
+  };
+  let type = null;
   let options = [];
   let optionCounts = [];
   let reason = "";
-  if (type === "budget") {
+  let fallback = null;
+  let chosen = false;
+  outer: for (const t of order) {
+    type = t;
+    if (type === "budget") {
     options = budgetOptions(stats, { stepDown: context.persona?.userType === "Student" });
     reason = `no explicit budget in query; candidate set price range p25 ${inr(stats.priceP.p25)} – p75 ${inr(stats.priceP.p75)} (budget_mismatch = 9.4% of mined complaints; price spread is the issue, not the label)`;
     optionCounts = options.map((o) => ({ label: o, count: countBudget(stats.items, stats.n, o) }));
@@ -370,6 +389,14 @@ export function decideGuide(catalog, query, nResults, context = {}) {
     options = optionCounts.map((o) => o.label);
     reason = `appliance candidate set spans multiple capacities (tonnage/kg/litres); the spec slot re-ranks on it`;
   }
+    if (order.length > 1 && isSparse(optionCounts)) {
+      if (!fallback) fallback = { type: t, options: [...options], optionCounts: [...optionCounts], reason };
+      continue outer;
+    }
+    chosen = true;
+    break;
+  }
+  if (!chosen && fallback) ({ type, options, optionCounts, reason } = fallback);
 
   return {
     ask: true,

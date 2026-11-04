@@ -9,6 +9,7 @@ const STOP = new Set(["the", "a", "an", "for", "with", "and", "of", "in", "on", 
   "please", "find", "me", "get", "want", "need", "looking", "look", "search",
   "buy", "shop", "something", "anything", "good", "nice", "best", "top", "cheap",
   "price", "rupees", "rs", "₹", "under2k", "my", "your", "myself",
+  "him", "her", "his", "hers", "us", "our", "ours", "they", "their", "theirs", "them",
   "sister", "brother", "mom", "mum", "mother", "dad", "father", "wife", "husband",
   "friend", "friends", "colleague", "neighbour", "neighbor", "niece", "nephew",
   "son", "daughter", "cousin", "aunt", "uncle", "grandma", "grandma", "grandpa",
@@ -42,7 +43,9 @@ const OCCASIONS = {
 };
 
 export function parseQuery(q) {
-  let s = " " + String(q).toLowerCase().replace(/₹/g, " rs ") + " ";
+  // Devanagari digits ०-९ -> latin (before anything strips the script).
+  const rawQ = String(q).replace(/[\u0966-\u096F]/g, (d) => String("\u0966\u0967\u0968\u0969\u096A\u096B\u096C\u096D\u096E\u096F".indexOf(d)));
+  let s = " " + rawQ.toLowerCase().replace(/₹/g, " rs ") + " ";
   // S2: Devanagari product words -> their mapped tokens, added as latin
   // text; the original script is then stripped as usual.
   const dev = String(q).match(/[\u0900-\u097F]+/g);
@@ -50,6 +53,16 @@ export function parseQuery(q) {
     const m = HINGLISH_DEV[w];
     if (m) s += " " + m + " ";
   }
+  // Devanagari compound + unit words that must land NEXT TO their number
+  // (the run-mapping above appends at the end, which would break adjacency).
+  s = s.replace(/टी-शर्ट/g, " tshirt ")
+       .replace(/टन/g, " ton ").replace(/लीटर|लीटर/g, " litre ")
+       .replace(/इंच|इंच/g, " inch ").replace(/किलो/g, " kg ").replace(/वाट/g, " w ");
+  // Hinglish/Devanagari budget phrasings put the number FIRST:
+  // "1500 se kam", "20000 में", "2k tak", "2 हज़ार" -> canonical "under N".
+  // Runs while the Devanagari script is still present in `s`.
+  s = s.replace(/(\d{1,3})\s*(?:हज़ार|hazaar)(?![a-z])/g, "$1k");
+  s = s.replace(/(\d+(?:\.\d+)?\s*(?:k|lakh|l)?\s*)(?:से\s*कम|se\s+kam|के\s*अंदर|ke\s+andar|तक|tak|में|me)(?![a-z])/g, "under $1");
   s = s.replace(/[\u0900-\u097F]+/g, " ");
   // Spec units stuck to a number ("7kg", "1.5ton", "1100va", "500g") are
   // product specs, not budgets - normalise to "7 kg" so the tokens match

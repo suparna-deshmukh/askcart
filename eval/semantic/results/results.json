@@ -1,34 +1,34 @@
 {
- "generated_at": "2026-11-04T09:43:06.774Z",
+ "generated_at": "2026-11-04T12:27:03.648Z",
  "panel": "eval/semantic/panel.jsonl (frozen pre-run)",
  "arms": {
   "A": {
    "n": 50,
    "null": {
-    "k": 4,
+    "k": 5,
     "n": 50,
-    "pct": 8,
+    "pct": 10,
     "ci": [
-     3.2,
-     18.8
+     4.3,
+     21.4
     ]
    },
    "success_at3": {
-    "k": 26,
+    "k": 28,
     "n": 50,
-    "pct": 52,
+    "pct": 56,
     "ci": [
-     38.5,
-     65.2
+     42.3,
+     68.8
     ]
    },
    "usable_at3": {
-    "k": 41,
+    "k": 40,
     "n": 50,
-    "pct": 82,
+    "pct": 80,
     "ci": [
-     69.2,
-     90.2
+     67,
+     88.8
     ]
    },
    "questions_avg": 0.46,
@@ -45,26 +45,57 @@
       ]
      },
      "success_at3": {
-      "k": 11,
+      "k": 9,
       "n": 20,
-      "pct": 55,
+      "pct": 45,
       "ci": [
-       34.2,
-       74.2
+       25.8,
+       65.8
       ]
      },
      "usable_at3": {
-      "k": 18,
+      "k": 17,
       "n": 20,
-      "pct": 90,
+      "pct": 85,
       "ci": [
-       69.9,
-       97.2
+       64,
+       94.8
       ]
      },
      "questions_avg": 0
     },
     "vague": {
+     "n": 8,
+     "null": {
+      "k": 2,
+      "n": 8,
+      "pct": 25,
+      "ci": [
+       7.1,
+       59.1
+      ]
+     },
+     "success_at3": {
+      "k": 6,
+      "n": 8,
+      "pct": 75,
+      "ci": [
+       40.9,
+       92.9
+      ]
+     },
+     "usable_at3": {
+      "k": 6,
+      "n": 8,
+      "pct": 75,
+      "ci": [
+       40.9,
+       92.9
+      ]
+     },
+     "questions_avg": 0.75
+    },
+    "hinglish": {
      "n": 8,
      "null": {
       "k": 1,
@@ -82,37 +113,6 @@
       "ci": [
        30.6,
        86.3
-      ]
-     },
-     "usable_at3": {
-      "k": 7,
-      "n": 8,
-      "pct": 87.5,
-      "ci": [
-       52.9,
-       97.8
-      ]
-     },
-     "questions_avg": 0.75
-    },
-    "hinglish": {
-     "n": 8,
-     "null": {
-      "k": 1,
-      "n": 8,
-      "pct": 12.5,
-      "ci": [
-       2.2,
-       47.1
-      ]
-     },
-     "success_at3": {
-      "k": 4,
-      "n": 8,
-      "pct": 50,
-      "ci": [
-       21.5,
-       78.5
       ]
      },
      "usable_at3": {
@@ -138,12 +138,12 @@
       ]
      },
      "success_at3": {
-      "k": 4,
+      "k": 5,
       "n": 5,
-      "pct": 80,
+      "pct": 100,
       "ci": [
-       37.6,
-       96.4
+       56.6,
+       100
       ]
      },
      "usable_at3": {
@@ -169,21 +169,21 @@
       ]
      },
      "success_at3": {
-      "k": 2,
-      "n": 5,
-      "pct": 40,
-      "ci": [
-       11.8,
-       76.9
-      ]
-     },
-     "usable_at3": {
       "k": 3,
       "n": 5,
       "pct": 60,
       "ci": [
        23.1,
        88.2
+      ]
+     },
+     "usable_at3": {
+      "k": 4,
+      "n": 5,
+      "pct": 80,
+      "ci": [
+       37.6,
+       96.4
       ]
      },
      "questions_avg": 0.6
@@ -461,12 +461,12 @@
     ]
    },
    "usable_at3": {
-    "k": 41,
+    "k": 44,
     "n": 50,
-    "pct": 82,
+    "pct": 88,
     "ci": [
-     69.2,
-     90.2
+     76.2,
+     94.4
     ]
    },
    "questions_avg": 0.34,
@@ -492,12 +492,12 @@
       ]
      },
      "usable_at3": {
-      "k": 17,
+      "k": 19,
       "n": 20,
-      "pct": 85,
+      "pct": 95,
       "ci": [
-       64,
-       94.8
+       76.4,
+       99.1
       ]
      },
      "questions_avg": 0
@@ -514,12 +514,12 @@
       ]
      },
      "success_at3": {
-      "k": 7,
+      "k": 6,
       "n": 8,
-      "pct": 87.5,
+      "pct": 75,
       "ci": [
-       52.9,
-       97.8
+       40.9,
+       92.9
       ]
      },
      "usable_at3": {
@@ -607,21 +607,21 @@
       ]
      },
      "success_at3": {
-      "k": 2,
-      "n": 5,
-      "pct": 40,
-      "ci": [
-       11.8,
-       76.9
-      ]
-     },
-     "usable_at3": {
       "k": 3,
       "n": 5,
       "pct": 60,
       "ci": [
        23.1,
        88.2
+      ]
+     },
+     "usable_at3": {
+      "k": 4,
+      "n": 5,
+      "pct": 80,
+      "ci": [
+       37.6,
+       96.4
       ]
      },
      "questions_avg": 0.6
@@ -676,8 +676,8 @@
    "used": 36,
    "below_threshold": 14
   },
-  "p50_ms": 55,
-  "p95_ms": 83
+  "p50_ms": 19,
+  "p95_ms": 32
  },
  "cfg": {
   "provider": "local_onnx",
@@ -699,13 +699,6 @@
    "q": "didgeridoo",
    "top3": [
     {
-     "sku": "AC-29104",
-     "title": "Meera Rakhi Set 10",
-     "price": 239,
-     "brand": "Meera",
-     "intent": true
-    },
-    {
      "sku": "AC-29640",
      "title": "Myntra Rakhi Gift Box",
      "price": 389,
@@ -713,9 +706,16 @@
      "intent": true
     },
     {
-     "sku": "AC-31257",
-     "title": "Solimo Rakhi with Gift Set",
-     "price": 489,
+     "sku": "AC-29104",
+     "title": "Meera Rakhi Set 10",
+     "price": 239,
+     "brand": "Meera",
+     "intent": true
+    },
+    {
+     "sku": "AC-31256",
+     "title": "Solimo Rakhi Set 5",
+     "price": 139,
      "brand": "",
      "intent": true
     }
@@ -727,13 +727,6 @@
    "q": "hoverboard",
    "top3": [
     {
-     "sku": "AC-29104",
-     "title": "Meera Rakhi Set 10",
-     "price": 239,
-     "brand": "Meera",
-     "intent": true
-    },
-    {
      "sku": "AC-29640",
      "title": "Myntra Rakhi Gift Box",
      "price": 389,
@@ -741,9 +734,16 @@
      "intent": true
     },
     {
-     "sku": "AC-31257",
-     "title": "Solimo Rakhi with Gift Set",
-     "price": 489,
+     "sku": "AC-29104",
+     "title": "Meera Rakhi Set 10",
+     "price": 239,
+     "brand": "Meera",
+     "intent": true
+    },
+    {
+     "sku": "AC-31256",
+     "title": "Solimo Rakhi Set 5",
+     "price": 139,
      "brand": "",
      "intent": true
     }
@@ -755,13 +755,6 @@
    "q": "periscope",
    "top3": [
     {
-     "sku": "AC-29104",
-     "title": "Meera Rakhi Set 10",
-     "price": 239,
-     "brand": "Meera",
-     "intent": true
-    },
-    {
      "sku": "AC-29640",
      "title": "Myntra Rakhi Gift Box",
      "price": 389,
@@ -769,9 +762,16 @@
      "intent": true
     },
     {
-     "sku": "AC-31257",
-     "title": "Solimo Rakhi with Gift Set",
-     "price": 489,
+     "sku": "AC-29104",
+     "title": "Meera Rakhi Set 10",
+     "price": 239,
+     "brand": "Meera",
+     "intent": true
+    },
+    {
+     "sku": "AC-31256",
+     "title": "Solimo Rakhi Set 5",
+     "price": 139,
      "brand": "",
      "intent": true
     }
@@ -783,13 +783,6 @@
    "q": "bobsled",
    "top3": [
     {
-     "sku": "AC-29104",
-     "title": "Meera Rakhi Set 10",
-     "price": 239,
-     "brand": "Meera",
-     "intent": true
-    },
-    {
      "sku": "AC-29640",
      "title": "Myntra Rakhi Gift Box",
      "price": 389,
@@ -797,65 +790,16 @@
      "intent": true
     },
     {
-     "sku": "AC-31257",
-     "title": "Solimo Rakhi with Gift Set",
-     "price": 489,
-     "brand": "",
-     "intent": true
-    }
-   ]
-  },
-  {
-   "type": "irrelevant_top3",
-   "id": "s051",
-   "q": "gift under 20000 for men",
-   "top3": [
-    {
-     "sku": "AC-01382",
-     "title": "Superhero Capes and Mask for Kids Superhero Costumes for Boys Superhero Toys for Kids Dress up 4-10 Year Old Boy Gifts",
-     "price": 1399,
-     "brand": "",
+     "sku": "AC-29104",
+     "title": "Meera Rakhi Set 10",
+     "price": 239,
+     "brand": "Meera",
      "intent": true
     },
     {
-     "sku": "AC-02200",
-     "title": "SUNBVE Kids Girls Cute Fashion Soft Cotton Dress Socks Gift",
-     "price": 1909,
-     "brand": "",
-     "intent": true
-    },
-    {
-     "sku": "AC-00489",
-     "title": "Loritta 4 Pairs Womens Boot Socks Winter Warm Crochet Knitted Boot Cuffs Topper Socks Short Leg Warmers Gifts",
-     "price": 909,
-     "brand": "",
-     "intent": true
-    }
-   ]
-  },
-  {
-   "type": "irrelevant_top3",
-   "id": "s057",
-   "q": "birthday gift for husband",
-   "top3": [
-    {
-     "sku": "AC-01569",
-     "title": "Cute Cat Frog Rabbit Animal Pins, Personality Animation Enamel Pin Set, Brooches for Bag, Lapel, Buckle, Hat, Clothing Accessories, Birthday Gift, Christmas Presents",
-     "price": 829,
-     "brand": "",
-     "intent": true
-    },
-    {
-     "sku": "AC-03992",
-     "title": "Blue Orchards Horse Party Plates and Napkins Pack (52 Pieces for 16 Guests) - Horse Plates and Napkins, Horse Birthday Party, Cowboy Theme Party, Western Birthday Decorations, Wild Horse Party",
-     "price": 829,
-     "brand": "",
-     "intent": true
-    },
-    {
-     "sku": "AC-00298",
-     "title": "Teacher Appreciation Gifts for Women Men Teacher’s Day Thank You Gift for Teacher Tutor Mentor Professor 2023 Graduation Gift for Teacher Retirement Birthday Back to School Leaving Christmas Gift",
-     "price": 539,
+     "sku": "AC-31256",
+     "title": "Solimo Rakhi Set 5",
+     "price": 139,
      "brand": "",
      "intent": true
     }
@@ -916,34 +860,6 @@
      "intent": true
     }
    ]
-  },
-  {
-   "type": "irrelevant_top3",
-   "id": "s095",
-   "q": "gadget for tech lover",
-   "top3": [
-    {
-     "sku": "AC-03051",
-     "title": "KICHOUSE Korean Scoop Gadgets Spoons Cooker Cooking Soup Utensil Kitchen Paddle Non-stick Non‑deforming Potato Spatula Serving Wear-resistant Restaurant Utensils Non‑rusting Silver Steel",
-     "price": 809,
-     "brand": "",
-     "intent": false
-    },
-    {
-     "sku": "AC-03970",
-     "title": "Cute Ferrets Blanket Ferret Gifts for Women Ferret Lovers Lightweight Soft Flannel Fleece Throw Blankets for Couch Bed Sofa X-Small (40\"X30\")",
-     "price": 829,
-     "brand": "",
-     "intent": false
-    },
-    {
-     "sku": "AC-03109",
-     "title": "Cute Duck Blanket Duck Gifts for Duck Lovers Lightweight Soft Flannel White Throw Blankets for Couch Bedding Travel Sofa XS 30x40in, Pet/Toddler Gift",
-     "price": 829,
-     "brand": "",
-     "intent": false
-    }
-   ]
   }
  ],
  "records": {
@@ -973,10 +889,10 @@
       "intent": true
      },
      {
-      "sku": "AC-00489",
-      "title": "Loritta 4 Pairs Womens Boot Socks Winter Warm Crochet Knitted Boot Cuffs Topper Socks Short Leg Warmers Gifts",
-      "price": 909,
-      "brand": "",
+      "sku": "AC-33478",
+      "title": "Myntra Gifting Box for Her (White)",
+      "price": 3989,
+      "brand": "Myntra",
       "intent": true
      }
     ],
@@ -984,9 +900,9 @@
     "sem": {
      "used": false
     },
-    "ms": 322,
+    "ms": 180,
     "judge": [
-     2,
+     3,
      3,
      3
     ]
@@ -1027,11 +943,11 @@
     "sem": {
      "used": false
     },
-    "ms": 107,
+    "ms": 34,
     "judge": [
      3,
      2,
-     2
+     3
     ]
    },
    {
@@ -1070,10 +986,10 @@
     "sem": {
      "used": false
     },
-    "ms": 205,
+    "ms": 49,
     "judge": [
      2,
-     2,
+     3,
      3
     ]
    },
@@ -1113,11 +1029,11 @@
     "sem": {
      "used": false
     },
-    "ms": 216,
+    "ms": 52,
     "judge": [
      3,
      1,
-     2
+     3
     ]
    },
    {
@@ -1131,13 +1047,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
       "sku": "AC-29640",
       "title": "Myntra Rakhi Gift Box",
       "price": 389,
@@ -1145,10 +1054,17 @@
       "intent": true
      },
      {
-      "sku": "AC-33425",
-      "title": "Hattal Diwali Rangoli Kit",
-      "price": 189,
-      "brand": "Hattal",
+      "sku": "AC-33778",
+      "title": "Wipro AG Diwali String Lights 10 m 100 LED (5 m 50 LED)",
+      "price": 489,
+      "brand": "Wipro AG",
+      "intent": true
+     },
+     {
+      "sku": "AC-29104",
+      "title": "Meera Rakhi Set 10",
+      "price": 239,
+      "brand": "Meera",
       "intent": true
      }
     ],
@@ -1156,11 +1072,11 @@
     "sem": {
      "used": false
     },
-    "ms": 131,
+    "ms": 149,
     "judge": [
      2,
      2,
-     1
+     3
     ]
    },
    {
@@ -1199,11 +1115,11 @@
     "sem": {
      "used": false
     },
-    "ms": 7,
+    "ms": 2,
     "judge": [
      2,
      3,
-     2
+     3
     ]
    },
    {
@@ -1242,7 +1158,7 @@
     "sem": {
      "used": false
     },
-    "ms": 5,
+    "ms": 2,
     "judge": [
      3,
      3,
@@ -1285,7 +1201,7 @@
     "sem": {
      "used": false
     },
-    "ms": 6,
+    "ms": 1,
     "judge": [
      2,
      3,
@@ -1328,7 +1244,7 @@
     "sem": {
      "used": false
     },
-    "ms": 59,
+    "ms": 29,
     "judge": [
      2,
      2,
@@ -1371,10 +1287,10 @@
     "sem": {
      "used": false
     },
-    "ms": 4,
+    "ms": 2,
     "judge": [
      1,
-     2,
+     3,
      2
     ]
    },
@@ -1389,16 +1305,16 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-33321",
-      "title": "Dabur Henna Cones for Shaadi (25 g)",
-      "price": 89,
+      "sku": "AC-33322",
+      "title": "Dabur Henna Cones for Shaadi (50 g)",
+      "price": 189,
       "brand": "Dabur",
       "intent": true
      },
      {
-      "sku": "AC-33322",
-      "title": "Dabur Henna Cones for Shaadi (50 g)",
-      "price": 189,
+      "sku": "AC-33321",
+      "title": "Dabur Henna Cones for Shaadi (25 g)",
+      "price": 89,
       "brand": "Dabur",
       "intent": true
      },
@@ -1414,7 +1330,7 @@
     "sem": {
      "used": false
     },
-    "ms": 3,
+    "ms": 1,
     "judge": [
      2,
      2,
@@ -1457,10 +1373,10 @@
     "sem": {
      "used": false
     },
-    "ms": 3,
+    "ms": 1,
     "judge": [
      1,
-     2,
+     3,
      2
     ]
    },
@@ -1500,7 +1416,7 @@
     "sem": {
      "used": false
     },
-    "ms": 213,
+    "ms": 75,
     "judge": [
      1,
      1,
@@ -1512,42 +1428,42 @@
     "q": "anniversary gifts for him",
     "kind": "real_suggest",
     "arm": "0",
-    "intentN": 27,
+    "intentN": 39,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-07580",
-      "title": "Anniversary Gifts for Him - Gift for Husband - Keychain (Drive Safe- no one else will tolerate me)",
-      "price": 829,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-14776",
-      "title": "Personalized Leather 3rd Anniversary Gift for Him or Her, First Dance Song",
-      "price": 3079,
-      "brand": "",
-      "intent": true
-     },
-     {
       "sku": "AC-19775",
       "title": "Diamond Stud Earrings for Women, Hoop Earrings 1Ct-3Ct Moissanite Earrings, Gifts for Wife Mom Girlfriend, Annivers ary Jewelry Present for Wife, Birthday Valentines Gifts",
       "price": 13099,
       "brand": "",
-      "intent": false
+      "intent": true
+     },
+     {
+      "sku": "AC-03229",
+      "title": "PREZZY 70th Birthday Gifts for Girls Vintage Made In May 1953 70 Year Of Being Awesome Coffee Mug Floral Style Custom Name Ceramic Tea Cup 11oz 15oz Christmas Anniversary Cup Gift Ideas",
+      "price": 1249,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-14780",
+      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
+      "price": 2819,
+      "brand": "",
+      "intent": true
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false
     },
-    "ms": 345,
+    "ms": 87,
     "judge": [
-     1,
-     1,
-     3
+     3,
+     3,
+     2
     ]
    },
    {
@@ -1586,7 +1502,7 @@
     "sem": {
      "used": false
     },
-    "ms": 221,
+    "ms": 68,
     "judge": [
      3,
      3,
@@ -1629,7 +1545,7 @@
     "sem": {
      "used": false
     },
-    "ms": 110,
+    "ms": 41,
     "judge": [
      1,
      1,
@@ -1672,7 +1588,7 @@
     "sem": {
      "used": false
     },
-    "ms": 167,
+    "ms": 67,
     "judge": [
      1,
      1,
@@ -1715,7 +1631,7 @@
     "sem": {
      "used": false
     },
-    "ms": 168,
+    "ms": 64,
     "judge": [
      3,
      3,
@@ -1758,7 +1674,7 @@
     "sem": {
      "used": false
     },
-    "ms": 122,
+    "ms": 38,
     "judge": [
      1,
      1,
@@ -1801,7 +1717,7 @@
     "sem": {
      "used": false
     },
-    "ms": 181,
+    "ms": 45,
     "judge": [
      3,
      3,
@@ -1844,11 +1760,11 @@
     "sem": {
      "used": false
     },
-    "ms": 161,
+    "ms": 61,
     "judge": [
      2,
-     2,
-     2
+     1,
+     1
     ]
    },
    {
@@ -1856,14 +1772,14 @@
     "q": "kitchen organizer stuff",
     "kind": "vague",
     "arm": "0",
-    "intentN": 43,
-    "null": false,
+    "intentN": 0,
+    "null": true,
     "questions": 3,
     "slots": {
      "category": "amazon home",
      "budget": 1250,
      "flexible": false,
-     "occasion": "birthday"
+     "forWhom": "women"
     },
     "top3": [
      {
@@ -1878,25 +1794,25 @@
       "title": "winorax Personalized Fox Tumbler Foxes Jewelry Drawing Style Stainless Steel Insulated Tumblers Coffee Travel Mug Cup 20oz 30oz Stuff Birthday Christmas Fox Gifts For Women Girls",
       "price": 1659,
       "brand": "",
-      "intent": true
+      "intent": false
      },
      {
-      "sku": "AC-03992",
-      "title": "Blue Orchards Horse Party Plates and Napkins Pack (52 Pieces for 16 Guests) - Horse Plates and Napkins, Horse Birthday Party, Cowboy Theme Party, Western Birthday Decorations, Wild Horse Party",
-      "price": 829,
+      "sku": "AC-33249",
+      "title": "Amazon Basics Storage Organizer Set 6 pcs (3 pcs)",
+      "price": 789,
       "brand": "",
-      "intent": true
+      "intent": false
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false
     },
-    "ms": 1241,
+    "ms": 388,
     "judge": [
      1,
      3,
-     3
+     1
     ]
    },
    {
@@ -1935,11 +1851,11 @@
     "sem": {
      "used": false
     },
-    "ms": 179,
+    "ms": 53,
     "judge": [
-     2,
-     2,
-     2
+     3,
+     3,
+     3
     ]
    },
    {
@@ -1978,7 +1894,7 @@
     "sem": {
      "used": false
     },
-    "ms": 189,
+    "ms": 73,
     "judge": [
      1,
      2,
@@ -2021,7 +1937,7 @@
     "sem": {
      "used": false
     },
-    "ms": 162,
+    "ms": 63,
     "judge": [
      1,
      1,
@@ -2038,29 +1954,30 @@
     "questions": 3,
     "slots": {
      "forWhom": "women",
-     "occasion": "wedding / shaadi",
-     "size": "s"
+     "size": "s",
+     "budget": 1000,
+     "flexible": false
     },
     "top3": [
      {
-      "sku": "AC-00223",
-      "title": "Yovico 21-piece summer adjustable waterproof and fadeless surfing bracelet set handmade sunflower bracelet anklet friendship gift women's jewelry",
-      "price": 1159,
-      "brand": "",
+      "sku": "AC-32137",
+      "title": "W for Woman Summer Dress for Women (Green)",
+      "price": 969,
+      "brand": "W for Woman",
       "intent": false
      },
      {
-      "sku": "AC-01444",
-      "title": "Women's Summer Bodycon Maxi Dress - Casual Basic Club Party Ribbed Long Tight Tank Dresses",
-      "price": 1999,
-      "brand": "",
+      "sku": "AC-27287",
+      "title": "Fabindia Summer Dress for Women (Green)",
+      "price": 969,
+      "brand": "Fabindia",
       "intent": false
      },
      {
-      "sku": "AC-08932",
-      "title": "Yuanlar Women's Summer V Neck Sleeveless Maxi Dress Wraped Ruffles Party Dress Pleated Long Dress",
-      "price": 2919,
-      "brand": "",
+      "sku": "AC-28522",
+      "title": "Libas Summer Dress for Women (Blue)",
+      "price": 589,
+      "brand": "Libas",
       "intent": false
      }
     ],
@@ -2068,7 +1985,7 @@
     "sem": {
      "used": false
     },
-    "ms": 939,
+    "ms": 344,
     "judge": [
      3,
      3,
@@ -2111,7 +2028,7 @@
     "sem": {
      "used": false
     },
-    "ms": 60,
+    "ms": 25,
     "judge": [
      1,
      1,
@@ -2154,7 +2071,7 @@
     "sem": {
      "used": false
     },
-    "ms": 177,
+    "ms": 67,
     "judge": [
      1,
      1,
@@ -2197,7 +2114,7 @@
     "sem": {
      "used": false
     },
-    "ms": 7,
+    "ms": 3,
     "judge": [
      2,
      2,
@@ -2229,10 +2146,10 @@
       "intent": true
      },
      {
-      "sku": "AC-25676",
-      "title": "Anouk Bridal Lehenga Choli (Maroon)",
+      "sku": "AC-27481",
+      "title": "Global Desi Bridal Lehenga Choli (Maroon)",
       "price": 4989,
-      "brand": "Anouk",
+      "brand": "Global Desi",
       "intent": true
      }
     ],
@@ -2240,11 +2157,11 @@
     "sem": {
      "used": false
     },
-    "ms": 5,
+    "ms": 2,
     "judge": [
      2,
      2,
-     2
+     1
     ]
    },
    {
@@ -2258,24 +2175,24 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-31274",
-      "title": "Sportax Kolhapuri Chappal (UK 10)",
+      "sku": "AC-26685",
+      "title": "Bata Kolhapuri Chappal (UK 10)",
       "price": 1469,
-      "brand": "Sportax",
-      "intent": true
-     },
-     {
-      "sku": "AC-26688",
-      "title": "Bata Kolhapuri Chappal (UK 7)",
-      "price": 809,
       "brand": "Bata",
       "intent": true
      },
      {
-      "sku": "AC-30684",
-      "title": "Relaxo Kolhapuri Chappal (UK 7)",
-      "price": 809,
-      "brand": "Relaxo",
+      "sku": "AC-26690",
+      "title": "Bata Kolhapuri Chappal (UK 9)",
+      "price": 1249,
+      "brand": "Bata",
+      "intent": true
+     },
+     {
+      "sku": "AC-26687",
+      "title": "Bata Kolhapuri Chappal (UK 6)",
+      "price": 589,
+      "brand": "Bata",
       "intent": true
      }
     ],
@@ -2283,7 +2200,7 @@
     "sem": {
      "used": false
     },
-    "ms": 64,
+    "ms": 24,
     "judge": [
      1,
      1,
@@ -2301,13 +2218,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-33769",
-      "title": "Wipro AG Diwali Paper Lantern (Orange)",
-      "price": 789,
-      "brand": "Wipro AG",
-      "intent": true
-     },
-     {
       "sku": "AC-33523",
       "title": "Pepperfury Diwali Gift Hamper",
       "price": 1989,
@@ -2315,10 +2225,17 @@
       "intent": true
      },
      {
-      "sku": "AC-33551",
-      "title": "Philips Diwali Lantern (Gold)",
-      "price": 1289,
-      "brand": "Philips",
+      "sku": "AC-33769",
+      "title": "Wipro AG Diwali Paper Lantern (Orange)",
+      "price": 789,
+      "brand": "Wipro AG",
+      "intent": true
+     },
+     {
+      "sku": "AC-33628",
+      "title": "Syska Diwali String Light 100 (Multi Colour)",
+      "price": 3489,
+      "brand": "Syska",
       "intent": true
      }
     ],
@@ -2326,10 +2243,10 @@
     "sem": {
      "used": false
     },
-    "ms": 5,
+    "ms": 2,
     "judge": [
-     2,
      1,
+     2,
      2
     ]
    },
@@ -2343,9 +2260,9 @@
     "questions": 3,
     "slots": {
      "forWhom": "women",
-     "occasion": "wedding / shaadi",
      "budget": 1750,
-     "flexible": false
+     "flexible": false,
+     "brand": "best_rated"
     },
     "top3": [
      {
@@ -2374,7 +2291,7 @@
     "sem": {
      "used": false
     },
-    "ms": 841,
+    "ms": 336,
     "judge": [
      1,
      1,
@@ -2417,7 +2334,7 @@
     "sem": {
      "used": false
     },
-    "ms": 58,
+    "ms": 24,
     "judge": [
      2,
      2,
@@ -2449,10 +2366,10 @@
       "intent": true
      },
      {
-      "sku": "AC-30077",
-      "title": "Nixon Analog Watch for Men (Silver)",
-      "price": 10989,
-      "brand": "Nixon",
+      "sku": "AC-31152",
+      "title": "Seiko 5 Automatic Watch (Steel)",
+      "price": 19989,
+      "brand": "Seiko",
       "intent": true
      }
     ],
@@ -2460,10 +2377,10 @@
     "sem": {
      "used": false
     },
-    "ms": 110,
+    "ms": 37,
     "judge": [
-     2,
-     2,
+     1,
+     1,
      1
     ]
    },
@@ -2503,7 +2420,7 @@
     "sem": {
      "used": false
     },
-    "ms": 15,
+    "ms": 5,
     "judge": [
      2,
      2,
@@ -2546,7 +2463,7 @@
     "sem": {
      "used": false
     },
-    "ms": 396,
+    "ms": 60,
     "judge": [
      1,
      1,
@@ -2564,24 +2481,24 @@
     "slots": {},
     "top3": [
      {
+      "sku": "AC-26985",
+      "title": "Fabindia Bhagalpur Silk Saree (Green)",
+      "price": 10989,
+      "brand": "Fabindia",
+      "intent": true
+     },
+     {
+      "sku": "AC-28738",
+      "title": "Manyavar Kanjivaram Silk Saree (Peacock)",
+      "price": 20489,
+      "brand": "Manyavar",
+      "intent": true
+     },
+     {
       "sku": "AC-26984",
       "title": "Fabindia Bhagalpur Silk Saree (Blue)",
       "price": 14989,
       "brand": "Fabindia",
-      "intent": true
-     },
-     {
-      "sku": "AC-26986",
-      "title": "Fabindia Bhagalpur Silk Saree (Red)",
-      "price": 6989,
-      "brand": "Fabindia",
-      "intent": true
-     },
-     {
-      "sku": "AC-28737",
-      "title": "Manyavar Kanjivaram Silk Saree (Maroon)",
-      "price": 12989,
-      "brand": "Manyavar",
       "intent": true
      }
     ],
@@ -2589,7 +2506,7 @@
     "sem": {
      "used": false
     },
-    "ms": 79,
+    "ms": 33,
     "judge": [
      1,
      1,
@@ -2607,21 +2524,21 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-34222",
+      "sku": "AC-34230",
       "title": "LG Microwave 23 L Solo (23 L)",
       "price": 13989,
       "brand": "LG",
       "intent": true
      },
      {
-      "sku": "AC-34181",
+      "sku": "AC-34187",
       "title": "IFB Microwave 28 L Convection (32 L)",
       "price": 24989,
       "brand": "IFB",
       "intent": true
      },
      {
-      "sku": "AC-34180",
+      "sku": "AC-34186",
       "title": "IFB Microwave 28 L Convection (28 L)",
       "price": 18989,
       "brand": "IFB",
@@ -2632,7 +2549,7 @@
     "sem": {
      "used": false
     },
-    "ms": 66,
+    "ms": 25,
     "judge": [
      1,
      1,
@@ -2675,11 +2592,11 @@
     "sem": {
      "used": false
     },
-    "ms": 80,
+    "ms": 29,
     "judge": [
      3,
-     2,
-     2
+     1,
+     1
     ]
    },
    {
@@ -2692,9 +2609,9 @@
     "questions": 3,
     "slots": {
      "forWhom": "women",
-     "occasion": "wedding / shaadi",
      "budget": 1250,
-     "flexible": false
+     "flexible": false,
+     "brand": "best_rated"
     },
     "top3": [
      {
@@ -2723,11 +2640,11 @@
     "sem": {
      "used": false
     },
-    "ms": 1012,
+    "ms": 312,
     "judge": [
      1,
      1,
-     3
+     2
     ]
    },
    {
@@ -2766,7 +2683,7 @@
     "sem": {
      "used": false
     },
-    "ms": 235,
+    "ms": 52,
     "judge": [
      3,
      1,
@@ -2809,7 +2726,7 @@
     "sem": {
      "used": false
     },
-    "ms": 83,
+    "ms": 26,
     "judge": [
      1,
      2,
@@ -2852,7 +2769,7 @@
     "sem": {
      "used": false
     },
-    "ms": 173,
+    "ms": 48,
     "judge": [
      3,
      3,
@@ -2871,16 +2788,9 @@
      "category": "amazon home",
      "budget": 1250,
      "flexible": false,
-     "occasion": "wedding / shaadi"
+     "forWhom": "women"
     },
     "top3": [
-     {
-      "sku": "AC-03051",
-      "title": "KICHOUSE Korean Scoop Gadgets Spoons Cooker Cooking Soup Utensil Kitchen Paddle Non-stick Non‑deforming Potato Spatula Serving Wear-resistant Restaurant Utensils Non‑rusting Silver Steel",
-      "price": 809,
-      "brand": "",
-      "intent": false
-     },
      {
       "sku": "AC-03970",
       "title": "Cute Ferrets Blanket Ferret Gifts for Women Ferret Lovers Lightweight Soft Flannel Fleece Throw Blankets for Couch Bed Sofa X-Small (40\"X30\")",
@@ -2889,9 +2799,16 @@
       "intent": false
      },
      {
-      "sku": "AC-03109",
-      "title": "Cute Duck Blanket Duck Gifts for Duck Lovers Lightweight Soft Flannel White Throw Blankets for Couch Bedding Travel Sofa XS 30x40in, Pet/Toddler Gift",
-      "price": 829,
+      "sku": "AC-03530",
+      "title": "COFISUKI Ceramic Coffee Mug - Cute Mug Gifts for Women or Coffee Lovers, Funny Coffee or Tea Cup for Office and Home, Ceramic Cups12 oz",
+      "price": 579,
+      "brand": "",
+      "intent": false
+     },
+     {
+      "sku": "AC-03051",
+      "title": "KICHOUSE Korean Scoop Gadgets Spoons Cooker Cooking Soup Utensil Kitchen Paddle Non-stick Non‑deforming Potato Spatula Serving Wear-resistant Restaurant Utensils Non‑rusting Silver Steel",
+      "price": 809,
       "brand": "",
       "intent": false
      }
@@ -2900,11 +2817,11 @@
     "sem": {
      "used": false
     },
-    "ms": 1464,
+    "ms": 482,
     "judge": [
      3,
      3,
-     3
+     2
     ]
    },
    {
@@ -2918,24 +2835,24 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-08302",
-      "title": "WiFi Camera Indoor Security Camera 2K 5GHz & 2.4GHz Security Camera Cameras for Baby/Elder/Dog/Pet Camera with Phone app Smartphone",
-      "price": 1659,
-      "brand": "",
+      "sku": "AC-35020",
+      "title": "Nokia 105 (2023) 1.8 inch",
+      "price": 989,
+      "brand": "Nokia",
       "intent": true
      },
      {
-      "sku": "AC-24618",
-      "title": "Marantec Maveo Bluefi Stick Wi-Fi Smartphone Connection to Garage Openers Synergy 200 and 300 Series",
-      "price": 3619,
-      "brand": "",
+      "sku": "AC-35023",
+      "title": "Nokia 220 2.8 inch FM",
+      "price": 2289,
+      "brand": "Nokia",
       "intent": true
      },
      {
-      "sku": "AC-24765",
-      "title": "Redmi A3 (4 GB RAM, 64 GB Storage) Smartphone",
-      "price": 6499,
-      "brand": "Redmi",
+      "sku": "AC-35021",
+      "title": "Nokia 110 2.4 inch",
+      "price": 1489,
+      "brand": "Nokia",
       "intent": true
      }
     ],
@@ -2943,11 +2860,11 @@
     "sem": {
      "used": false
     },
-    "ms": 125,
+    "ms": 123,
     "judge": [
-     3,
-     3,
-     2
+     1,
+     1,
+     1
     ]
    },
    {
@@ -2964,13 +2881,6 @@
     },
     "top3": [
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
       "sku": "AC-29640",
       "title": "Myntra Rakhi Gift Box",
       "price": 389,
@@ -2978,9 +2888,16 @@
       "intent": true
      },
      {
-      "sku": "AC-31257",
-      "title": "Solimo Rakhi with Gift Set",
-      "price": 489,
+      "sku": "AC-29104",
+      "title": "Meera Rakhi Set 10",
+      "price": 239,
+      "brand": "Meera",
+      "intent": true
+     },
+     {
+      "sku": "AC-31256",
+      "title": "Solimo Rakhi Set 5",
+      "price": 139,
       "brand": "",
       "intent": true
      }
@@ -2989,7 +2906,7 @@
     "sem": {
      "used": false
     },
-    "ms": 577,
+    "ms": 153,
     "judge": [
      3,
      3,
@@ -3010,13 +2927,6 @@
     },
     "top3": [
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
       "sku": "AC-29640",
       "title": "Myntra Rakhi Gift Box",
       "price": 389,
@@ -3024,9 +2934,16 @@
       "intent": true
      },
      {
-      "sku": "AC-31257",
-      "title": "Solimo Rakhi with Gift Set",
-      "price": 489,
+      "sku": "AC-29104",
+      "title": "Meera Rakhi Set 10",
+      "price": 239,
+      "brand": "Meera",
+      "intent": true
+     },
+     {
+      "sku": "AC-31256",
+      "title": "Solimo Rakhi Set 5",
+      "price": 139,
       "brand": "",
       "intent": true
      }
@@ -3035,7 +2952,7 @@
     "sem": {
      "used": false
     },
-    "ms": 400,
+    "ms": 157,
     "judge": [
      3,
      3,
@@ -3056,13 +2973,6 @@
     },
     "top3": [
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
       "sku": "AC-29640",
       "title": "Myntra Rakhi Gift Box",
       "price": 389,
@@ -3070,9 +2980,16 @@
       "intent": true
      },
      {
-      "sku": "AC-31257",
-      "title": "Solimo Rakhi with Gift Set",
-      "price": 489,
+      "sku": "AC-29104",
+      "title": "Meera Rakhi Set 10",
+      "price": 239,
+      "brand": "Meera",
+      "intent": true
+     },
+     {
+      "sku": "AC-31256",
+      "title": "Solimo Rakhi Set 5",
+      "price": 139,
       "brand": "",
       "intent": true
      }
@@ -3081,7 +2998,7 @@
     "sem": {
      "used": false
     },
-    "ms": 579,
+    "ms": 163,
     "judge": [
      3,
      3,
@@ -3102,13 +3019,6 @@
     },
     "top3": [
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
       "sku": "AC-29640",
       "title": "Myntra Rakhi Gift Box",
       "price": 389,
@@ -3116,9 +3026,16 @@
       "intent": true
      },
      {
-      "sku": "AC-31257",
-      "title": "Solimo Rakhi with Gift Set",
-      "price": 489,
+      "sku": "AC-29104",
+      "title": "Meera Rakhi Set 10",
+      "price": 239,
+      "brand": "Meera",
+      "intent": true
+     },
+     {
+      "sku": "AC-31256",
+      "title": "Solimo Rakhi Set 5",
+      "price": 139,
       "brand": "",
       "intent": true
      }
@@ -3127,7 +3044,7 @@
     "sem": {
      "used": false
     },
-    "ms": 410,
+    "ms": 150,
     "judge": [
      3,
      3,
@@ -3164,7 +3081,7 @@
     "n_results": 2,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07653",
@@ -3187,9 +3104,9 @@
      ],
      "added": 2,
      "top_cos": 0.851,
-     "ms": 1190
+     "ms": 558
     },
-    "ms": 1196
+    "ms": 561
    },
    {
     "id": "s052",
@@ -3226,7 +3143,7 @@
     "n_results": 20,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00112",
@@ -3249,9 +3166,9 @@
      ],
      "added": 20,
      "top_cos": 0.856,
-     "ms": 46
+     "ms": 22
     },
-    "ms": 140
+    "ms": 46
    },
    {
     "id": "s053",
@@ -3288,7 +3205,7 @@
     "n_results": 6,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-04288",
@@ -3311,9 +3228,9 @@
      ],
      "added": 6,
      "top_cos": 0.852,
-     "ms": 42
+     "ms": 19
     },
-    "ms": 127
+    "ms": 67
    },
    {
     "id": "s054",
@@ -3350,7 +3267,7 @@
     "n_results": 5,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-31257",
@@ -3373,9 +3290,9 @@
      ],
      "added": 5,
      "top_cos": 0.868,
-     "ms": 43
+     "ms": 22
     },
-    "ms": 140
+    "ms": 72
    },
    {
     "id": "s055",
@@ -3412,7 +3329,7 @@
     "n_results": 3,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-31257",
@@ -3435,9 +3352,9 @@
      ],
      "added": 3,
      "top_cos": 0.868,
-     "ms": 35
+     "ms": 22
     },
-    "ms": 129
+    "ms": 72
    },
    {
     "id": "s056",
@@ -3474,7 +3391,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07415",
@@ -3497,9 +3414,9 @@
      ],
      "added": 48,
      "top_cos": 0.88,
-     "ms": 39
+     "ms": 21
     },
-    "ms": 43
+    "ms": 24
    },
    {
     "id": "s057",
@@ -3536,7 +3453,7 @@
     "n_results": 5,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07603",
@@ -3559,9 +3476,9 @@
      ],
      "added": 5,
      "top_cos": 0.858,
-     "ms": 40
+     "ms": 21
     },
-    "ms": 43
+    "ms": 25
    },
    {
     "id": "s058",
@@ -3598,7 +3515,7 @@
     "n_results": 28,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-02972",
@@ -3621,9 +3538,9 @@
      ],
      "added": 28,
      "top_cos": 0.873,
-     "ms": 43
+     "ms": 22
     },
-    "ms": 47
+    "ms": 24
    },
    {
     "id": "s059",
@@ -3653,7 +3570,7 @@
     "n_results": 2,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-06660",
@@ -3676,9 +3593,9 @@
      ],
      "added": 2,
      "top_cos": 0.88,
-     "ms": 55
+     "ms": 21
     },
-    "ms": 108
+    "ms": 45
    },
    {
     "id": "s060",
@@ -3715,7 +3632,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-14690",
@@ -3738,9 +3655,9 @@
      ],
      "added": 48,
      "top_cos": 0.889,
-     "ms": 54
+     "ms": 21
     },
-    "ms": 56
+    "ms": 22
    },
    {
     "id": "s061",
@@ -3770,7 +3687,7 @@
     "n_results": 2,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-01205",
@@ -3787,9 +3704,9 @@
      ],
      "added": 2,
      "top_cos": 0.856,
-     "ms": 65
+     "ms": 27
     },
-    "ms": 67
+    "ms": 30
    },
    {
     "id": "s062",
@@ -3826,7 +3743,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-14690",
@@ -3849,9 +3766,9 @@
      ],
      "added": 48,
      "top_cos": 0.889,
-     "ms": 59
+     "ms": 27
     },
-    "ms": 61
+    "ms": 28
    },
    {
     "id": "s063",
@@ -3888,7 +3805,7 @@
     "n_results": 16,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-03687",
@@ -3911,9 +3828,9 @@
      ],
      "added": 16,
      "top_cos": 0.868,
-     "ms": 37
+     "ms": 23
     },
-    "ms": 170
+    "ms": 100
    },
    {
     "id": "s064",
@@ -3950,7 +3867,7 @@
     "n_results": 7,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07580",
@@ -3973,9 +3890,9 @@
      ],
      "added": 7,
      "top_cos": 0.886,
-     "ms": 36
+     "ms": 20
     },
-    "ms": 240
+    "ms": 108
    },
    {
     "id": "s065",
@@ -4012,7 +3929,7 @@
     "n_results": 8,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07580",
@@ -4035,9 +3952,9 @@
      ],
      "added": 8,
      "top_cos": 0.89,
-     "ms": 36
+     "ms": 20
     },
-    "ms": 167
+    "ms": 94
    },
    {
     "id": "s066",
@@ -4074,7 +3991,7 @@
     "n_results": 43,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00838",
@@ -4097,9 +4014,9 @@
      ],
      "added": 43,
      "top_cos": 0.882,
-     "ms": 43
+     "ms": 18
     },
-    "ms": 145
+    "ms": 62
    },
    {
     "id": "s067",
@@ -4136,7 +4053,7 @@
     "n_results": 6,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00838",
@@ -4159,9 +4076,9 @@
      ],
      "added": 6,
      "top_cos": 0.855,
-     "ms": 33
+     "ms": 17
     },
-    "ms": 182
+    "ms": 82
    },
    {
     "id": "s068",
@@ -4198,7 +4115,7 @@
     "n_results": 43,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00838",
@@ -4221,9 +4138,9 @@
      ],
      "added": 43,
      "top_cos": 0.882,
-     "ms": 33
+     "ms": 19
     },
-    "ms": 151
+    "ms": 83
    },
    {
     "id": "s069",
@@ -4260,7 +4177,7 @@
     "n_results": 40,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00838",
@@ -4283,9 +4200,9 @@
      ],
      "added": 40,
      "top_cos": 0.882,
-     "ms": 35
+     "ms": 17
     },
-    "ms": 106
+    "ms": 56
    },
    {
     "id": "s070",
@@ -4322,7 +4239,7 @@
     "n_results": 32,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-04147",
@@ -4345,9 +4262,9 @@
      ],
      "added": 32,
      "top_cos": 0.887,
-     "ms": 37
+     "ms": 20
     },
-    "ms": 119
+    "ms": 64
    },
    {
     "id": "s071",
@@ -4384,7 +4301,7 @@
     "n_results": 32,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07653",
@@ -4407,9 +4324,9 @@
      ],
      "added": 32,
      "top_cos": 0.862,
-     "ms": 47
+     "ms": 19
     },
-    "ms": 58
+    "ms": 26
    },
    {
     "id": "s072",
@@ -4446,7 +4363,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-14471",
@@ -4469,9 +4386,9 @@
      ],
      "added": 48,
      "top_cos": 0.88,
-     "ms": 56
+     "ms": 17
     },
-    "ms": 274
+    "ms": 63
    },
    {
     "id": "s073",
@@ -4508,7 +4425,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-14811",
@@ -4531,9 +4448,9 @@
      ],
      "added": 48,
      "top_cos": 0.87,
-     "ms": 54
+     "ms": 18
     },
-    "ms": 216
+    "ms": 69
    },
    {
     "id": "s074",
@@ -4570,7 +4487,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-11316",
@@ -4593,9 +4510,9 @@
      ],
      "added": 48,
      "top_cos": 0.888,
-     "ms": 46
+     "ms": 19
     },
-    "ms": 290
+    "ms": 103
    },
    {
     "id": "s075",
@@ -4632,7 +4549,7 @@
     "n_results": 47,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-22461",
@@ -4655,9 +4572,9 @@
      ],
      "added": 47,
      "top_cos": 0.867,
-     "ms": 47
+     "ms": 19
     },
-    "ms": 213
+    "ms": 88
    },
    {
     "id": "s076",
@@ -4694,7 +4611,7 @@
     "n_results": 5,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-17853",
@@ -4717,9 +4634,9 @@
      ],
      "added": 5,
      "top_cos": 0.853,
-     "ms": 69
+     "ms": 21
     },
-    "ms": 215
+    "ms": 73
    },
    {
     "id": "s077",
@@ -4756,7 +4673,7 @@
     "n_results": 4,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-02204",
@@ -4779,9 +4696,9 @@
      ],
      "added": 4,
      "top_cos": 0.865,
-     "ms": 54
+     "ms": 19
     },
-    "ms": 157
+    "ms": 44
    },
    {
     "id": "s078",
@@ -4818,7 +4735,7 @@
     "n_results": 10,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00298",
@@ -4841,9 +4758,9 @@
      ],
      "added": 10,
      "top_cos": 0.889,
-     "ms": 50
+     "ms": 19
     },
-    "ms": 225
+    "ms": 86
    },
    {
     "id": "s079",
@@ -4880,7 +4797,7 @@
     "n_results": 13,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07537",
@@ -4903,9 +4820,9 @@
      ],
      "added": 13,
      "top_cos": 0.854,
-     "ms": 62
+     "ms": 19
     },
-    "ms": 68
+    "ms": 22
    },
    {
     "id": "s080",
@@ -4923,7 +4840,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-02875",
@@ -4945,9 +4862,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 50
+     "ms": 18
     },
-    "ms": 221
+    "ms": 81
    },
    {
     "id": "s081",
@@ -4958,21 +4875,21 @@
     "null": true,
     "questions": 3,
     "slots": {
-     "occasion": "diwali",
      "budget": 500,
      "flexible": false,
-     "brand": "best_rated"
+     "brand": "best_rated",
+     "category": "amazon fashion"
     },
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [],
      "reason": "below_threshold",
-     "ms": 44
+     "ms": 16
     },
-    "ms": 732
+    "ms": 245
    },
    {
     "id": "s082",
@@ -5009,7 +4926,7 @@
     "n_results": 8,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-31257",
@@ -5032,9 +4949,9 @@
      ],
      "added": 8,
      "top_cos": 0.881,
-     "ms": 51
+     "ms": 19
     },
-    "ms": 56
+    "ms": 21
    },
    {
     "id": "s083",
@@ -5046,39 +4963,20 @@
     "questions": 3,
     "slots": {
      "forWhom": "women",
-     "occasion": "wedding / shaadi",
      "budget": 1750,
-     "flexible": false
+     "flexible": false,
+     "brand": "best_rated"
     },
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
-     "top": [
-      {
-       "sku": "AC-01397",
-       "title": "Angelica Collection Antique Smooth Finish Brass Mind, Body and Soul Expandable Bangle",
-       "price": 1249,
-       "cos": 0.821
-      },
-      {
-       "sku": "AC-00623",
-       "title": "Angelica Collection Antique Stipple Finish Brass Caduceus Expandable Bangle",
-       "price": 1249,
-       "cos": 0.819
-      },
-      {
-       "sku": "AC-01265",
-       "title": "Angelica Collection Non-antique Stipple Finish Brass sailor's Knot Expandable Bangle",
-       "price": 1249,
-       "cos": 0.819
-      }
-     ],
+     "index_load_ms": 6,
+     "top": [],
      "reason": "below_threshold",
-     "ms": 32
+     "ms": 17
     },
-    "ms": 801
+    "ms": 430
    },
    {
     "id": "s084",
@@ -5115,7 +5013,7 @@
     "n_results": 11,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-31257",
@@ -5138,61 +5036,53 @@
      ],
      "added": 11,
      "top_cos": 0.858,
-     "ms": 36
+     "ms": 19
     },
-    "ms": 83
+    "ms": 43
    },
    {
     "id": "s085",
     "q": "bhaiya ke liye watch",
     "kind": "hinglish",
     "arm": "only",
-    "intentN": 1,
+    "intentN": 0,
     "null": true,
     "questions": 3,
     "slots": {
      "forWhom": "women",
-     "occasion": "birthday",
-     "size": "xs"
+     "size": "xs",
+     "budget": 1250,
+     "flexible": false
     },
-    "top3": [
-     {
-      "sku": "AC-12588",
-      "title": "PANHUI Smart Watch",
-      "price": 2229,
-      "brand": "",
-      "intent": true
-     }
-    ],
-    "n_results": 1,
+    "top3": [],
+    "n_results": 0,
     "sem": {
-     "used": true,
-     "index_load_ms": 8,
+     "used": false,
+     "index_load_ms": 6,
      "top": [
       {
-       "sku": "AC-12588",
-       "title": "PANHUI Smart Watch",
-       "price": 2229,
-       "cos": 0.847
+       "sku": "AC-04491",
+       "title": "Byikun Smart Watch That Can Text and Call, 116S Heart Rate Watch Smart Wristband Waterproof Sports Watch for Men Women, Fitness Watch, Activity Trackers and Smartwatches for iPhone Android",
+       "price": 579,
+       "cos": 0.828
       },
       {
-       "sku": "AC-16691",
-       "title": "Swatch Ishtar by Jean-Michel Basquiat Quartz Watch",
-       "price": 8269,
-       "cos": 0.839
+       "sku": "AC-24738",
+       "title": "JewelryWe Womens Handmade Braid Watch Analog Quartz Bracelet Dress Watch Vintage Adjustable Weave Wristwatch",
+       "price": 999,
+       "cos": 0.825
       },
       {
-       "sku": "AC-12787",
-       "title": "PANHUI Smart Watch Fitness Watch with Blood Pressure Heart Rate Monitor Bluetooth Phone Watch IP67 Waterproof Smartwatch",
-       "price": 2199,
-       "cos": 0.838
+       "sku": "AC-26881",
+       "title": "Casio F-91W Digital Watch (Black)",
+       "price": 1189,
+       "cos": 0.825
       }
      ],
-     "added": 1,
-     "top_cos": 0.847,
-     "ms": 32
+     "reason": "below_threshold",
+     "ms": 16
     },
-    "ms": 600
+    "ms": 309
    },
    {
     "id": "s086",
@@ -5229,7 +5119,7 @@
     "n_results": 14,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-09480",
@@ -5252,9 +5142,9 @@
      ],
      "added": 14,
      "top_cos": 0.868,
-     "ms": 37
+     "ms": 22
     },
-    "ms": 40
+    "ms": 24
    },
    {
     "id": "s087",
@@ -5274,12 +5164,12 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [],
      "reason": "below_threshold",
-     "ms": 43
+     "ms": 16
     },
-    "ms": 1155
+    "ms": 460
    },
    {
     "id": "s088",
@@ -5316,7 +5206,7 @@
     "n_results": 19,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-31139",
@@ -5339,9 +5229,9 @@
      ],
      "added": 19,
      "top_cos": 0.859,
-     "ms": 53
+     "ms": 17
     },
-    "ms": 155
+    "ms": 48
    },
    {
     "id": "s089",
@@ -5361,12 +5251,12 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [],
      "reason": "below_threshold",
-     "ms": 43
+     "ms": 16
     },
-    "ms": 755
+    "ms": 256
    },
    {
     "id": "s090",
@@ -5377,38 +5267,39 @@
     "null": true,
     "questions": 2,
     "slots": {
-     "occasion": "birthday",
-     "size": "xs"
+     "size": "xs",
+     "budget": 1250,
+     "flexible": false
     },
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
-       "sku": "AC-17143",
-       "title": "Hush Puppies Men's Heath Wt Oxford",
-       "price": 5769,
-       "cos": 0.825
+       "sku": "AC-27799",
+       "title": "HRX by Hrithik Roshan Slim Fit Jeans for Men (Dark Wash)",
+       "price": 989,
+       "cos": 0.808
       },
       {
-       "sku": "AC-23199",
-       "title": "Lucchese Bootmaker Men's Rudy Square Toe Cowboy Boots Western",
-       "price": 26289,
-       "cos": 0.825
+       "sku": "AC-27859",
+       "title": "Jockey Wallet for Men (Black)",
+       "price": 589,
+       "cos": 0.808
       },
       {
-       "sku": "AC-19884",
-       "title": "ARIAT Men's Wexford Waterproof Country Boot",
-       "price": 16019,
-       "cos": 0.823
+       "sku": "AC-27854",
+       "title": "Jockey Vests 2 Pack for Men (L)",
+       "price": 1029,
+       "cos": 0.807
       }
      ],
      "reason": "below_threshold",
-     "ms": 45
+     "ms": 16
     },
-    "ms": 712
+    "ms": 230
    },
    {
     "id": "s091",
@@ -5420,39 +5311,20 @@
     "questions": 3,
     "slots": {
      "forWhom": "women",
-     "occasion": "wedding / shaadi",
      "budget": 1250,
-     "flexible": false
+     "flexible": false,
+     "brand": "best_rated"
     },
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
-     "top": [
-      {
-       "sku": "AC-00993",
-       "title": "Angelica Collection Non-Antique Stipple Finish Brass Golf Expandable Bangle",
-       "price": 1249,
-       "cos": 0.827
-      },
-      {
-       "sku": "AC-27477",
-       "title": "Global Desi Bangle Set 6 pcs (10 pcs)",
-       "price": 789,
-       "cos": 0.815
-      },
-      {
-       "sku": "AC-01943",
-       "title": "Angelica Collection Antique Smooth Finish Brass claddagh Expandable Bangle",
-       "price": 1249,
-       "cos": 0.815
-      }
-     ],
+     "index_load_ms": 6,
+     "top": [],
      "reason": "below_threshold",
-     "ms": 45
+     "ms": 18
     },
-    "ms": 1179
+    "ms": 404
    },
    {
     "id": "s092",
@@ -5489,7 +5361,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-23254",
@@ -5512,9 +5384,9 @@
      ],
      "added": 48,
      "top_cos": 0.879,
-     "ms": 62
+     "ms": 20
     },
-    "ms": 267
+    "ms": 74
    },
    {
     "id": "s093",
@@ -5525,21 +5397,21 @@
     "null": true,
     "questions": 3,
     "slots": {
-     "occasion": "diwali",
      "budget": 250,
      "flexible": false,
-     "brand": "best_rated"
+     "brand": "best_rated",
+     "category": "amazon fashion"
     },
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [],
      "reason": "below_threshold",
-     "ms": 63
+     "ms": 19
     },
-    "ms": 792
+    "ms": 277
    },
    {
     "id": "s094",
@@ -5565,7 +5437,7 @@
     "n_results": 1,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-10077",
@@ -5588,9 +5460,9 @@
      ],
      "added": 1,
      "top_cos": 0.846,
-     "ms": 54
+     "ms": 16
     },
-    "ms": 1128
+    "ms": 360
    },
    {
     "id": "s095",
@@ -5604,13 +5476,13 @@
      "category": "amazon home",
      "budget": 1250,
      "flexible": false,
-     "occasion": "wedding / shaadi"
+     "forWhom": "women"
     },
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-05459",
@@ -5619,22 +5491,22 @@
        "cos": 0.821
       },
       {
-       "sku": "AC-34573",
+       "sku": "AC-34588",
        "title": "Amazon Basics Bike GPS Tracker",
        "price": 989,
-       "cos": 0.817
+       "cos": 0.819
       },
       {
-       "sku": "AC-36033",
+       "sku": "AC-36048",
        "title": "VTech Action Figure (Single)",
        "price": 789,
-       "cos": 0.817
+       "cos": 0.818
       }
      ],
      "reason": "below_threshold",
-     "ms": 44
+     "ms": 16
     },
-    "ms": 1753
+    "ms": 546
    },
    {
     "id": "s096",
@@ -5646,18 +5518,18 @@
     "questions": 2,
     "slots": {
      "brand": "best_rated",
-     "category": "computers"
+     "forWhom": "women"
     },
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [],
      "reason": "below_threshold",
-     "ms": 46
+     "ms": 16
     },
-    "ms": 867
+    "ms": 323
    },
    {
     "id": "s097",
@@ -5676,7 +5548,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-20213",
@@ -5698,9 +5570,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 45
+     "ms": 17
     },
-    "ms": 877
+    "ms": 294
    },
    {
     "id": "s098",
@@ -5719,7 +5591,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-22561",
@@ -5741,9 +5613,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 53
+     "ms": 17
     },
-    "ms": 1100
+    "ms": 295
    },
    {
     "id": "s099",
@@ -5762,7 +5634,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00834",
@@ -5784,9 +5656,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 51
+     "ms": 18
     },
-    "ms": 955
+    "ms": 302
    },
    {
     "id": "s100",
@@ -5805,7 +5677,7 @@
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-06144",
@@ -5827,9 +5699,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 48
+     "ms": 25
     },
-    "ms": 913
+    "ms": 341
    }
   ],
   "C": [
@@ -5858,17 +5730,17 @@
       "intent": true
      },
      {
-      "sku": "AC-00489",
-      "title": "Loritta 4 Pairs Womens Boot Socks Winter Warm Crochet Knitted Boot Cuffs Topper Socks Short Leg Warmers Gifts",
-      "price": 909,
-      "brand": "",
+      "sku": "AC-33478",
+      "title": "Myntra Gifting Box for Her (White)",
+      "price": 3989,
+      "brand": "Myntra",
       "intent": true
      }
     ],
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07653",
@@ -5891,11 +5763,11 @@
      ],
      "added": 1,
      "top_cos": 0.851,
-     "ms": 45
+     "ms": 54
     },
-    "ms": 49,
+    "ms": 65,
     "judge": [
-     3,
+     2,
      3,
      3
     ]
@@ -5935,7 +5807,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00112",
@@ -5958,9 +5830,9 @@
      ],
      "added": 1,
      "top_cos": 0.856,
-     "ms": 40
+     "ms": 22
     },
-    "ms": 101,
+    "ms": 91,
     "judge": [
      3,
      2,
@@ -6002,7 +5874,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-04288",
@@ -6025,12 +5897,12 @@
      ],
      "added": 1,
      "top_cos": 0.852,
-     "ms": 47
+     "ms": 24
     },
-    "ms": 166,
+    "ms": 94,
     "judge": [
      2,
-     2,
+     3,
      3
     ]
    },
@@ -6045,13 +5917,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-33769",
-      "title": "Wipro AG Diwali Paper Lantern (Orange)",
-      "price": 789,
-      "brand": "Wipro AG",
-      "intent": true
-     },
-     {
       "sku": "AC-33523",
       "title": "Pepperfury Diwali Gift Hamper",
       "price": 1989,
@@ -6059,17 +5924,24 @@
       "intent": true
      },
      {
-      "sku": "AC-33551",
-      "title": "Philips Diwali Lantern (Gold)",
-      "price": 1289,
-      "brand": "Philips",
+      "sku": "AC-33769",
+      "title": "Wipro AG Diwali Paper Lantern (Orange)",
+      "price": 789,
+      "brand": "Wipro AG",
+      "intent": true
+     },
+     {
+      "sku": "AC-33628",
+      "title": "Syska Diwali String Light 100 (Multi Colour)",
+      "price": 3489,
+      "brand": "Syska",
       "intent": true
      }
     ],
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-31257",
@@ -6092,12 +5964,12 @@
      ],
      "added": 3,
      "top_cos": 0.868,
-     "ms": 45
+     "ms": 22
     },
-    "ms": 243,
+    "ms": 90,
     "judge": [
-     2,
      1,
+     2,
      2
     ]
    },
@@ -6112,13 +5984,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
       "sku": "AC-29640",
       "title": "Myntra Rakhi Gift Box",
       "price": 389,
@@ -6126,17 +5991,24 @@
       "intent": true
      },
      {
-      "sku": "AC-33425",
-      "title": "Hattal Diwali Rangoli Kit",
-      "price": 189,
-      "brand": "Hattal",
+      "sku": "AC-33778",
+      "title": "Wipro AG Diwali String Lights 10 m 100 LED (5 m 50 LED)",
+      "price": 489,
+      "brand": "Wipro AG",
+      "intent": true
+     },
+     {
+      "sku": "AC-29104",
+      "title": "Meera Rakhi Set 10",
+      "price": 239,
+      "brand": "Meera",
       "intent": true
      }
     ],
     "n_results": 15,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-31257",
@@ -6159,13 +6031,13 @@
      ],
      "added": 0,
      "top_cos": 0.868,
-     "ms": 39
+     "ms": 18
     },
-    "ms": 168,
+    "ms": 94,
     "judge": [
-     3,
-     3,
-     2
+     2,
+     1,
+     3
     ]
    },
    {
@@ -6203,7 +6075,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07415",
@@ -6226,13 +6098,13 @@
      ],
      "added": 1,
      "top_cos": 0.88,
-     "ms": 41
+     "ms": 24
     },
-    "ms": 45,
+    "ms": 26,
     "judge": [
      2,
-     3,
-     3
+     2,
+     2
     ]
    },
    {
@@ -6270,7 +6142,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07603",
@@ -6293,11 +6165,11 @@
      ],
      "added": 1,
      "top_cos": 0.858,
-     "ms": 45
+     "ms": 28
     },
-    "ms": 49,
+    "ms": 31,
     "judge": [
-     3,
+     2,
      3,
      3
     ]
@@ -6337,7 +6209,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-02972",
@@ -6360,9 +6232,9 @@
      ],
      "added": 1,
      "top_cos": 0.873,
-     "ms": 48
+     "ms": 30
     },
-    "ms": 54,
+    "ms": 32,
     "judge": [
      2,
      3,
@@ -6404,7 +6276,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-06660",
@@ -6427,9 +6299,9 @@
      ],
      "added": 0,
      "top_cos": 0.88,
-     "ms": 61
+     "ms": 22
     },
-    "ms": 126,
+    "ms": 75,
     "judge": [
      2,
      2,
@@ -6471,7 +6343,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-14690",
@@ -6494,9 +6366,9 @@
      ],
      "added": 0,
      "top_cos": 0.889,
-     "ms": 68
+     "ms": 22
     },
-    "ms": 77,
+    "ms": 25,
     "judge": [
      1,
      2,
@@ -6514,16 +6386,16 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-33321",
-      "title": "Dabur Henna Cones for Shaadi (25 g)",
-      "price": 89,
+      "sku": "AC-33322",
+      "title": "Dabur Henna Cones for Shaadi (50 g)",
+      "price": 189,
       "brand": "Dabur",
       "intent": true
      },
      {
-      "sku": "AC-33322",
-      "title": "Dabur Henna Cones for Shaadi (50 g)",
-      "price": 189,
+      "sku": "AC-33321",
+      "title": "Dabur Henna Cones for Shaadi (25 g)",
+      "price": 89,
       "brand": "Dabur",
       "intent": true
      },
@@ -6538,7 +6410,7 @@
     "n_results": 7,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-01205",
@@ -6555,9 +6427,9 @@
      ],
      "added": 1,
      "top_cos": 0.856,
-     "ms": 60
+     "ms": 37
     },
-    "ms": 65,
+    "ms": 38,
     "judge": [
      2,
      2,
@@ -6599,7 +6471,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-14690",
@@ -6622,9 +6494,9 @@
      ],
      "added": 0,
      "top_cos": 0.889,
-     "ms": 60
+     "ms": 24
     },
-    "ms": 69,
+    "ms": 26,
     "judge": [
      1,
      2,
@@ -6666,7 +6538,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-03687",
@@ -6689,9 +6561,9 @@
      ],
      "added": 6,
      "top_cos": 0.868,
-     "ms": 45
+     "ms": 25
     },
-    "ms": 278,
+    "ms": 124,
     "judge": [
      1,
      1,
@@ -6703,29 +6575,29 @@
     "q": "anniversary gifts for him",
     "kind": "real_suggest",
     "arm": "1",
-    "intentN": 28,
+    "intentN": 41,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-07580",
-      "title": "Anniversary Gifts for Him - Gift for Husband - Keychain (Drive Safe- no one else will tolerate me)",
-      "price": 829,
+      "sku": "AC-19775",
+      "title": "Diamond Stud Earrings for Women, Hoop Earrings 1Ct-3Ct Moissanite Earrings, Gifts for Wife Mom Girlfriend, Annivers ary Jewelry Present for Wife, Birthday Valentines Gifts",
+      "price": 13099,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-14776",
-      "title": "Personalized Leather 3rd Anniversary Gift for Him or Her, First Dance Song",
-      "price": 3079,
+      "sku": "AC-03229",
+      "title": "PREZZY 70th Birthday Gifts for Girls Vintage Made In May 1953 70 Year Of Being Awesome Coffee Mug Floral Style Custom Name Ceramic Tea Cup 11oz 15oz Christmas Anniversary Cup Gift Ideas",
+      "price": 1249,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-02004",
-      "title": "YATEDIY Custom Bracelets with Pictures, Personalized Projection Bracelets with Photos, Personalized Rope Jewelry Gift for Him Her Best Friend on Birthday Valentines Day Anniversary",
-      "price": 999,
+      "sku": "AC-14780",
+      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
+      "price": 2819,
       "brand": "",
       "intent": true
      }
@@ -6733,7 +6605,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07580",
@@ -6754,14 +6626,14 @@
        "cos": 0.879
       }
      ],
-     "added": 1,
+     "added": 2,
      "top_cos": 0.886,
-     "ms": 66
+     "ms": 31
     },
-    "ms": 385,
+    "ms": 173,
     "judge": [
-     1,
-     1,
+     3,
+     3,
      2
     ]
    },
@@ -6800,7 +6672,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07580",
@@ -6823,12 +6695,12 @@
      ],
      "added": 2,
      "top_cos": 0.89,
-     "ms": 60
+     "ms": 26
     },
-    "ms": 307,
+    "ms": 125,
     "judge": [
      3,
-     3,
+     2,
      2
     ]
    },
@@ -6867,7 +6739,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00838",
@@ -6890,12 +6762,12 @@
      ],
      "added": 1,
      "top_cos": 0.882,
-     "ms": 93
+     "ms": 27
     },
-    "ms": 238,
+    "ms": 98,
     "judge": [
-     2,
-     2,
+     1,
+     1,
      1
     ]
    },
@@ -6934,7 +6806,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00838",
@@ -6957,12 +6829,12 @@
      ],
      "added": 3,
      "top_cos": 0.855,
-     "ms": 47
+     "ms": 25
     },
-    "ms": 265,
+    "ms": 125,
     "judge": [
-     2,
-     2,
+     1,
+     1,
      1
     ]
    },
@@ -7001,7 +6873,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00838",
@@ -7024,9 +6896,9 @@
      ],
      "added": 23,
      "top_cos": 0.882,
-     "ms": 50
+     "ms": 22
     },
-    "ms": 220,
+    "ms": 95,
     "judge": [
      3,
      3,
@@ -7068,7 +6940,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00838",
@@ -7091,9 +6963,9 @@
      ],
      "added": 1,
      "top_cos": 0.882,
-     "ms": 67
+     "ms": 32
     },
-    "ms": 239,
+    "ms": 80,
     "judge": [
      1,
      1,
@@ -7135,7 +7007,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-04147",
@@ -7158,12 +7030,12 @@
      ],
      "added": 1,
      "top_cos": 0.887,
-     "ms": 68
+     "ms": 23
     },
-    "ms": 222,
+    "ms": 95,
     "judge": [
-     3,
-     3,
+     2,
+     2,
      2
     ]
    },
@@ -7202,7 +7074,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07653",
@@ -7225,13 +7097,13 @@
      ],
      "added": 1,
      "top_cos": 0.862,
-     "ms": 57
+     "ms": 17
     },
-    "ms": 87,
+    "ms": 27,
     "judge": [
      2,
-     1,
-     1
+     2,
+     2
     ]
    },
    {
@@ -7269,7 +7141,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-14471",
@@ -7292,9 +7164,9 @@
      ],
      "added": 48,
      "top_cos": 0.88,
-     "ms": 72
+     "ms": 18
     },
-    "ms": 226,
+    "ms": 67,
     "judge": [
      1,
      1,
@@ -7336,7 +7208,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-14811",
@@ -7359,9 +7231,9 @@
      ],
      "added": 38,
      "top_cos": 0.87,
-     "ms": 46
+     "ms": 19
     },
-    "ms": 184,
+    "ms": 75,
     "judge": [
      2,
      2,
@@ -7403,7 +7275,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-11316",
@@ -7426,9 +7298,9 @@
      ],
      "added": 7,
      "top_cos": 0.888,
-     "ms": 46
+     "ms": 18
     },
-    "ms": 242,
+    "ms": 100,
     "judge": [
      1,
      2,
@@ -7470,7 +7342,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-22461",
@@ -7493,9 +7365,9 @@
      ],
      "added": 3,
      "top_cos": 0.867,
-     "ms": 61
+     "ms": 17
     },
-    "ms": 325,
+    "ms": 85,
     "judge": [
      1,
      1,
@@ -7537,7 +7409,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-17853",
@@ -7560,9 +7432,9 @@
      ],
      "added": 5,
      "top_cos": 0.853,
-     "ms": 52
+     "ms": 21
     },
-    "ms": 264,
+    "ms": 71,
     "judge": [
      2,
      3,
@@ -7604,7 +7476,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-02204",
@@ -7627,9 +7499,9 @@
      ],
      "added": 0,
      "top_cos": 0.865,
-     "ms": 46
+     "ms": 17
     },
-    "ms": 108,
+    "ms": 43,
     "judge": [
      1,
      1,
@@ -7671,7 +7543,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00298",
@@ -7694,9 +7566,9 @@
      ],
      "added": 0,
      "top_cos": 0.889,
-     "ms": 72
+     "ms": 18
     },
-    "ms": 259,
+    "ms": 88,
     "judge": [
      1,
      1,
@@ -7738,7 +7610,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-07537",
@@ -7761,9 +7633,9 @@
      ],
      "added": 1,
      "top_cos": 0.854,
-     "ms": 57
+     "ms": 17
     },
-    "ms": 75,
+    "ms": 20,
     "judge": [
      2,
      2,
@@ -7795,17 +7667,17 @@
       "intent": true
      },
      {
-      "sku": "AC-25676",
-      "title": "Anouk Bridal Lehenga Choli (Maroon)",
+      "sku": "AC-27481",
+      "title": "Global Desi Bridal Lehenga Choli (Maroon)",
       "price": 4989,
-      "brand": "Anouk",
+      "brand": "Global Desi",
       "intent": true
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-02875",
@@ -7827,9 +7699,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 63
+     "ms": 16
     },
-    "ms": 81,
+    "ms": 19,
     "judge": [
      2,
      2,
@@ -7847,31 +7719,31 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-31274",
-      "title": "Sportax Kolhapuri Chappal (UK 10)",
+      "sku": "AC-26685",
+      "title": "Bata Kolhapuri Chappal (UK 10)",
       "price": 1469,
-      "brand": "Sportax",
-      "intent": true
-     },
-     {
-      "sku": "AC-26688",
-      "title": "Bata Kolhapuri Chappal (UK 7)",
-      "price": 809,
       "brand": "Bata",
       "intent": true
      },
      {
-      "sku": "AC-30684",
-      "title": "Relaxo Kolhapuri Chappal (UK 7)",
-      "price": 809,
-      "brand": "Relaxo",
+      "sku": "AC-26690",
+      "title": "Bata Kolhapuri Chappal (UK 9)",
+      "price": 1249,
+      "brand": "Bata",
+      "intent": true
+     },
+     {
+      "sku": "AC-26687",
+      "title": "Bata Kolhapuri Chappal (UK 6)",
+      "price": 589,
+      "brand": "Bata",
       "intent": true
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-28580",
@@ -7893,9 +7765,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 58
+     "ms": 17
     },
-    "ms": 157,
+    "ms": 42,
     "judge": [
      1,
      1,
@@ -7913,13 +7785,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-33769",
-      "title": "Wipro AG Diwali Paper Lantern (Orange)",
-      "price": 789,
-      "brand": "Wipro AG",
-      "intent": true
-     },
-     {
       "sku": "AC-33523",
       "title": "Pepperfury Diwali Gift Hamper",
       "price": 1989,
@@ -7927,17 +7792,24 @@
       "intent": true
      },
      {
-      "sku": "AC-33551",
-      "title": "Philips Diwali Lantern (Gold)",
-      "price": 1289,
-      "brand": "Philips",
+      "sku": "AC-33769",
+      "title": "Wipro AG Diwali Paper Lantern (Orange)",
+      "price": 789,
+      "brand": "Wipro AG",
+      "intent": true
+     },
+     {
+      "sku": "AC-33628",
+      "title": "Syska Diwali String Light 100 (Multi Colour)",
+      "price": 3489,
+      "brand": "Syska",
       "intent": true
      }
     ],
     "n_results": 28,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-31257",
@@ -7960,12 +7832,12 @@
      ],
      "added": 1,
      "top_cos": 0.881,
-     "ms": 83
+     "ms": 20
     },
-    "ms": 95,
+    "ms": 22,
     "judge": [
-     2,
      1,
+     2,
      2
     ]
    },
@@ -7979,9 +7851,9 @@
     "questions": 3,
     "slots": {
      "forWhom": "women",
-     "occasion": "wedding / shaadi",
      "budget": 1750,
-     "flexible": false
+     "flexible": false,
+     "brand": "best_rated"
     },
     "top3": [
      {
@@ -8009,31 +7881,12 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
-     "top": [
-      {
-       "sku": "AC-01397",
-       "title": "Angelica Collection Antique Smooth Finish Brass Mind, Body and Soul Expandable Bangle",
-       "price": 1249,
-       "cos": 0.821
-      },
-      {
-       "sku": "AC-00623",
-       "title": "Angelica Collection Antique Stipple Finish Brass Caduceus Expandable Bangle",
-       "price": 1249,
-       "cos": 0.819
-      },
-      {
-       "sku": "AC-01265",
-       "title": "Angelica Collection Non-antique Stipple Finish Brass sailor's Knot Expandable Bangle",
-       "price": 1249,
-       "cos": 0.819
-      }
-     ],
+     "index_load_ms": 6,
+     "top": [],
      "reason": "below_threshold",
-     "ms": 49
+     "ms": 16
     },
-    "ms": 1324,
+    "ms": 433,
     "judge": [
      1,
      1,
@@ -8075,7 +7928,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-31257",
@@ -8098,9 +7951,9 @@
      ],
      "added": 1,
      "top_cos": 0.858,
-     "ms": 51
+     "ms": 17
     },
-    "ms": 151,
+    "ms": 43,
     "judge": [
      2,
      2,
@@ -8132,17 +7985,17 @@
       "intent": true
      },
      {
-      "sku": "AC-30077",
-      "title": "Nixon Analog Watch for Men (Silver)",
-      "price": 10989,
-      "brand": "Nixon",
+      "sku": "AC-31152",
+      "title": "Seiko 5 Automatic Watch (Steel)",
+      "price": 19989,
+      "brand": "Seiko",
       "intent": true
      }
     ],
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-12588",
@@ -8165,9 +8018,9 @@
      ],
      "added": 1,
      "top_cos": 0.847,
-     "ms": 55
+     "ms": 17
     },
-    "ms": 170,
+    "ms": 51,
     "judge": [
      1,
      1,
@@ -8209,7 +8062,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-09480",
@@ -8232,9 +8085,9 @@
      ],
      "added": 1,
      "top_cos": 0.868,
-     "ms": 61
+     "ms": 21
     },
-    "ms": 76,
+    "ms": 23,
     "judge": [
      2,
      2,
@@ -8276,7 +8129,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-24841",
@@ -8298,9 +8151,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 97
+     "ms": 19
     },
-    "ms": 271,
+    "ms": 74,
     "judge": [
      1,
      1,
@@ -8318,31 +8171,31 @@
     "slots": {},
     "top3": [
      {
+      "sku": "AC-26985",
+      "title": "Fabindia Bhagalpur Silk Saree (Green)",
+      "price": 10989,
+      "brand": "Fabindia",
+      "intent": true
+     },
+     {
+      "sku": "AC-28738",
+      "title": "Manyavar Kanjivaram Silk Saree (Peacock)",
+      "price": 20489,
+      "brand": "Manyavar",
+      "intent": true
+     },
+     {
       "sku": "AC-26984",
       "title": "Fabindia Bhagalpur Silk Saree (Blue)",
       "price": 14989,
       "brand": "Fabindia",
-      "intent": true
-     },
-     {
-      "sku": "AC-26986",
-      "title": "Fabindia Bhagalpur Silk Saree (Red)",
-      "price": 6989,
-      "brand": "Fabindia",
-      "intent": true
-     },
-     {
-      "sku": "AC-28737",
-      "title": "Manyavar Kanjivaram Silk Saree (Maroon)",
-      "price": 12989,
-      "brand": "Manyavar",
       "intent": true
      }
     ],
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-31139",
@@ -8365,9 +8218,9 @@
      ],
      "added": 1,
      "top_cos": 0.859,
-     "ms": 37
+     "ms": 16
     },
-    "ms": 222,
+    "ms": 49,
     "judge": [
      1,
      1,
@@ -8385,21 +8238,21 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-34222",
+      "sku": "AC-34230",
       "title": "LG Microwave 23 L Solo (23 L)",
       "price": 13989,
       "brand": "LG",
       "intent": true
      },
      {
-      "sku": "AC-34181",
+      "sku": "AC-34187",
       "title": "IFB Microwave 28 L Convection (32 L)",
       "price": 24989,
       "brand": "IFB",
       "intent": true
      },
      {
-      "sku": "AC-34180",
+      "sku": "AC-34186",
       "title": "IFB Microwave 28 L Convection (28 L)",
       "price": 18989,
       "brand": "IFB",
@@ -8409,7 +8262,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-21952",
@@ -8431,9 +8284,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 38
+     "ms": 18
     },
-    "ms": 93,
+    "ms": 44,
     "judge": [
      1,
      1,
@@ -8475,7 +8328,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-17143",
@@ -8497,9 +8350,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 48
+     "ms": 17
     },
-    "ms": 117,
+    "ms": 46,
     "judge": [
      3,
      1,
@@ -8516,9 +8369,9 @@
     "questions": 3,
     "slots": {
      "forWhom": "women",
-     "occasion": "wedding / shaadi",
      "budget": 1250,
-     "flexible": false
+     "flexible": false,
+     "brand": "best_rated"
     },
     "top3": [
      {
@@ -8546,35 +8399,16 @@
     "n_results": 45,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
-     "top": [
-      {
-       "sku": "AC-00993",
-       "title": "Angelica Collection Non-Antique Stipple Finish Brass Golf Expandable Bangle",
-       "price": 1249,
-       "cos": 0.827
-      },
-      {
-       "sku": "AC-27477",
-       "title": "Global Desi Bangle Set 6 pcs (10 pcs)",
-       "price": 789,
-       "cos": 0.815
-      },
-      {
-       "sku": "AC-01943",
-       "title": "Angelica Collection Antique Smooth Finish Brass claddagh Expandable Bangle",
-       "price": 1249,
-       "cos": 0.815
-      }
-     ],
+     "index_load_ms": 6,
+     "top": [],
      "reason": "below_threshold",
-     "ms": 56
+     "ms": 19
     },
-    "ms": 1316,
+    "ms": 408,
     "judge": [
      1,
      1,
-     3
+     2
     ]
    },
    {
@@ -8612,7 +8446,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-23254",
@@ -8635,9 +8469,9 @@
      ],
      "added": 0,
      "top_cos": 0.879,
-     "ms": 66
+     "ms": 18
     },
-    "ms": 241,
+    "ms": 71,
     "judge": [
      3,
      1,
@@ -8679,7 +8513,7 @@
     "n_results": 3,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-09625",
@@ -8688,22 +8522,22 @@
        "cos": 0.811
       },
       {
-       "sku": "AC-35838",
-       "title": "Slazenger Tennis Racket",
-       "price": 1289,
-       "cos": 0.807
-      },
-      {
-       "sku": "AC-35412",
+       "sku": "AC-35427",
        "title": "Faber-Castell School Bag (Black)",
        "price": 1639,
-       "cos": 0.806
+       "cos": 0.809
+      },
+      {
+       "sku": "AC-35853",
+       "title": "Slazenger Tennis Racket",
+       "price": 1289,
+       "cos": 0.809
       }
      ],
      "reason": "below_threshold",
-     "ms": 46
+     "ms": 20
     },
-    "ms": 124,
+    "ms": 48,
     "judge": [
      1,
      2,
@@ -8745,7 +8579,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-10077",
@@ -8768,9 +8602,9 @@
      ],
      "added": 0,
      "top_cos": 0.846,
-     "ms": 45
+     "ms": 17
     },
-    "ms": 167,
+    "ms": 66,
     "judge": [
      3,
      3,
@@ -8789,16 +8623,9 @@
      "category": "amazon home",
      "budget": 1250,
      "flexible": false,
-     "occasion": "wedding / shaadi"
+     "forWhom": "women"
     },
     "top3": [
-     {
-      "sku": "AC-03051",
-      "title": "KICHOUSE Korean Scoop Gadgets Spoons Cooker Cooking Soup Utensil Kitchen Paddle Non-stick Non‑deforming Potato Spatula Serving Wear-resistant Restaurant Utensils Non‑rusting Silver Steel",
-      "price": 809,
-      "brand": "",
-      "intent": false
-     },
      {
       "sku": "AC-03970",
       "title": "Cute Ferrets Blanket Ferret Gifts for Women Ferret Lovers Lightweight Soft Flannel Fleece Throw Blankets for Couch Bed Sofa X-Small (40\"X30\")",
@@ -8807,9 +8634,16 @@
       "intent": false
      },
      {
-      "sku": "AC-03109",
-      "title": "Cute Duck Blanket Duck Gifts for Duck Lovers Lightweight Soft Flannel White Throw Blankets for Couch Bedding Travel Sofa XS 30x40in, Pet/Toddler Gift",
-      "price": 829,
+      "sku": "AC-03530",
+      "title": "COFISUKI Ceramic Coffee Mug - Cute Mug Gifts for Women or Coffee Lovers, Funny Coffee or Tea Cup for Office and Home, Ceramic Cups12 oz",
+      "price": 579,
+      "brand": "",
+      "intent": false
+     },
+     {
+      "sku": "AC-03051",
+      "title": "KICHOUSE Korean Scoop Gadgets Spoons Cooker Cooking Soup Utensil Kitchen Paddle Non-stick Non‑deforming Potato Spatula Serving Wear-resistant Restaurant Utensils Non‑rusting Silver Steel",
+      "price": 809,
       "brand": "",
       "intent": false
      }
@@ -8817,7 +8651,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-05459",
@@ -8826,26 +8660,26 @@
        "cos": 0.821
       },
       {
-       "sku": "AC-34573",
+       "sku": "AC-34588",
        "title": "Amazon Basics Bike GPS Tracker",
        "price": 989,
-       "cos": 0.817
+       "cos": 0.819
       },
       {
-       "sku": "AC-36033",
+       "sku": "AC-36048",
        "title": "VTech Action Figure (Single)",
        "price": 789,
-       "cos": 0.817
+       "cos": 0.818
       }
      ],
      "reason": "below_threshold",
-     "ms": 50
+     "ms": 16
     },
-    "ms": 1644,
+    "ms": 580,
     "judge": [
      3,
      3,
-     3
+     2
     ]
    },
    {
@@ -8859,37 +8693,37 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-08302",
-      "title": "WiFi Camera Indoor Security Camera 2K 5GHz & 2.4GHz Security Camera Cameras for Baby/Elder/Dog/Pet Camera with Phone app Smartphone",
-      "price": 1659,
-      "brand": "",
+      "sku": "AC-35020",
+      "title": "Nokia 105 (2023) 1.8 inch",
+      "price": 989,
+      "brand": "Nokia",
       "intent": true
      },
      {
-      "sku": "AC-24618",
-      "title": "Marantec Maveo Bluefi Stick Wi-Fi Smartphone Connection to Garage Openers Synergy 200 and 300 Series",
-      "price": 3619,
-      "brand": "",
+      "sku": "AC-35023",
+      "title": "Nokia 220 2.8 inch FM",
+      "price": 2289,
+      "brand": "Nokia",
       "intent": true
      },
      {
-      "sku": "AC-24765",
-      "title": "Redmi A3 (4 GB RAM, 64 GB Storage) Smartphone",
-      "price": 6499,
-      "brand": "Redmi",
+      "sku": "AC-35021",
+      "title": "Nokia 110 2.4 inch",
+      "price": 1489,
+      "brand": "Nokia",
       "intent": true
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
-       "sku": "AC-35075",
+       "sku": "AC-35090",
        "title": "boAt Power Bank 20000 mAh",
        "price": 2489,
-       "cos": 0.843
+       "cos": 0.841
       },
       {
        "sku": "AC-12973",
@@ -8905,13 +8739,13 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 57
+     "ms": 18
     },
-    "ms": 146,
+    "ms": 64,
     "judge": [
-     3,
-     3,
-     2
+     1,
+     1,
+     1
     ]
    },
    {
@@ -8928,13 +8762,6 @@
     },
     "top3": [
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
       "sku": "AC-29640",
       "title": "Myntra Rakhi Gift Box",
       "price": 389,
@@ -8942,9 +8769,16 @@
       "intent": true
      },
      {
-      "sku": "AC-31257",
-      "title": "Solimo Rakhi with Gift Set",
-      "price": 489,
+      "sku": "AC-29104",
+      "title": "Meera Rakhi Set 10",
+      "price": 239,
+      "brand": "Meera",
+      "intent": true
+     },
+     {
+      "sku": "AC-31256",
+      "title": "Solimo Rakhi Set 5",
+      "price": 139,
       "brand": "",
       "intent": true
      }
@@ -8952,7 +8786,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-20213",
@@ -8974,9 +8808,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 44
+     "ms": 17
     },
-    "ms": 654,
+    "ms": 208,
     "judge": [
      3,
      3,
@@ -8997,13 +8831,6 @@
     },
     "top3": [
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
       "sku": "AC-29640",
       "title": "Myntra Rakhi Gift Box",
       "price": 389,
@@ -9011,9 +8838,16 @@
       "intent": true
      },
      {
-      "sku": "AC-31257",
-      "title": "Solimo Rakhi with Gift Set",
-      "price": 489,
+      "sku": "AC-29104",
+      "title": "Meera Rakhi Set 10",
+      "price": 239,
+      "brand": "Meera",
+      "intent": true
+     },
+     {
+      "sku": "AC-31256",
+      "title": "Solimo Rakhi Set 5",
+      "price": 139,
       "brand": "",
       "intent": true
      }
@@ -9021,7 +8855,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-22561",
@@ -9043,9 +8877,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 54
+     "ms": 17
     },
-    "ms": 645,
+    "ms": 209,
     "judge": [
      3,
      3,
@@ -9066,13 +8900,6 @@
     },
     "top3": [
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
       "sku": "AC-29640",
       "title": "Myntra Rakhi Gift Box",
       "price": 389,
@@ -9080,9 +8907,16 @@
       "intent": true
      },
      {
-      "sku": "AC-31257",
-      "title": "Solimo Rakhi with Gift Set",
-      "price": 489,
+      "sku": "AC-29104",
+      "title": "Meera Rakhi Set 10",
+      "price": 239,
+      "brand": "Meera",
+      "intent": true
+     },
+     {
+      "sku": "AC-31256",
+      "title": "Solimo Rakhi Set 5",
+      "price": 139,
       "brand": "",
       "intent": true
      }
@@ -9090,7 +8924,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-00834",
@@ -9112,9 +8946,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 56
+     "ms": 17
     },
-    "ms": 663,
+    "ms": 220,
     "judge": [
      3,
      3,
@@ -9135,13 +8969,6 @@
     },
     "top3": [
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
       "sku": "AC-29640",
       "title": "Myntra Rakhi Gift Box",
       "price": 389,
@@ -9149,9 +8976,16 @@
       "intent": true
      },
      {
-      "sku": "AC-31257",
-      "title": "Solimo Rakhi with Gift Set",
-      "price": 489,
+      "sku": "AC-29104",
+      "title": "Meera Rakhi Set 10",
+      "price": 239,
+      "brand": "Meera",
+      "intent": true
+     },
+     {
+      "sku": "AC-31256",
+      "title": "Solimo Rakhi Set 5",
+      "price": 139,
       "brand": "",
       "intent": true
      }
@@ -9159,7 +8993,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 8,
+     "index_load_ms": 6,
      "top": [
       {
        "sku": "AC-06144",
@@ -9181,9 +9015,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 64
+     "ms": 17
     },
-    "ms": 608,
+    "ms": 210,
     "judge": [
      3,
      3,
