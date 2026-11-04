@@ -991,6 +991,61 @@ B (semantic only ablation) / C (hybrid fallback), Qwen-judged top-3,
 - UI tour (17), contrast (16/16), canaries (111+5) — all green after
   every code change in the fix pass.
 
+### 10.9 Qwen eval suite — 1,000-case pass rates (search / RAG / UX)
+
+`eval/qwen_suite/` — one frozen panel of **1,000 cases** (committed
+before any run; panel sha `e8f01a06d883bf79`, seed 20261104), one Qwen
+judge (qwen38-27b, temp 0, thinking off), Wilson CIs on every rate,
+generated report `eval/qwen_suite/results/summary.md`. This is the
+consolidated LLM-judged pass-rate layer that the earlier panels
+(relevance audit, eval v2, semantic panel) only approximated in
+pieces — and it adds the two dimensions that never had a Qwen eval:
+**RAG answer quality** and **UX question-policy appropriateness**.
+
+| Dimension | n | PASS | rate |
+|---|---|---|---|
+| Search — Qwen usable@3 on live top-3 | 400 | 339 | **84.8% [80.9–87.9]** (strict top-1: 57.2% [52.4–62.0]) |
+| RAG — deterministic gate AND Qwen quality | 300 | 31 | **10.3% [7.4–14.3]** |
+| UX — question moment judged "appropriate" | 300 | 8 | **2.7% [1.4–5.2]** (mix A=8 / M=19 / B=273) |
+| **Total** | **1000** | **378** | **37.8% [34.8–40.8]** |
+
+- **Search** (400): 203 queries reused from earlier frozen panels +
+  197 new (hand-written gift/budget/Hinglish/Devanagari/spec/brand/
+  vague/typo/synonym/dead-end + real Google-Suggest-IN autocompletes).
+  Healthy: real_suggest 91.2%, typo 92.6%, Hinglish 95.8%, gift/brand
+  100%; dead-end 31.2%/12.5% is the expected out-of-catalogue floor,
+  reported not hidden.
+- **RAG** (300): 250 product Q&A (spec-known / spec-unknown /
+  suitability / quality / price × 50) on the documented PDP path
+  (fresh conversation + `context.sku`, §6.4) + 50 FAQ (25 in-scope,
+  25 out-of-scope). Deterministic gate (server grounding guard,
+  ≤40 words, banned phrases) = **100%** — the guard works; the Qwen
+  verdict measures answer quality and fails 89.7%. Verified real gaps:
+  the spec answerer picks the wrong number (RAM for a storage
+  question) or dodges unanswerable questions with the adjusted rating
+  instead of the honest `answer_unknown` ("What is it made of?" →
+  "Adjusted rating 4.6…" ×50/50); out-of-scope world questions
+  ("weather in Mumbai?") are mis-routed into the category-rescue
+  question instead of `out_of_scope` deflection.
+- **UX** (300): question moments sampled from the 3,000-journey
+  persona-sim v2 run and replayed deterministically (0 LLM tokens for
+  generation); judge calibrated to the documented product intent.
+  Verified real gaps: the budget facet fires on narrow-price queries
+  ("rotary phone", "trousers biwi ke liye" — 0% A across all
+  languages); category-rescue options are frequency-ranked, not
+  intent-ranked ("baby shower" query → top option AMAZON FASHION
+  16,829). Apparel size/for-whom moments are the ones the judge
+  accepts (all 8 A's are apparel/gift-fit).
+- **Qwen usage**: 1,194 calls ≈ 400K estimated tokens (search 44 /
+  RAG 550 / UX 600), logged per call in `results/cost_*.json` — the
+  same proxy/model as every other eval in the repo.
+- Caveats: single LLM judge (no second rater in this suite); the UX
+  sample is enriched for null-search journeys (that's where questions
+  happen) — it is a stress view of the policy, not a traffic-weighted
+  one; methodology refinements (PDP path, judge calibration) were
+  made before any result was published; the panel itself was never
+  modified after freezing.
+
 ## 11. Architecture, file map, runbook, configuration
 
 ### 11.1 Request architecture

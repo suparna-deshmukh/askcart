@@ -719,3 +719,57 @@ extremely detailed standalone MD of the whole project. All five done.
   A null 10% [4.3–21.4], C null 6% [2.1–16.2], C u@3 88% [76.2–94.4]
   (was 82), s@3 58%, q 0.46→0.34, p50/p95 19/32 ms; only the
   changed frozen-panel top-3s were re-judged (small Qwen spend).
+
+## Qwen eval suite — 1,000-case pass rates: search / RAG / UX (2026-11-04 night)
+
+User asked whether the "Qwen AI evals for search, RAG, UX, 1,000-case
+pass rate" already existed. Honest answer: search relevance was
+fragmented across three panels (no single pass rate); RAG had
+deterministic gates only (no quality judgement); UX had none. Built
+the consolidated suite (`eval/qwen_suite/`), froze the panel in git
+BEFORE any run (2b81ab5), then ran it.
+
+- **Protocol** (frozen with the run): search 400 (203 reused frozen
+  queries + 197 new: hand-written gift/budget/hinglish/hi-Devanagari/
+  spec/brand/vague/typo/synonym/dead-end + real Google-Suggest-IN
+  autocompletes; dead-ends verified absent, synonyms verified
+  lead-word-absent) → Qwen R/P/I on the live top-3, PASS = usable@3;
+  RAG 300 (250 product Q&A × 5 question families over a seeded 250-SKU
+  sample, evaluated on the documented PDP path = fresh conversation +
+  context.sku; + 50 FAQ 25 in-scope/25 out-of-scope) → PASS =
+  deterministic gate (server grounding guard + ≤40 words + banned
+  phrases) AND Qwen quality verdict; UX 300 (question moments sampled
+  seed 20261104 from the persona-sim v2 run, replayed deterministically
+  over HTTP, 0 LLM tokens for generation) → PASS = Qwen verdict A
+  (appropriate at that point; prompt calibrated once to the documented
+  product intent before any result was published).
+- **Results** (`eval/qwen_suite/results/summary.md`, generated):
+  **search 84.8% [80.9–87.9]** usable@3 (strict top-1 57.2%
+  [52.4–62.0]; dead-end 31.2%/12.5% = expected out-of-catalogue floor),
+  **RAG 10.3% [7.4–14.3]** (deterministic gate 100% — the guard works;
+  Qwen quality 10.3%), **UX 2.7% [1.4–5.2]** (A=8/M=19/B=273),
+  **total 37.8% [34.8–40.8]** on 1,000 cases.
+- **Verified real gaps (spot-checked against raw replies, not just
+  judge labels)**: (1) RAG spec answerer picks the wrong number (RAM
+  for a storage question) or dodges unanswerable questions with the
+  adjusted rating instead of the honest answer_unknown —
+  qa_spec_unknown 0%; (2) out-of-scope world questions ("weather in
+  Mumbai?") mis-routed into the category-rescue question instead of
+  out_of_scope deflection; (3) budget facet asked on narrow-price
+  queries ("rotary phone", "trousers biwi ke liye") — 0% A across all
+  languages; (4) category-rescue options frequency-ranked, not
+  intent-ranked ("baby shower" query → top option AMAZON FASHION 16829).
+  All four are fix candidates, not judge artifacts — examples cited in
+  the report + deep-dive §10.9.
+- **Build notes**: fs.createWriteStream is unusable inside the
+  in-process route import graph (its fs.open hangs — libuv thread-pool
+  starvation; sync fs works) → judges use appendFileSync; background
+  `&` jobs get reaped in this environment → long runs go through
+  managed exec sessions. Qwen usage: 1,194 calls ≈ 400K est tokens
+  (search 44 / RAG 550 / UX 600), per-call cost files in
+  results/cost_*.json. Single LLM judge (no second rater in this
+  suite) — stated in the report.
+- Docs: PROJECT.md new §5.10, deep-dive MD §10.9 (now 1,274 lines),
+  this STATUS entry. No app-code change (eval-only), so the standing
+  gates (canaries 111+5, semantic suite, chat 76/76/0/37-37, ui tour
+  17, contrast 16/16) stand; sync_doc_numbers --check green.
