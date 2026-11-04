@@ -169,7 +169,10 @@ export function capacityOptions(items, n) {
 }
 
 // G3 eligibility: don't re-ask what the query already states.
-const RECIPIENT_HINT = /\b(papa|dad|father|husband|brother|ammi|amma|mom|mum|mummy|maa|dadi|nani|beta|beti|bachche|kid|kids|girl|boy|women|men|for her|for him)\b/i;
+// S3: the full relation vocabulary (kept in sync with the recipient sets
+// in search.js) - "saree for didi" already states who it is for, so a
+// "who's it for?" question would be redundant.
+const RECIPIENT_HINT = /\b(papa|dad|father|husband|brother|sister|wife|son|daughter|cousin|aunt|uncle|grandma|grandpa|ammi|amma|mom|mum|mummy|mother|maa|dadi|nani|nana|dada|bua|tai|taiya|mama|phupha|jiju|didi|behen|bhen|bhai|bhaiya|abba|saas|sasur|dost|friend|colleague|beta|beti|bachche|bachche|child|children|kid|kids|girl|boy|girls|boys|women|men|him|her)\b/i;
 function hasRecipientHint(query) { return RECIPIENT_HINT.test(String(query)); }
 
 function clean(n) {
@@ -446,11 +449,6 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   // (the "Any / No preference / Not sure" escape hatches excluded) have a
   // count; otherwise the next eligible facet is tried. If every eligible
   // facet is sparse, the first one is asked as before (zero chips disabled).
-  const isSparse = (counts) => {
-    const data = counts.filter((c) => !/^(No preference|Not sure|Any)/.test(String(c.label)));
-    if (!data.length) return false;
-    return data.filter((c) => (c.count || 0) === 0).length / data.length >= 0.5;
-  };
   let type = null;
   let options = [];
   let optionCounts = [];
@@ -514,14 +512,24 @@ export function decideGuide(catalog, query, nResults, context = {}) {
     options = optionCounts.map((o) => o.label);
     reason = `appliance candidate set spans multiple capacities (tonnage/kg/litres); the spec slot re-ranks on it`;
   }
-    if (order.length > 1 && isSparse(optionCounts)) {
+    // Grounded-question gate: a facet is only asked when at least two of
+    // its DATA options (the "Any / No preference / Not sure" escape
+    // hatches excluded) actually have products. A question with one live
+    // chip out of five (e.g. occasion on "watch for him": Wedding: 1) is
+    // a quiz the answer cannot narrow - noise (Qwen UX panel v2, 2026-11-05).
+    const liveData = optionCounts.filter((c) =>
+      !/^(No preference|Not sure|Any)/.test(String(c.label)) && (c.count || 0) > 0).length;
+    if (liveData < 2) {
       if (!fallback) fallback = { type: t, options: [...options], optionCounts: [...optionCounts], reason };
       continue outer;
     }
     chosen = true;
     break;
   }
-  if (!chosen && fallback) ({ type, options, optionCounts, reason } = fallback);
+  if (!chosen) {
+    return { ask: false, type: null, options: [], question: "",
+             reason: "no grounded facet left (every eligible facet has <2 live options)", stats };
+  }
 
   return {
     ask: true,

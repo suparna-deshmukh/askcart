@@ -1,0 +1,33 @@
+{
+  "seed": 20261105,
+  "n": 300,
+  "total_moments_available": 2575,
+  "n_ask_journeys": 1840,
+  "total_journeys": 3000,
+  "strata": {
+    "en/brand": 73,
+    "en/budget": 287,
+    "en/capacity": 40,
+    "en/category": 15,
+    "en/for_whom": 251,
+    "en/occasion": 141,
+    "en/size": 100,
+    "hi/brand": 60,
+    "hi/budget": 201,
+    "hi/capacity": 40,
+    "hi/category": 17,
+    "hi/for_whom": 339,
+    "hi/occasion": 3,
+    "hi/size": 112,
+    "hinglish/brand": 74,
+    "hinglish/budget": 260,
+    "hinglish/capacity": 40,
+    "hinglish/category": 17,
+    "hinglish/for_whom": 271,
+    "hinglish/occasion": 133,
+    "hinglish/size": 101
+  },
+  "built_at": "2026-11-04 18:41 UTC",
+  "panel_sha256": "5e60d43bb88d58ad",
+  "note": "v2 = moments of the CURRENT build (replayed deterministic, 0 LLM tokens). v1 (frozen, 300/300 no_question) untouched."
+}
