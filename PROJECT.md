@@ -253,8 +253,26 @@ askcart/
 
 **Final profile (v5):** median ₹2,419 · p25 ₹1,249 · p75 ₹6,489 · p90
 ₹15,019 · p99 ₹75,399 · bands ≤2k 42.9% (15,450) / 2–5k 26.2% (9,450) /
-5–10k 14.4% (5,208) / 10–20k 9.4% (3,384) / >20k 7.1% (2,553) · 37.2%
-branded (13,406 SKUs) · 11.5% occasion-tagged · 25 categories.
+5–10k 14.4% (5,208) / 10–20k 9.4% (3,384) / >20k 7.1% (2,553) · 33.5%
+branded (12,084 SKUs) · 6.3% accessories (2,276) · 11.5% occasion-tagged
+· 25 categories.
+
+**v7 per-SKU fields:**
+- `origin` (C1/T7): `us_converted` (24,998) vs `india_layer` (11,047) —
+  the honest label for "the Indian catalogue" is *India-oriented demo
+  catalogue (36k SKUs: ~25k US-sourced converted + ~11k India layer)*.
+- `brand` (C2/T5): leading position preferred; a mid-title brand token
+  preceded by for/compatible/fits/suitable/replacement is a compatibility
+  mention, not the brand; device tokens (iphone/ipad/airpods/macbook/
+  galaxy) never brand accessory rows; retailers (Myntra private label)
+  keep the token with `brand_type: "retailer"` and are excluded from
+  brand stats. Apple 757 → 183 SKUs, Samsung 634 → 259 (residual Apple
+  rows are Apple-ecosystem listings incl. MFi-certified accessories).
+- `is_accessory` (C3): accessory-class word + host-device word
+  ("iPhone 15 Case", "Watch Band") — powers the "Hide accessories" filter
+  facet.
+- `family_id` / `variant` / `variant_summary` (S7): listing-matrix variant
+  families group into one card ("6 colours · 4 sizes").
 
 ### 4.4 Search engine (`app/lib/search.js`)
 - Cached word index over 36k titles; word-level **bounded prefix matching**
@@ -527,13 +545,14 @@ Artifacts: `data/out/funnel.json`, `data/out/root_causes.json`,
 ### 5.6 Catalogue profile (recomputed live per request)
 
 Live endpoint `/api/analytics/catalog` over `app/public/catalog.json`
-(36,045 SKUs, INR pricing, Indian listings + foreign brands sold in India):
+(36,045 SKUs, INR pricing — India-oriented demo catalogue: 24,998 US-sourced listings converted at ₹83.5/$ + 11,047 India layer):
 
+- **Origin (T7)**: 24,998 US-sourced converted (**69.4%**) · 11,047 India layer (**30.6%**) — per-SKU `origin` field
 - **Total 36,045 SKUs** · 25 categories · price **₹29 – ₹294,669**
 - **Median ₹2,419** · average ₹6,885 (skewed up by gold, ACs, jewellery) · p25 ₹1,249 / p75 ₹6,489 / p90 ₹15,019 / p99 ₹75,399
 - **Price bands**: under ₹2k **42.9%** (15,450) · ₹2k–5k **26.2%** (9,450) · ₹5k–10k **14.4%** (5,208) · ₹10k–20k **9.4%** (3,384) · over ₹20k **7.1%** (2,553)
 - **Ratings**: avg 4.20/5 · buckets 4.5+ **33.2%** (11,951) / 4.0–4.5 **49.4%** (17,792) / 3.5–4.0 **7.8%** (2,796) / 3.0–3.5 **4.4%** (1,600) / under 3.0 **5.3%** (1,906) · median 34 ratings per product · **39.8%** (14,358 SKUs) have 100+ ratings
-- **Brands**: 299 brands, 13,406 branded SKUs (**37.2%**). Top 15 by SKU count with median price: Apple 757 (₹1,579 median) · Myntra 709 (₹1,489 median) · Samsung 634 (₹2,079 median) · Aurelia 458 (₹1,669 median) · Fabindia 370 (₹1,519 median) · Anouk 351 (₹1,489 median) · Libas 334 (₹1,489 median) · W for Woman 321 (₹1,419 median) · Adidas 308 (₹4,494 median) · Meera 301 (₹1,339 median) · Global Desi 285 (₹1,479 median) · Manyavar 269 (₹1,649 median) · US Polo 256 (₹1,559 median) · Roadster 255 (₹1,529 median) · Nike 236 (₹6,969 median)
+- **Brands**: 297 brands, 12,084 branded SKUs (**33.5%**). Top 15 by SKU count with median price: Aurelia 458 (₹1,669 median) · Fabindia 370 (₹1,519 median) · Anouk 351 (₹1,489 median) · Libas 334 (₹1,489 median) · W for Woman 321 (₹1,419 median) · Adidas 308 (₹4,494 median) · Meera 301 (₹1,339 median) · Global Desi 285 (₹1,479 median) · Manyavar 269 (₹1,649 median) · Samsung 259 (₹3,329 median) · US Polo 256 (₹1,559 median) · Roadster 255 (₹1,529 median) · Nike 236 (₹6,969 median) · Van Heusen 212 (₹1,529 median) · Ray-Ban 209 (₹13,229 median)
 - **Occasion-tagged**: 4,147 SKUs (**11.5%**) — backend-only tags used by the search/guide engine
 - **Top categories** (count, share, median price): AMAZON FASHION 16,829 (46.7%, ₹2,379 median) · Amazon Home 5,615 (15.6%, ₹2,829 median) · All Electronics 1,838 (5.1%, ₹2,499 median) · Sports & Outdoors 1,630 (4.5%, ₹2,819 median) · Cell Phones & Accessories 1,302 (3.6%, ₹1,409 median) · Tools & Home Improvement 1,095 (3.0%, ₹4,169 median) · Computers 1,004 (2.8%, ₹5,379 median) · Appliances 948 (2.6%, ₹3,989 median) · Health & Personal Care 867 (2.4%, ₹2,079 median) · Automotive 728 (2.0%, ₹4,369 median) · Office Products 720 (2.0%, ₹1,579 median) · All Beauty 619 (1.7%, ₹799 median) · Handmade 511 (1.4%, ₹2,169 median) · Pet Supplies 470 (1.3%, ₹2,419 median) · Camera & Photo 363 (1.0%, ₹3,579 median) · Toys & Games 294 (0.8%, ₹1,324 median) · Arts, Crafts & Sewing 286 (0.8%, ₹1,499 median) · Baby 279 (0.8%, ₹789 median) · Musical Instruments 230 (0.6%, ₹3,834 median) · Home Audio & Theater 113 (0.3%, ₹2,499 median) · Video Games 101 (0.3%, ₹3,169 median) · Collectibles & Fine Art 85 (0.2%, ₹2,079 median) · Luggage & Travel 62 (0.2%, ₹2,989 median) · Car Electronics 44 (0.1%, ₹2,164 median)
 <!-- sync:catalog:end -->
@@ -779,7 +798,7 @@ Journeys & Orders · Validation & Study**. Each subtab deep-linkable
   type/value, turn distribution with avg journey ms.
 - **Catalogue & Brands** — stat grid (Products (SKUs) 36,045 · Price
   median ₹2,419 with p25–p75–p90 · Price average ₹6,885 "skewed up by
-  gold, ACs & jewellery" · Branded SKUs 37.2% with brand count · Avg
+  gold, ACs & jewellery" · Branded SKUs 33.5% with brand count · Avg
   rating 4.20/5 · Products with 100+ ratings 39.8% · Occasion-tagged
   11.5%); **Category distribution** bars for all 25 categories;
   **Category detail** table (top 12 by SKU count: count, share, median,

@@ -55,14 +55,19 @@ def profile():
 
     by_cat, by_brand, by_tag = {}, {}, {}
     branded = 0
+    origins = {"us_converted": 0, "india_layer": 0}
     for it in cat:
+        origins[it.get("origin", "us_converted")] += 1
         c = by_cat.setdefault(it["category"], {"n": 0, "sum": 0, "prices": []})
         c["n"] += 1; c["sum"] += it["price"]; c["prices"].append(it["price"])
         b = (it.get("brand") or "").strip()
         if b:
             branded += 1
-            bb = by_brand.setdefault(b, {"n": 0, "prices": []})
-            bb["n"] += 1; bb["prices"].append(it["price"])
+            # C2: retailers (Myntra private label) are branded SKUs but not
+            # brands - excluded from the top-brand stats (matches the endpoint)
+            if it.get("brand_type") != "retailer":
+                bb = by_brand.setdefault(b, {"n": 0, "prices": []})
+                bb["n"] += 1; bb["prices"].append(it["price"])
         for tg in it.get("tags") or []:
             by_tag[tg] = by_tag.get(tg, 0) + 1
 
@@ -80,8 +85,13 @@ def profile():
     lines = []
     ap = lines.append
     ap("Live endpoint `/api/analytics/catalog` over `app/public/catalog.json`")
-    ap(f"({n:,} SKUs, INR pricing, Indian listings + foreign brands sold in India):")
+    ap(f"({n:,} SKUs, INR pricing — India-oriented demo catalogue: "
+       f"{origins['us_converted']:,} US-sourced listings converted at "
+       f"₹83.5/$ + {origins['india_layer']:,} India layer):")
     ap("")
+    ap(f"- **Origin (T7)**: {origins['us_converted']:,} US-sourced converted "
+       f"(**{origins['us_converted']/n*100:.1f}%**) · {origins['india_layer']:,} "
+       f"India layer (**{origins['india_layer']/n*100:.1f}%**) — per-SKU `origin` field")
     ap(f"- **Total {n:,} SKUs** \u00b7 {len(by_cat)} categories \u00b7 price "
        f"**{inr(prices[0])} \u2013 {inr(prices[-1])}**")
     ap(f"- **Median {inr(median(prices))}** \u00b7 average {inr(sum(prices)/n)} (skewed up by gold, ACs, jewellery) \u00b7 "

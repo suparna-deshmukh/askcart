@@ -154,6 +154,70 @@ BRANDS.update(EXTRA_BRANDS)
 BRANDS.update(ADD_BRANDS)
 BRANDS = {k: v for k, v in BRANDS.items() if v}
 _BRAND_RE = re.compile(r"\b(" + "|".join(re.escape(b) for b in sorted(BRANDS, key=len, reverse=True)) + r")\b", re.I)
+# C2: brand extraction rules.
+# - Leading position (first 1-3 tokens) wins: "Apple AirPods Pro" -> Apple.
+# - A brand token mid-title is a *compatibility* mention when one of the
+#   previous 3 tokens says for/compatible/fits/suitable/replacement
+#   ("Bands Compatible with Apple Watch" is not an Apple product).
+# - Retailers (marketplaces selling private-label lines) are kept as the
+#   listing's brand token but flagged brand_type="retailer" and excluded
+#   from brand statistics (T5).
+_BRAND_KEYS = {k.lower(): v for k, v in BRANDS.items()}
+RETAILERS = {"myntra"}
+COMPAT_WORDS = {"compatible", "for", "fits", "fit", "suitable", "replacement", "replacment"}
+# Device-model tokens that map to their parent brand. They name the host
+# device, not the seller, so on accessory rows they must not become the
+# brand ("iPhone 15 Case" is not an Apple product listing).
+DEVICE_KEYS = {"iphone", "ipad", "airpods", "macbook", "galaxy"}
+# C3: accessory = an accessory-class word next to a host-device word
+# ("iPhone 15 Case", "Watch Band", "Phone Holder"). A bag/tumbler alone
+# is a product, not an accessory.
+ACCESSORY_RE = re.compile(
+    r"\b(case|cover|back\s?cover|face\s?cover|strap|band|bands|cable|charger|holder|stand|"
+    r"mount|protector|screen\s?guard|screen\s?protector|tempered\s+glass|sticker|decal|skin|"
+    r"sleeve|pouch|dock|adapter|extender|remote|grip|refill|toner|ink|blade|charms|charms|loop)\b", re.I)
+HOST_RE = re.compile(
+    r"\b(iPhone|iPad|MacBook|AirPods|Apple\s?Watch|Galaxy|Pixel|smartphone|phone|smart\s?watch|"
+    r"watch|Kindle|laptop|laptop|TV|camera|DSLR|PS5|Xbox|Switch|earbuds|headphone|headset|"
+    r"router|monitor|projector|printer|console|gaming)\b", re.I)
+
+
+
+def _compat_context(title, start):
+    pre = re.findall(r"[A-Za-z0-9][A-Za-z0-9\-'.]*", title[max(0, start - 40):start])[-3:]
+    for w in pre:
+        wl = w.lower()
+        if wl in COMPAT_WORDS or wl.startswith("compat") or wl.startswith("replac"):
+            return True
+    return False
+
+
+def brand_of(title):
+    """-> (brand_display, brand_type) with leading position preferred."""
+    t = (title or "").strip()
+    if not t:
+        return "", None
+    toks = re.findall(r"[A-Za-z0-9][A-Za-z0-9\-'.]*", t)
+    for n in (1, 2, 3):
+        if len(toks) >= n:
+            cand = " ".join(toks[:n]).lower()
+            if cand in _BRAND_KEYS and not (toks[0].lower() in DEVICE_KEYS and is_accessory_of(t)):
+                name = _BRAND_KEYS[cand]
+                return name, ("retailer" if name.lower() in RETAILERS else None)
+    for m in _BRAND_RE.finditer(t):
+        if _compat_context(t, m.start()):
+            continue
+        key = m.group(1).lower()
+        if key in DEVICE_KEYS and is_accessory_of(t):
+            continue
+        name = BRANDS[key]
+        return name, ("retailer" if name.lower() in RETAILERS else None)
+    return "", None
+
+
+def is_accessory_of(title):
+    t = title or ""
+    return bool(ACCESSORY_RE.search(t) and HOST_RE.search(t))
 
 # Flagship product classes that MUST have genuine products in the catalogue
 # (weighted sampling over the top-rated Amazon pool otherwise over-indexes on
@@ -223,13 +287,6 @@ def occasion_tags(cat, title):
     if not tags and cat in ("Handmade", "Arts, Crafts & Sewing"):
         tags.append("gift")
     return tags
-
-
-def brand_of(title):
-    m = _BRAND_RE.search(title or "")
-    return BRANDS[m.group(1).lower()] if m else ""
-
-
 def load():
     frames = []
     for f in SRC:
@@ -401,16 +458,25 @@ def main():
 
     items = []
     for i, r in enumerate(sel.itertuples()):
+        brand_name, brand_type = brand_of(str(r.title))
         item = {
             "sku": f"AC-{i+1:05d}",
             "title": str(r.title).strip()[:200],
             "category": str(r.main_category).strip(),
-            "brand": brand_of(str(r.title)),
+            "brand": brand_name,
             "price": int(r.price_inr),
             "rating": round(float(r.average_rating), 2) if pd.notna(r.average_rating) else 0.0,
             "num_ratings": int(r.rating_number) if pd.notna(r.rating_number) else 0,
             "tags": occasion_tags(str(r.main_category), str(r.title)),
         }
+        # C1: origin of the SKU (T7: ~25k US-sourced converted + ~11k India layer)
+        item["origin"] = "india_layer" if str(getattr(r, "parent_asin", "")).startswith("IND-") else "us_converted"
+        # C2: brand_type present only for retailers (e.g. Myntra private label)
+        if brand_type:
+            item["brand_type"] = brand_type
+        # C3: accessory listings (cases/bands/chargers for a host device)
+        if is_accessory_of(item["title"]):
+            item["is_accessory"] = True
         # S7: India listing-matrix rows carry family_id/variant (NaN for US rows)
         if pd.notna(getattr(r, "family_id", None)):
             item["family_id"] = r.family_id

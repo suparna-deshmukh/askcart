@@ -42,7 +42,11 @@ export async function GET() {
   const byBrand = new Map();
   const byTag = new Map();
   let branded = 0;
+  let accessories = 0;
+  const origins = { us_converted: 0, india_layer: 0 };
   for (const it of catalog) {
+    origins[it.origin || "us_converted"]++;
+    if (it.is_accessory) accessories++;
     const c = byCat.get(it.category) || { count: 0, priceSum: 0, priceMin: Infinity, priceMax: 0, prices: [] };
     c.count++; c.priceSum += it.price;
     if (it.price < c.priceMin) c.priceMin = it.price;
@@ -71,6 +75,9 @@ export async function GET() {
     .sort((a, b) => b.count - a.count);
 
   const brands = [...byBrand.entries()]
+    // C2: retailers (Myntra private label) are not brands - excluded from
+    // the top-brand stats (they stay in the catalogue as brand tokens).
+    .filter(([name]) => name.toLowerCase() !== "myntra")
     .map(([name, c]) => ({
       name, count: c.count, share: c.count / n,
       medianPrice: Math.round(median(c.prices.sort((a, b) => a - b))),
@@ -114,6 +121,8 @@ export async function GET() {
     },
     brands: { count: byBrand.size, branded, brandedShare: branded / n, top: brands },
     occasionTagged: { count: tagged, share: tagged / n },
+    origins,
+    accessories: { count: accessories, share: accessories / n },
     categories,
     priceBands,
     ratingBuckets,

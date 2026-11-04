@@ -240,9 +240,8 @@ claim inflation, acceptance tests per item, commits `T3:`-style per item.
   `--success-bg`). 16/16 pairs pass.
 
 ## P2 (search engine + catalogue) — queue
-S1 DONE → S2 DONE → S3 DONE → S4 DONE (see below) →
-S7 family_id grouping → C2 brand extraction → C3 is_accessory →
-C1 origin field → G3 for-whom/size + capacity → G8 seasonal rails →
+S1 DONE → S2 DONE → S3 DONE → S4 DONE → S7 DONE → C1+C2+C3 DONE
+(see below) → G3 for-whom/size + capacity → G8 seasonal rails →
 G12 outcome micro-survey.
 
 - **S1 DONE** — typo tolerance in the guided scorer: Damerau (OSA)
@@ -282,12 +281,30 @@ G12 outcome micro-survey.
   stripped from the token stream so they never break all-required intent.
   Never budgets (verified: "1.5 ton ac under 50k" keeps the 50k cap and
   ranks 1.5-ton first). 9 spec canaries → 111/111 green.
-- **T8/T9 data** — full-corpus 6-class Qwen re-label complete: 4,639/4,639
-  labelled complaints across 4 slices (1,160+1,160+1,160+1,159). First
-  attempt failures = thinking-model token budget (fixed via
-  `enable_thinking: false`) + a proxy transient; final run: 0 failed
-  batches with max_retries=5. Merge + pipeline re-run + agreement stats
-  next.
+- **S7 DONE** — variant-family grouping. Catalog build: `family_id`
+  (sha1 brand|model|cat, 10 hex) + `variant` on every India
+  listing-matrix row; `scripts/build_catalog.py` then computes per family
+  (final members only) a `variant_summary` ("6 colours · 4 sizes";
+  pack/neutral/material variants count as "N variants") and
+  `family_min_price`. 2,217 multi-member families, 10,210 SKUs carry the
+  summary. /api/search + /api/catalog-preview?sku= return the extra
+  fields (additive; existing consumers unaffected). UI: `groupGrid` in
+  page.jsx folds one card per family (base title, "N colours · M sizes"
+  line, "from ₹X" when the top-ranked variant is not the cheapest) and
+  caps 2 cards per (brand, model) in the ranked grid (MMR). PDP: variant
+  selector (sibling chips, `variant_select` event — already allowlisted).
+  US-pool parentheticals are NOT families (only build-time family_id
+  groups). Canaries 111/111, ui tour 16 shots, sync check green.
+- **T8/T9 DONE** — full-corpus 6-class Qwen re-label: 4,639 (4 slices,
+  thinking disabled, `enable_thinking: false` fix) + 1,402-row retry pass
+  (`scripts/retry_llm_labels.py`, 200-char truncation, 71 batches, 0
+  failures) = 6,041/6,041. Pipeline re-run → final shares: trust_gap
+  3,285 (54.4) / not_search_related 1,822 (30.2) / budget 569 (9.4) /
+  zero_or_wrong 212 (3.5) / other 110 (1.8) / occasion 43 (0.7).
+  Agreement: accuracy 44.1%, macro-F1 0.240 (n=6,041). India-only
+  (3,054, fully labelled): trust 49.3 / nsr 42.4 / budget 3.6 / zero
+  3.4. Docs + HF bundle refreshed locally (no redeploy — no HF token in
+  env; manual step in `docs/evidence/deploy.md`).
 
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
@@ -343,3 +360,20 @@ S11 voice, dark theme, B8/B10. Floors that stay: canaries green per commit,
 CIs on all rates, 0 grounding failures, honest limitations section.
 
 ETA: ~5 h wall clock (range 4-6) from 2026-11-04 05:00 IST.
+  3.4. Docs + HF bundle refreshed locally (no redeploy — no HF token in
+  env; manual step in `docs/evidence/deploy.md`).
+- **C1+C2+C3 DONE** — one catalogue rebuild. C1/T7: per-SKU `origin`
+  (us_converted 24,998 / india_layer 11,047); docs reworded to
+  "India-oriented demo catalogue (36k SKUs: ~25k US-sourced converted +
+  ~11k India layer)". C2/T5: `brand_of` reworked — leading position
+  preferred, mid-title brand preceded by for/compatible/fits/suitable/
+  replacement = compatibility mention (not the brand), device tokens
+  (iphone/ipad/airpods/macbook/galaxy) never brand accessory rows,
+  Myntra kept with `brand_type: "retailer"` and excluded from top-brand
+  stats. Apple 757→183 SKUs (residual = Apple-ecosystem/MFi), Samsung
+  634→259 (median ₹2,079→₹3,329), branded 37.2%→33.5% (12,084).
+  C3: `is_accessory` (accessory word + host device; 2,276 SKUs, 6.3%) +
+  "Hide accessories" filter facet in the filter bar (filter_applied
+  filter_type=accessories). /api/search + /api/analytics/catalog carry
+  the new fields (additive). Canaries 111/111, ui tour 16 shots,
+  contrast 16/16, sync check green.

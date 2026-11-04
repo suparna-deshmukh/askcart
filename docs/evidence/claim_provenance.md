@@ -80,8 +80,17 @@ superseded by the ~95K total; the Play-Store-only subset is still 33,172.
     brand).
   - Final profile (v5): median Rs 2,419 (p25 1,249 / p75 6,489 / p90
     15,019 / p99 75,399); bands <=2k 42.9% (15,450) / 2-5k 26.2% (9,450) /
-    5-10k 14.4% (5,208) / 10-20k 9.4% (3,384) / >20k 7.1% (2,553); 37.2%
-    branded (13,406 SKUs); 11.5% occasion-tagged.
+    5-10k 14.4% (5,208) / 10-20k 9.4% (3,384) / >20k 7.1% (2,553); 33.5%
+    branded (12,084 SKUs); 6.3% accessories (2,276); 11.5% occasion-tagged.
+  - v7 per-SKU fields (C1/C2/C3/S7): `origin` us_converted 24,998 /
+    india_layer 11,047 (T7: "India-oriented demo catalogue", not "the
+    Indian catalogue"); `brand` with leading-position + compatibility
+    context rules and device-token suppression (T5: Apple 757 -> 183,
+    Samsung 634 -> 259 SKUs; residual Apple = ecosystem/MFi listings);
+    Myntra kept as brand token with brand_type="retailer", excluded from
+    top-brand stats; `is_accessory` (accessory word + host-device word)
+    powers the "Hide accessories" filter facet; `family_id`/`variant`/
+    `variant_summary` power S7 family cards.
 - Study: eval/results/results.json + queries_final.json (n=150, calibrated
   against the live app in deterministic guide mode)
   - baseline_null_pct = 27.3 (claim: 27%)

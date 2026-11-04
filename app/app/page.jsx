@@ -29,7 +29,7 @@ const PRICE_BANDS = [
   { id: "3-10k", label: "₹3k–10k", min: 3000, max: 10000 },
   { id: "10k+", label: "₹10k & up", min: 10000, max: Infinity },
 ];
-const DEFAULT_FILTERS = { sort: "relevance", brands: [], band: null, rating4: false, category: null };
+const DEFAULT_FILTERS = { sort: "relevance", brands: [], band: null, rating4: false, category: null, noAccessories: false };
 
 // O2: coarse region from pincode (demo use only: festival ordering +
 // delivery estimate). Coarse by design — analytics never see the pincode.
@@ -69,6 +69,8 @@ function applyFilters(items, f) {
     out = out.filter((r) => r.price >= b.min && r.price < b.max);
   }
   if (f.rating4) out = out.filter((r) => (r.rating || 0) >= 4);
+  // C3: accessory filter facet (cases/bands/chargers for host devices)
+  if (f.noAccessories) out = out.filter((r) => !r.is_accessory);
   if (f.category) out = out.filter((r) => r.category === f.category);
   out = [...out];
   if (f.sort === "price_asc") out.sort((a, b) => a.price - b.price);
@@ -647,6 +649,7 @@ function AskCartHome() {
       ? s.filters.brands.filter((x) => x !== value) : [...s.filters.brands, value] };
     else if (type === "price_band") nf = { ...s.filters, band: s.filters.band === value ? null : value };
     else if (type === "rating") nf = { ...s.filters, rating4: !s.filters.rating4 };
+    else if (type === "accessories") nf = { ...s.filters, noAccessories: !s.filters.noAccessories };
     else if (type === "category") nf = { ...s.filters, category: s.filters.category === value ? null : value };
     else if (type === "clear") nf = { ...DEFAULT_FILTERS };
     const nAfter = applyFilters(s.results, nf).length;
@@ -767,7 +770,7 @@ function AskCartHome() {
     return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([c]) => c);
   }, [s]);
   const f = s ? s.filters : DEFAULT_FILTERS;
-  const activeFilterCount = (f.brands.length ? 1 : 0) + (f.band ? 1 : 0) + (f.rating4 ? 1 : 0) + (f.category ? 1 : 0) + (f.sort !== "relevance" ? 1 : 0);
+  const activeFilterCount = (f.brands.length ? 1 : 0) + (f.band ? 1 : 0) + (f.rating4 ? 1 : 0) + (f.noAccessories ? 1 : 0) + (f.category ? 1 : 0) + (f.sort !== "relevance" ? 1 : 0);
 
   const cardProps = (from) => ({
     onAdd: (r) => addToCart(r, from),
@@ -947,6 +950,7 @@ function AskCartHome() {
                         <button key={b.id} className={f.band === b.id ? "fchip on" : "fchip"} onClick={() => setFilter("price_band", b.id)}>{b.label}</button>
                       ))}
                       <button className={f.rating4 ? "fchip on" : "fchip"} onClick={() => setFilter("rating", "4★+")}>4★ & up</button>
+                      <button className={f.noAccessories ? "fchip on" : "fchip"} onClick={() => setFilter("accessories", "hide")}>Hide accessories</button>
                       {brandOpts.length > 0 && (<><span className="fsep" /><span className="flabel">Brand</span>
                         {brandOpts.map((b) => (
                           <button key={b} className={f.brands.includes(b) ? "fchip on" : "fchip"} onClick={() => setFilter("brand", b)}>{b}</button>

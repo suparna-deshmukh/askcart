@@ -41,6 +41,9 @@ export async function POST(req) {
       if (r.variant) o.variant = r.variant;
       if (r.variant_summary) o.variant_summary = r.variant_summary;
       if (r.family_min_price != null) o.family_min_price = r.family_min_price;
+      // C2/C3: brand_type (retailers) + accessory flag (filter facet)
+      if (r.brand_type) o.brand_type = r.brand_type;
+      if (r.is_accessory) o.is_accessory = true;
       return o;
     }),
     parsed,
