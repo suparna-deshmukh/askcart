@@ -1,7 +1,7 @@
 # AskCart — Complete Project Dossier
 
 > Guided e-commerce search MVP · Next.js 15 · Vercel-ready · Qwen38-27B · DuckDB
-> Last updated: 2026-11-03 (v7 build) · Everything below is reproducible from this repo.
+> Last updated: 2026-11-04 (v7 build) · Everything below is reproducible from this repo.
 
 ---
 
@@ -14,24 +14,22 @@ for that. When the query is conversational, budget-bearing, occasion-bearing
 or recipient-bearing, the shopper hits one of four walls and leaves.
 
 **We did not guess those walls — we mined them.** An agentic extractor
-collected **94,643 real reviews** from 6 sources, a 6-stage DuckDB SQL
+collected **94,643 real reviews** from 5 sources, a 6-stage DuckDB SQL
 pipeline cleaned them to **87,603**, gated **6,041 search-UX complaints**,
-and each complaint was labelled with a 6-class taxonomy: **every one of the
-4,639 LLM-eligible complaints was labelled by Qwen** (full-corpus re-label,
-`data/out/rc_agreement.json`); the remaining 1,402 carry the pattern-scorer
-label (zero-LLM fallback). Honest caveat: scorer-vs-LLM agreement on the
-labelled set is **accuracy 39.0%, macro-F1 0.231** — the pattern scorer is
-weak, so LLM labels are primary and the scorer is kept only as the
-no-LLM fallback:
+and **every one of the 6,041 complaints was labelled by Qwen** (full-corpus
+re-label in two passes, `data/out/rc_agreement.json`). Honest caveat:
+scorer-vs-LLM agreement on the full labelled corpus is **accuracy 44.1%,
+macro-F1 0.240** — the pattern scorer is weak, so LLM labels are primary
+and the scorer is kept only as the zero-LLM fallback:
 
 | # | Root cause | Share of complaints | What it means for the shopper |
 |---|---|---|---|
-| RC1 | **trust_gap** | 55.4% (3,345) | "Is this brand/store even legit?" — no trust signal on the card, generic listings ranked above genuine ones |
-| RC5 | **not_search_related** | 24.3% (1,466) | The complaint passed the search-keyword gate but is about something else (crashes, account, app design) — reported, not forced into a search cause. Highest on Reddit (69% of its complaints) |
-| RC2 | **budget_mismatch** | 14.8% (895) | Query carried a budget ("under 2k") but results ignored it; p25–p75 price spread of the candidate set spans an order of magnitude in many categories |
-| RC3 | **zero_or_wrong** | 3.2% (196) | Empty results, or results from the wrong category — a dead end with no recovery path |
-| RC6 | **other** | 1.5% (88) | Shopping-relevant but fits no other class |
-| RC4 | **occasion_blindness** | 0.8% (51) | "gift", "shaadi", "diwali" are the *actual product spec* in Indian commerce; engines treat them as noise |
+| RC1 | **trust_gap** | 54.4% (3,285) | "Is this brand/store even legit?" — no trust signal on the card, generic listings ranked above genuine ones |
+| RC5 | **not_search_related** | 30.2% (1,822) | The complaint passed the search-keyword gate but is about something else (crashes, account, app design) — reported, not forced into a search cause. Highest on Reddit (88.6% of its complaints) |
+| RC2 | **budget_mismatch** | 9.4% (569) | Query carried a budget ("under 2k") but results ignored it; p25–p75 price spread of the candidate set spans an order of magnitude in many categories |
+| RC3 | **zero_or_wrong** | 3.5% (212) | Empty results, or results from the wrong category — a dead end with no recovery path |
+| RC6 | **other** | 1.8% (110) | Shopping-relevant but fits no other class |
+| RC4 | **occasion_blindness** | 0.7% (43) | "gift", "shaadi", "diwali" are the *actual product spec* in Indian commerce; engines treat them as noise |
 
   The four *search* causes still order the product: trust_gap is the
   largest by far, and budget is the next largest. The v6 4-class numbers
@@ -187,11 +185,11 @@ askcart/
   from a 6-tool catalog; every decision is audit-logged
   (`logs/agent_decisions.jsonl`). A greedy zero-LLM path runs the whole
   pipeline with no model access.
-- **LLM label verification**: full-corpus re-label — all 4,639
-  LLM-eligible complaints labelled by Qwen38-27B (4 parallel shards,
-  6-class taxonomy, thinking disabled), overrides merged in
-  `05_root_causes.sql`. Scorer-vs-LLM agreement: accuracy 39.0%,
-  macro-F1 0.231 (`data/out/rc_agreement.json`) — LLM labels are
+- **LLM label verification**: full-corpus re-label — all 6,041 complaints
+  labelled by Qwen38-27B (4 parallel shards + a 1,402-row retry pass for
+  full coverage, 6-class taxonomy, thinking disabled), overrides merged in
+  `05_root_causes.sql`. Scorer-vs-LLM agreement: accuracy 44.1%,
+  macro-F1 0.240 (`data/out/rc_agreement.json`) — LLM labels are
   primary; the pattern scorer is the zero-LLM fallback only.
 - **Trends**: Google Suggest (IN) autocomplete + Wikipedia pageviews
   seasonality → `data/out/trends_insights.json` (used as evidence that
@@ -480,9 +478,10 @@ Artifacts: `data/out/funnel.json`, `data/out/root_causes.json`,
   **6,041 shopping complaints** flagged → **6,041 root-cause labelled**
   (TF-IDF/k-means 4-cluster scaffold, silhouette checked in
   `data/out/cluster_check.json`; v6: 600-review Qwen-verified stratified
-  sample with 238 overrides; **v7: full-corpus Qwen re-label of all 4,639
-  LLM-eligible complaints (6-class taxonomy, thinking disabled, 4 shards,
-  ~15 min)** — the root-cause shares in this document are the v7 values,
+  sample with 238 overrides; **v7: full-corpus Qwen re-label of all 6,041
+  complaints (6-class taxonomy, thinking disabled, 4 parallel shards plus
+  a 1,402-row retry pass)** — the root-cause shares in this document are
+  the v7 values,
   and scorer-vs-LLM agreement is reported in `data/out/rc_agreement.json`).
 
   **Raw vs clean by source (T1)** — the v6 text conflated these; the two
@@ -501,19 +500,20 @@ Artifacts: `data/out/funnel.json`, `data/out/root_causes.json`,
   `data/out/gates_by_source.json` by the pipeline.
 - **Root-cause split** (6-class, final: LLM-labelled where available,
   pattern-scorer fallback otherwise; share of 6,041 · apps touched):
-  - trust_gap — can't tell good from bad: **3,345 (55.4%)** · 516 apps
+  - trust_gap — can't tell good from bad: **3,285 (54.4%)** · 515 apps
   - not_search_related — passed the search gate but is about something
-    else (crashes, account, design): **1,466 (24.3%)** · 208 apps
-  - budget_mismatch — price out of range: **895 (14.8%)** · 230 apps
-  - zero_or_wrong — nothing / wrong thing: **196 (3.2%)** · 32 apps
-  - other — shopping-relevant, no other class: **88 (1.5%)** · 32 apps
-  - occasion_blindness — wrong occasion: **51 (0.8%)** · 17 apps
-- **T8 scorer-vs-LLM agreement** (n=4,639 labelled): accuracy **39.0%**,
-  macro-F1 **0.231** — the pattern scorer is not reliable on its own
+    else (crashes, account, design): **1,822 (30.2%)** · 243 apps
+  - budget_mismatch — price out of range: **569 (9.4%)** · 174 apps
+  - zero_or_wrong — nothing / wrong thing: **212 (3.5%)** · 35 apps
+  - other — shopping-relevant, no other class: **110 (1.8%)** · 36 apps
+  - occasion_blindness — wrong occasion: **43 (0.7%)** · 14 apps
+- **T8 scorer-vs-LLM agreement** (n=6,041, fully labelled): accuracy
+  **44.1%**, macro-F1 **0.240** — the pattern scorer is not reliable on its own
   (it has no `other` / `not_search_related` class and over-calls
   budget/zero on trust complaints). Full confusion matrix, LLM-only vs
   scorer-only shares, and the India-only cut (Play IN + India Reddit,
-  n=3,054: trust 52.5 / not-search-related 33.4 / budget 9.7 / zero 3.2)
+  n=3,054, fully labelled: trust 49.3 / not-search-related 42.4 /
+  budget 3.6 / zero 3.4)
   in `data/out/rc_agreement.json` (regenerated by
   `scripts/rc_agreement.py`). A 100-row founder-labelled subset is still
   pending (needs a human) — agreement above is LLM↔scorer, not human↔*.
@@ -1039,8 +1039,9 @@ Individual steps:
   https://pm-ai-18-askcart-extractor.static.hf.space/
   (rebuild: `scripts/build_hf_space.py` + `scripts/stage_deploy.py`).
   Local: `.venv/bin/python extractor/extract_llm.py` (full-corpus
-  Qwen-labelled, 4,639 reviews, `--slice i/4` for 4 parallel shards,
-  ~15 min with thinking disabled).
+  Qwen-labelled, all 6,041 reviews: `--slice i/4` for 4 parallel shards
+  plus `scripts/retry_llm_labels.py` for the rows above the stratified
+  cap, thinking disabled).
 - Pipeline: `.venv/bin/python pipeline/run_pipeline.py` →
   `data/out/{askcart.duckdb,funnel,root_causes,bayesian,cluster_check}`.
 - Catalogue: `scripts/build_catalog.py` (+ `catalog_india.py`,

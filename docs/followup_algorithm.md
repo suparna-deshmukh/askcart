@@ -23,19 +23,19 @@ a different cheapest fix:
 The 6-stage DuckDB pipeline (`pipeline/run_pipeline.py`) processed
 **94,643 raw reviews** (Play Store 33,172 · App Store 3,450 · Reddit 3,021 ·
 Amazon 40,000 · Trustpilot 15,000) → 87,603 clean → 6,041 shopping complaints,
-classified by a 6-class taxonomy. v7: every LLM-eligible complaint
-(4,639) is Qwen-labelled (full corpus); the pattern scorer is the
-zero-LLM fallback (scorer-vs-LLM agreement: accuracy 39.0%, macro-F1
-0.231 — `data/out/rc_agreement.json`). The root causes:
+classified by a 6-class taxonomy. v7: all 6,041 complaints are
+Qwen-labelled (full corpus, 4 shards + 1,402-row retry pass); the pattern
+scorer is the zero-LLM fallback (scorer-vs-LLM agreement: accuracy 44.1%,
+macro-F1 0.240 — `data/out/rc_agreement.json`). The root causes:
 
 | Root cause | Share of complaints | Question that fixes it |
 |---|---|---|
-| trust_gap (can't tell good from bad) | 55.4% | brand / best-rated (asked last — it refines, it doesn't rescue) |
-| not_search_related (passed the gate, not about search) | 24.3% | — (reported honestly, not forced into a search cause; no question) |
-| budget_mismatch (price out of range) | 14.8% | budget |
-| zero_or_wrong (nothing / wrong thing) | 3.2% | category disambiguation |
-| other (shopping-relevant, no other class) | 1.5% | — |
-| occasion_blindness (wrong occasion) | 0.8% | occasion |
+| trust_gap (can't tell good from bad) | 54.4% | brand / best-rated (asked last — it refines, it doesn't rescue) |
+| not_search_related (passed the gate, not about search) | 30.2% | — (reported honestly, not forced into a search cause; no question) |
+| budget_mismatch (price out of range) | 9.4% | budget |
+| zero_or_wrong (nothing / wrong thing) | 3.5% | category disambiguation |
+| other (shopping-relevant, no other class) | 1.8% | — |
+| occasion_blindness (wrong occasion) | 0.7% | occasion |
 
 **Why budget beats brand in order**: trust_gap is the *largest* root cause,
 but it only matters *after* the candidate set is small enough to be browsed.
