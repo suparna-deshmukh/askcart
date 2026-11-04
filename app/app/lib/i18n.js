@@ -95,9 +95,13 @@ const STRINGS = {
   },
 };
 
-export function t(lang, key) {
+export function t(lang, key, vars) {
   const table = STRINGS[lang] || STRINGS.en;
-  return table[key] !== undefined ? table[key] : STRINGS.en[key];
+  let str = table[key] !== undefined ? table[key] : STRINGS.en[key];
+  if (vars && typeof str === "string") {
+    for (const [k, v] of Object.entries(vars)) str = str.split("{" + k + "}").join(String(v));
+  }
+  return str;
 }
 
 // Occasion option labels per language (fixed vocabulary, maps 1:1 to tags).

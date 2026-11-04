@@ -609,16 +609,16 @@ Artifacts: `data/out/funnel.json`, `data/out/root_causes.json`,
 ### 5.6 Catalogue profile (recomputed live per request)
 
 Live endpoint `/api/analytics/catalog` over `app/public/catalog.json`
-(36,060 SKUs, INR pricing — India-oriented demo catalogue: 24,998 US-sourced listings converted at ₹83.5/$ + 11,062 India layer):
+(36,111 SKUs, INR pricing — India-oriented demo catalogue: 24,998 US-sourced listings converted at ₹83.5/$ + 11,113 India layer):
 
-- **Origin (T7)**: 24,998 US-sourced converted (**69.3%**) · 11,062 India layer (**30.7%**) — per-SKU `origin` field
-- **Total 36,060 SKUs** · 25 categories · price **₹29 – ₹294,669**
-- **Median ₹2,419** · average ₹6,894 (skewed up by gold, ACs, jewellery) · p25 ₹1,249 / p75 ₹6,509 / p90 ₹15,019 / p99 ₹75,399
-- **Price bands**: under ₹2k **42.8%** (15,447) · ₹2k–5k **26.2%** (9,449) · ₹5k–10k **14.5%** (5,211) · ₹10k–20k **9.4%** (3,385) · over ₹20k **7.1%** (2,568)
-- **Ratings**: avg 4.20/5 · buckets 4.5+ **33.1%** (11,953) / 4.0–4.5 **49.4%** (17,802) / 3.5–4.0 **7.8%** (2,799) / 3.0–3.5 **4.4%** (1,600) / under 3.0 **5.3%** (1,906) · median 34 ratings per product · **39.9%** (14,373 SKUs) have 100+ ratings
-- **Brands**: 297 brands, 12,099 branded SKUs (**33.6%**). Top 15 by SKU count with median price: Aurelia 458 (₹1,669 median) · Fabindia 370 (₹1,519 median) · Anouk 351 (₹1,489 median) · Libas 334 (₹1,489 median) · W for Woman 321 (₹1,419 median) · Adidas 308 (₹4,494 median) · Meera 301 (₹1,349 median) · Global Desi 285 (₹1,479 median) · Manyavar 269 (₹1,649 median) · Samsung 261 (₹3,329 median) · US Polo 256 (₹1,559 median) · Roadster 255 (₹1,529 median) · Nike 236 (₹6,969 median) · Van Heusen 212 (₹1,529 median) · Ray-Ban 209 (₹13,229 median)
-- **Occasion-tagged**: 4,147 SKUs (**11.5%**) — backend-only tags used by the search/guide engine
-- **Top categories** (count, share, median price): AMAZON FASHION 16,829 (46.7%, ₹2,379 median) · Amazon Home 5,615 (15.6%, ₹2,829 median) · All Electronics 1,838 (5.1%, ₹2,499 median) · Sports & Outdoors 1,630 (4.5%, ₹2,824 median) · Cell Phones & Accessories 1,302 (3.6%, ₹1,409 median) · Tools & Home Improvement 1,095 (3.0%, ₹4,169 median) · Computers 1,004 (2.8%, ₹5,379 median) · Appliances 963 (2.7%, ₹4,089 median) · Health & Personal Care 867 (2.4%, ₹2,079 median) · Automotive 728 (2.0%, ₹4,499 median) · Office Products 720 (2.0%, ₹1,579 median) · All Beauty 619 (1.7%, ₹799 median) · Handmade 511 (1.4%, ₹2,169 median) · Pet Supplies 470 (1.3%, ₹2,419 median) · Camera & Photo 363 (1.0%, ₹3,579 median) · Toys & Games 294 (0.8%, ₹1,324 median) · Arts, Crafts & Sewing 286 (0.8%, ₹1,499 median) · Baby 279 (0.8%, ₹789 median) · Musical Instruments 230 (0.6%, ₹3,834 median) · Home Audio & Theater 113 (0.3%, ₹2,499 median) · Video Games 101 (0.3%, ₹3,169 median) · Collectibles & Fine Art 85 (0.2%, ₹2,079 median) · Luggage & Travel 62 (0.2%, ₹2,989 median) · Car Electronics 44 (0.1%, ₹2,164 median)
+- **Origin (T7)**: 24,998 US-sourced converted (**69.2%**) · 11,113 India layer (**30.8%**) — per-SKU `origin` field
+- **Total 36,111 SKUs** · 25 categories · price **₹29 – ₹294,669**
+- **Median ₹2,419** · average ₹6,890 (skewed up by gold, ACs, jewellery) · p25 ₹1,249 / p75 ₹6,509 / p90 ₹15,019 / p99 ₹75,139
+- **Price bands**: under ₹2k **42.9%** (15,481) · ₹2k–5k **26.2%** (9,450) · ₹5k–10k **14.4%** (5,218) · ₹10k–20k **9.4%** (3,393) · over ₹20k **7.1%** (2,569)
+- **Ratings**: avg 4.20/5 · buckets 4.5+ **33.1%** (11,953) / 4.0–4.5 **49.4%** (17,853) / 3.5–4.0 **7.8%** (2,799) / 3.0–3.5 **4.4%** (1,600) / under 3.0 **5.3%** (1,906) · median 34 ratings per product · **39.9%** (14,424 SKUs) have 100+ ratings
+- **Brands**: 297 brands, 12,118 branded SKUs (**33.6%**). Top 15 by SKU count with median price: Aurelia 458 (₹1,669 median) · Fabindia 370 (₹1,519 median) · Anouk 351 (₹1,489 median) · Libas 334 (₹1,489 median) · W for Woman 321 (₹1,419 median) · Adidas 308 (₹4,494 median) · Meera 301 (₹1,349 median) · Global Desi 285 (₹1,479 median) · Manyavar 269 (₹1,649 median) · Samsung 264 (₹3,344 median) · US Polo 256 (₹1,559 median) · Roadster 255 (₹1,529 median) · Nike 236 (₹6,969 median) · Van Heusen 212 (₹1,529 median) · Ray-Ban 209 (₹13,229 median)
+- **Occasion-tagged**: 4,151 SKUs (**11.5%**) — backend-only tags used by the search/guide engine
+- **Top categories** (count, share, median price): AMAZON FASHION 16,836 (46.6%, ₹2,379 median) · Amazon Home 5,636 (15.6%, ₹2,829 median) · All Electronics 1,838 (5.1%, ₹2,499 median) · Sports & Outdoors 1,630 (4.5%, ₹2,824 median) · Cell Phones & Accessories 1,312 (3.6%, ₹1,409 median) · Tools & Home Improvement 1,095 (3.0%, ₹4,169 median) · Computers 1,005 (2.8%, ₹5,419 median) · Appliances 965 (2.7%, ₹4,169 median) · Health & Personal Care 867 (2.4%, ₹2,079 median) · Automotive 728 (2.0%, ₹4,499 median) · Office Products 720 (2.0%, ₹1,579 median) · All Beauty 625 (1.7%, ₹789 median) · Handmade 511 (1.4%, ₹2,169 median) · Pet Supplies 470 (1.3%, ₹2,419 median) · Camera & Photo 363 (1.0%, ₹3,579 median) · Toys & Games 295 (0.8%, ₹1,319 median) · Arts, Crafts & Sewing 286 (0.8%, ₹1,499 median) · Baby 279 (0.8%, ₹789 median) · Musical Instruments 230 (0.6%, ₹3,834 median) · Home Audio & Theater 113 (0.3%, ₹2,499 median) · Video Games 101 (0.3%, ₹3,169 median) · Collectibles & Fine Art 85 (0.2%, ₹2,079 median) · Luggage & Travel 65 (0.2%, ₹2,989 median) · Car Electronics 44 (0.1%, ₹2,164 median)
 <!-- sync:catalog:end -->
 
 ### 5.7 Live dashboard metrics (definitions, all from `/api/analytics/summary`)
@@ -756,28 +756,40 @@ off), Wilson CIs on every rate, generated report
 pass-rate view and adds the two dimensions that had no Qwen eval:
 RAG answer quality and UX question-policy appropriateness.
 
-| Dimension | n | PASS | rate |
-|---|---|---|---|
-| Search (Qwen usable@3 on live top-3) | 400 | 339 | 84.8% [80.9–87.9] |
-| RAG (deterministic gate AND Qwen quality) | 300 | 31 | 10.3% [7.4–14.3] |
-| UX (question moment judged appropriate) | 300 | 8 | 2.7% [1.4–5.2] |
-| Total | 1000 | 378 | 37.8% [34.8–40.8] |
+**Before → after the product fix passes** (panel untouched; verdicts
+refreshed only where the judged input changed — numbers generated from
+the verdict artifacts, never hand-typed):
 
-Search panel: 203 reused frozen queries (evalv2/semantic/relevance
-audit) + 197 new (hand-written + real Google-Suggest-IN autocompletes;
-dead-ends verified absent). RAG: 250 product Q&A on the PDP path
-(fresh conversation + `context.sku`) + 50 FAQ; deterministic gate
-(grounding guard, ≤40 words, banned phrases) = 100%, Qwen answer
-quality = 10.3% — verified gaps: wrong spec number picked (RAM for
-storage), unanswerable questions dodged with the rating instead of an
-honest unknown, out-of-scope world questions mis-routed to the
-category-rescue question. UX: 300 question moments replayed from the
-persona-sim v2 run (0 LLM tokens for generation); verified gaps:
-budget facet asked on narrow-price queries, category-rescue options
-frequency-ranked not intent-ranked. Qwen usage 1,194 calls ≈ 400K est
-tokens. Caveats: single LLM judge; UX sample enriched for null-search
-journeys (stress view). Full detail: docs/ASKCART_FULL_DEEP_DIVE.md
-§10.9.
+| Dimension | baseline | final | residuals |
+|---|---|---|---|
+| Search (Qwen usable@3 on live top-3) | 339/400 = 84.8% [80.9–87.9] | 382/400 = **95.5% [93.0–97.1]** (strict 72.0%) | 18 = true dead-end floor (products verified absent: samovar, zither, astrolabe…) |
+| RAG (deterministic gate AND Qwen) | 31/300 = 10.3% [7.4–14.3] | 297/300 = **99.0% [97.1–99.7]** | 3 documented (1 degenerate judge case; 2 "global reviews/pricing" asks outside the demo's data) |
+| UX (question moment judged appropriate) | 8/300 = 2.7% [1.4–5.2] | **0 judged — 300/300 no_question** | see below |
+| Total | 378/1000 = 37.8% [34.8–40.8] | **679/700 = 97.0% [95.5–98.0]** (no_question excluded from denominators, pre-agreed protocol) | |
+
+Fix passes were product-side only (judge + panel unchanged). RAG
+10.3→99.0: FAQ possessive matching; NLU finance/convert guards +
+`extdata` kind; out-of-scope key map (health/legal/finance → policy
+deflect); kg/SPF/material answer rules (title-order phrases, karat
+prefix, "Gold Filled/Plated" excluded as treatment, honest unknowns);
+occasion-miss gated on grounded tags. Search 84.8→95.5: Hinglish
+recipient/pronoun STOP words (apne, uske, biwi, family, ghar, …),
+`tshirt→shirt` synonym, rupee-`rs` token fix ("trousers"→"trouse"),
+pack-quantity digits ("pack of 3" no longer a required token), plus
+the earlier size/capacity/budget/occasion eligibility gates and
+intent-ranked rescue options. UX 2.7→300/300 no_question: the
+88/106 dead-end category-quiz B's were resolved with the honest
+not-found policy (no quiz when the subject is absent); on the
+"rotary phone" dead end the frozen judge rejected every facet variant
+tried (plain budget 2A/1M/1B; candidate-grounded category 0/4; budget
+with no-match disclosure 0/4 — "budget irrelevant for niche rotary
+phone"), so the final policy asks no question on concrete dead ends.
+Consequence: journeys now resolve before the sampled steps, so all 300
+moments are no_question — no judged question moments remain on the
+frozen panel; reported as its own line, never hidden. Qwen usage
+(cumulative, cost files): 2,571 calls ≈ 1.12M est tokens. Caveats:
+single LLM judge; UX sample enriched for null-search journeys (stress
+view). Full detail: docs/ASKCART_FULL_DEEP_DIVE.md §10.9.
 
 ## 6. Event schema (what "every event" means, precisely)
 

@@ -1,4 +1,4 @@
-# AskCart - Build Status (last updated 2026-11-04, v6 - 36,045-SKU catalogue, search v6, production UI)
+# AskCart - Build Status (last updated 2026-11-04, v6 - 36,111-SKU catalogue, search v6, production UI)
 
 ## Point 1 - Agentic extractor: DONE (LIVE on Hugging Face)
 - HF Space (same pattern as the photo project):
@@ -773,3 +773,88 @@ BEFORE any run (2b81ab5), then ran it.
   this STATUS entry. No app-code change (eval-only), so the standing
   gates (canaries 111+5, semantic suite, chat 76/76/0/37-37, ui tour
   17, contrast 16/16) stand; sync_doc_numbers --check green.
+
+## Qwen suite 90%+ push — product-side fix passes: search 95.5 / RAG 99.0 / UX 300 no_question (2026-11-04 late night)
+
+- **Mission**: bring all three Qwen-suite dimensions to ≥90% via
+  product-code fixes only (frozen panel `e8f01a06d883bf79`, frozen judge
+  prompts, no methodology changes). **Final**: search 382/400 =
+  **95.5% [93.0–97.1]** usable@3 (strict 72.0%), RAG 297/300 =
+  **99.0% [97.1–99.7]**, UX **0 judged — 300/300 no_question** (see
+  honest note below), overall 679/700 = 97.0% [95.5–98.0] on the
+  protocol denominator. Generated report:
+  `eval/qwen_suite/results/summary.md` (all numbers from verdict
+  artifacts).
+- **Search fixes (intent-token bugs found via the 37 rescue-with-
+  candidates UX moments)**: Hinglish recipient/pronoun words leaked
+  into REQUIRED tokens and zeroed intent matching — STOP += apne/apni/
+  apna/apno, khud, uske/uski/uska, biwi, patni, family, ghar ("candle
+  apne liye" → 0 intent on 12 candles; "watch uske liye" → 0 intent on
+  12 watches); `tshirt→shirt` SYNONYMS entry (the Devanagari lexicon
+  maps टी-शर्ट→tshirt, which matches no title — titles tokenize to
+  "t"+"shirt"); rupee-`rs` cleanup fix (`/rs|rupees/` ate word-final
+  "rs": "trousers"→"trouse" → now boundary+digit-glued only);
+  pack-quantity digits dropped from tokens ("tshirt pack of 3 under
+  999" — the "3" let Shuttlecock 3-Packs outrank T-shirt 2-packs;
+  "pack of 3" is a count, not a product attribute). Effect: 13 panel
+  top-3s changed (12 flips all to pass: anniversary/housewarming gift
+  queries + tshirt cases), 18 documented dead-ends unchanged → 95.5%.
+- **UX dead-end policy + 3 judge-verified variant trials** (the one
+  dead end with close candidates in the panel, "rotary phone", 4
+  seq-0 + 4 seq-1 moments): (1) plain budget with top-48-grounded
+  bands (the full 723-hit stats are accessory-dominated, p50 ₹1,499 —
+  bands grounded in the on-screen candidates instead) → 2A/1M/1B
+  ("budget irrelevant for niche rotary phone"); (2) category
+  clarification with options from the query's own candidate set
+  (Cell Phones & Accessories 398 / All Electronics 199 / Computers 76 /
+  Camera & Photo 19) → 4/4 B ("category options ignore specific rotary
+  phone"); (3) budget with no-match disclosure in the question text
+  (new i18n `qBudgetDeadEnd` × 3 langs + parameterized `t()`) → 3B/1M.
+  The frozen judge's consistent position: no facet fits an
+  out-of-catalogue product type → **final policy asks no question on
+  concrete dead ends** (honest not-found + closest picks + rephrase
+  chips; vague/gift/self-ref keep disambiguation). All three variants
+  fully reverted after testing (code is clean no-quiz).
+- **UX copy fix (page.jsx)**: the no-exact-match block renders only
+  when no question card is shown, but both fallback texts referenced
+  "the question/option above" — dangling after the no-quiz policy;
+  rewritten (empty-result copy + EXAMPLES chips now shown for every
+  zero-result dead end, not only exhausted ones).
+- **Previous session's UX gate fixes verified** (size
+  FIT_GARMENT+KIDS_QUERY, capacity appliance-only, budget ≥10%
+  coverage, occasion skip on stated age, Devanagari "N saal" age,
+  spectacles/चश्मा + चूड़ी/राइस कुकर/परफ्यूम lexicon): all 104
+  previously-judged B moments are now no_question (journeys resolve at
+  turn 1 or end as honest not-found).
+- **RAG untouched this pass**: refresh_rag (0 tokens, in-process)
+  → 300/300 replies byte-identical → 99.0% stands; the 3 documented
+  residuals remain (qs_r_0050 degenerate judge case; qs_r_0285/0290
+  global-data asks).
+- **Script fixes (previous session, noted here for the record)**:
+  refresh_rag.mjs kept nothing because it never returned det_ok
+  (compare now uses the full identity including det fields);
+  refresh_ux.py tolerated missing/old-format records.
+- **Gates (all re-run green after every product change)**: canaries
+  111+5 (0 fail) ×4 runs; semantic suite ALL TESTS PASS (no-op
+  guarantee incl.) ×2; chat eval CHAT_LLM=0 76/76 intent / 0 grounding
+  / 37/37 safe / GATES PASS ×2; ui tour 17 shots; contrast 16/16;
+  sync_doc_numbers --check OK. Dev server = managed exec session
+  (localhost:3000) — restarted-safe since no catalog/index change.
+- **Qwen spend this session**: search 14 re-judges (~2 calls batched),
+  UX 20 re-judges (4+8+4+4 across the variant trials), RAG 0 →
+  cumulative suite spend now 2,571 calls ≈ 1.12M est tokens
+  (cost_*.json).
+- **Honest notes**: (1) UX on the frozen panel is now 0/0 judged —
+  the question-economy improvements (search fixes + dead-end no-quiz)
+  removed every sampled question; that is reported as its own line,
+  not as a pass rate, and a ≥90% UX number is NOT claimed on this
+  panel. Re-measuring UX properly needs a fresh (non-frozen) panel of
+  the current build's question moments — flagged for user decision,
+  not done unilaterally. (2) Semantic frozen-panel numbers predate
+  this lexical pass (search-side changes can shift arm A/C top-3s);
+  the no-op guarantee and canaries stand — a panel re-run is the
+  honest follow-up if those numbers are cited. (3) No GitHub/remote —
+  local commits only, `T3:` prefix.
+- **Docs**: PROJECT.md §5.10 final before/after table, deep-dive
+  §10.9 fix-pass detail + dead-end variant table, report.py findings
+  line (final state), summary.md regenerated.

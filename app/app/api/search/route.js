@@ -28,7 +28,7 @@ export async function POST(req) {
   const parsed = parseQuery(q);
   const forWhom = ["women", "men", "kids", "unisex"].includes(body.forWhom) ? body.forWhom : null;
   const limit = Math.max(1, Math.min(96, Number(body.limit) || 12));
-  const results = search(catalog, q, {
+  const searchOpts = {
     relax,
     naive,
     category: body.category || null,
@@ -40,7 +40,21 @@ export async function POST(req) {
     size: ["xxl", "xl", "l", "m", "s", "xs"].includes(String(body.size || "").toLowerCase()) ? String(body.size).toLowerCase() : null,
     capacity: body.capacity && /^[\d.]+\s*(ton|kg|l)$/i.test(String(body.capacity)) ? String(body.capacity) : null,
     limit,
-  });
+  };
+  let results = search(catalog, q, searchOpts);
+  // Server-side budget relax (parity with the chat dialog path): a strict
+  // cap that leaves <2 on-intent results is retried with the existing x1.6
+  // relax, and the picks carry `relaxed: true` (the UI labels them).
+  // Queries with >=2 on-intent strict results are untouched.
+  const effBudget = numOrNull(body.budget) != null ? numOrNull(body.budget) : parsed.budgetMax;
+  if (!relax && !naive && effBudget !== null) {
+    const strictN = results.filter((r) => r.intent).length;
+    if (strictN < 2) {
+      const rel = search(catalog, q, { ...searchOpts, relax: true });
+      const relN = rel.filter((r) => r.intent).length;
+      if (relN > strictN) results = rel;
+    }
+  }
   // ---- semantic fallback (additive) -------------------------------------
   // Runs ONLY when lexical search returns <2 on-intent results (the existing
   // null condition), so resolved queries return byte-identical responses.

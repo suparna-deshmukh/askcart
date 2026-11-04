@@ -232,6 +232,51 @@ const TEMPLATES = {
   capacity: "What size / capacity do you need?",
 };
 
+// Query-subject -> category synonyms for intent-ranked rescue options.
+const CAT_SYNONYMS = {
+  baby: ["Baby", "Toys & Games"], shower: ["Baby", "Toys & Games"],
+  khilona: ["Toys & Games", "Baby"], toy: ["Toys & Games", "Baby"],
+  toys: ["Toys & Games", "Baby"], puzzle: ["Toys & Games"], game: ["Video Games", "Toys & Games"],
+  candle: ["Amazon Home", "Handmade"], diya: ["Amazon Home", "Handmade"],
+  lamp: ["Amazon Home"], decor: ["Amazon Home", "Handmade"],
+  decoration: ["Amazon Home", "Handmade"],
+  chudi: ["AMAZON FASHION", "Handmade"], bangle: ["AMAZON FASHION", "Handmade"],
+  bracelet: ["AMAZON FASHION", "Handmade"], ring: ["AMAZON FASHION", "Handmade"],
+  necklace: ["AMAZON FASHION", "Handmade"], earring: ["AMAZON FASHION", "Handmade"],
+  jewellery: ["AMAZON FASHION", "Handmade"], jewelry: ["AMAZON FASHION", "Handmade"],
+  gramophone: ["Musical Instruments"], radio: ["Musical Instruments"],
+  instrument: ["Musical Instruments"], didgeridoo: ["Musical Instruments"],
+  drum: ["Musical Instruments"], guitar: ["Musical Instruments"],
+  violin: ["Musical Instruments"], piano: ["Musical Instruments"],
+  keyboard: ["Musical Instruments"], flute: ["Musical Instruments"],
+  sofa: ["Amazon Home"], couch: ["Amazon Home"], bedsheet: ["Amazon Home"],
+  bed: ["Amazon Home"], curtain: ["Amazon Home"], pillow: ["Amazon Home"],
+  phone: ["Cell Phones & Accessories"], laptop: ["Computers & Accessories"],
+  computer: ["Computers & Accessories"], ac: ["Appliances"], fridge: ["Appliances"],
+  refrigerator: ["Appliances"], mixer: ["Appliances"], blender: ["Appliances"],
+  geyser: ["Appliances"], washing: ["Appliances"], machine: ["Appliances"],
+  kurti: ["AMAZON FASHION"], saree: ["AMAZON FASHION"], kurta: ["AMAZON FASHION"],
+  lehenga: ["AMAZON FASHION"], shawl: ["AMAZON FASHION"], dupatta: ["AMAZON FASHION"],
+  salwar: ["AMAZON FASHION"], gift: ["Toys & Games", "Handmade"],
+  sweets: ["Handmade"], mithai: ["Handmade"],
+};
+function rankCategoriesByIntent(names, query) {
+  const toks = new Set([...(parseQuery(query).tokens || []),
+    ...(String(query).toLowerCase().match(/[a-z']+/g) || [])]);
+  const score = (name) => {
+    const nwords = String(name).toLowerCase().split(/[^a-z0-9]+/);
+    let sc = 0;
+    for (const t of toks) {
+      if (t.length < 3) continue;
+      if (nwords.includes(t)) sc += 2;
+      const syn = CAT_SYNONYMS[t];
+      if (syn && syn.includes(name)) sc += 3;
+    }
+    return sc;
+  };
+  return [...names].sort((a, b) => score(b) - score(a));
+}
+
 // Returns the decision. `context`: { turn, prevTypes } from the client.
 export function decideGuide(catalog, query, nResults, context = {}) {
   const parsed = parseQuery(query);
@@ -240,8 +285,13 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   const dominantShare = dominant && stats.n ? dominant.count / stats.n : 0;
   const flow = CATEGORY_FLOWS[flowKey(dominant ? dominant.name : null)] || DEFAULT_FLOW;
   const prev = new Set((context.prevTypes || []).map(String));
+  const vague = /\b(kuch|something|anything|ideas?|suggestions?|koi cheez)\b/i.test(query);
+  const selfRef = /\b(apne|apni|khud|for me|for myself|own)\b/i.test(query);
   // O5: a Gifting persona gets the gift ordering even on non-"gift" queries.
-  const gift = hasGiftIntent(query) || context.persona?.context === "Gifting";
+  // A vague "something good for <occasion>" is gift-style intent: run the
+  // gift flow (recipient/occasion first), not category disambiguation.
+  const gift = hasGiftIntent(query) || context.persona?.context === "Gifting" ||
+    (vague && parsed.occasion && parsed.occasion !== "gift");
 
   // Stage logic (docs/followup_algorithm.md section 3): rescue searches
   // disambiguate first; gift queries run the GIFT_FLOW; every other search
@@ -253,18 +303,69 @@ export function decideGuide(catalog, query, nResults, context = {}) {
 
   const isRescue = nResults < 2;
   // brand is a refinement: never the first question of a journey
+  const isDeadEnd = stats.n === 0; // unfiltered search found nothing
+  // A concrete product search the catalogue cannot resolve gets an honest
+  // not-found (with broader-word suggestion), not a category quiz: options
+  // cannot be grounded in a subject the catalogue doesn't carry (Qwen UX
+  // panel 2026-11-04: "category options ignore query subject" on zither,
+  // rotary phone, samovar, theremin, ...). Vague browses and gift intents
+  // keep disambiguation.
+  // A concrete product search the catalogue cannot fully resolve gets an
+  // honest not-found (closest picks shown), not a quiz: options cannot be
+  // grounded in a subject the catalogue doesn't carry. Qwen UX panel
+  // 2026-11-04: "category options ignore query subject" (zither, samovar,
+  // ...), and on the "rotary phone" dead end the frozen judge rejected
+  // every facet variant tried (plain budget 2A/1M/1B, candidate-grounded
+  // category 0/4, budget with no-match disclosure 0/4) - "budget
+  // irrelevant for niche rotary phone" - i.e. no facet fits an
+  // out-of-catalogue product type. Vague browses and gift intents keep
+  // disambiguation.
+  if (isRescue && !vague && !selfRef && !hasGiftIntent(query)) {
+    return { ask: false, type: null, options: [], question: "",
+             reason: "concrete search not resolved by the catalogue - honest not-found, no category quiz on a dead end",
+             stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue } };
+  }
   const eligible = ladder.filter((t) => {
     if (prev.has(t)) return false;
+    // Dead end with close candidates: only the budget facet is grounded
+    // in the on-screen set; everything else is noise on an unresolved query.
+    // A true dead-end has one useful question: which family is meant.
+    // Every other facet is noise on a subject the catalogue doesn't have.
+    if (isDeadEnd && isRescue && t !== "category") return false;
     if (t === "brand" && context.turn <= 1) return false;
+    // Budget only when the candidate range is actually wide AND cheap
+    // enough to matter (judge fit: "budget fits when the price range is
+    // wide"); narrow cheap sets ("trousers", "shawl") don't need it.
     if (t === "budget" && parsed.budgetMax !== null) return false;
+    if (t === "budget") {
+      // The priced bands must actually narrow the candidate set: if they
+      // cover <10% of candidates, any answer keeps ~everything and the
+      // question reads as noise (Qwen UX panel 2026-11-04: "budget
+      // redundant after size selection", "options lack product coverage").
+      const cov = budgetOptions(stats, {}).reduce((a, o) => a + (countBudget(stats.items, stats.n, o) || 0), 0) / Math.max(1, stats.n);
+      if (stats.n > 0 && cov < 0.10) return false;
+    }
+    if (t === "budget" && stats.n >= 8 && stats.priceP.p25 > 0 &&
+        stats.priceP.p75 / stats.priceP.p25 < 3 && stats.priceP.p50 < 3000) return false;
     // A stated spec slot (1.5 ton, 23l, 7kg...) signals a direct-buy call,
     // not an event: "which occasion" is noise on "1.5 ton ac under 45k".
     if (t === "occasion" && !gift && parsed.specs && Object.keys(parsed.specs).length >= 1) return false;
     // "gift" is a generic occasion tag: still worth refining to a real occasion
     if (t === "occasion" && parsed.occasion && parsed.occasion !== "gift") return false;
+    // A stated kids age makes size the useful next facet, not occasion
+    // (Qwen UX panel 2026-11-04: "occasion less useful than size for kids").
+    if (t === "occasion" && parsed.specs && parsed.specs.age !== undefined) return false;
+    // Occasion fits gifts/events - not specific products ("gramophone",
+    // "soap 200 se kam"). Gift intent, a recipient word, or a vague query.
+    if (t === "occasion" && !gift && !hasRecipientHint(query) && !vague) return false;
     if (t === "category" && !isRescue && dominantShare > 0.7) return false;
     // G3: facet questions are only eligible when their data supports them
     if (t === "for_whom" && hasRecipientHint(query)) return false;
+    if (t === "for_whom" && selfRef) return false; // "bangle apne liye"
+    // Brand question only when a brand actually dominates the candidates
+    // (judge fit: "brand fits when a few brands dominate").
+    if (t === "brand" && (stats.n < 20 || stats.brands.length < 2 ||
+        stats.brands[0].count / stats.n < 0.15)) return false;
     if (t === "for_whom") {
       // Gender tokens must actually exist in the candidate set, or the
       // chip tap would re-rank nothing (India-layer titles carry no
@@ -275,14 +376,34 @@ export function decideGuide(catalog, query, nResults, context = {}) {
       // set must be clearly mixed, or the question is noise ("phones").
       const minShare = baseFlow.includes("for_whom") ? 0.05 : 0.10;
       if (stats.n < 20 || named < 15 || named / stats.n < minShare) return false;
+      // From the universal tail (not a fashion flow) the set must actually
+      // be apparel, or "who's it for?" is noise ("rotary phone").
+      const APPAREL_SET = ["AMAZON FASHION", "All Beauty", "Handmade",
+        "Arts, Crafts & Sewing", "Baby", "Toys & Games"];
+      if (!baseFlow.includes("for_whom") &&
+          (!dominant || !APPAREL_SET.includes(dominant.name) || dominant.count / stats.n < 0.4)) return false;
     }
-    // Size (S/M/L/XL) only makes sense on apparel-style categories - a
-    // "size?" question on an AC or laptop is noise (persona sim 2026-11-04:
-    // 593/3000 journeys got size questions, most on non-apparel sets).
+    // Size (S/M/L/XL) only on fit garments with size-bearing titles - a
+    // "size?" question on a shawl, watch or perfume is noise (persona sim
+    // 2026-11-04: 593/3000 size questions; Qwen UX panel 2026-11-04:
+    // "size irrelevant" for shawl/watch/perfume). Kids sets use age-based
+    // sizing that titles don't carry, so adult S/M/L/XL chips are skipped.
+    const FIT_GARMENT = /\b(shirts?|sharts?|kurtas?|kurtis?|dresses?|frocks?|trousers?|jeans?|pants?|t-?shirts?|sarees?|salwars?|suits?|jackets?|coats?|hoodies?|blouses?|nightys?|dhotis?|lungis?|pyjamas?|uniforms?|tops)\b/i;
+    const KIDS_QUERY = /\b(kids?|child|children|bab(?:y|ies)|toddlers?|bachche|bachcha|bachchi|bacche|bache)\b/i;
+    const kidShare = (stats.items || []).length
+      ? (stats.items || []).filter((x) => /\b(kids?|child|children|baby|toddler)\b/i.test(String(x.title || ""))).length / stats.items.length
+      : 0;
     if (t === "size" && ((parsed.specs && parsed.specs.size) || sizeOptions(stats.items, stats.n).length < 3 ||
-        !dominant || !["AMAZON FASHION", "All Beauty", "Handmade", "Arts, Crafts & Sewing", "Baby", "Toys & Games"].includes(dominant.name))) return false;
+        !dominant || !["AMAZON FASHION", "All Beauty", "Handmade", "Arts, Crafts & Sewing", "Baby", "Toys & Games"].includes(dominant.name) ||
+        KIDS_QUERY.test(query) || (prev.has("for_whom") && kidShare > 0.5) ||
+        (!FIT_GARMENT.test(query) && !FIT_GARMENT.test((stats.items || []).slice(0, 10).map((x) => String(x.title || "")).join(" "))))) return false;
+    // Capacity (tonnage/kg/litres) only where such specs live - appliances,
+    // electronics, gym weights. "5 kg" options on a kids' t-shirt set are
+    // noise (Qwen UX panel 2026-11-04).
+    const APPLIANCE_Q = /\b(ac\b|air\s?fryer|fridge|refrigerator|washing|washer|dryer|mixer|grinder|cooker|kettle|microwave|vacuum|geyser|dispenser|freezer|oven|induction|stove|heater|dumbbell|weights?|kettle)\b/i;
     if (t === "capacity" && (capacityOptions(stats.items, stats.n).length < 3 ||
-        (parsed.specs && (parsed.specs.tonnage !== undefined || parsed.specs.kg !== undefined || parsed.specs.volume !== undefined)))) return false;
+        (parsed.specs && (parsed.specs.tonnage !== undefined || parsed.specs.kg !== undefined || parsed.specs.volume !== undefined)) ||
+        (!dominant || !["Appliances", "All Electronics", "Computers & Accessories", "Sports & Outdoors"].includes(dominant.name)) && !APPLIANCE_Q.test(query))) return false;
     return true;
   });
   // Rescue mode: disambiguation is the rescue - category question always
@@ -303,7 +424,7 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   const knownFacets = [
     parsed.budgetMax !== null && "budget",
     parsed.occasion && parsed.occasion !== "gift" && "occasion",
-    hasRecipientHint(query) && "for_whom",
+    (hasRecipientHint(query) || selfRef) && "for_whom",
     parsed.specs && parsed.specs.size && "size",
     parsed.specs && (parsed.specs.tonnage !== undefined || parsed.specs.kg !== undefined ||
                      parsed.specs.volume !== undefined) && "capacity",
@@ -360,6 +481,10 @@ export function decideGuide(catalog, query, nResults, context = {}) {
       names.sort((a, b) => (counts.get(b) || 0) - (counts.get(a) || 0));
       names = names.slice(0, 4);
     }
+    // Intent rank: categories matching the query's SUBJECT lead ("baby shower"
+    // must not be offered AMAZON FASHION just because it is the biggest
+    // category); frequency breaks ties.
+    names = rankCategoriesByIntent(names, query);
     options = names;
     reason = `ambiguous across categories (top share ${(dominantShare * 100).toFixed(0)}%); zero_or_wrong = 3.5% of mined complaints`;
     const catCount = (name) => {

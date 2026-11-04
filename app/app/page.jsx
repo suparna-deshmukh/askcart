@@ -1124,12 +1124,12 @@ function AskCartHome() {
                     {s.results.length === 0
                       ? (s.exhausted
                         ? "We ran out of follow-up questions — try one of these instead, or rephrase."
-                        : "Picking an option above usually fixes this.")
+                        : "No exact match in the catalogue — try one of these, or rephrase with the exact product word.")
                       : (s.exhausted
-                        ? "We asked a few quick questions, so these are the closest picks from your last answer — browse them, or rephrase for a sharper search."
-                        : "These are close, not exact — the question above should get you there.")}
+                        ? "These are the closest picks in the catalogue — browse them, or rephrase for a sharper search."
+                        : "These are close, not exact — a rephrase with the exact product word usually fixes it.")}
                   </div>
-                  {s.results.length === 0 && s.exhausted && (
+                  {s.results.length === 0 && (
                     <div className="ex">
                       {EXAMPLES.map((e) => <span key={e} onClick={() => startSearch(e, "example")}>{e}</span>)}
                     </div>
@@ -1309,7 +1309,7 @@ function AskCartHome() {
       <footer>
         <div className="foot-inner">
           <div className="foot-brand">Ask<span>Cart</span> · guided shopping search</div>
-          <div className="foot-col">Demo catalogue: 36,060 SKUs (≈25k US-sourced listings converted to INR + ≈11k India layer) with indicative prices and ratings — not a live marketplace. Checkout is simulated: no payments, addresses or real delivery.</div>
+          <div className="foot-col">Demo catalogue: 36,111 SKUs (≈25k US-sourced listings converted to INR + ≈11k India layer) with indicative prices and ratings — not a live marketplace. Checkout is simulated: no payments, addresses or real delivery.</div>
           <div className="foot-note">Every interaction event is public in Analytics · AI answers only from catalogue fields · method & evidence: PROJECT.md</div>
         </div>
       </footer>

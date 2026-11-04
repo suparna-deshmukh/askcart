@@ -10,6 +10,11 @@ const STOP = new Set(["the", "a", "an", "for", "with", "and", "of", "in", "on", 
   "buy", "shop", "something", "anything", "good", "nice", "best", "top", "cheap",
   "price", "rupees", "rs", "₹", "under2k", "my", "your", "myself",
   "him", "her", "his", "hers", "us", "our", "ours", "they", "their", "theirs", "them",
+  "apne", "apni", "apna", "apno", "khud", "uske", "uski", "uska", "biwi", "patni",
+  "family", "ghar",
+  "piece", "pieces", "item", "items", "essentials", "essential", "packing",
+  "cheez", "cheeze", "cheezein", "samman", "thing", "things", "stuff", "chijein",
+  "supplies",
   "sister", "brother", "mom", "mum", "mother", "dad", "father", "wife", "husband",
   "friend", "friends", "colleague", "neighbour", "neighbor", "niece", "nephew",
   "son", "daughter", "cousin", "aunt", "uncle", "grandma", "grandma", "grandpa",
@@ -57,7 +62,8 @@ export function parseQuery(q) {
   // (the run-mapping above appends at the end, which would break adjacency).
   s = s.replace(/टी-शर्ट/g, " tshirt ")
        .replace(/टन/g, " ton ").replace(/लीटर|लीटर/g, " litre ")
-       .replace(/इंच|इंच/g, " inch ").replace(/किलो/g, " kg ").replace(/वाट/g, " w ");
+       .replace(/इंच|इंच/g, " inch ").replace(/किलो/g, " kg ").replace(/वाट/g, " w ")
+       .replace(/साल|साल/g, " saal ");
   // Hinglish/Devanagari budget phrasings put the number FIRST:
   // "1500 se kam", "20000 में", "2k tak", "2 हज़ार" -> canonical "under N".
   // Runs while the Devanagari script is still present in `s`.
@@ -72,7 +78,21 @@ export function parseQuery(q) {
   // Spec units stuck to a number are product specs even when a budget word
   // is present ("7kg washing machine under 30k" must keep 7 + kg as tokens).
   s = s.replace(/(\d(?:\.\d+)?)(kg|mg|ml|g|ton|va|w|mm|cm|gb)\b/g, "$1 $2");
-  const out = { tokens: [], budgetMax: null, budgetMin: null, occasion: null, raw: q };
+  // Resolution / network words ("4k", "5g") are specs, never budgets: the
+  // budget regex would otherwise read "4k" as 4000 rupees and cap
+  // "43 inch tv 4k" at Rs 4,000.
+  const resolution = (s.match(/\b(4k|8k|uhd|fhd)\b/) || [])[1] || null;
+  const network = (s.match(/\b([456])g\b/) || [])[1] || null;
+  s = s.replace(/\b(4k|8k|uhd|fhd|qled|oled)\b/g, " ")
+       .replace(/\b[456]g\b/g, " ");
+  const out = { tokens: [], budgetMax: null, budgetMin: null, occasion: null,
+                raw: q, cheap: false, forWhom: null, recipient: null };
+  if (resolution) out.resolution = resolution;
+  if (network) out.network = network;
+  // Cheap-adjective without a number ("saste me phone", "cheap laptop") is a
+  // price-ordering signal, not a product word.
+  if (/\b(sasta|saste|sasti|cheap)\b/.test(s) && !/\d\s*(k|lakh)\b/.test(s) && !/\bunder\s*\d/.test(s))
+    out.cheap = true;
   let m = s.match(/(?:under|below|less than|within|up to|max|budget of|rs\.?|₹|rupees)?\s*(\d+(?:\.\d+)?)\s*(k|lakh|l)\b/);
   if (m) {
     out.budgetMax = Math.round(parseFloat(m[1]) * (m[2] === "k" ? 1000 : (m[2] === "l" || m[2] === "lakh") ? 100000 : 1));
@@ -82,7 +102,48 @@ export function parseQuery(q) {
   }
   m = s.match(/(?:above|over|min)\s*(\d+(?:\.\d+)?)\s*(k|l)\b/);
   if (m) out.budgetMin = Math.round(parseFloat(m[1]) * (m[2] === "k" ? 1000 : 100000));
+  // A bare trailing price ("gift 1000", "jooti 1200", "kapde 2500") is the
+  // budget when no budget keyword/quantity unit was parsed. Unit-adjacent
+  // numbers (1000 pcs, 2 kg) stay tokens; small numbers (<100) are model
+  // parts (iPhone 15), not prices.
+  // The Devanagari lexicon maps append mapped words AFTER the original
+  // text ("... diye 300" -> "... diya 300 home ..."), so the trailing check
+  // below also accepts the ORIGINAL query's last word.
+  const rawWordsTrail = rawQ.split(/\s+/).filter(Boolean);
+  if (out.budgetMax === null) {
+    const SPEC_UNIT = new RegExp(
+      "\\b(" + "ton|kg|mg|ml|g|gb|tb|inch|inches|watt|w|va|mm|cm|pcs|pc|pieces|litre|liter|star|stars|year|years|month|months" + ")\\b");
+    const words = s.split(/\s+/).filter(Boolean);
+    for (let i = words.length - 1; i >= 0; i--) {
+      const w = words[i];
+      const n = parseInt(w, 10);
+      if (!/^\d{2,6}$/.test(w) || n < 100) continue;
+      const adj = [words[i - 1], words[i + 1]].filter(Boolean);
+      if (adj.some((a) => SPEC_UNIT.test(" " + a + " "))) continue;
+      // Trailing prices ("gift 1000") and "N ka/wala" phrasings ("phone case
+      // 500 ka") are budgets. Mid-query numbers are model numbers ("nokia
+      // 105 phone") and must stay tokens.
+      const trailing = i === words.length - 1 ||
+        (rawWordsTrail.length > 0 && rawWordsTrail[rawWordsTrail.length - 1] === w);
+      const wala = /^(ka|wala)$/.test(words[i + 1] || "");
+      if (!trailing && !wala) break;
+      out.budgetMax = n;
+      break;
+    }
+  }
   out.specs = parseSpecs(s); // S4: structured spec slots (never budgets)
+  if (out.resolution) out.specs = { ...out.specs, resolution: out.resolution };
+  if (out.network) out.specs = { ...out.specs, network: out.network };
+  // Normalised latin words (Devanagari-mapped) for recipient/audience logic
+  out.rawWords = s.replace(/[^a-z0-9\s-]/g, " ").match(/[a-z']+/g) || [];
+  // For-whom parsed straight from the query (the STOP list drops men/women
+  // tokens, so without this "gift under 2000 for men" loses its intent).
+  const FORW = {
+    women: /\b(women|womens|ladies|female|for\s+her|biwi|patni|wife)\b/i,
+    men: /\b(men|mens|gents|male|for\s+him|pitaji|pita)\b/i,
+    kids: /\b(kids|kid|children|child|toddler|baby|infant|bachche|bachcha|bachchi)\b/i,
+  };
+  for (const [v, rx] of Object.entries(FORW)) if (rx.test(s)) { out.forWhom = v; break; }
   for (const [word, tag] of Object.entries(OCCASIONS)) {
     if (new RegExp(`\\b${word.replace("'", "")}\\b`).test(s)) { out.occasion = tag; break; }
   }
@@ -93,21 +154,49 @@ export function parseQuery(q) {
     .replace(/(?:under|below|less than|within|up to|max)\s*\d{3,}\b/g, " ")
     .replace(/(?:above|over|min)\s*\d+(?:\.\d+)?\s*(k|l)\b/g, " ")
     .replace(/\d+(?:\.\d+)?\s*(k|l|lakh)\b/g, " ")
-    .replace(/rs|rupees|₹/g, " ").replace(/[^a-z0-9\s-]/g, " ");
+    .replace(/(?:^|\s)(\d*)rs\b/g, "$1 ").replace(/rupees|₹/g, " ").replace(/[^a-z0-9\s-]/g, " ");
   // S4: spec phrases already captured into out.specs must not leave stray
   // tokens ("5 year old" -> year/old, "size m" -> size, "1 litre" -> litre).
   const cleaned2 = cleaned
     .replace(/\d{1,2}\s*years?\s*old\b/g, " ")
     .replace(/\d{1,2}\s*months?\b/g, " ")
+    .replace(/\d{1,2}\s*saal\b/g, " ")
     .replace(/\bsize\s*(xxl|xl|l|m|s)\b/g, " ")
     .replace(/\d{1,3}\s*(?:litre|liter)\b/g, " ");
-  for (const t of cleaned2.split(/\s+/)) {
-    const tt = HINGLISH_ROMAN[t] || t; // S2: ghadi -> watch, jooti -> shoes, ...
+  const capturedBudget = out.budgetMax !== null && !/\b(under|below|less|within|up|max|budget)\b/.test(s);
+  const wlist = cleaned2.split(/\s+/);
+  // Pack quantities ("pack of 3", "3 pack", "3 pcs") are counts, not product
+  // attributes: "tshirt pack of 3 under 999" must not require the digit 3
+  // (it let "Shuttlecock 3 Pack" outrank T-shirt packs).
+  const PACKQTY = new Set(["pack", "packs", "piece", "pieces", "pc", "pcs"]);
+  const isPackQty = (i) => [wlist[i - 2], wlist[i - 1], wlist[i + 1], wlist[i + 2]]
+    .some((w) => w && PACKQTY.has(w));
+  for (let i = 0; i < wlist.length; i++) {
+    const tt = HINGLISH_ROMAN[wlist[i]] || wlist[i]; // S2: ghadi -> watch, jooti -> shoes, ...
+    // Gift words are tag/occasion intent, not product tokens ("christmas
+    // gifts" must browse giftable christmas items, not literal "gift" titles).
+    if (/^(gift|gifts|present|presents|uphaar)$/.test(tt)) continue;
     if (STOP.has(tt)) continue;
-    if (/^\d+$/.test(tt)) { if (tt.length <= 4) out.tokens.push(tt); continue; }
+    if (/^\d+$/.test(tt)) {
+      // A bare number that WAS the budget must not re-enter as a token
+      // (it is what matched "300 TC" bedsheets for "diye 300").
+      if (capturedBudget && parseInt(tt, 10) === out.budgetMax) continue;
+      if (tt.length <= 4 && !isPackQty(i)) out.tokens.push(tt);
+      continue;
+    }
     if (tt.length < 2) continue;
     if (wordInOCC(tt, out)) continue;
     out.tokens.push(tt);
+  }
+  // "shaadi gift box/item/packing": the pack word is a packaging hint, not a
+  // product token (it was matching "Geometry Box"). Drop it and flag the
+  // query so gift-box titles get a boost.
+  const GIFT_PACK = new Set(["box", "boxes", "item", "items", "packing", "pack",
+    "kit", "set", "hamper", "hampers"]);
+  if (/\b(gift|gifts|present|presents|uphaar)\b/.test(s) &&
+      out.tokens.some((t) => GIFT_PACK.has(t))) {
+    out.tokens = out.tokens.filter((t) => !GIFT_PACK.has(t));
+    out.giftPack = true;
   }
   return out;
 }
@@ -121,14 +210,29 @@ function parseSpecs(s) {
   let m;
   if ((m = s.match(/(\d{1,2})\s*years?\s*old\b/))) specs.age = parseInt(m[1], 10);
   else if ((m = s.match(/(\d{1,2})\s*months?\b/))) specs.age = parseInt(m[1], 10) / 12;
+  else if ((m = s.match(/(\d{1,2})\s*saal\b/))) specs.age = parseInt(m[1], 10);
   if ((m = s.match(/\bsize\s*(xxl|xl|l|m|s)\b/))) specs.size = m[1];
-  if ((m = s.match(/(\d{1,2})\s*(?:gb|g)\s*ram\b/))) specs.ram = parseInt(m[1], 10);
-  else if ((m = s.match(/(\d{2,4})\s*gb\b/))) specs.storage = parseInt(m[1], 10);
+  // RAM first: "16GB DDR4 RAM" is RAM, not storage.
+  if ((m = s.match(/(\d{1,2})\s*gb(?:\s+\w+)?\s*ram\b/))) specs.ram = parseInt(m[1], 10);
+  else for (const m2 of s.matchAll(/(\d{2,4})\s*(gb|tb)\b/gi)) {
+    const before = s.slice(Math.max(0, m2.index - 16), m2.index).toLowerCase();
+    const after = s.slice(m2.index + m2[0].length, m2.index + m2[0].length + 12).toLowerCase();
+    // A bare "N GB" next to a CPU token ("i7 16GB") means RAM, not storage.
+    if (/ram|ddr/.test(after)) continue;
+    if (/\bi[3-9]\b|\bryzen\b|\bpentium\b|\bceleron\b/.test(before)) continue;
+    specs.storage = parseInt(m2[1], 10);
+    break;
+  }
   if ((m = s.match(/(\d+(?:\.\d+)?)\s*ton\b/))) specs.tonnage = parseFloat(m[1]);
   if ((m = s.match(/(\d)\s*stars?\b/))) specs.stars = parseInt(m[1], 10);
   if ((m = s.match(/(\d{2,3})\s*(?:inch|inches)\b/))) specs.inches = parseInt(m[1], 10);
-  if ((m = s.match(/(\d{1,3})\s*(?:litre|liter)\b/))) specs.volume = parseInt(m[1], 10);
-  else if ((m = s.match(/(\d{1,3})l\b/))) specs.volume = parseInt(m[1], 10);
+  if ((m = s.match(/(\d{1,3}(?:\.\d+)?)\s*(?:litre|liter)\b/))) specs.volume = parseFloat(m[1]);
+  // Glued "316L" is a steel grade, not a volume: require a space (or a
+  // small number) before the bare L.
+  else for (const m2 of s.matchAll(/(\d{1,3}(?:\.\d+)?)\s*l\b/g)) {
+    const n = parseFloat(m2[1]);
+    if (m2[0].includes(" ") || n <= 5) { specs.volume = n; break; }
+  }
   return specs;
 }
 
@@ -250,7 +354,23 @@ function planTypos(tokens, idx) {
       }
       continue;
     }
-    const w = closestVocab(t, idx, t.length >= 8 ? 2 : 1);
+    let w = closestVocab(t, idx, t.length >= 8 ? 2 : 1);
+    if (!w && t.length >= 6) {
+      // Brand-ish token: same 5-char head and within +2 length accepts a
+      // distance-2 candidate ("philix" -> "philips").
+      let best = null, bestFreq = -1;
+      for (let L = t.length - 1; L <= t.length + 2; L++) {
+        const bucket = idx.vlen.get(L);
+        if (!bucket) continue;
+        for (const v of bucket) {
+          if (v === t || v.slice(0, 5) !== t.slice(0, 5)) continue;
+          if (!damerauAtMost(t, v, 2)) continue;
+          const f = idx.vocabFreq.get(v) || 0;
+          if (f > bestFreq) { best = v; bestFreq = f; }
+        }
+      }
+      w = best;
+    }
     if (w) plan.set(t, w);
   }
   return plan;
@@ -273,15 +393,24 @@ const SYNONYMS = {
   mobile: ["smartphone", "cellphone"],
   cellphone: ["smartphone", "mobile"],
   watch: ["smartwatch", "wristwatch"],
+  tshirt: ["shirt"],
   tv: ["television"],
   blender: ["mixer"],
   mixer: ["blender"],
   computer: ["laptop", "desktop"],
   pc: ["laptop", "desktop"],
+  couch: ["sofa", "sectional", "loveseat", "divan"],
+  sofa: ["couch", "sectional", "loveseat"],
+  spectacles: ["glasses", "sunglasses"],
+  sunglasses: ["glasses"],
+  pods: ["earpods", "earbuds", "earphones", "earbud", "earphone"],
+  ear: ["earbuds", "earpods", "earphones", "earbud", "earphone"],
+  jumper: ["sweater", "pullover", "hoodie", "cardigan"],
+  pullover: ["sweater", "jumper", "hoodie"],
 };
 // Idiom tokens: match ONLY via synonyms, never literally (US titles say
 // "mobile cart" / "mobile app", which must not satisfy an Indian "mobile" query).
-const NO_LITERAL = new Set(["mobile", "cellphone", "phone"]);
+const NO_LITERAL = new Set(["mobile", "cellphone", "phone", "couch"]);
 
 // Recipient words implying an ADULT ("sweater for papa" is not a kids
 // sweater): when present, kid-marked titles are penalised.
@@ -329,11 +458,23 @@ export function audienceDelta(rawWords, itemPos, forWhom = null) {
   if (adult) {
     for (const w of KID_WORDS) if (itemPos.has(w)) { delta -= 1.5; break; }
   }
+  // A for-men/for-women facet (chip or parsed) means an adult: kid-marked
+  // items are wrong ("gift under 2000 for men" was ranking kids' capes).
+  if (g3male || g3female) {
+    for (const w of KID_WORDS) if (itemPos.has(w)) { delta -= 2.5; break; }
+  }
   if (child || g3child) {
     for (const w of KID_WORDS) if (itemPos.has(w)) { delta += 1.0; break; }
+    // "bachche ke liye khilona" must not surface PET toys.
+    for (const w of ["cat", "dog", "pet", "parrot", "bird", "aquarium", "hamster", "rabbit"])
+      if (itemPos.has(w)) { delta -= 2.5; break; }
   }
   if ((male || g3male) && (itemPos.has("womens") || itemPos.has("women"))) delta -= 1.0;
   if ((female || g3female) && (itemPos.has("men") || itemPos.has("mens"))) delta -= 1.0;
+  // Positive pull for a stated recipient ("gift for men", "shoes for mummy")
+  if (male && (itemPos.has("men") || itemPos.has("mens") || itemPos.has("male"))) delta += 1.0;
+  if (female && (itemPos.has("women") || itemPos.has("womens") || itemPos.has("female") ||
+                 itemPos.has("ladies") || itemPos.has("lady"))) delta += 1.0;
   if (g3female) {
     for (const w of ["women", "womens", "ladies", "female"]) if (itemPos.has(w)) { delta += 2.0; break; }
   }
@@ -378,6 +519,7 @@ const ACCESSORY_HINTS = new Set(["case", "cases", "charger", "charging", "cable"
   "sticker", "stickers", "decal", "stencil", "stencils", "patch", "patches",
   "figurine", "figurines", "stuffed", "plush", "doll", "dolls", "teddy",
   "card", "cards", "sticker", "sticker", "sticker",
+  "pen", "pens", "stylus", "styluses",
   "wheels", "caster", "casters"]);
 function wordPos(posMap, t) {
   const cands = NO_LITERAL.has(t) ? (SYNONYMS[t] || [t]) : [t, ...(SYNONYMS[t] || [])];
@@ -401,7 +543,8 @@ function wordHit(posMap, t) {
 // not required to match. Used to pick the "key token" for multi-word queries.
 const MODIFIERS = new Set(["college", "coding", "student", "university", "professional",
   "business", "office", "home", "house", "room", "kitchen", "bedroom", "bathroom",
-  "daily", "work", "travel", "car", "modern", "classic", "vintage", "outdoor", "indoor"]);
+  "daily", "work", "travel", "car", "modern", "classic", "vintage", "outdoor", "indoor",
+  "guest", "night", "morning"]);
 
 function keyToken(tokens) {
   const nonMod = tokens.filter((t) => !MODIFIERS.has(t));
@@ -444,14 +587,56 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
   // "bag" is a context word when a specific bag kind is present
   // ("trolley bag" is a trolley, "backpack bag" is a backpack), but the
   // product word on its own ("bag for travel").
+  // "bag" is a context word when a specific bag kind is present
+  // ("trolley bag" is a trolley, "backpack bag" is a backpack) - EXCEPT when
+  // the companion word names the bag's host product ("laptop bag" IS a bag).
+  const BAG_HOSTS = new Set(["laptop", "trolley", "backpack", "camera", "school",
+    "gym", "bike", "scooter", "travel"]);
   const bagIsContext = tokens.includes("bag") &&
-    tokens.some((t) => t !== "bag" && !MODIFIERS.has(t));
-  const isMod = (t) => MODIFIERS.has(t) || (t === "bag" && bagIsContext);
+    (tokens.some((t) => t !== "bag" && !MODIFIERS.has(t) && !BAG_HOSTS.has(t)) ||
+     tokens.includes("trolley")); // a trolley IS the bag ("trolley bag")
+  // "camera" is context on a phone query ("phone with good camera"), "water"
+  // is context on a bottle query ("water bottle").
+  const camIsMod = tokens.includes("camera") &&
+    tokens.some((t) => t === "phone" || t === "mobile" || t === "smartphone");
+  const waterIsMod = tokens.includes("water") &&
+    tokens.some((t) => t === "bottle" || t === "flask" || t === "thermos");
+  const isMod = (t) => MODIFIERS.has(t) || (t === "bag" && bagIsContext) ||
+    (t === "camera" && camIsMod) || (t === "water" && waterIsMod);
   const nonMod = tokens.filter((t) => !isMod(t));
+  // A query made entirely of context words ("something for my room") must
+  // still match on its key word - otherwise it is a hard null.
+  const forceKey = nonMod.length === 0 && tokens.length ? keyToken(tokens) : null;
+  // "kuch naya phone ke liye" / "something for my room": the single named
+  // product after a vague word + "for" is the HOST, not the product. The
+  // shopper wants accessories for it, so the host itself is demoted and
+  // its accessories are boosted.
+  const HOST_WORDS = new Set(["phone", "mobile", "smartphone", "laptop", "car",
+    "couch", "sofa", "bottle", "flask", "thermos", "room", "office", "wall",
+    "table", "bike", "scooter", "desk"]);
+  let ctxProduct = null;
+  if (nonMod.length === 1 && HOST_WORDS.has(nonMod[0]) &&
+      /\b(kuch|kuchh|something|anything|koi|ek\b|cheez|cheeze|chijein)\b/i.test(q) &&
+      /\b(ke\s+liye|for|liye)\b/.test(q)) ctxProduct = nonMod[0];
+  // "couch under 15000": "Throw Blanket for Couch" must not satisfy it.
+  const SOFA_WORDS = new Set(["couch", "sofa", "sectional", "loveseat", "divan"]);
+  const sofaCtx = nonMod.some((t) => SOFA_WORDS.has(t) ||
+    (SYNONYMS[t] || []).some((x) => SOFA_WORDS.has(x)));
+  const preRaw = new Set(parsed.rawWords);
+  const kidsWanted = forWhom === "kids" || parsed.forWhom === "kids" ||
+    [...preRaw].some((w) => CHILD_RECIPIENTS.has(w));
+  const bottleCtx = tokens.some((t) => ["bottle", "flask", "thermos"].includes(t));
+  const babyWanted = [...preRaw].some((w) => ["baby", "infant", "nija", "shishu"].includes(w));
   const required = nonMod.length >= 2 ? nonMod : (nonMod.length === 1 ? nonMod : tokens);
   const tokenSet = new Set(tokens);
   const typoPlan = planTypos(tokens, idx); // S1 (guided path only)
-  const rawWords = new Set(String(q).toLowerCase().match(/[a-z']+/g) || []);
+  const giftQuery = /\b(gift|gifts|present|presents|uphaar)\b/i.test(String(q)) &&
+    nonMod.filter((t) => !/^(gift|gifts|present|presents|uphaar)$/.test(t)).length === 0;
+  // Raw words from the NORMALISED text (parseQuery.rawWords): a
+  // Devanagari-only query ("मम्मी के लिए जूते") carries its recipient
+  // after the lexicon maps it to latin ("mummy"); the original string
+  // has no latin words at all.
+  const rawWords = new Set(parsed.rawWords);
   const accHints = [...ACCESSORY_HINTS].filter((w) => !tokenSet.has(w));
   // G3: guided facets (for-whom / size / capacity chips) reuse the exact
   // same recipient and spec-slot boost mechanisms as parsed query slots.
@@ -468,24 +653,69 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     }
   }
   if (Object.keys(g3).length) specs = { ...specs, ...g3 };
-  // Budget-only query ("under 500"): browse mode - top-rated items within
-  // the cap (and the occasion, when one is given), instead of a null page.
-  if (tokens.length === 0 && budget !== null) {
+  // Budget-only query ("under 500"), or a tokenless recipient query
+  // ("things for dad" - every word stopped out): browse mode - top-rated
+  // items within the cap (and the occasion/audience when given), instead of
+  // a null page.
+  const recipientBrowse = tokens.length === 0 && budget === null &&
+    ([...rawWords].some((w) => ADULT_RECIPIENTS.has(w) || CHILD_RECIPIENTS.has(w)) ||
+     parsed.forWhom);
+  const giftIntent = /\b(gift|gifts|present|presents|uphaar)\b/i.test(String(q));
+  // A gift+occasion query with no product token ("shaadi gift",
+  // "christmas gifts") is a browse: the occasion+gift-tagged items ARE the
+  // answer (this used to fall through to 0 lexical hits).
+  if (tokens.length === 0 && (budget !== null || recipientBrowse ||
+      (giftIntent && occ))) {
     const giftIntent = new Set(String(q).toLowerCase().match(/[a-z']+/g) || [])
       .has("gift") || /gift|present/i.test(String(q));
     let browse = [];
+    const OCC_WORDS = { wedding: ["wedding", "bridal", "bride"],
+      christmas: ["christmas", "xmas"], diwali: ["diwali", "rakhi"],
+      birthday: ["birthday", "bday"], valentines: ["valentine"],
+      party: ["party"], graduation: ["graduation"],
+      anniversary: ["anniversary"], housewarming: ["housewarming"] };
+    const WEARABLE = /(lehenga|saree|sari|kurti|anarkali|salwar|sherwani|gown|dupatta|niyoni)/i;
+    const occLeadAt = (ci, item) => !WEARABLE.test(String(item.title)) &&
+      (OCC_WORDS[occ] || [occ]).some((w) =>
+        idx.titles[ci].split(/[^a-z0-9]+/).slice(0, 4).includes(w));
     const inBrowse = (item) => {
-      if (item.price > budget) return false;
+      if (budget !== null && item.price > budget) return false;
       if (occ && !(item.tags && item.tags.includes(occ))) return false;
       return true;
     };
-    const toBrowse = (item) => ({ ...item, score: (item.rating || 0) * 2 +
-      Math.log10(Math.max(item.num_ratings, 1)), intent: true });
-    for (let i = 0; i < catalog.length; i++) if (inBrowse(catalog[i])) browse.push(toBrowse(catalog[i]));
+    const toBrowse = (item, idxI) => {
+      let score = (item.rating || 0) * 2 + Math.log10(Math.max(item.num_ratings, 1));
+      const audience = forWhom || parsed.forWhom ||
+        [...rawWords].some((w) => ADULT_RECIPIENTS.has(w) || CHILD_RECIPIENTS.has(w));
+      if (audience) {
+        score += audienceDelta(rawWords, idx.pos[idxI], forWhom || parsed.forWhom);
+        if (item.tags && item.tags.includes("gift")) score += 2.0;
+      }
+      // Occasion word leading the title ("Panda Wedding Tea Cup",
+      // "Christmas Candles") beats the same word buried in a
+      // keyword-stuffed tail - including for untagged-gift themed items.
+      // Wearable occasion outfits (bridal lehenga) are what the SHOPPER
+      // wears, not a gift - they never get the themed boost.
+      if (occ && occLeadAt(idxI, item)) score += 5.0;
+      // Child-age slot in browse mode ("gift for 5 year old"): kid items.
+      if (parsed.specs.age !== undefined) {
+        if (parsed.specs.age <= 12) {
+          for (const w of KID_WORDS) if (idx.pos[idxI].has(w)) { score += 1.5; break; }
+          if (item.category === "Toys & Games") score += 1.5;
+        } else {
+          for (const w of KID_WORDS) if (idx.pos[idxI].has(w)) { score -= 1.5; break; }
+        }
+      }
+      return { ...item, score, intent: true };
+    };
+    for (let i = 0; i < catalog.length; i++) if (inBrowse(catalog[i])) browse.push(toBrowse(catalog[i], i));
     if (occ && giftIntent) {
-      // "shaadi gift under 2k" - the gift tag is the real filter
-      const gifted = browse.filter((x) => x.tags && x.tags.includes("gift"));
-      if (gifted.length >= 12) browse = gifted;
+      // "shaadi gift under 2k" - the gift tag is the real filter; keep
+      // themed (occasion-leading) items alongside the gift-tagged ones.
+      const kept = browse.filter((x) =>
+        (x.tags && x.tags.includes("gift")) || (x.tags && x.tags.includes(occ) &&
+          occLeadAt(idx.titles.indexOf(x.title.toLowerCase()), x)));
+      if (kept.length >= 12) browse = kept;
     }
     browse.sort((a, b) => b.score - a.score);
     return browse;
@@ -498,8 +728,9 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     const matchedSet = new Set();
     for (const t of tokens) {
       // modifier tokens (college, coding, ...) are context: they never score,
-      // so an item can't rank on a modifier alone
-      if (isMod(t)) continue;
+      // so an item can't rank on a modifier alone - unless it is the forced
+      // key token of an all-modifier query ("something for my room" -> room)
+      if (isMod(t) && t !== forceKey) continue;
       const p = wordPos(idx.pos[i], t);
       if (p >= 0) {
         let base = 2 + (p < 4 ? 0.75 : 0);
@@ -547,8 +778,19 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
       else score -= 0.5;
     }
     if (specs.size !== undefined && idx.pos[i].has(specs.size)) score += 0.75;
-    if (specs.age !== undefined && specs.age <= 3) {
-      for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score += 1.0; break; }
+    // A child-age slot (<=12) wants kid-marked items; an adult age wants
+    // the opposite ("gift for 5 year old" was ranking adult gifts).
+    if (specs.age !== undefined && specs.age <= 12) {
+      for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score += 1.5; break; }
+    } else if (specs.age !== undefined) {
+      for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score -= 1.0; break; }
+    }
+    if (specs.network) {
+      if (idx.pos[i].has(specs.network.toLowerCase())) score += 1.0;
+    }
+    if (specs.resolution) {
+      const r = specs.resolution.toLowerCase();
+      if (idx.pos[i].has(r) || (r === "4k" && idx.pos[i].has("uhd"))) score += 1.0;
     }
     // phrase bonus: multi-token queries that appear as an actual phrase in
     // the title ("yoga mat") outrank scattered keyword matches
@@ -556,8 +798,46 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
       const phrase = required.join(" ");
       if (idx.titles[i].includes(phrase)) score += 1.5;
     }
+    // Gift queries with no product noun ("shaadi gift", "gift under 2k"):
+    // gift-tagged items outrank plain occasion apparel (the mined failure:
+    // "shaadi gift" -> bridal lehenga). Non-gift fashion is demoted.
+    if (giftQuery && matched > 0) {
+      if (item.tags && item.tags.includes("gift")) score += 1.5;
+      if (idx.titles[i].includes("gift")) score += 1.0;
+      if (!(item.tags && item.tags.includes("gift")) &&
+          item.category === "AMAZON FASHION") score -= 1.2;
+      // Synergy: items tagged for BOTH the occasion and gifting are the
+      // actual answer to "shaadi gift" / "christmas gifts".
+      if (occ && item.tags && item.tags.includes("gift") && item.tags.includes(occ)) score += 2.0;
+      // A recipient-named gift is for that adult, not for kids.
+      if (parsed.forWhom === "men" || parsed.forWhom === "women" ||
+          [...rawWords].some((w) => ADULT_RECIPIENTS.has(w))) {
+        for (const w of KID_WORDS) if (idx.pos[i].has(w)) { score -= 2.5; break; }
+      }
+    }
+    // Gift-pack queries ("shaadi gift box"): gift-box/set titles are the
+    // product, so they outrank scattered "gift" keyword matches.
+    if (parsed.giftPack && idx.titles[i].match(/gift\s*(box|set|pack|hamper|kit)/)) score += 2.0;
     const occHit = !!(occ && item.tags && item.tags.includes(occ));
     if (occHit) { score += 2; hits++; }
+    // Occasion word in the title ("Christmas Pajamas" for "christmas gifts")
+    // beats occasion-tag-only generic items.
+    if (occHit && ["wedding", "birthday", "diwali", "christmas", "valentines",
+                   "graduation", "party", "anniversary"].includes(occ) &&
+        idx.titles[i].includes(occ)) score += 1.5;
+    // Kids wanted (chip, phrase or recipient) -> the toy aisle, not pet toys.
+    if (kidsWanted && item.category === "Toys & Games") score += 1.5;
+    if (sofaCtx && (idx.pos[i].has("couch") || idx.pos[i].has("sofa")) &&
+        ["blanket", "throw", "pillow", "cover", "slipcover", "springs", "stain", "mover"].some((w) => idx.pos[i].has(w))) {
+      score -= 2.5; // a blanket/cover FOR the couch, not a couch
+    }
+    if (ctxProduct) {
+      const hostHit = wordPos(idx.pos[i], ctxProduct) >= 0 ||
+        (SYNONYMS[ctxProduct] || []).some((x) => idx.pos[i].has(x));
+      if (hostHit && accessoryDelta(accHints, idx.pos[i]) >= 0) score -= 3.0;
+      else if (!hostHit && accessoryDelta(accHints, idx.pos[i]) < 0) score += 2.0;
+    }
+    if (bottleCtx && !babyWanted && idx.pos[i].has("baby")) score -= 1.5;
     if (catKey && catKey !== "any category" && item.category.toLowerCase().includes(catKey)) { score += 1.5; hits++; }
     if (brandKey && !bestRated) {
       const b = String(item.brand || "").toLowerCase();
@@ -570,7 +850,7 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     // Car/auto context + recipient/gender/kids adjustments + for-whom G3
     // boosts (shared with the semantic fallback via the exported helpers).
     if (matched > 0) score += autoContextDelta(tokenSet, idx.pos[i]);
-    if (matched > 0) score += audienceDelta(rawWords, idx.pos[i], forWhom);
+    if (matched > 0) score += audienceDelta(rawWords, idx.pos[i], forWhom || parsed.forWhom);
     // Query modifiers that also appear in the title confirm the intended
     // product kind ("office chair" -> an "Office Chair", not a dining chair).
     let modBonus = 0;
@@ -587,7 +867,15 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     // accessory penalty: "phone" should not surface phone cases first
     if (matched > 0) score += accessoryDelta(accHints, idx.pos[i]);
     const allRequired = required.length > 0 && required.every((t) => matchedSet.has(t));
-    results.push({ ...item, score, intent: allRequired || occHit });
+    // Brand + model number ("Nokia 105"): the number is the model, not a
+    // missed token - a brand-matched title carrying the number is on-intent.
+    const qBrandTok = tokens.find((t) => !/^\d+$/.test(t) &&
+      String(item.brand || "").toLowerCase().includes(t));
+    const modelNum = tokens.find((t) => /^\d+$/.test(t) && t.length >= 2);
+    const modelIntent = !!(qBrandTok && modelNum &&
+      matchedSet.has(qBrandTok) && matchedSet.has(modelNum));
+    const accPen = accessoryDelta(accHints, idx.pos[i]);
+    results.push({ ...item, score, intent: allRequired || occHit || modelIntent, _acc: accPen < 0 });
   }
   return results;
 }
@@ -595,6 +883,19 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
 export function search(catalog, q, opts = {}) {
   const results = scoreAll(catalog, q, opts);
   results.sort((a, b) => b.score - a.score);
+  // Cheap-adjective queries order the intent-matched picks by price (the
+  // shopper said cheap; the rating tiebreak must not hide the cheap ones).
+  if (parseQuery(q).cheap) {
+    const intent = results.filter((r) => r.intent);
+    // "saste me phone": price order, but phone accessories (pen, screen
+    // guard) must not lead the cheap list - real products first.
+    const nonAcc = intent.filter((r) => !r._acc).sort((a, b) => a.price - b.price);
+    const acc = intent.filter((r) => r._acc).sort((a, b) => a.price - b.price);
+    const rest = results.filter((r) => !r.intent);
+    results.length = 0;
+    results.push(...nonAcc, ...acc, ...rest);
+  }
+  for (const r of results) delete r._acc;
   const limit = Math.max(1, Math.min(96, Math.floor(Number(opts.limit) || 12)));
   return results.slice(0, limit);
 }

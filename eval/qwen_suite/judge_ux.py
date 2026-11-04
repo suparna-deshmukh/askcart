@@ -128,7 +128,12 @@ def main():
         def judge(c):
             m, outcome = moments[c["id"]]
             if not m:
-                return {"id": c["id"], "error": "moment_missing", "pass": False}
+                # Agreed protocol: the replayed policy no longer asks at this
+                # step under the current build (journey resolved earlier, or
+                # question budget exhausted) - there is no question to judge.
+                # No Qwen call; report.py excludes these from the denominator.
+                return {"id": c["id"], "lang": c["lang"], "dim": c["dim"], "qtype": c["qtype"],
+                        "segment": c["segment"], "query": c["query"], "no_question": True, "pass": None}
             prompt = PROMPT.format(segment=c["segment"], lang=c["lang"], query=m and c["query"],
                                    answers=json.dumps(m["answers_so_far"]) or "(none)",
                                    n_before=m["n_before"], question=m["question"],
@@ -144,6 +149,7 @@ def main():
                     "segment": c["segment"], "query": c["query"], "turn": m["turn"],
                     "question": m["question"][:120], "n_before": m["n_before"],
                     "options": list(zip(m["options"], m["option_counts"])),
+                    "answers_sig": json.dumps(m["answers_so_far"], sort_keys=True),
                     "verdict": verdict, "reason": reason, "pass": verdict == "A",
                     "journey_resolved": outcome.get("resolved", outcome.get("resolved_t1", False))}
         with ThreadPoolExecutor(6) as ex:

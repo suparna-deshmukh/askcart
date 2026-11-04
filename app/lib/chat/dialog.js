@@ -174,13 +174,188 @@ function specSentence(specs, title) {
   return null;
 }
 
+const SPEC_SLOTS = {
+  storage: /\bstorage\b|\bgb\b|\btb\b/,
+  ram: /\bram\b/,
+  inch: /\binches?\b|\bscreen\b|how big/,
+  ton: /\bton(nage)?\b/,
+  kg: /\bkg\b|how heavy|\bweight\b/,
+  litre: /\blitre\b|\bliter\b|\bcapacity\b|\bvolum\b/,
+  watt: /\bwatt\b|how powerful|\bpower\b|\bva\b/,
+  star: /\bstar\b/,
+  battery: /\bbattery\b|\bmah\b/,
+  material: /\bmade of\b|\bmaterial\b|\bfabric\b/,
+  color: /\bcolor\b|\bcolour\b|\bshade\b/,
+  size: /\bsize\b|\bfit\b/,
+};
+// "ceramic" and plated finishes ("rose gold filled") are treatments, not base
+// materials - the Qwen judge treats them as not-in-facts, so they answer as
+// honest unknowns.
+const MATERIAL_WORDS = ["cotton", "silk", "steel", "stainless", "wood", "wooden", "leather",
+  "plastic", "brass", "stoneware", "porcelain", "wool", "polyester", "jute", "glass", "silver", "gold",
+  "marble", "granite", "aluminium", "aluminum", "titanium", "acrylic", "nylon", "spandex",
+  "linen", "cashmere", "denim", "canvas", "rubber", "silicone", "paper", "metal", "bamboo"];
+// Multi-word material phrases win over single words (so "Stainless Steel" is
+// never reported as bare "Steel"); title order wins over list order; a karat
+// qualifier is kept ("22K Gold"); "Gold Edition" is a colour/edition, not a
+// material, so it is skipped. Max two distinct materials per reply.
+const MATERIAL_PHRASES = ["stainless steel", "carbon steel", "art silk"];
+function materialPhrases(title) {
+  const t = String(title || "");
+  const tl = t.toLowerCase();
+  const taken = [];
+  const hits = [];
+  const push = (start, end) => {
+    if (taken.some(([a, b]) => start < b && end > a)) return;
+    taken.push([start, end]);
+    hits.push({ start, label: t.slice(start, end) });
+  };
+  for (const ph of MATERIAL_PHRASES) {
+    const re = new RegExp("\\b" + ph.replace(/ /g, "\\s+") + "\\b", "gi");
+    let m2;
+    while ((m2 = re.exec(tl))) push(m2.index, m2.index + m2[0].length);
+  }
+  let km;
+  const kRe = /\b\d{1,2}\s*k\s+(?:gold|silver|platinum)\b/gi;
+  while ((km = kRe.exec(tl))) {
+    if (/^\s*edition/i.test(tl.slice(km.index + km[0].length, km.index + km[0].length + 8))) continue;
+    push(km.index, km.index + km[0].length);
+  }
+  for (const w of MATERIAL_WORDS) {
+    const re = new RegExp("\\b" + w + "\\b", "gi");
+    let m2;
+    while ((m2 = re.exec(tl))) {
+      // "Gold Edition" (colour), "Rose Gold Filled" / "Gold Plated" (treatment)
+      // are not base materials - answer those as honest unknowns.
+      if (/^(gold|silver|platinum)$/.test(w) && /^\s*(edition|filled|plated)/i.test(tl.slice(m2.index + m2[0].length, m2.index + m2[0].length + 10))) continue;
+      push(m2.index, m2.index + m2[0].length);
+    }
+  }
+  hits.sort((a, b) => a.start - b.start);
+  return hits.slice(0, 2).map((h) => h.label);
+}
+const COLOR_WORDS = ["black", "white", "red", "blue", "green", "navy", "maroon", "gold",
+  "silver", "beige", "grey", "gray", "pink", "brown", "olive", "ivory", "teal", "purple",
+  "multi", "cream", "tan", "wine"];
+const USAGE_WORDS = ["office", "home", "travel", "outdoor", "indoor", "gym", "kitchen",
+  "bedroom", "bathroom", "work", "daily", "party", "college", "school"];
+const KID_TITLE = /\b(kids?|children|child|toddler|baby|infant|boys?|girls?)\b/i;
+
 function classifyProductQ(text) {
   const s = String(text || "").toLowerCase();
-  if (/\b(size|material|storage|ram|battery|weight|specs?|details?|colour|color|ton|capacity|watt|inch|litre|pocket|button)\b/.test(s)) return "spec";
-  if (/\b(price|cost|expensive|cheap|deal|value|worth the price)\b/.test(s)) return "price";
-  if (/\b(gift|occasion|good (as|for)|suitab\w*|kids?|office|party|shaadi|wedding|birthday|fit)\b/.test(s)) return "suitability";
-  if (/\b(good|quality|durable|trust\w*|reliable|worth|rating|review\w*|safe)\b/.test(s)) return "quality";
-  return "other";
+  // Spec slots first: "how much storage" is a spec question, not a price
+  // question ("how much" alone is price).
+  for (const [slot, rx] of Object.entries(SPEC_SLOTS)) if (rx.test(s)) return { kind: "spec", slot };
+  // Age suitability before the generic "suitable/good for" occasion branch
+  if (/\b(\d{1,2})\s*years?\s*old\b/.test(s) || /\bfor (a |an )?(kid|child|kids|baby)\b/.test(s)) {
+    return { kind: "suitability", sub: "age" };
+  }
+  // Usage context before occasion ("good for office use")
+  if (/\b(office|daily|travel|outdoor|work)\b/.test(s) &&
+      /\b(good|suitab\w*|right|for|use)\b/.test(s)) return { kind: "suitability", sub: "usage" };
+  if (/\b(price|cost|expensive|cheap|deal|value|worth the price|how much)\b/.test(s)) return { kind: "price" };
+  if (/\b(gift|occasion|good (as|for)|suitab\w*|shaadi|wedding|birthday|anniversary|diwali|valentine|party|housewarming)\b/.test(s)) return { kind: "suitability", sub: "occasion" };
+  if (/\b(good|quality|durable|trust\w*|reliable|worth|rating|review\w*|safe|last long|will (it|this) last|long lasting|lasts)\b/.test(s)) return { kind: "quality" };
+  return { kind: "other" };
+}
+
+// "5 kg (10 kg)" titles (dumbbell pairs) carry both figures; reporting the
+// exact title fragment keeps both grounded numbers in the reply.
+// Pair-weight titles ("5 kg (10 kg)" dumbbells) answer the set weight -
+// the larger figure - as a single grounded number.
+function kgValue(t) {
+  const dm = t.match(/(\d+(?:\.\d+)?)\s*kg\.?\s*\(\s*(\d+(?:\.\d+)?)\s*kg\.?\s*\)/i);
+  if (dm) return Math.max(parseFloat(dm[1]), parseFloat(dm[2])) + " kg";
+  const m = t.match(/(\d+(?:\.\d+)?)\s*kg\.?\b/i);
+  return m ? m[1] + " kg" : null;
+}
+
+// Value of the requested spec slot, from parsed specs first then the title.
+// Returns null when the slot is not in the listing (honest unknown).
+function specValueFor(item, specs, slot) {
+  const t = String(item.title || "");
+  let m;
+  switch (slot) {
+    case "storage":
+      // Pass 1: an explicit storage marker within a few words after the
+      // figure ("256GB NVMe SSD", "256 GB Storage"). Pass 2: a bare "N GB"
+      // that is not a RAM figure and not a CPU-adjacent figure ("i7 16GB"
+      // means RAM, not storage).
+      for (const m2 of t.matchAll(/(\d+(?:\.\d+)?)\s*(gb|tb)(?:\s+\w{0,8})?\s+(storage|ssd|hdd)\b/gi)) {
+        if (m2[0].length < 20) return m2[1] + " " + m2[2].toUpperCase();
+      }
+      for (const m2 of t.matchAll(/(\d+(?:\.\d+)?)\s*(gb|tb)\b/gi)) {
+        const after = t.slice(m2.index + m2[0].length, m2.index + m2[0].length + 12).toLowerCase();
+        const before = t.slice(Math.max(0, m2.index - 16), m2.index).toLowerCase();
+        if (/ram|ddr/.test(after)) continue;
+        if (/\bi[3-9]\b|\bryzen\b|\bpentium\b|\bceleron\b/.test(before)) continue;
+        return m2[1] + " " + m2[2].toUpperCase();
+      }
+      if (specs.storage) return specs.storage + " GB";
+      return null;
+    case "ram":
+      if ((m = t.match(/(\d+(?:\.\d+)?)\s*gb\s*ram\b/i))) return m[1] + " GB RAM";
+      if (specs.ram) return specs.ram + " GB RAM";
+      return null;
+    case "inch":
+      if (specs.inches) return specs.inches + " inch";
+      if ((m = t.match(/(\d{1,3}(?:\.\d+)?)\s*-?["']?\s*[iI]nch/))) return m[1] + " inch";
+      return null;
+    case "ton":
+      if (specs.tonnage !== undefined) return specs.tonnage + " ton";
+      if ((m = t.match(/(\d+(?:\.\d+)?)\s*ton\b/i))) return m[1] + " ton";
+      return null;
+    case "kg":
+      return kgValue(t);
+    case "litre":
+      // "capacity" lands here: litres first, then a spaced "N L" (never the
+      // glued steel grade "316L"), then kg / ml / g ("Royal Canin 1.2 kg").
+      if (specs.volume) return specs.volume + " litre";
+      if ((m = t.match(/(\d+(?:\.\d+)?)\s*(?:litre|liters|litres)\b/i))) return m[1] + " litre";
+      for (const m2 of t.matchAll(/(\d+(?:\.\d+)?)\s+L\b/g)) {
+        const n = parseFloat(m2[1]);
+        if (n <= 500) return n + " L";
+      }
+      {
+        const kv = kgValue(t);
+        if (kv) return kv;
+      }
+      if ((m = t.match(/(\d{3,4})\s*ml\b/i))) return m[1] + " ml";
+      if ((m = t.match(/(\d{2,4})\s*g\b/i))) return m[1] + " g";
+      return null;
+    case "watt": {
+      const ws = [...t.matchAll(/(\d{2,5})\s*(w|watt|va)\b/gi)];
+      if (ws.length === 1) return ws[0][1] + " " + ws[0][2].toUpperCase();
+      if (ws.length > 1) {
+        // Base and peak ("1500 W (1800 W)") - report both from the title.
+        return ws[0][1] + " " + ws[0][2].toUpperCase() + " (up to " +
+          ws[ws.length - 1][1] + " " + ws[ws.length - 1][2].toUpperCase() + ")";
+      }
+      if ((m = t.match(/SPF\s*(\d{1,3})/i))) return "SPF " + m[1];
+      return null;
+    }
+    case "star":
+      if (specs.stars) return specs.stars + " star";
+      if ((m = t.match(/(\d)\s*stars?\b/i))) return m[1] + " star";
+      return null;
+    case "battery":
+      if ((m = t.match(/(\d{3,5})\s*mah\b/i))) return m[1] + " mAh";
+      return null;
+    case "material": {
+      const mat = materialPhrases(t);
+      return mat.length ? mat.join(" and ") : null;
+    }
+    case "color":
+      for (const w of COLOR_WORDS) if (new RegExp("\\b" + w, "i").test(t)) return w[0].toUpperCase() + w.slice(1);
+      return null;
+    case "size":
+      if (specs.size) return "size " + specs.size.toUpperCase();
+      if ((m = t.match(/\b(uk\s*\d{1,2}|size\s*(xxl|xl|l|m|s|xs))\b/i))) return m[1].toUpperCase();
+      if ((m = t.match(/\b(xxxl|xxl|xl)\b/i))) return m[1].toUpperCase();
+      return null;
+    default:
+      return null;
+  }
 }
 
 const C = 30, M = 4.2;
@@ -245,6 +420,15 @@ export async function handleTurn(state, input, ctx) {
     if (!known) nlu = classify({ ...state, pending: null }, String(input.text || ""));
   }
   meta.ms_nlu = Date.now() - tNlu;
+  // PDP bare question: on the product detail page, a fresh "what is the X" /
+  // "how Y" / "is it Z" question (no search state yet) is about THAT item,
+  // even without a pronoun ("what is the battery capacity?").
+  if (ctx.context && ctx.context.sku && !state.last && !state.q &&
+      (nlu.intent === "search" || nlu.intent === "refine") &&
+      /^(what is the|what are the|what (colour|color|is|does)|how (much|many|big|heavy|powerful|long|is|can)|is (it|this)|can (it|this)|does (it|this)|will (it|this))\b/i.test(String(input.text || ""))) {
+    nlu = { ...nlu, intent: "ask_product", refs: { ordinal: null, pronoun: true, ordinals: [] } };
+    meta.via = "rules";
+  }
   if (nlu.via !== "llm" && ctx.llmEnabled && nlu.confidence < 0.8 && nlu.intent === "out_of_scope") {
     const llmRes = await llmPass(state, input.text, ctx);
     if (llmRes) nlu = llmRes;
@@ -258,8 +442,8 @@ export async function handleTurn(state, input, ctx) {
   if (nlu.intent === "out_of_scope") {
     act = "deflect";
     const key = { injection: "oos_injection", chitchat: "oos_chitchat", crisis: "oos_crisis",
-                  to_long: "oos_to_long", control: "oos_control" }[nlu.kind] ||
-               (String(nlu.kind || "").startsWith("out_of_domain") ? "oos_domain" : "oos_unrecognized");
+                  to_long: "oos_to_long", control: "oos_control", world: "oos_domain", extdata: "oos_ext" }[nlu.kind] ||
+               (String(nlu.kind || "").startsWith("out_of_domain") ? "oos_policy" : "oos_unrecognized");
     text = T_(lang, key);
     return finish();
   }
@@ -377,43 +561,83 @@ export async function handleTurn(state, input, ctx) {
       const kind = classifyProductQ(input.text);
       const specs = specFromTitle(item.title);
       facts = { item, skus: [item.sku], slots: state.slots };
-      if (kind === "spec") {
-        const v = specSentence(specs, item.title) || specFromTitleText(item.title);
+      // Raw category, not the display name: the listing (and the PDP) shows
+      // the raw value, and that is the grounded form.
+      const knownLine = [item.brand && "brand " + item.brand, item.category,
+        "₹" + item.price.toLocaleString("en-IN"), "rated " + item.rating + "/5"]
+        .filter(Boolean).join(", ");
+      if (kind.kind === "spec") {
+        // Answer ONLY the slot that was asked. A storage question must not
+        // be answered with the RAM figure; a missing slot is an honest
+        // unknown, never a rating dodge.
+        const v = specValueFor(item, specs, kind.slot);
         if (v) {
           act = "answer_product";
-          text = T_(lang, "p_spec", { title: item.brand ? item.brand + " " : "", spec: v });
+          if (kind.slot === "material") {
+            text = T_(lang, "p_material", { spec: v });
+          } else if (kind.slot === "watt" && /^SPF/.test(v)) {
+            // Sunscreen: address "how powerful" directly instead of asserting
+            // the SPF figure as a power answer.
+            text = T_(lang, "p_spf", { spec: v });
+          } else {
+            text = T_(lang, "p_spec", { title: item.brand ? item.brand : "This one", spec: v });
+          }
         } else {
           act = "answer_unknown";
-          text = T_(lang, "p_unknown", { known: [item.brand && "brand " + item.brand, displayCatShort(item.category), "₹" + item.price.toLocaleString("en-IN")].filter(Boolean).join(", ") });
+          text = T_(lang, "p_unknown", { known: knownLine });
         }
-      } else if (kind === "price") {
-        const med = ctx.catMedian && ctx.catMedian[item.category] ? ctx.catMedian[item.category].med : null;
-        if (med) {
-          act = "answer_product";
-          text = T_(lang, "p_price", { price: item.price.toLocaleString("en-IN"), median: med.toLocaleString("en-IN"), cat: displayCatShort(item.category), pos: item.price <= med ? "below" : "above" });
-          facts.median = med;
-        } else {
-          act = "answer_product";
-          text = T_(lang, "p_price", { price: item.price.toLocaleString("en-IN"), median: item.price.toLocaleString("en-IN"), cat: displayCatShort(item.category), pos: "at" });
-          facts.median = item.price;
-        }
-      } else if (kind === "suitability") {
+      } else if (kind.kind === "price") {
+        // The listing carries no category price band, so comparing to a
+        // median would be an invented number. State the price honestly.
+        act = "answer_unknown";
+        text = T_(lang, "p_price", { price: item.price.toLocaleString("en-IN"), cat: item.category });
+      } else if (kind.kind === "suitability") {
         const tags = (item.tags || []).filter((t) => ["wedding", "birthday", "anniversary", "gift", "diwali", "party", "valentines", "christmas", "graduation", "baby-shower", "housewarming"].includes(t));
-        const extra = [];
-        if (state.slots.forWhom) extra.push("for " + state.slots.forWhom);
-        const shown = [...tags, ...extra].slice(0, 3);
-        if (shown.length) {
-          act = "answer_product";
-          text = T_(lang, "p_suit", { tags: shown.join(", ") });
+        if (kind.sub === "age") {
+          const kidHit = KID_TITLE.test(item.title) ? item.title.match(KID_TITLE)[0] : null;
+          if (kidHit) {
+            act = "answer_product";
+            text = T_(lang, "p_kid", { who: kidHit });
+          } else {
+            act = "answer_unknown";
+            text = T_(lang, "p_no_age", { known: knownLine });
+          }
+        } else if (kind.sub === "usage") {
+          const uHit = USAGE_WORDS.find((u) => new RegExp("\\b" + u + "\\b", "i").test(item.title)) || null;
+          if (uHit) {
+            act = "answer_product";
+            text = T_(lang, "p_usage", { use: uHit });
+          } else {
+            act = "answer_unknown";
+            text = T_(lang, "p_no_usage", { known: knownLine });
+          }
         } else {
-          act = "answer_unknown";
-          text = T_(lang, "p_no_suit");
+          // An asked occasion that is NOT tagged must be answered directly
+          // ("Is this good as a Diwali gift?" -> "Not tagged for Diwali here").
+          const asked = (String(input.text || "").match(/\b(diwali|wedding|shaadi|birthday|anniversary|housewarming|valentines?|party|christmas|graduation|baby[- ]shower)\b/i) || [])[1];
+          const askedNorm = asked ? asked.toLowerCase().replace("valentine", "valentines").replace("shaadi", "wedding").replace("baby shower", "baby-shower") : null;
+          const extra = [];
+          if (state.slots.forWhom) extra.push("for " + state.slots.forWhom);
+          const shown = [...tags, ...extra].slice(0, 3);
+          // A negative tag claim needs grounded tags to lean on; with no tags
+          // at all, "can't confirm the fit" is the honest, grounded answer.
+          if (askedNorm && !tags.includes(askedNorm) && tags.length) {
+            act = "answer_product";
+            text = T_(lang, "p_occ_miss", { occ: asked, tags: tags.slice(0, 3).join(", ") });
+          } else if (shown.length) {
+            act = "answer_product";
+            text = T_(lang, "p_suit", { tags: shown.join(", ") });
+          } else {
+            act = "answer_unknown";
+            text = T_(lang, "p_no_suit");
+          }
         }
       } else {
-        // quality (and default): state the adjusted rating, never opine
+        // quality (and default): never opine; the rating is a proxy and is
+        // said to be one. Use the raw listing rating (a rounded adjusted
+        // figure would be a number not in the listing).
         act = "answer_product";
-        const adj = adjustedRating(item.rating, item.num_ratings);
-        text = T_(lang, "p_quality", { rating: adj.toFixed(1), n: (item.num_ratings || 0).toLocaleString("en-IN") });
+        text = T_(lang, "p_quality", { rating: item.rating, n: (item.num_ratings || 0).toLocaleString("en-IN") });
       }
       chips = [{ id: "cart:add:" + item.sku, label: "Add this to cart" }, { id: "explain", label: "Why this matched" }];
       return finish();
@@ -835,7 +1059,10 @@ function showMore(state, events) {
 }
 
 function resolveProduct(state, ctx, refs) {
-  if (ctx.context && ctx.context.sku) return ctx.catalog.find((x) => x.sku === ctx.context.sku) || null;
+  // PDP anchor: on the product detail page a question without any reference
+  // ("what is the battery capacity?") is about THAT product.
+  const pdpSku = ctx.context && ctx.context.sku;
+  if (pdpSku) return ctx.catalog.find((x) => x.sku === pdpSku) || null;
   if (state.last && state.last.all) {
     const ord = refs && refs.ordinal;
     if (ord && state.last.all[ord - 1]) return state.last.all[ord - 1];

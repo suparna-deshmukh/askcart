@@ -503,6 +503,38 @@ def main():
     print(f"variant families: {len(fam_members)} (with summary: {sum(1 for m in fam_members.values() if len(m) > 1)}, "
           f"SKUs with summary: {n_fam})")
     print("final:", len(items))
+    # Stable SKU assignment: SKU identity must never shift when rows are
+    # added (eval panels freeze SKU facts; ?sku= links and analytics must
+    # survive rebuilds). Items present in the previous catalog.json keep
+    # their SKU and relative order; new items append at the end in
+    # deterministic order. Without this, the india_frame band-quota trim
+    # re-sorts and renumbers thousands of SKUs on every catalogue change.
+    from collections import Counter
+    skey = lambda x: (x["title"], x.get("brand"), x["price"], x["category"])
+    if OUT_JSON.exists():
+        prev_items = json.loads(OUT_JSON.read_text())
+        new_counts = Counter(skey(x) for x in items)
+        leftover = Counter(new_counts)
+        kept = []
+        for old in prev_items:
+            k = skey(old)
+            if leftover.get(k, 0) > 0:
+                leftover[k] -= 1
+                kept.append(old)
+        fresh = []
+        for x in items:
+            if leftover.get(skey(x), 0) > 0:
+                leftover[skey(x)] -= 1
+                fresh.append(x)
+        fresh.sort(key=lambda x: (x["category"], x["title"], x.get("brand") or ""))
+        max_n = max((int(x["sku"].split("-")[1]) for x in kept if x["sku"].startswith("AC-")), default=0)
+        for i, x in enumerate(fresh, 1):
+            x["sku"] = "AC-%05d" % (max_n + i)
+        items = kept + fresh
+        print("stable sku: kept %d (ids preserved), appended %d new" % (len(kept), len(fresh)))
+    else:
+        for i, x in enumerate(items, 1):
+            x["sku"] = "AC-%05d" % i
     print(pd.Series([x["category"] for x in items]).value_counts().to_string()[:700])
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_PQ.parent.mkdir(parents=True, exist_ok=True)

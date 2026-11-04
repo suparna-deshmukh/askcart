@@ -15,9 +15,10 @@ const INJECT = [
 ];
 const CRISIS = /\b(kill\s+(myself|me)|suicid\w*|self[-\s]?harm|hurt\s+myself|end\s+my\s+life)\b/i;
 const OUT_OF_DOMAIN = {
-  health: /\b(medicine|medication|diabetes|blood\s+pressure|symptom\w*|disease|doctor|prescription|painkiller)\b/i,
-  legal: /\b(lawyer|attorney|court\s+case|legal\s+advice|sue|lawsuit|contract\s+law)\b/i,
-  finance: /\b(stock\s+market|invest\w*|loan|insurance\s+claim|credit\s+score)\b/i,
+  health: /\b(medicine|medication|diabetes|blood\s+pressure|symptom\w*|disease|doctor|prescription|painkiller|side\s+effects?)\b/i,
+  legal: /\b(lawyer|attorney|court\s+case|legal\s+advice|sue|lawsuit|contract\s+law|is it legal|legal to|legality)\b/i,
+  // "sell insurance" is a product-range FAQ, not finance advice.
+  finance: /\b(stock\s+market|invest\w*|loan|insurance\s+claim|credit\s+score|bitcoin|cryptocurrenc|crypto (coin|price|market)|income tax|tax return|file\w* (my |the )?tax)\b/i,
 };
 const EMAIL = /\b[\w.+-]+@[\w-]+\.[\w.]{2,}\b/g;
 const PHONE_IN = /\b(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}\b/g;
@@ -38,7 +39,9 @@ export function inputGuard(text) {
 }
 
 // ---- language ----------------------------------------------------------
-const HINGLISH_MARK = /\b(ka|ki|ke|ko|hai|hain|kya|mujhe|tumhe|liye|ke\s+liye|wala|wali|wale|chahiye|dikhao|sasta|sasti|accha|acchi|acha|achi|batao|kaise|kitna|kitne|kuch|kisi|na|nahi|theek|bilkul|dena|dijiye|laao|mein|me)\b/i;
+// "me" is a common English word ("tell me") - dropped so English is never
+// misread as Hinglish (the other markers carry the detection load).
+const HINGLISH_MARK = /\b(ka|ki|ke|ko|hai|hain|kya|mujhe|tumhe|liye|ke\s+liye|wala|wali|wale|chahiye|dikhao|sasta|sasti|accha|acchi|acha|achi|batao|kaise|kitna|kitne|kuch|kisi|na|nahi|theek|bilkul|dena|dijiye|laao|mein)\b/i;
 export function detectLang(text) {
   const s = String(text || "");
   if (/[\u0900-\u097F]/.test(s)) return "hi";
@@ -160,9 +163,24 @@ export function classify(state, text, langHint = null) {
     // else fall through: a full new query overrides the pending question.
   }
 
+  // 1b) "how does checkout work" asks about the flow - a FAQ, not a cart
+  // command (must run before the cart_help catch-all below).
+  if (/\b(how|why|what)\b/i.test(s) && /\bcheckout\b/i.test(s)) {
+    return { ...base, intent: "faq", kind: "tracking" };
+  }
+
   // 2) cart_help
   if (/\b(add (it|this|that|them|the (first|second|third|next)|to cart|in cart|into cart)|put (it|this|that) (in|into) (my )?cart|open (the )?cart|show (my )?cart|my cart|checkout|proceed to (pay|checkout)|where (do|can|should) i pay|pay (online|for this|for it))\b/i.test(s)) {
     return { ...base, intent: "cart_help", kind: /\bopen|show|my cart|checkout\b/i.test(s) && !/\badd\b/i.test(s) ? "open" : "add" };
+  }
+
+  // 2b) external-data asks ("global pricing", "global reviews") are shopping-
+  // adjacent: deflect on missing outside data, not on "outside shopping".
+  if (/\bcompare\b/i.test(s) && /\b(global|world)\b/i.test(s)) {
+    return { ...base, intent: "out_of_scope", kind: "extdata" };
+  }
+  if (/\baccording to global\b/i.test(s) || /\bglobal (reviews|pricing|prices)\b/i.test(s)) {
+    return { ...base, intent: "out_of_scope", kind: "extdata" };
   }
 
   // 3) compare
@@ -182,13 +200,24 @@ export function classify(state, text, langHint = null) {
   }
 
   // 5) faq
-  const faqKeys = /\b(deliver\w*|shipping|returns?|refund|exchange|track\w*|order (status|update|arriv\w*)|arrive\w*|dispatch\w*|how long|when (does|will|do)|payment|payments|pay (by|with)|cod\b|upi\b|real (or|is)|is this (real|fake|demo)|demo\b|privacy|my (data|details)|how (do (you|it)|are) rank\w*|why do you ask|warranty|tax)\b/i;
+  // Meta questions about the app itself answer from the policy file even
+  // when they carry a pronoun ("can I change my order after placing it?").
+  const faqSpecial = /\b(is this (a )?(real|fake|demo)|real store|how are ratings|ratings (calculated|work)|why (are|is|do)|\bindicative\b|come from|contact (support|us)|customer care|help (desk|line)|buy in bulk|bulk (order|pricing)|wholesale|loyalty|rewards (program|programme)|in stock|out of stock|change my order|cancel my order|after (i|you) place|exchange window|gift (wrap|wrapping)|sell insurance)\b/i;
+  if (faqSpecial.test(s)) {
+    return { ...base, intent: "faq", kind: faqKind(s) };
+  }
+  const faqKeys = /\b(deliver\w*|shipping|returns?|refund|exchange|track\w*|order (status|update|arriv\w*)|arrive\w*|dispatch\w*|how long|when (does|will|do)|payment|payments|pay (by|with)|cod\b|upi\b|real (or|is)|is this (real|fake|demo)|demo\b|privacy|my (data|details)|how (do (you|it)|are) rank\w*|why do you ask|warranty|tax|address)\b/i;
   if (faqKeys.test(s) && !PRONOUN.test(g.text)) {
     return { ...base, intent: "faq", kind: faqKind(s) };
   }
 
+  // 5b) world knowledge -> out_of_scope (polite deflect, no search)
+  for (const rx of WORLD_Q) if (rx.test(s)) {
+    return { ...base, intent: "out_of_scope", kind: "world" };
+  }
+
   // 6) ask_product: a question about "this / that / the Nth one / a named item"
-  const qWord = /\b(is|are|does|do|what|which|how|why|can|worth|good|best|durable|quality|material|specs?|details?|fit|size|weight|color|colour|safe|trust\w*|kya|accha|acchi|acche|achha|achhe|achhi|acha|achi|sasta|sasti|mehnga|mehengi)\b/i;
+  const qWord = /\b(is|are|does|do|what|which|how|why|can|worth|good|best|durable|quality|material|specs?|details?|fit|size|weight|color|colour|safe|trust\w*|last|kya|accha|acchi|acche|achha|achhe|achhi|acha|achi|sasta|sasti|mehnga|mehengi)\b/i;
   const named = parseQuery(g.text);
   const prodToks = named.tokens.filter((t) => t.length > 1);
   if ((base.refs.ordinal || base.refs.pronoun) && qWord.test(s)) {
@@ -267,13 +296,38 @@ function faqKind(s) {
   if (/\bdeliver|shipping|arrive\w*|dispatch\w*\b/.test(s)) return "delivery";
   if (/\breturn|refund|exchange\b/.test(s)) return "returns";
   if (/\bpayment|pay |cod|upi/.test(s)) return "payment";
-  if (/\btrack|order status\b/.test(s)) return "tracking";
+  if (/\btrack|order status|after (i|you) place|place an order\b/.test(s)) return "tracking";
+  if (/\bratings?\b/.test(s)) return "ratings";
+  if (/\bsupport|customer care|help (desk|line)|contact (us|support)\b/.test(s)) return "support";
+  if (/\bstock\b/.test(s)) return "stock";
+  if (/\bbulk|wholesale\b/.test(s)) return "bulk";
+  if (/\bloyalty|rewards\b/.test(s)) return "loyalty";
   if (/\bdemo|real|fake|genuine product\b/.test(s)) return "demo";
-  if (/\bprivacy|data\b/.test(s)) return "privacy";
+  if (/\bprivacy|data|address\b/.test(s)) return "privacy";
   if (/\brank|why do you ask|how (do|are)\b/.test(s)) return "ranking";
   if (/\bwarranty|tax\b/.test(s)) return "policy";
   return "general";
 }
+
+// 5b) world-knowledge questions (weather, sports, math, movies, geography,
+// DIY, currency, physics) are out of scope for a shopping demo. The patterns
+// are narrow on purpose - a product query like "rain jacket" must never hit.
+const WORLD_Q = [
+  /\b(weather|temperature|forecast|will it rain)\b/,
+  /\bwho (will|would) (win|score)\b/, /\bworld cup\b/, /\bcricket (match|series)\b/,
+  /\bmatch result\b/, /\btournament\b/,
+  /\bhelp me solve\b/, /\bsolve \d/, /\bequation\b/, /\balgebra\b/, /\bhomework\b/,
+  /\bderivative\b/, /\bintegral\b/, /\bmaths? problem\b/,
+  /\bwhat (should|can) i eat\b/, /\b(dinner|lunch) (idea|suggestion)\b/,
+  /\bwrite (a|an|me) (poem|story|essay|letter)\b/, /\btell me (a|some) joke\b/,
+  /\bconvert \d+ (rupees|dollars)\b/,
+  /\bwhat is the capital\b/, /\bwho is the (prime minister|president)\b/,
+  /\bpopulation of\b/, /\bwhat time is it in\b/, /\bis the moon\b/,
+  /\bhistory of (the|a)\b/, /\bexplain quantum\b/,
+  /\bbecome a (doctor|pilot|engineer|actor|teacher)\b/,
+  /\brestaurant in\b/, /\bfix (a|the) (leak|tap|pipe)\b/, /\bleaking (tap|pipe)\b/,
+  /\b(recommend|suggest)\w* (a |an )?(movie|film|web ?series|netflix)\b/,
+];
 
 // ---- optional LLM pass (CHAT_LLM=1 only) --------------------------------
 export async function llmNlu({ chat }, state, text, catalogBrands, catalogCats) {
