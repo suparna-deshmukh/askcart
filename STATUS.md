@@ -486,6 +486,19 @@ G12 outcome micro-survey.
   semantic_* props, run_all.sh 5b, summary generated from artifacts
   by eval/semantic/make_summary.py.
 
+- **Final (work order item 7) DONE — work order complete.**
+  sync_doc_numbers --check OK (PROJECT.md matches catalogue artifact);
+  full gate pass: canaries 111+5, semantic unit suite ALL PASS (no-op
+  guarantee 293/293), chat eval GATES PASS (intent 100% 76/76, grounding
+  0, safe 37/37) after the llm.js thinking/timeoutMs option (default
+  behaviour unchanged), ui tour 17 shots, contrast 0. LLM spend this
+  session (semantic item + retries): ~10k tokens (calibrate 3 judge
+  batches + arms 6 batches + ~8 timed-out attempts from two transient
+  proxy outages, thinking off from the 2nd retry); session total ~35k of
+  the ~100k budget. All work-order items 1-7 closed; Vercel out of
+  scope per user (localhost:3000 only). Cut list honoured (S5 BM25F,
+  G2 info-gain, S9 LLM parser, S11 voice, dark theme, B8/B10).
+
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
   when the eval harness is ready.
@@ -536,7 +549,7 @@ Work order:
    panel, one tau from dev dead-end distribution, arms A/B/C with CIs,
    no-op guarantee test, summary.md generated from artifacts. DONE 2026-11-04.
 7. Final: doc sync (sync_doc_numbers --check), full gate pass, STATUS/PROJECT
-   closeout.
+   closeout. DONE 2026-11-04.
 
 Cut list (agreed): S5 BM25F, G2 info-gain picker, S9 LLM query parser,
 S11 voice, dark theme, B8/B10. Floors that stay: canaries green per commit,
