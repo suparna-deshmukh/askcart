@@ -580,7 +580,7 @@ Every metric below is computed server-side from the event store
 - **Journey outcomes** — resolved t1 / t2 / t3 / t4 / unresolved; journey
   resolution %; avg journey time (ms).
 - **Category & brand engagement** — views + cart adds per category/brand,
-  live from `product_view`/`add_to_cart` events (not from the catalogue
+  live from `product_impression`/`add_to_cart` events (not from the catalogue
   file — what shoppers *actually* touch).
 - **Shopper profiles** — onboarding answer breakdowns (userType / spend
   style / context), done vs skipped, avg time to complete.
@@ -625,7 +625,7 @@ or `no-persona`), `ts`.
 | `resolved` | search reached ≥2 results | `query`, `turns`, `n_results`, `journey_id` |
 | `unresolved` | 3 follow-ups exhausted, still <2 | `query`, `turns` |
 | `journey_end` | journey closed (resolution, exhaustion, order, or new search) | `query`, `journey_id`, `turns`, `resolved`, `n_views`, `added_to_cart`, `ordered`, `ms` |
-| `product_view` | a product card rendered in a journey | `sku`, `title`, `category`, `brand`, `price`, `rating`, `position`, `query`, `turn`, `source` (results/preview), `journey_id` |
+| `product_impression` | a product card rendered in a journey (legacy `product_view` accepted) | `sku`, `title`, `category`, `brand`, `price`, `rating`, `position`, `variant`, `lang`, `query`, `turn`, `source` (results/preview), `journey_id` |
 | `add_to_cart` | Add-to-cart tapped | `sku`, `price`, `category`, `brand`, `cart_size`, `from` (results/preview/recommended), `query`, `journey_id` |
 | `recommendation_click` | shopper acts on a "Recommended for you" pick | `sku`, `query`, `brand`, `journey_id` |
 | `cart_view` | cart drawer opened | `item_count`, `total` |
@@ -714,7 +714,7 @@ Left → right:
 - Section head: **Trending across price bands** + count
   `36,045 products loaded · best-rated per band`.
 - 12 product cards from `/api/catalog-preview` (best-rated per price band),
-  each with Add to cart / Buy now; each card render fires `product_view
+  each with Add to cart / Buy now; each card render fires `product_impression
   (source: preview)`.
 
 **State D — Active search (top → bottom)**
@@ -864,12 +864,12 @@ trending preview. Persona now rides on every event as `cohort`.
 
 ### J2 — Browse without searching
 Hero → scroll to **Trending across price bands** → 12 preview cards
-(`product_view` ×12, `source: preview`) → Add to cart (→ J7) or Buy now
+(`product_impression` ×12, `source: preview`) → Add to cart (→ J7) or Buy now
 (→ J6) or type a query (→ J3).
 
 ### J3 — Search, resolves on turn 1 (happy path)
 Type / tap an example chip / deep-link → `search_start` → `/api/search`
-→ `search_results` (+ `product_view` per rendered card). ≥2 intent
+→ `search_results` (+ `product_impression` per rendered card). ≥2 intent
 matches → `resolved (turns=1)` → page shows question card (only if the
 policy finds a *valuable* refinement, e.g. budget for open-ended
 "headphones" — marked **Optional refinement**, results already shoppable)

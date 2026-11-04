@@ -32,7 +32,7 @@ All events carry (added client-side, `app/app/lib/track.js`):
 | `resolved` | search reached ≥2 results | `query`, `turns`, `n_results`, `journey_id` |
 | `unresolved` | 3 follow-ups exhausted, still <2 | `query`, `turns` |
 | `journey_end` | journey closed (resolution, exhaustion, order, or new search) | `query`, `journey_id`, `turns`, `resolved`, `n_views`, `added_to_cart`, `ordered`, `ms` |
-| `product_view` | a product card rendered in a journey | `sku`, `title`, `category`, `brand`, `price`, `rating`, `position`, `query`, `turn`, `source` (results/preview) |
+| `product_impression` | a product card rendered in a journey (legacy name `product_view` still accepted) | `sku`, `title`, `category`, `brand`, `price`, `rating`, `position`, `variant`, `lang`, `query`, `turn`, `source` (results/preview) |
 | `add_to_cart` | Add-to-cart tapped | `sku`, `price`, `category`, `brand`, `cart_size`, `from` (results/preview/recommended), `query`, `journey_id` |
 | `recommendation_click` | shopper acts on a "Recommended for you" top pick (add or buy-now) | `sku`, `query`, `brand`, `journey_id` |
 | `cart_view` | cart drawer opened | `item_count`, `total` |

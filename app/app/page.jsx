@@ -267,6 +267,17 @@ function AskCartHome() {
   // 7.1: product detail drawer (linkable via ?sku=)
   const [pdp, setPdp] = useState(null);
   const [moreN, setMoreN] = useState(24); // 7.3: "Show more" page size
+  // P3-lite: Guided vs Plain compare toggle. Plain = the legacy keyword
+  // baseline (naive mode: no budget/occasion understanding, no questions)
+  // so a reviewer can A/B the two in the same session. Not persisted: a
+  // fresh visitor always lands on the guided experience.
+  const [plainMode, setPlainMode] = useState(false);
+  function switchPlainMode(on) {
+    if (on === plainMode) return;
+    setPlainMode(on);
+    // modeOverride: the state update hasn't landed in this render's closure
+    if (s && s.query) startSearch(s.query, "mode_toggle", on);
+  }
   // G12: outcome micro-survey (1 tap + root-cause chips, same labels as
   // the mined taxonomy). Triggers: add_to_cart / order (always), leaving a
   // no-action journey with the tab hidden (25% sample, per-journey hash).
@@ -363,13 +374,13 @@ function AskCartHome() {
     track("page_view", { screen: "analytics", subtab: next });
   }
 
-  async function doSearch(query, { relax = false, category = null, occasion = null, budget = null, turn = 1, limit = 48, forWhom = null, size = null, capacity = null } = {}) {
+  async function doSearch(query, { relax = false, category = null, occasion = null, budget = null, turn = 1, limit = 48, forWhom = null, size = null, capacity = null, naive = false } = {}) {
     try {
       const t0 = Date.now();
       const r = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, relax, category, occasion, budget, limit, forWhom, size, capacity }),
+        body: JSON.stringify({ query, relax, category, occasion, budget, limit, forWhom, size, capacity, naive }),
       });
       const j = await r.json();
       if (!Array.isArray(j.results)) {
@@ -411,17 +422,19 @@ function AskCartHome() {
     results.forEach((r, i) => {
       if (!jn.views.has(r.sku)) {
         jn.views.add(r.sku);
-        track("product_view", {
+        track("product_impression", {
           sku: r.sku, title: r.title, category: r.category, brand: r.brand || "",
           price: r.price, rating: r.rating, position: i + 1,
+          variant: r.variant || null, lang,
           query, turn, source, journey_id: jn.id,
         });
       }
     });
   }
 
-  async function startSearch(query, source = "input") {
+  async function startSearch(query, source = "input", modeOverride = undefined) {
     if (!query.trim() || busy) return;
+    const naive = modeOverride !== undefined ? modeOverride : plainMode;
     if (journeyRef.current && !journeyRef.current.ended) {
       endJourney(journeyRef.current, { resolved: !!s && s.ok === true, turns: s ? s.turn : 1 });
     }
@@ -431,7 +444,7 @@ function AskCartHome() {
     journeyRef.current = ensureJourney(query);
     track("search_start", { query, source, journey_id: journeyRef.current.id });
     const t0 = Date.now();
-    let res = await doSearch(query, { turn: 1 });
+    let res = await doSearch(query, { turn: 1, naive });
     if (res.error) {
       setS((st) => st && { ...st, error: res.error });
       setBusy(false);
@@ -446,6 +459,7 @@ function AskCartHome() {
     setMoreN(24);
     if (ok) {
       track("resolved", { query, turns: 1, n_results: res.results.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
+      if (naive) { endJourney(journeyRef.current, { resolved: true, turns: 1 }); setBusy(false); return; }
       // Optional refinement: the policy decides if one more question adds
       // value (e.g. budget for an open-ended "headphones" query).
       // n_results = intent-hit count (same semantics as the study).
@@ -462,6 +476,13 @@ function AskCartHome() {
       } else {
         endJourney(journeyRef.current, { resolved: true, turns: 1 });
       }
+      setBusy(false); return;
+    }
+    if (naive) {
+      // Baseline has no rescue: an empty page is the honest result.
+      track("unresolved", { query, turns: 1, journey_id: journeyRef.current.id });
+      setS((st) => st && { ...st, exhausted: true });
+      endJourney(journeyRef.current, { resolved: false, turns: 1 });
       setBusy(false); return;
     }
     for (let turn = 2; turn <= 4; turn++) {
@@ -937,6 +958,9 @@ function AskCartHome() {
                   <b>{s.results.length}</b> products for “{s.query}” · {layout && layout.single ? "sorted by best match" : "curated into shelves"}
                 </div>
               )}
+              {s && plainMode && (
+                <div className="meta" role="status">Plain mode — baseline keyword search: no budget or occasion understanding, no follow-up questions. Switch to Guided to see the difference on the same query.</div>
+              )}
               {s && s.rollback && (
                 <div className="meta" style={{ marginTop: -8, marginBottom: 10 }}>
                   That answer didn't improve the match, so I kept your previous picks.
@@ -1007,6 +1031,10 @@ function AskCartHome() {
                 <>
                   <div className="filters">
                     <div className="frow">
+                      <span className="flabel" title="Guided = budget/occasion-aware search with at most 3 questions. Plain = the legacy keyword baseline, no questions.">Mode</span>
+                      <button className={!plainMode ? "fchip on" : "fchip"} onClick={() => switchPlainMode(false)}>Guided</button>
+                      <button className={plainMode ? "fchip on" : "fchip"} onClick={() => switchPlainMode(true)}>Plain</button>
+                      <span className="fsep" />
                       <span className="flabel">Sort</span>
                       {SORTS.map((x) => (
                         <button key={x.id} className={f.sort === x.id ? "fchip on" : "fchip"} onClick={() => setFilter("sort", x.id)}>{x.label}</button>

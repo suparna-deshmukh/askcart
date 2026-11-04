@@ -371,6 +371,24 @@ G12 outcome micro-survey.
   browser: add -> strip -> Not really -> reason chip -> event ->
   Validation bars. Canaries 111+5, ui tour, contrast 0 fails, sync OK.
 
+- **B4 DONE** — `product_view` → `product_impression` (it tracks card
+  renders in results, not PDP opens; `product_open` stays the PDP event).
+  Store keeps `product_view` as a legacy alias; `variant` + `lang`
+  properties added on the event. Docs: PROJECT.md event table,
+  docs/event_schema.md, docs/user_journeys.md. Event verified ingested
+  and counted (productsViewed rollup unchanged).
+- **Guided-vs-Plain toggle DONE** — Mode chips (Guided / Plain) in the
+  filter bar. Plain = the naive keyword baseline from search.js (no
+  budget/occasion understanding, no questions, no rescue — an empty page
+  is the honest baseline result); a one-line explainer is shown in plain
+  mode. Toggling re-runs the current query in the other mode (stale-
+  closure bug caught in browser test: mode now passed explicitly to
+  startSearch). Not persisted — fresh visitors land on Guided. Verified
+  in browser: "headphones" guided shows the optional-refinement strip
+  (budget chips with facet counts), plain shows bare keyword results
+  with no question UI. Canaries 111+5, ui tour, contrast 0 fails, sync
+  OK.
+
 ## P3/P4 blocked items (need real humans / external accounts)
 - E2 real think-aloud interviews — need real people; prep script written
   when the eval harness is ready.
@@ -404,10 +422,10 @@ Work order:
 3. P2 remainder: S7 variant-family grouping -> C1 origin + C2 brand +
    C3 is_accessory in ONE catalogue rebuild -> G3 (for-whom on fashion, plus
    appliance capacity if cheap) -> G8 festival rails -> G12 micro-survey.
-4. P3-lite: B4 event rename (product_impression) + variant/lang props,
-   Guided-vs-Plain compare toggle (reuse naive mode; skip live A/B
-   randomisation - no real users on localhost), E3 eval: 100-query frozen
-   panel, 2 arms, Qwen-judged top-3, Wilson CIs, substitute_shown class.
+4. P3-lite: B4 event rename (product_impression) + variant/lang props DONE,
+   Guided-vs-Plain compare toggle DONE (reuse naive mode; no live A/B -
+   no real users on localhost), E3 eval: 100-query frozen panel, 2 arms,
+   Qwen-judged top-3, Wilson CIs, substitute_shown class.
 5. Chatbot MVP (Mode A): deterministic dialog manager + templates-first,
    8 intents, 3 entry points (hero, E1 escalation, PDP), substring FAQ,
    HMAC-signed client state, grounding guard 0-fail, 60 golden + 30

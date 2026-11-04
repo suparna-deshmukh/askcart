@@ -13,13 +13,13 @@ parentheses are emitted to the public analytics store.
 3. Persona persists (localStorage) → cohort on every future event;
    "flexible" budget answers default to the persona's style.
 4. Home shows the catalogue preview grid (12 products) with Add-to-cart /
-   Buy now. `product_view` per card.
+   Buy now. `product_impression` per card.
 
 ## J1 — Direct search, resolves on turn 1 (happy path)
 1. Type / pick an example / deep link `?q=…` → `search_start`.
 2. Results grid (≤12 cards: title, category, brand badge, occasion badges,
    ₹ price, ★ rating + rating count, Add to cart, Buy now) + meta line
-   ("N results in X ms"). `search_results`, `product_view` ×n.
+   ("N results in X ms"). `search_results`, `product_impression` ×n.
 3. If the policy sees value in one refinement (e.g. budget for "headphones")
    an **optional** chip row appears under the grid — `guide_question_shown
    (refine=true)`. User may ignore it; the journey is already resolved.

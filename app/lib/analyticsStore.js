@@ -207,7 +207,7 @@ export function record(type, payload = {}, env = null) {
         g.options[p.option] = (g.options[p.option] || 0) + 1;
       }
       break;
-    case "product_view":
+    case "product_impression": case "product_view": // B4: renamed, legacy alias kept
       T.productsViewed++;
       if (qk) bump(st.queries, qk, { views: 1 });
       if (p.category) bump(st.cats, String(p.category).slice(0, 60), { views: 1 });
