@@ -905,3 +905,62 @@ BEFORE any run (2b81ab5), then ran it.
   (within the 500K budget for this task; round 8 re-judged 0 moments).
 - Local commit only (`T3:` prefix), no GitHub/remote; localhost dev
   server.
+
+## 2026-11-05 — Guaranteed first question (always-ask) + UX re-measure 70.1%
+- **Requirement (supersedes question-economy where they conflict):** any
+  search must start asking follow-up questions immediately. Canonical
+  complaint: "shadi gift under 2000" showed results and no question.
+  Root cause was POLICY, not UI: wiring verified (page.jsx startSearch
+  → askGuide(query, intentN, turn=2) on every resolved search;
+  /api/guide POST {query, n_results, prev_types}); the no-question set
+  at turn 1 was saree/gift/"shadi gift under 2000"/watch/phone/
+  diwali gift/soap.
+- **Fix (all in `app/lib/guide.js`, + 2 lexical lines):**
+  (a) P8 destination stop now requires ≥1 ANSWERED question
+  (prev.size≥1) — stated-facet queries still get their first question;
+  (b) `firstQuestionFallback()` at both no-question exits, fires only
+  when prev empty, non-rescue, ≥2 on-intent: for_whom (≥2 gender lines
+  ≥3 items; subject-free gifts qualify — "shadi gift under 2000" →
+  Women 18/Men 8/Kids 11) → occasion (no stated occasion/price; F2/F9′
+  floors — Dhanteras:4/Diwali:4 quizzes gone) → subject-free category
+  (≤50% dominant, second ≥15%, no stated price) → budget (main-path
+  gates ported: P3 ≥4× or p50≥15k, F10 ≤15×, cov≥10%, never
+  wearable/gift/spec/model/priced; no cap-split re-ask after a stated
+  budget) → size (≥2 sizes ≥max(5,3%·n), apparel-ish dominant) →
+  brand (top≥8%, top3≥25%, counts separate: top−third≥3, top≥1.25×
+  third); NO department-category tier (F6/F7; all 4 of its moments
+  B'd); nothing grounded → honest NQ. (c) `shaadi/shadi/शादी`→wedding
+  in search.js occasion vocab (user's own spelling was unmapped);
+  Devanagari recipient vocab (बहन/भाई/मां/बाप/दीदी/चाची/नानी/…);
+  Devanagari wearables (घड़ी/कमीज़/कुर्ता/साड़ी/ब्लाज़र/टॉप/…) with
+  lookaround boundaries — the first draft's bare alternation matched
+  `टॉप` inside `लैपटॉप`, made laptops "wearable" and B'd a judged
+  for-whom moment; boundary fix restored the laptob budget A pattern.
+- **Judged against the SAME frozen panel (sha 5e60d43bb88d58ad) +
+  frozen judge** (refresh keeps a verdict only when the replayed
+  moment is byte-identical; no panel/judge edits ever): 35.9% [29.5–
+  42.7] (v0 always-ask, 71/198, 102 NQ) → 56.6% [47.7–65.0] (69/122,
+  178 NQ) → **70.1% [60.4–78.3] (68/97 judged, 203 no_question)** —
+  178–203 NQ = honest stops (dead ends, single-model sets like cornu/
+  ipone 15/soap, priced+recipient-anchored gifts, destination stops).
+  Residual 29 non-A (25 M + 4 B): ~15 priced-gift for-whom M's whose
+  en twins with identical options are A (single-judge language noise),
+  6× didi-ki-shaadi main-path budget (documented giftFacetsKnown
+  design), 2× spectacles + 1× bangle v1 residuals, 1× bedsheet brand.
+  Honest framing: 91.7% was the question-ECONOMY policy (asked 48 of
+  300 moments); 70.1% is the always-ASK policy the user required —
+  the drop is the rubric-exposure cost, both reported, never blended.
+- **Gates (all re-run after each change, final state green):** canaries
+  111+6 0-fail; semantic suite ALL TESTS PASS (no-op guarantee);
+  chat eval CHAT_LLM=0 76/76 intent / 0 grounding / 37/37 safe; ui
+  tour 17 shots refreshed; contrast 16/16; sync_doc_numbers --check
+  OK. Live HTTP verified: POST /api/guide "shadi gift under 2000" →
+  for_whom (18/8/11); "samovar" → honest not-found.
+- **Docs:** followup_algorithm.md §3.6 guaranteed-first-question +
+  ladder + P8 nuance; PROJECT.md §5.10 always-ask block with
+  trajectory + residual breakdown.
+- **Qwen spend (UX v2 cumulative):** 793 calls ≈ 286K est tokens
+  (within the 500K task budget; rounds re-judged only changed
+  moments: 150 + 29 + 1 calls across the three passes).
+- Local commit only (`T3:` prefix), no GitHub/remote; localhost dev
+  server :3000.

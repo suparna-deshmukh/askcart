@@ -39,7 +39,7 @@ const HINGLISH_DEV = HINGLISH.devanagari;
 for (const w of HINGLISH.stopwords) STOP.add(w);
 
 const OCCASIONS = {
-  shaadi: "wedding", wedding: "wedding", bridal: "wedding", sangeet: "wedding",
+  shaadi: "wedding", shadi: "wedding", "शादी": "wedding", "शादि": "wedding", wedding: "wedding", bridal: "wedding", sangeet: "wedding",
   baraat: "wedding", birthday: "birthday", bday: "birthday", anniversary: "anniversary",
   party: "party", diwali: "diwali", christmas: "christmas", xmas: "christmas",
   valentines: "valentines", "valentine's": "valentines", "baby shower": "baby-shower",

@@ -820,6 +820,40 @@ NQ-excluded denominators; frozen panel; the 4 residuals are documented,
 not hidden. Full round-by-round detail:
 docs/ASKCART_FULL_DEEP_DIVE.md §10.10.
 
+**Always-ask re-measure (2026-11-05): the first question is now
+guaranteed on every resolved search.** Product requirement (supersedes
+the question-economy trade): a search must start asking immediately —
+the canonical "shadi gift under 2000" was getting results and silence.
+`firstQuestionFallback()` in `app/lib/guide.js` fires only when the
+A-grade gates find nothing to ask on the journey's first question: a
+data-ordered ladder (for-whom → occasion → subject-free category →
+ported budget gates → size → brand-led) with relaxed floors, each floor
+mirroring a measured verdict; P8's two-settled destination stop now
+requires ≥1 answered question so up-front-stated facets no longer
+suppress the first question. Lexical: shadi/शादी → wedding occasion
+vocab; Devanagari recipient + wearable vocab (boundary-guarded,
+`लैपटॉप` ≠ `टॉप`). Re-measured on the SAME frozen panel (sha
+5e60d43bb88d58ad) + frozen judge, verdicts refreshed only where the
+moment changed: **70.1% [60.4–78.3] A (68/97 judged, 203
+no_question)** — trajectory 35.9% (always-ask v0, 71/198) → 56.6%
+(69/122, round 1: main-path budget gates ported, priced-gift occasion
+skip, subject-free category, brand separation) → 70.1% (round 2:
+department-"category" tier removed — all four of its moments B'd;
+brand count-separation; priced-gift category skip; Devanagari
+boundary fix). The A-rate below 91.7% is the honest cost of the
+requirement — every extra question is exposed to the judge's "best
+next question" rubric, and the residual 29 non-A = 25 M + 4 B are:
+~15 priced-gift for-whom M's whose English twins with identical
+options are A (single-judge language noise), 6× "didi ki shaadi"
+main-path budget (documented giftFacetsKnown design — recipient AND
+occasion stated, budget is the only remaining grounded facet),
+2× spectacles + 1× bangle (v1 documented residuals), 1× bedsheet
+brand ("size is better" preference). The user-visible guarantee is
+verified live: "shadi gift under 2000" → for_whom immediately
+(Women 18 / Men 8 / Kids 11); "samovar" → honest not-found, no quiz.
+Qwen UX v2 cumulative: 793 calls ≈ 286K est tokens (within the 500K
+task budget).
+
 ## 6. Event schema (what "every event" means, precisely)
 
 Full reference: `docs/event_schema.md`. **One event type per user action**,

@@ -233,6 +233,62 @@ shopper can see that answering is worth it.
 5. **Stable under LLM failure** — the LLM phrases, never decides; if the
    proxy is down, the template question is still the right question.
 
+**Guaranteed first question (2026-11-05, "always-ask" requirement):** the
+product thesis is that *every resolved search is guided from the first
+result* — a search that shows results without a question contradicts the
+minimum-question principle's own premise (the questions are there to
+remove the mined failure modes). Two rules implement it:
+
+- **P8 (destination stop) applies only after the shopper has answered at
+  least one question.** A query that states two facets up front ("shadi
+  gift under 2000" = occasion + budget) still gets its first question;
+  the stop then fires once a facet is answered (3 settled, or 2 settled
+  + ≥1 answered + ≥10 results on screen).
+- **`firstQuestionFallback()` ladder** — used ONLY when the A-grade
+  eligibility gates above find nothing to ask on the journey's first
+  question (prev empty, ≥2 on-intent results). The data still decides
+  the ORDER; the floors relax, they do not disappear (all floors mirror
+  a measured judge verdict, see the stop-conditions block):
+  1. *for_whom* — wearable/gift subject, no stated recipient/self,
+     ≥2 named gender lines with ≥3 items each (a 1-line set like
+     "saree" Women:8/Men:0/Kids:0 is a one-chip quiz → skipped);
+  2. *occasion* — gift/vague, no stated occasion, no stated price
+     (a priced gift is already scoped), F2/F9′ floors
+     (≥2 options with ≥max(5, 3% of set) items, ≥15% coverage);
+  3. *category (subject-free)* — gift/vague query with no product token
+     ("बहन की शादी के लिए कुछ", "kuch gift dena hai"): the product
+     FAMILY is the unknown; requires a genuinely multi-family set
+     (nothing over 50%, second family ≥15%) and no stated price;
+  4. *budget* — the main path's budget gates ported verbatim (P3
+     ≥4× spread or high-ticket, F10 ≤15×, ≥10% band coverage, never on
+     a wearable/gift/spec-anchored/model-anchored set) — a budget
+     question is never re-asked after a stated cap;
+  5. *size* — ≥2 sizes with ≥max(5, 3% of set) items, apparel-ish
+     dominant family, size not already stated;
+  6. *brand* — brand-led set only (top brand ≥8%, top-3 ≥25% of the
+     set, and the counts actually separate: top − third ≥3 and top
+     ≥1.25× third — "identical counts" is a B-grade option list).
+  No department-"category" tier (Fashion/Electronics/Cell-Phones
+  splits on a single-product subject are not shopper choices — F6/F7;
+  all four such moments were B'd). If no tier passes, the honest stop
+  stands: a resolved search with no grounded facet asks nothing
+  (never a quiz on "cornu", "ipone 15", "soap").
+
+Lexical support for the ladder: `shaadi/shadi/शादी` → wedding occasion
+(vocab); Devanagari recipient vocabulary (बहन/भाई/मां/बाप/दीदी/चाची/…);
+Devanagari wearables (घड़ी/कमीज़/कुर्ता/साड़ी/ब्लाज़र/टॉप/…) with
+lookaround boundaries so `लैपटॉप` is not `टॉप` (the first draft's
+substring match turned laptops wearable and cost a judged moment).
+
+**Measured under always-ask (same frozen panel + judge):** 70.1%
+[60.4–78.3] A on 97 judged moments, 203 no_question — vs 91.7% A on 48
+judged under the question-economy policy. The A-rate drop is the honest
+cost of the requirement: every extra question is now exposed to the
+judge's "best next question" rubric, and a single LLM judge M's
+Hinglish questions whose English twins it A's (documented in
+PROJECT.md §5.10). Dead ends ("samovar") still get the honest
+not-found, never a quiz.
+
 **Stop conditions (rounds 6–8, UX panel v2, 91.7% A):**
 
 - **Two-facet destination (P8).** When ≥2 of the knowable facets
