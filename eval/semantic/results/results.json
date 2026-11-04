@@ -1,37 +1,37 @@
 {
- "generated_at": "2026-11-04T12:27:03.648Z",
+ "generated_at": "2026-11-04T20:44:46.605Z",
  "panel": "eval/semantic/panel.jsonl (frozen pre-run)",
  "arms": {
   "A": {
    "n": 50,
    "null": {
-    "k": 5,
+    "k": 8,
     "n": 50,
-    "pct": 10,
+    "pct": 16,
     "ci": [
-     4.3,
-     21.4
+     8.3,
+     28.5
     ]
    },
    "success_at3": {
-    "k": 28,
+    "k": 41,
     "n": 50,
-    "pct": 56,
+    "pct": 82,
     "ci": [
-     42.3,
-     68.8
+     69.2,
+     90.2
     ]
    },
    "usable_at3": {
-    "k": 40,
+    "k": 43,
     "n": 50,
-    "pct": 80,
+    "pct": 86,
     "ci": [
-     67,
-     88.8
+     73.8,
+     93
     ]
    },
-   "questions_avg": 0.46,
+   "questions_avg": 0.02,
    "by_kind": {
     "real_suggest": {
      "n": 20,
@@ -45,21 +45,21 @@
       ]
      },
      "success_at3": {
-      "k": 9,
+      "k": 18,
       "n": 20,
-      "pct": 45,
+      "pct": 90,
       "ci": [
-       25.8,
-       65.8
+       69.9,
+       97.2
       ]
      },
      "usable_at3": {
-      "k": 17,
+      "k": 19,
       "n": 20,
-      "pct": 85,
+      "pct": 95,
       "ci": [
-       64,
-       94.8
+       76.4,
+       99.1
       ]
      },
      "questions_avg": 0
@@ -67,12 +67,12 @@
     "vague": {
      "n": 8,
      "null": {
-      "k": 2,
+      "k": 1,
       "n": 8,
-      "pct": 25,
+      "pct": 12.5,
       "ci": [
-       7.1,
-       59.1
+       2.2,
+       47.1
       ]
      },
      "success_at3": {
@@ -85,15 +85,15 @@
       ]
      },
      "usable_at3": {
-      "k": 6,
+      "k": 7,
       "n": 8,
-      "pct": 75,
+      "pct": 87.5,
       "ci": [
-       40.9,
-       92.9
+       52.9,
+       97.8
       ]
      },
-     "questions_avg": 0.75
+     "questions_avg": 0.13
     },
     "hinglish": {
      "n": 8,
@@ -107,12 +107,12 @@
       ]
      },
      "success_at3": {
-      "k": 5,
+      "k": 8,
       "n": 8,
-      "pct": 62.5,
+      "pct": 100,
       "ci": [
-       30.6,
-       86.3
+       67.6,
+       100
       ]
      },
      "usable_at3": {
@@ -124,7 +124,7 @@
        100
       ]
      },
-     "questions_avg": 0.38
+     "questions_avg": 0
     },
     "typo": {
      "n": 5,
@@ -155,7 +155,7 @@
        100
       ]
      },
-     "questions_avg": 0.6
+     "questions_avg": 0
     },
     "synonym": {
      "n": 5,
@@ -169,12 +169,12 @@
       ]
      },
      "success_at3": {
-      "k": 3,
+      "k": 4,
       "n": 5,
-      "pct": 60,
+      "pct": 80,
       "ci": [
-       23.1,
-       88.2
+       37.6,
+       96.4
       ]
      },
      "usable_at3": {
@@ -186,17 +186,17 @@
        96.4
       ]
      },
-     "questions_avg": 0.6
+     "questions_avg": 0
     },
     "dead_end": {
      "n": 4,
      "null": {
-      "k": 0,
+      "k": 4,
       "n": 4,
-      "pct": 0,
+      "pct": 100,
       "ci": [
-       0,
-       49
+       51,
+       100
       ]
      },
      "success_at3": {
@@ -217,7 +217,7 @@
        49
       ]
      },
-     "questions_avg": 2
+     "questions_avg": 0
     }
    }
   },
@@ -250,7 +250,7 @@
      0
     ]
    },
-   "questions_avg": 0.88,
+   "questions_avg": 0.02,
    "by_kind": {
     "real_suggest": {
      "n": 20,
@@ -343,7 +343,7 @@
        0
       ]
      },
-     "questions_avg": 1.38
+     "questions_avg": 0.13
     },
     "typo": {
      "n": 5,
@@ -374,7 +374,7 @@
        0
       ]
      },
-     "questions_avg": 2.2
+     "questions_avg": 0
     },
     "synonym": {
      "n": 5,
@@ -405,7 +405,7 @@
        0
       ]
      },
-     "questions_avg": 2
+     "questions_avg": 0
     },
     "dead_end": {
      "n": 4,
@@ -436,28 +436,28 @@
        0
       ]
      },
-     "questions_avg": 3
+     "questions_avg": 0
     }
    }
   },
   "C": {
    "n": 50,
    "null": {
-    "k": 3,
+    "k": 7,
     "n": 50,
-    "pct": 6,
+    "pct": 14,
     "ci": [
-     2.1,
-     16.2
+     7,
+     26.2
     ]
    },
    "success_at3": {
-    "k": 29,
+    "k": 42,
     "n": 50,
-    "pct": 58,
+    "pct": 84,
     "ci": [
-     44.2,
-     70.6
+     71.5,
+     91.7
     ]
    },
    "usable_at3": {
@@ -469,7 +469,7 @@
      94.4
     ]
    },
-   "questions_avg": 0.34,
+   "questions_avg": 0,
    "by_kind": {
     "real_suggest": {
      "n": 20,
@@ -483,12 +483,12 @@
       ]
      },
      "success_at3": {
-      "k": 10,
+      "k": 18,
       "n": 20,
-      "pct": 50,
+      "pct": 90,
       "ci": [
-       29.9,
-       70.1
+       69.9,
+       97.2
       ]
      },
      "usable_at3": {
@@ -514,12 +514,12 @@
       ]
      },
      "success_at3": {
-      "k": 6,
+      "k": 7,
       "n": 8,
-      "pct": 75,
+      "pct": 87.5,
       "ci": [
-       40.9,
-       92.9
+       52.9,
+       97.8
       ]
      },
      "usable_at3": {
@@ -545,12 +545,12 @@
       ]
      },
      "success_at3": {
-      "k": 5,
+      "k": 8,
       "n": 8,
-      "pct": 62.5,
+      "pct": 100,
       "ci": [
-       30.6,
-       86.3
+       67.6,
+       100
       ]
      },
      "usable_at3": {
@@ -562,7 +562,7 @@
        100
       ]
      },
-     "questions_avg": 0.38
+     "questions_avg": 0
     },
     "typo": {
      "n": 5,
@@ -593,7 +593,7 @@
        100
       ]
      },
-     "questions_avg": 0.6
+     "questions_avg": 0
     },
     "synonym": {
      "n": 5,
@@ -607,12 +607,12 @@
       ]
      },
      "success_at3": {
-      "k": 3,
+      "k": 4,
       "n": 5,
-      "pct": 60,
+      "pct": 80,
       "ci": [
-       23.1,
-       88.2
+       37.6,
+       96.4
       ]
      },
      "usable_at3": {
@@ -624,17 +624,17 @@
        96.4
       ]
      },
-     "questions_avg": 0.6
+     "questions_avg": 0
     },
     "dead_end": {
      "n": 4,
      "null": {
-      "k": 0,
+      "k": 4,
       "n": 4,
-      "pct": 0,
+      "pct": 100,
       "ci": [
-       0,
-       49
+       51,
+       100
       ]
      },
      "success_at3": {
@@ -655,18 +655,18 @@
        49
       ]
      },
-     "questions_avg": 2
+     "questions_avg": 0
     }
    }
   }
  },
  "dead_end_false_resolve_C": {
-  "k": 4,
+  "k": 0,
   "n": 4,
-  "pct": 100,
+  "pct": 0,
   "ci": [
-   51,
-   100
+   0,
+   49
   ]
  },
  "armC_semantic": {
@@ -676,8 +676,8 @@
    "used": 36,
    "below_threshold": 14
   },
-  "p50_ms": 19,
-  "p95_ms": 32
+  "p50_ms": 53,
+  "p95_ms": 91
  },
  "cfg": {
   "provider": "local_onnx",
@@ -694,112 +694,28 @@
  },
  "failures": [
   {
-   "type": "dead_end_false_resolve",
-   "id": "s097",
-   "q": "didgeridoo",
+   "type": "irrelevant_top3",
+   "id": "s065",
+   "q": "anniversary gift ideas for husband",
    "top3": [
     {
-     "sku": "AC-29640",
-     "title": "Myntra Rakhi Gift Box",
-     "price": 389,
-     "brand": "Myntra",
-     "intent": true
-    },
-    {
-     "sku": "AC-29104",
-     "title": "Meera Rakhi Set 10",
-     "price": 239,
-     "brand": "Meera",
-     "intent": true
-    },
-    {
-     "sku": "AC-31256",
-     "title": "Solimo Rakhi Set 5",
-     "price": 139,
+     "sku": "AC-03229",
+     "title": "PREZZY 70th Birthday Gifts for Girls Vintage Made In May 1953 70 Year Of Being Awesome Coffee Mug Floral Style Custom Name Ceramic Tea Cup 11oz 15oz Christmas Anniversary Cup Gift Ideas",
+     "price": 1249,
      "brand": "",
      "intent": true
-    }
-   ]
-  },
-  {
-   "type": "dead_end_false_resolve",
-   "id": "s098",
-   "q": "hoverboard",
-   "top3": [
-    {
-     "sku": "AC-29640",
-     "title": "Myntra Rakhi Gift Box",
-     "price": 389,
-     "brand": "Myntra",
-     "intent": true
     },
     {
-     "sku": "AC-29104",
-     "title": "Meera Rakhi Set 10",
-     "price": 239,
-     "brand": "Meera",
-     "intent": true
-    },
-    {
-     "sku": "AC-31256",
-     "title": "Solimo Rakhi Set 5",
-     "price": 139,
+     "sku": "AC-03724",
+     "title": "Vintage 1983 Etched 16oz Can Coffee Drinking Glass Cup – Happy 40th Birthday Gifts Women Men, Cheers to Turning 40 Year Old Woman Decorations Decor, Anniversary Bday Party Favors, Gift Ideas 1.0",
+     "price": 909,
      "brand": "",
      "intent": true
-    }
-   ]
-  },
-  {
-   "type": "dead_end_false_resolve",
-   "id": "s099",
-   "q": "periscope",
-   "top3": [
-    {
-     "sku": "AC-29640",
-     "title": "Myntra Rakhi Gift Box",
-     "price": 389,
-     "brand": "Myntra",
-     "intent": true
     },
     {
-     "sku": "AC-29104",
-     "title": "Meera Rakhi Set 10",
-     "price": 239,
-     "brand": "Meera",
-     "intent": true
-    },
-    {
-     "sku": "AC-31256",
-     "title": "Solimo Rakhi Set 5",
-     "price": 139,
-     "brand": "",
-     "intent": true
-    }
-   ]
-  },
-  {
-   "type": "dead_end_false_resolve",
-   "id": "s100",
-   "q": "bobsled",
-   "top3": [
-    {
-     "sku": "AC-29640",
-     "title": "Myntra Rakhi Gift Box",
-     "price": 389,
-     "brand": "Myntra",
-     "intent": true
-    },
-    {
-     "sku": "AC-29104",
-     "title": "Meera Rakhi Set 10",
-     "price": 239,
-     "brand": "Meera",
-     "intent": true
-    },
-    {
-     "sku": "AC-31256",
-     "title": "Solimo Rakhi Set 5",
-     "price": 139,
+     "sku": "AC-02801",
+     "title": "Vintage 1983 Etched 1.75oz Shot Glass – Happy 40th Birthday Gifts Women Men, Cheers to 40 Years, Turning 40 Year Old Woman Decorations Decor, Anniversary Bday Party Favors, Best Gift Ideas 1.0",
+     "price": 1079,
      "brand": "",
      "intent": true
     }
@@ -807,57 +723,29 @@
   },
   {
    "type": "irrelevant_top3",
-   "id": "s068",
-   "q": "housewarming gifts under ₹1000",
+   "id": "s095",
+   "q": "gadget for tech lover",
    "top3": [
     {
-     "sku": "AC-14780",
-     "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-     "price": 2819,
-     "brand": "",
-     "intent": true
+     "sku": "AC-09905",
+     "title": "adidas Unisex-Child Tech Fall 2.0 Wrestling Shoe",
+     "price": 4289,
+     "brand": "Adidas",
+     "intent": false
     },
     {
-     "sku": "AC-07549",
-     "title": "Personalized Cutting Board, Couples Gift for Wedding, Anniversary, Housewarming, Engagement, Christmas, Birthday, USA Handmade Cutting Boards, Great Customized Gift for Bride, Groom, Friends, Parents",
-     "price": 1659,
+     "sku": "AC-03051",
+     "title": "KICHOUSE Korean Scoop Gadgets Spoons Cooker Cooking Soup Utensil Kitchen Paddle Non-stick Non‑deforming Potato Spatula Serving Wear-resistant Restaurant Utensils Non‑rusting Silver Steel",
+     "price": 809,
      "brand": "",
-     "intent": true
+     "intent": false
     },
     {
-     "sku": "AC-12241",
-     "title": "Supxotic Square Wood Cheese Board Beautiful Charcuterie Boards and Knife Set - Extra Large Bamboo Charcuterie Board Set with 4 Knife - Unique Housewarming gift, Birthday, Anniversary, Wedding Gifts",
-     "price": 3249,
+     "sku": "AC-08740",
+     "title": "Wild Bobby If It's Not a Bassett Hound Its Just a Dog Gift Dog Lover Unisex Crewneck Graphic Sweatshirt",
+     "price": 2499,
      "brand": "",
-     "intent": true
-    }
-   ]
-  },
-  {
-   "type": "irrelevant_top3",
-   "id": "s094",
-   "q": "blazer for wedding guest",
-   "top3": [
-    {
-     "sku": "AC-22465",
-     "title": "Unique Wedding Guest Book Alternative Custom Personalized, Maple Tree Natural Wood Slab Handcrafted Engraved Carved Customized Signs Cedar Live Edge Wood Sign Country Farmhouse Western (2, Natural)",
-     "price": 10429,
-     "brand": "",
-     "intent": true
-    },
-    {
-     "sku": "AC-14819",
-     "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
-     "price": 3379,
-     "brand": "",
-     "intent": true
-    },
-    {
-     "sku": "AC-22469",
-     "title": "Custom Personalized Wedding Guest Book Alternative Natural Wood Slab Handcrafted Engraved Carved Customized Wood Signs Cedar Live Edge County Farmhouse Western (2, Natural)",
-     "price": 10429,
-     "brand": "",
-     "intent": true
+     "intent": false
     }
    ]
   }
@@ -875,23 +763,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01382",
-      "title": "Superhero Capes and Mask for Kids Superhero Costumes for Boys Superhero Toys for Kids Dress up 4-10 Year Old Boy Gifts",
-      "price": 1399,
+      "sku": "AC-02768",
+      "title": "Best Dad Gift printed on 16 oz Beer Glass Pint Unique Gift Idea for Dads, Men, Him and Fathers Day (Best Father)",
+      "price": 1249,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-02200",
-      "title": "SUNBVE Kids Girls Cute Fashion Soft Cotton Dress Socks Gift",
-      "price": 1909,
+      "sku": "AC-05925",
+      "title": "Funny Golf Gift for Men - The Golfer's Decision Wheel - Great Golf Gift for Dad, Boss, Office, or Fathers Day - Golf Gag Gift Ideas",
+      "price": 1079,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-33478",
-      "title": "Myntra Gifting Box for Her (White)",
-      "price": 3989,
+      "sku": "AC-29640",
+      "title": "Myntra Rakhi Gift Box",
+      "price": 389,
       "brand": "Myntra",
       "intent": true
      }
@@ -900,11 +788,11 @@
     "sem": {
      "used": false
     },
-    "ms": 180,
+    "ms": 546,
     "judge": [
-     3,
-     3,
-     3
+     1,
+     1,
+     2
     ]
    },
    {
@@ -918,23 +806,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-06069",
-      "title": "ACNH | Collection Item Pack - Fish Model Set | All 80 Aquatic Models | New Horizons",
-      "price": 489,
+      "sku": "AC-31311",
+      "title": "Tanishq Bridal Diamond Set",
+      "price": 89989,
+      "brand": "Tanishq",
+      "intent": true
+     },
+     {
+      "sku": "AC-02919",
+      "title": "Giveena 10th 2023 Wedding Anniversary Ornament - Christmas Ceramic Ornament Gift Anniversary for Couple, Parents, Friend Her Him - 10th Wedding Anniversary Present Holiday Decoration Hanging Ornament",
+      "price": 1329,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-18083",
-      "title": "La Belleza red Rhinestones Luxury Hand-Made Bodice Beaded Appliques for Prom Wedding Dance ddress 12.5\" *21.5\" Large Pattern V-Neck and can Easy to use for Designs",
-      "price": 6589,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-11025",
-      "title": "Urban Villa Tablecloth Cuisine Stripes Table Cloth Tabletop Cover Kitchen Dining Tablecloth 100% Cotton Great Parties Wedding Holiday Dinner Aqua Multi Rectangle 60X84 Inches 6-8 Seats Table Cloth",
-      "price": 2079,
+      "sku": "AC-14819",
+      "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
+      "price": 3379,
       "brand": "",
       "intent": true
      }
@@ -943,11 +831,11 @@
     "sem": {
      "used": false
     },
-    "ms": 34,
+    "ms": 28,
     "judge": [
-     3,
+     1,
      2,
-     3
+     1
     ]
    },
    {
@@ -955,7 +843,7 @@
     "q": "wedding gifting companies",
     "kind": "real_suggest",
     "arm": "0",
-    "intentN": 47,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
@@ -986,10 +874,10 @@
     "sem": {
      "used": false
     },
-    "ms": 49,
+    "ms": 212,
     "judge": [
      2,
-     3,
+     2,
      3
     ]
    },
@@ -998,42 +886,42 @@
     "q": "diwali gift ideas for employees",
     "kind": "real_suggest",
     "arm": "0",
-    "intentN": 22,
+    "intentN": 25,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-15611",
-      "title": "TRYNDI Grandma Gift Ideas, Gifts for Grandma from Granddaughter, Birthday Gifts for Grandma, Great Grandma Necklace Gifts for Grandmom",
-      "price": 7509,
-      "brand": "",
-      "intent": false
+      "sku": "AC-33523",
+      "title": "Pepperfury Diwali Gift Hamper",
+      "price": 1989,
+      "brand": "Pepperfury",
+      "intent": true
      },
      {
-      "sku": "AC-14039",
-      "title": "Employee of The Month Plaque Appreciation Gifts for Coworkers Acrylic Plaque Award Keepsake Reward for Employee Colleague Volunteer Office (6 Pcs)",
-      "price": 2579,
-      "brand": "",
-      "intent": false
+      "sku": "AC-33769",
+      "title": "Wipro AG Diwali Paper Lantern (Orange)",
+      "price": 789,
+      "brand": "Wipro AG",
+      "intent": true
      },
      {
-      "sku": "AC-16716",
-      "title": "Skechers Go Walk 6 Vivid Idea Hands Free Slip-Ins",
-      "price": 8169,
-      "brand": "Skechers",
-      "intent": false
+      "sku": "AC-33628",
+      "title": "Syska Diwali String Light 100 (Multi Colour)",
+      "price": 3489,
+      "brand": "Syska",
+      "intent": true
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false
     },
-    "ms": 52,
+    "ms": 225,
     "judge": [
-     3,
      1,
-     3
+     2,
+     2
     ]
    },
    {
@@ -1047,13 +935,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-29640",
-      "title": "Myntra Rakhi Gift Box",
-      "price": 389,
-      "brand": "Myntra",
-      "intent": true
-     },
-     {
       "sku": "AC-33778",
       "title": "Wipro AG Diwali String Lights 10 m 100 LED (5 m 50 LED)",
       "price": 489,
@@ -1061,10 +942,17 @@
       "intent": true
      },
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
+      "sku": "AC-33425",
+      "title": "Hattal Diwali Rangoli Kit",
+      "price": 189,
+      "brand": "Hattal",
+      "intent": true
+     },
+     {
+      "sku": "AC-33428",
+      "title": "Invisibles Diwali Decoration Wall Sticker (50 cm)",
+      "price": 189,
+      "brand": "",
       "intent": true
      }
     ],
@@ -1072,11 +960,11 @@
     "sem": {
      "used": false
     },
-    "ms": 149,
+    "ms": 265,
     "judge": [
-     2,
-     2,
-     3
+     1,
+     1,
+     1
     ]
    },
    {
@@ -1090,23 +978,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01569",
-      "title": "Cute Cat Frog Rabbit Animal Pins, Personality Animation Enamel Pin Set, Brooches for Bag, Lapel, Buckle, Hat, Clothing Accessories, Birthday Gift, Christmas Presents",
-      "price": 829,
+      "sku": "AC-10191",
+      "title": "Well Happy Birthday Jesus Funny Quote Office Ugly Christmas Sweater Unisex Crewneck Graphic Sweatshirt",
+      "price": 2499,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-03992",
-      "title": "Blue Orchards Horse Party Plates and Napkins Pack (52 Pieces for 16 Guests) - Horse Plates and Napkins, Horse Birthday Party, Cowboy Theme Party, Western Birthday Decorations, Wild Horse Party",
-      "price": 829,
+      "sku": "AC-02957",
+      "title": "Birthday Magnets for Cruise Door,STRUGGANT Cruise Door Decorations Ship Sticker Cruise Essentials for Cabin Door Stateroom (Birthday)",
+      "price": 1159,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-00298",
-      "title": "Teacher Appreciation Gifts for Women Men Teacher’s Day Thank You Gift for Teacher Tutor Mentor Professor 2023 Graduation Gift for Teacher Retirement Birthday Back to School Leaving Christmas Gift",
-      "price": 539,
+      "sku": "AC-11985",
+      "title": "Birthday Gifts for Women Bath Relaxing Spa Gifts for Mom Candle Gift Basket for Best Friends Unique Gifts for Women Sleep Well Gift Set Get Well Soon Gifts for Sister Wife Her Coworker Bestie",
+      "price": 2169,
       "brand": "",
       "intent": true
      }
@@ -1115,11 +1003,11 @@
     "sem": {
      "used": false
     },
-    "ms": 2,
+    "ms": 19,
     "judge": [
      2,
-     3,
-     3
+     2,
+     1
     ]
    },
    {
@@ -1133,23 +1021,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01569",
-      "title": "Cute Cat Frog Rabbit Animal Pins, Personality Animation Enamel Pin Set, Brooches for Bag, Lapel, Buckle, Hat, Clothing Accessories, Birthday Gift, Christmas Presents",
-      "price": 829,
+      "sku": "AC-06731",
+      "title": "CENTRAL 23 Funny Birthday Card For Men - '4 Out Of 5 People' - Rude Birthday Gifts For Dad Mom - Funny Birthday Card For Son Or Daughter - Prank Birthday Card - Comes With Fun Stickers",
+      "price": 499,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-03992",
-      "title": "Blue Orchards Horse Party Plates and Napkins Pack (52 Pieces for 16 Guests) - Horse Plates and Napkins, Horse Birthday Party, Cowboy Theme Party, Western Birthday Decorations, Wild Horse Party",
-      "price": 829,
+      "sku": "AC-01773",
+      "title": "65th Birthday Gifts for Men Women Hats 65 Vintage 1958 Embroidered Baseball Cap",
+      "price": 1829,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-00298",
-      "title": "Teacher Appreciation Gifts for Women Men Teacher’s Day Thank You Gift for Teacher Tutor Mentor Professor 2023 Graduation Gift for Teacher Retirement Birthday Back to School Leaving Christmas Gift",
-      "price": 539,
+      "sku": "AC-02928",
+      "title": "Henghere 50th Birthday Gifts for Men Women, 50th Birthday Present, 50 Year Old Birthday Party Decorations, Vintage - Fifty Birthday Decorations Coffee Mug, Black & Rose Gold 2",
+      "price": 1249,
       "brand": "",
       "intent": true
      }
@@ -1158,11 +1046,11 @@
     "sem": {
      "used": false
     },
-    "ms": 2,
+    "ms": 13,
     "judge": [
-     3,
-     3,
-     3
+     1,
+     1,
+     1
     ]
    },
    {
@@ -1176,23 +1064,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01569",
-      "title": "Cute Cat Frog Rabbit Animal Pins, Personality Animation Enamel Pin Set, Brooches for Bag, Lapel, Buckle, Hat, Clothing Accessories, Birthday Gift, Christmas Presents",
-      "price": 829,
+      "sku": "AC-11985",
+      "title": "Birthday Gifts for Women Bath Relaxing Spa Gifts for Mom Candle Gift Basket for Best Friends Unique Gifts for Women Sleep Well Gift Set Get Well Soon Gifts for Sister Wife Her Coworker Bestie",
+      "price": 2169,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-03992",
-      "title": "Blue Orchards Horse Party Plates and Napkins Pack (52 Pieces for 16 Guests) - Horse Plates and Napkins, Horse Birthday Party, Cowboy Theme Party, Western Birthday Decorations, Wild Horse Party",
-      "price": 829,
+      "sku": "AC-12387",
+      "title": "Gifts for Women, Birthday Gifts for Women, Happy Birthday Gifts Basket for Women, Gift Set for Best Friends Female Women Sister Mom Wife Her Girlfriend Coworker Bestie Bff",
+      "price": 2499,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-00298",
-      "title": "Teacher Appreciation Gifts for Women Men Teacher’s Day Thank You Gift for Teacher Tutor Mentor Professor 2023 Graduation Gift for Teacher Retirement Birthday Back to School Leaving Christmas Gift",
-      "price": 539,
+      "sku": "AC-11281",
+      "title": "Gifts for Women, Birthday Gifts for Women Self Care Gift for Women Pamper Gift Basket for Women Her,Friends,Mom,Wife 11 pcs Lavender Gift Unique Gift Ideas for Women Christmas Gifts",
+      "price": 2499,
       "brand": "",
       "intent": true
      }
@@ -1201,11 +1089,11 @@
     "sem": {
      "used": false
     },
-    "ms": 1,
+    "ms": 26,
     "judge": [
-     2,
-     3,
-     2
+     1,
+     1,
+     1
     ]
    },
    {
@@ -1244,10 +1132,10 @@
     "sem": {
      "used": false
     },
-    "ms": 29,
+    "ms": 105,
     "judge": [
      2,
-     2,
+     1,
      1
     ]
    },
@@ -1262,23 +1150,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-10257",
-      "title": "SA SILVERAGE Dangle Earrings for Women Party Fashion Jewelry, 925 Sterling Silver Teardrop Earrings Wedding Ear Ring Trending Boho Designer Earring Daily Occasion Gift",
-      "price": 2249,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-06773",
-      "title": "Sister Gifts from Sister Birthday Gift Ideas Sister Gifts for Women Sister in Law Friendship Gifts for Women Friends Unbiological Sister Big Sister Bookmarks for Book Lover Bookworm Wedding Christmas",
-      "price": 789,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-03632",
-      "title": "Funny Retro Vinyl Record Coasters for Drinks with Vinyl Record Player Holder for Music Lovers,Set of 6 Conversation Piece Sayings Drink Coaster,Housewarming Hostess Gifts, Wedding Registry Gift Ideas",
+      "sku": "AC-02919",
+      "title": "Giveena 10th 2023 Wedding Anniversary Ornament - Christmas Ceramic Ornament Gift Anniversary for Couple, Parents, Friend Her Him - 10th Wedding Anniversary Present Holiday Decoration Hanging Ornament",
       "price": 1329,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-14819",
+      "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
+      "price": 3379,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-15275",
+      "title": "7.2Ft Wedding Arch Backdrop Stand Square Arch Gold Metal Arch Backdrop Stand for Wedding Ceremony Birthday,Party,Friends Gathering,Christmas,Garden Decoration",
+      "price": 4169,
       "brand": "",
       "intent": true
      }
@@ -1287,11 +1175,11 @@
     "sem": {
      "used": false
     },
-    "ms": 2,
+    "ms": 25,
     "judge": [
      1,
-     3,
-     2
+     1,
+     1
     ]
    },
    {
@@ -1330,10 +1218,10 @@
     "sem": {
      "used": false
     },
-    "ms": 1,
+    "ms": 8,
     "judge": [
-     2,
-     2,
+     1,
+     1,
      1
     ]
    },
@@ -1348,23 +1236,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-10257",
-      "title": "SA SILVERAGE Dangle Earrings for Women Party Fashion Jewelry, 925 Sterling Silver Teardrop Earrings Wedding Ear Ring Trending Boho Designer Earring Daily Occasion Gift",
-      "price": 2249,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-06773",
-      "title": "Sister Gifts from Sister Birthday Gift Ideas Sister Gifts for Women Sister in Law Friendship Gifts for Women Friends Unbiological Sister Big Sister Bookmarks for Book Lover Bookworm Wedding Christmas",
-      "price": 789,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-03632",
-      "title": "Funny Retro Vinyl Record Coasters for Drinks with Vinyl Record Player Holder for Music Lovers,Set of 6 Conversation Piece Sayings Drink Coaster,Housewarming Hostess Gifts, Wedding Registry Gift Ideas",
+      "sku": "AC-02919",
+      "title": "Giveena 10th 2023 Wedding Anniversary Ornament - Christmas Ceramic Ornament Gift Anniversary for Couple, Parents, Friend Her Him - 10th Wedding Anniversary Present Holiday Decoration Hanging Ornament",
       "price": 1329,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-14819",
+      "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
+      "price": 3379,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-15275",
+      "title": "7.2Ft Wedding Arch Backdrop Stand Square Arch Gold Metal Arch Backdrop Stand for Wedding Ceremony Birthday,Party,Friends Gathering,Christmas,Garden Decoration",
+      "price": 4169,
       "brand": "",
       "intent": true
      }
@@ -1373,11 +1261,11 @@
     "sem": {
      "used": false
     },
-    "ms": 1,
+    "ms": 55,
     "judge": [
      1,
-     3,
-     2
+     1,
+     1
     ]
    },
    {
@@ -1385,7 +1273,7 @@
     "q": "anniversary gift for couple",
     "kind": "real_suggest",
     "arm": "0",
-    "intentN": 29,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
@@ -1416,7 +1304,7 @@
     "sem": {
      "used": false
     },
-    "ms": 75,
+    "ms": 142,
     "judge": [
      1,
      1,
@@ -1428,29 +1316,29 @@
     "q": "anniversary gifts for him",
     "kind": "real_suggest",
     "arm": "0",
-    "intentN": 39,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-19775",
-      "title": "Diamond Stud Earrings for Women, Hoop Earrings 1Ct-3Ct Moissanite Earrings, Gifts for Wife Mom Girlfriend, Annivers ary Jewelry Present for Wife, Birthday Valentines Gifts",
-      "price": 13099,
+      "sku": "AC-14784",
+      "title": "Personalized 1st Anniversary Gift for Him or Her, First Dance Song, Paper Anniversary Gift",
+      "price": 2419,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-03229",
-      "title": "PREZZY 70th Birthday Gifts for Girls Vintage Made In May 1953 70 Year Of Being Awesome Coffee Mug Floral Style Custom Name Ceramic Tea Cup 11oz 15oz Christmas Anniversary Cup Gift Ideas",
-      "price": 1249,
+      "sku": "AC-14825",
+      "title": "7th or 22nd Anniversary Gift, First Dance Wedding Song",
+      "price": 2829,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
+      "sku": "AC-14776",
+      "title": "Personalized Leather 3rd Anniversary Gift for Him or Her, First Dance Song",
+      "price": 3079,
       "brand": "",
       "intent": true
      }
@@ -1459,59 +1347,16 @@
     "sem": {
      "used": false
     },
-    "ms": 87,
+    "ms": 14,
     "judge": [
-     3,
-     3,
-     2
+     1,
+     1,
+     1
     ]
    },
    {
     "id": "s065",
     "q": "anniversary gift ideas for husband",
-    "kind": "real_suggest",
-    "arm": "0",
-    "intentN": 38,
-    "null": false,
-    "questions": 0,
-    "slots": {},
-    "top3": [
-     {
-      "sku": "AC-19775",
-      "title": "Diamond Stud Earrings for Women, Hoop Earrings 1Ct-3Ct Moissanite Earrings, Gifts for Wife Mom Girlfriend, Annivers ary Jewelry Present for Wife, Birthday Valentines Gifts",
-      "price": 13099,
-      "brand": "",
-      "intent": false
-     },
-     {
-      "sku": "AC-15611",
-      "title": "TRYNDI Grandma Gift Ideas, Gifts for Grandma from Granddaughter, Birthday Gifts for Grandma, Great Grandma Necklace Gifts for Grandmom",
-      "price": 7509,
-      "brand": "",
-      "intent": false
-     },
-     {
-      "sku": "AC-16716",
-      "title": "Skechers Go Walk 6 Vivid Idea Hands Free Slip-Ins",
-      "price": 8169,
-      "brand": "Skechers",
-      "intent": false
-     }
-    ],
-    "n_results": 48,
-    "sem": {
-     "used": false
-    },
-    "ms": 68,
-    "judge": [
-     3,
-     3,
-     2
-    ]
-   },
-   {
-    "id": "s066",
-    "q": "housewarming gifts",
     "kind": "real_suggest",
     "arm": "0",
     "intentN": 48,
@@ -1520,23 +1365,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
+      "sku": "AC-03229",
+      "title": "PREZZY 70th Birthday Gifts for Girls Vintage Made In May 1953 70 Year Of Being Awesome Coffee Mug Floral Style Custom Name Ceramic Tea Cup 11oz 15oz Christmas Anniversary Cup Gift Ideas",
+      "price": 1249,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-07549",
-      "title": "Personalized Cutting Board, Couples Gift for Wedding, Anniversary, Housewarming, Engagement, Christmas, Birthday, USA Handmade Cutting Boards, Great Customized Gift for Bride, Groom, Friends, Parents",
-      "price": 1659,
+      "sku": "AC-03724",
+      "title": "Vintage 1983 Etched 16oz Can Coffee Drinking Glass Cup – Happy 40th Birthday Gifts Women Men, Cheers to Turning 40 Year Old Woman Decorations Decor, Anniversary Bday Party Favors, Gift Ideas 1.0",
+      "price": 909,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-12241",
-      "title": "Supxotic Square Wood Cheese Board Beautiful Charcuterie Boards and Knife Set - Extra Large Bamboo Charcuterie Board Set with 4 Knife - Unique Housewarming gift, Birthday, Anniversary, Wedding Gifts",
-      "price": 3249,
+      "sku": "AC-02801",
+      "title": "Vintage 1983 Etched 1.75oz Shot Glass – Happy 40th Birthday Gifts Women Men, Cheers to 40 Years, Turning 40 Year Old Woman Decorations Decor, Anniversary Bday Party Favors, Best Gift Ideas 1.0",
+      "price": 1079,
       "brand": "",
       "intent": true
      }
@@ -1545,7 +1390,50 @@
     "sem": {
      "used": false
     },
-    "ms": 41,
+    "ms": 115,
+    "judge": [
+     3,
+     3,
+     3
+    ]
+   },
+   {
+    "id": "s066",
+    "q": "housewarming gifts",
+    "kind": "real_suggest",
+    "arm": "0",
+    "intentN": 44,
+    "null": false,
+    "questions": 0,
+    "slots": {},
+    "top3": [
+     {
+      "sku": "AC-36102",
+      "title": "Amazon Basics Potted Jade Plant (Housewarming Gift)",
+      "price": 389,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-36104",
+      "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+      "price": 489,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-36103",
+      "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+      "price": 289,
+      "brand": "",
+      "intent": true
+     }
+    ],
+    "n_results": 44,
+    "sem": {
+     "used": false
+    },
+    "ms": 14,
     "judge": [
      1,
      1,
@@ -1557,29 +1445,29 @@
     "q": "housewarming gifts india",
     "kind": "real_suggest",
     "arm": "0",
-    "intentN": 28,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
+      "sku": "AC-11340",
+      "title": "EthinicCraftHub® 2 PCS Indian Silk Saree Curtain Window Treatments Boho Gypsy Hippy Bohemian Wall Hanging Hippy Room Decor Curtain",
+      "price": 3749,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-07549",
-      "title": "Personalized Cutting Board, Couples Gift for Wedding, Anniversary, Housewarming, Engagement, Christmas, Birthday, USA Handmade Cutting Boards, Great Customized Gift for Bride, Groom, Friends, Parents",
-      "price": 1659,
+      "sku": "AC-03092",
+      "title": "Bless International Beautiful Indian Bohemian Psychedelic Hippie Peacock Mandala Window Curtain Panels for Bedroom, Living, Shower & Balcony (Golden Blue (38x83 Inches)(96x210 Cms))",
+      "price": 1829,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-12241",
-      "title": "Supxotic Square Wood Cheese Board Beautiful Charcuterie Boards and Knife Set - Extra Large Bamboo Charcuterie Board Set with 4 Knife - Unique Housewarming gift, Birthday, Anniversary, Wedding Gifts",
-      "price": 3249,
+      "sku": "AC-00456",
+      "title": "Indian Earrings for Women Jhumka Earrings for Girls Silver Boho Beaded Tassels Earrings Indian Chandelier Earrings Ethnic Fashion Jewelry",
+      "price": 749,
       "brand": "",
       "intent": true
      }
@@ -1588,11 +1476,11 @@
     "sem": {
      "used": false
     },
-    "ms": 67,
+    "ms": 192,
     "judge": [
      1,
      1,
-     1
+     2
     ]
    },
    {
@@ -1600,42 +1488,42 @@
     "q": "housewarming gifts under ₹1000",
     "kind": "real_suggest",
     "arm": "0",
-    "intentN": 25,
+    "intentN": 47,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
-      "brand": "",
+      "sku": "AC-35898",
+      "title": "Barbie Puzzle 1000 pcs",
+      "price": 789,
+      "brand": "Barbie",
       "intent": true
      },
      {
-      "sku": "AC-07549",
-      "title": "Personalized Cutting Board, Couples Gift for Wedding, Anniversary, Housewarming, Engagement, Christmas, Birthday, USA Handmade Cutting Boards, Great Customized Gift for Bride, Groom, Friends, Parents",
-      "price": 1659,
-      "brand": "",
+      "sku": "AC-35997",
+      "title": "Mattel Puzzle 1000 pcs",
+      "price": 789,
+      "brand": "Mattel",
       "intent": true
      },
      {
-      "sku": "AC-12241",
-      "title": "Supxotic Square Wood Cheese Board Beautiful Charcuterie Boards and Knife Set - Extra Large Bamboo Charcuterie Board Set with 4 Knife - Unique Housewarming gift, Birthday, Anniversary, Wedding Gifts",
-      "price": 3249,
-      "brand": "",
+      "sku": "AC-35944",
+      "title": "Hasbro Puzzle 1000 pcs",
+      "price": 789,
+      "brand": "Hasbro",
       "intent": true
      }
     ],
-    "n_results": 48,
+    "n_results": 47,
     "sem": {
      "used": false
     },
-    "ms": 64,
+    "ms": 161,
     "judge": [
-     3,
-     3,
-     3
+     1,
+     1,
+     1
     ]
    },
    {
@@ -1643,38 +1531,38 @@
     "q": "housewarming gifts under 5000",
     "kind": "real_suggest",
     "arm": "0",
-    "intentN": 48,
+    "intentN": 41,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
+      "sku": "AC-36102",
+      "title": "Amazon Basics Potted Jade Plant (Housewarming Gift)",
+      "price": 389,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-07549",
-      "title": "Personalized Cutting Board, Couples Gift for Wedding, Anniversary, Housewarming, Engagement, Christmas, Birthday, USA Handmade Cutting Boards, Great Customized Gift for Bride, Groom, Friends, Parents",
-      "price": 1659,
+      "sku": "AC-36104",
+      "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+      "price": 489,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-12241",
-      "title": "Supxotic Square Wood Cheese Board Beautiful Charcuterie Boards and Knife Set - Extra Large Bamboo Charcuterie Board Set with 4 Knife - Unique Housewarming gift, Birthday, Anniversary, Wedding Gifts",
-      "price": 3249,
+      "sku": "AC-36103",
+      "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+      "price": 289,
       "brand": "",
       "intent": true
      }
     ],
-    "n_results": 48,
+    "n_results": 41,
     "sem": {
      "used": false
     },
-    "ms": 38,
+    "ms": 7,
     "judge": [
      1,
      1,
@@ -1692,23 +1580,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01675",
-      "title": "Aunt and Niece Gifts, Aunt Necklace, Aunt Gifts from Niece, Niece Gifts from Aunt, Sterling Silver Infinity pearl Necklaces for Women, Christmas Gifts for Niece Aunt, Mothers Day Birthday Gift Ideas",
-      "price": 1339,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-12279",
-      "title": "Rqhoqci Aunt Gifts from Niece, Aunt Blanket from Niece, Gifts for Aunt, Aunt Birthday Gifts, Birthday Gifts for Aunt, Gifts for Aunts from Niece Nephew, Auntie Gifts Throw Blanket 50\"X60\"",
-      "price": 2249,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-14722",
-      "title": "Birthday Gift Tumbler, New Album 20oz Tumbler, Personalized tumbler, coffe tumbler 2023 Gift",
+      "sku": "AC-11985",
+      "title": "Birthday Gifts for Women Bath Relaxing Spa Gifts for Mom Candle Gift Basket for Best Friends Unique Gifts for Women Sleep Well Gift Set Get Well Soon Gifts for Sister Wife Her Coworker Bestie",
       "price": 2169,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-12387",
+      "title": "Gifts for Women, Birthday Gifts for Women, Happy Birthday Gifts Basket for Women, Gift Set for Best Friends Female Women Sister Mom Wife Her Girlfriend Coworker Bestie Bff",
+      "price": 2499,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-11281",
+      "title": "Gifts for Women, Birthday Gifts for Women Self Care Gift for Women Pamper Gift Basket for Women Her,Friends,Mom,Wife 11 pcs Lavender Gift Unique Gift Ideas for Women Christmas Gifts",
+      "price": 2499,
       "brand": "",
       "intent": true
      }
@@ -1717,11 +1605,11 @@
     "sem": {
      "used": false
     },
-    "ms": 45,
+    "ms": 13,
     "judge": [
-     3,
-     3,
-     2
+     1,
+     1,
+     1
     ]
    },
    {
@@ -1735,13 +1623,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01559",
-      "title": "Cute Little Turtle Home Iwatch Bands, Smartwatch Bands Compatible With Apple Watch Wristbands Soft Silicone Strap Replacement For Series 8/7/6/5/4/3/2/1/Se Unisex Gifts Ideas For Women Men",
-      "price": 1159,
-      "brand": "",
-      "intent": true
-     },
-     {
       "sku": "AC-11897",
       "title": "Blue Evil Eye Turkish Nazar Money Fortune Tree Flower Design Protection Gift Home Decor for Any Purpose",
       "price": 2499,
@@ -1749,9 +1630,16 @@
       "intent": true
      },
      {
-      "sku": "AC-02831",
-      "title": "Cute Coasters 4 Felt Pizza Coasters for Drinks with Wooden Pizza Paddle Coaster Holder - House Warming Gifts New Home - Unique Gifts, Fun Gifts",
-      "price": 1239,
+      "sku": "AC-12196",
+      "title": "Blue Evil Eye Turkish Nazar Money Fortune Tree Owl Design Protection Gift Home Decor for Any Purpose",
+      "price": 2489,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-11295",
+      "title": "Cute Easter Bunny Wreath Decoration Bunny Hanging Welcome Sign Front Door Easter Rabbit Garland Home Decoration Outdoor Indoor Decor Props Gifts",
+      "price": 3329,
       "brand": "",
       "intent": true
      }
@@ -1760,11 +1648,11 @@
     "sem": {
      "used": false
     },
-    "ms": 61,
+    "ms": 293,
     "judge": [
-     2,
      1,
-     1
+     1,
+     2
     ]
    },
    {
@@ -1772,47 +1660,42 @@
     "q": "kitchen organizer stuff",
     "kind": "vague",
     "arm": "0",
-    "intentN": 0,
-    "null": true,
-    "questions": 3,
-    "slots": {
-     "category": "amazon home",
-     "budget": 1250,
-     "flexible": false,
-     "forWhom": "women"
-    },
+    "intentN": 48,
+    "null": false,
+    "questions": 0,
+    "slots": {},
     "top3": [
      {
       "sku": "AC-03176",
       "title": "Under Sink Organizer, 2 Tier Under Kitchen Sink Organizer, Sliding Under Bathroom Sink Organizer and Storage, Multi-purpose Kitchen Organization Black Colour",
       "price": 1369,
       "brand": "",
-      "intent": false
+      "intent": true
      },
      {
-      "sku": "AC-04255",
-      "title": "winorax Personalized Fox Tumbler Foxes Jewelry Drawing Style Stainless Steel Insulated Tumblers Coffee Travel Mug Cup 20oz 30oz Stuff Birthday Christmas Fox Gifts For Women Girls",
-      "price": 1659,
+      "sku": "AC-21149",
+      "title": "GOFLAME 5-Tier Bookshelf, Tall Bookcase Shelf with Metal Frame, Industrial Floor Storage Shelf Organizer, DIY Shelving Unit Display Rack for Study, Living Room, Kitchen, Rustic Brown",
+      "price": 10849,
       "brand": "",
-      "intent": false
+      "intent": true
      },
      {
-      "sku": "AC-33249",
-      "title": "Amazon Basics Storage Organizer Set 6 pcs (3 pcs)",
-      "price": 789,
+      "sku": "AC-11663",
+      "title": "3-Tier Shelf Adjustable, Heavy Duty Storage Shelving Unit (200 Lbs Loading Capacity Per Shelf) Metal Shelves Steel Organizer Wire Rack Shelf for Pantry Garage Kitchen 23.22\"D x13.39\"W x 31.5\"H Black",
+      "price": 3329,
       "brand": "",
-      "intent": false
+      "intent": true
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false
     },
-    "ms": 388,
+    "ms": 175,
     "judge": [
      1,
-     3,
-     1
+     2,
+     2
     ]
    },
    {
@@ -1851,11 +1734,11 @@
     "sem": {
      "used": false
     },
-    "ms": 53,
+    "ms": 260,
     "judge": [
-     3,
-     3,
-     3
+     2,
+     2,
+     2
     ]
    },
    {
@@ -1863,7 +1746,7 @@
     "q": "baby shower items",
     "kind": "vague",
     "arm": "0",
-    "intentN": 41,
+    "intentN": 43,
     "null": false,
     "questions": 0,
     "slots": {},
@@ -1876,16 +1759,16 @@
       "intent": true
      },
      {
-      "sku": "AC-08279",
-      "title": "Allenjoy Red Superhero Cityscape Themed Photography Backdrop for Boys1st Birthday Party Baby Shower Decorations Family Gathering Background Banner Favors Photo Shoot Photobooth Studio Props",
-      "price": 1409,
+      "sku": "AC-07441",
+      "title": "HIPVVILD Beach Pool Party Decorations Tableware - Summer Beach Party Decorations Dinnerware For Birthday & Baby Shower, Paper Plate, Napkin, Tablecloth, Fork, Beach Pool Party Supplies | Serve 24",
+      "price": 1739,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-08215",
-      "title": "LUCKBTY Cartoon Candyland Sweets Backdrop for Photography, 7X5ft Winter Ice-Cream House Lollipop Sun Rainbow Background, Baby Shower Birthday Party Banner Props BJMYLU155",
-      "price": 1629,
+      "sku": "AC-08279",
+      "title": "Allenjoy Red Superhero Cityscape Themed Photography Backdrop for Boys1st Birthday Party Baby Shower Decorations Family Gathering Background Banner Favors Photo Shoot Photobooth Studio Props",
+      "price": 1409,
       "brand": "",
       "intent": true
      }
@@ -1894,7 +1777,7 @@
     "sem": {
      "used": false
     },
-    "ms": 73,
+    "ms": 305,
     "judge": [
      1,
      2,
@@ -1906,29 +1789,29 @@
     "q": "wedding return gifts",
     "kind": "vague",
     "arm": "0",
-    "intentN": 45,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-11428",
-      "title": "Cabtnca Mr Mrs Gifts, Mr Mrs Est 2023 Mugs, Mr and Mrs Mugs, Wedding Gifts for Couple, Newlywed Gifts, New Couple Gifts for Him and Her, Valentines Mugs Cups, Christmas Gifts for Couples, 14Oz",
-      "price": 2159,
+      "sku": "AC-18083",
+      "title": "La Belleza red Rhinestones Luxury Hand-Made Bodice Beaded Appliques for Prom Wedding Dance ddress 12.5\" *21.5\" Large Pattern V-Neck and can Easy to use for Designs",
+      "price": 6589,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
+      "sku": "AC-11025",
+      "title": "Urban Villa Tablecloth Cuisine Stripes Table Cloth Tabletop Cover Kitchen Dining Tablecloth 100% Cotton Great Parties Wedding Holiday Dinner Aqua Multi Rectangle 60X84 Inches 6-8 Seats Table Cloth",
+      "price": 2079,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-06773",
-      "title": "Sister Gifts from Sister Birthday Gift Ideas Sister Gifts for Women Sister in Law Friendship Gifts for Women Friends Unbiological Sister Big Sister Bookmarks for Book Lover Bookworm Wedding Christmas",
-      "price": 789,
+      "sku": "AC-12325",
+      "title": "Mr and Mrs Personalized Champagne Flutes - Wedding Toasting Glasses - His Her Engraved Flute Glasses - Mr and Mrs Couples Glasses - Set of 2",
+      "price": 4169,
       "brand": "",
       "intent": true
      }
@@ -1937,11 +1820,11 @@
     "sem": {
      "used": false
     },
-    "ms": 63,
+    "ms": 156,
     "judge": [
-     1,
-     1,
-     3
+     2,
+     2,
+     1
     ]
    },
    {
@@ -1951,33 +1834,30 @@
     "arm": "0",
     "intentN": 0,
     "null": true,
-    "questions": 3,
+    "questions": 1,
     "slots": {
-     "forWhom": "women",
-     "size": "s",
-     "budget": 1000,
-     "flexible": false
+     "category": "fashion & clothing"
     },
     "top3": [
      {
-      "sku": "AC-32137",
-      "title": "W for Woman Summer Dress for Women (Green)",
-      "price": 969,
-      "brand": "W for Woman",
-      "intent": false
-     },
-     {
-      "sku": "AC-27287",
-      "title": "Fabindia Summer Dress for Women (Green)",
-      "price": 969,
+      "sku": "AC-27289",
+      "title": "Fabindia Summer Dress for Women (Red)",
+      "price": 1339,
       "brand": "Fabindia",
       "intent": false
      },
      {
-      "sku": "AC-28522",
-      "title": "Libas Summer Dress for Women (Blue)",
-      "price": 589,
-      "brand": "Libas",
+      "sku": "AC-29183",
+      "title": "Meera Summer Dress for Women (Beige)",
+      "price": 2089,
+      "brand": "Meera",
+      "intent": false
+     },
+     {
+      "sku": "AC-29186",
+      "title": "Meera Summer Dress for Women (Pink)",
+      "price": 1719,
+      "brand": "Meera",
       "intent": false
      }
     ],
@@ -1985,7 +1865,7 @@
     "sem": {
      "used": false
     },
-    "ms": 344,
+    "ms": 1477,
     "judge": [
      3,
      3,
@@ -2028,7 +1908,7 @@
     "sem": {
      "used": false
     },
-    "ms": 25,
+    "ms": 166,
     "judge": [
      1,
      1,
@@ -2071,7 +1951,7 @@
     "sem": {
      "used": false
     },
-    "ms": 67,
+    "ms": 353,
     "judge": [
      1,
      1,
@@ -2089,24 +1969,24 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01559",
-      "title": "Cute Little Turtle Home Iwatch Bands, Smartwatch Bands Compatible With Apple Watch Wristbands Soft Silicone Strap Replacement For Series 8/7/6/5/4/3/2/1/Se Unisex Gifts Ideas For Women Men",
-      "price": 1159,
-      "brand": "",
+      "sku": "AC-29640",
+      "title": "Myntra Rakhi Gift Box",
+      "price": 389,
+      "brand": "Myntra",
       "intent": true
      },
      {
-      "sku": "AC-01929",
-      "title": "Blue Rhinestone Bow Brooch Ladies Large Bow Badge Vintage Fashion Jewelry Gift Elegant Ladies Bow Jewelry Gift Suitable for Suits Dresses Shirts Scarves Sweaters",
-      "price": 569,
-      "brand": "",
+      "sku": "AC-33523",
+      "title": "Pepperfury Diwali Gift Hamper",
+      "price": 1989,
+      "brand": "Pepperfury",
       "intent": true
      },
      {
-      "sku": "AC-08740",
-      "title": "Wild Bobby If It's Not a Bassett Hound Its Just a Dog Gift Dog Lover Unisex Crewneck Graphic Sweatshirt",
-      "price": 2499,
-      "brand": "",
+      "sku": "AC-33526",
+      "title": "Pepperfury Festive Gift Hamper",
+      "price": 1989,
+      "brand": "Pepperfury",
       "intent": true
      }
     ],
@@ -2114,11 +1994,11 @@
     "sem": {
      "used": false
     },
-    "ms": 3,
+    "ms": 16,
     "judge": [
      2,
-     2,
-     2
+     1,
+     1
     ]
    },
    {
@@ -2132,24 +2012,24 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-18083",
-      "title": "La Belleza red Rhinestones Luxury Hand-Made Bodice Beaded Appliques for Prom Wedding Dance ddress 12.5\" *21.5\" Large Pattern V-Neck and can Easy to use for Designs",
-      "price": 6589,
+      "sku": "AC-01612",
+      "title": "Barode Crystal Bridal Jewelry Set for Women Silver Rhinestone Bride Wedding Necklace Earrings Bracelet Set Bridesmaid Gifts fit with Wedding Dress",
+      "price": 969,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-11025",
-      "title": "Urban Villa Tablecloth Cuisine Stripes Table Cloth Tabletop Cover Kitchen Dining Tablecloth 100% Cotton Great Parties Wedding Holiday Dinner Aqua Multi Rectangle 60X84 Inches 6-8 Seats Table Cloth",
-      "price": 2079,
+      "sku": "AC-02919",
+      "title": "Giveena 10th 2023 Wedding Anniversary Ornament - Christmas Ceramic Ornament Gift Anniversary for Couple, Parents, Friend Her Him - 10th Wedding Anniversary Present Holiday Decoration Hanging Ornament",
+      "price": 1329,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-27481",
-      "title": "Global Desi Bridal Lehenga Choli (Maroon)",
-      "price": 4989,
-      "brand": "Global Desi",
+      "sku": "AC-14819",
+      "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
+      "price": 3379,
+      "brand": "",
       "intent": true
      }
     ],
@@ -2157,11 +2037,11 @@
     "sem": {
      "used": false
     },
-    "ms": 2,
+    "ms": 12,
     "judge": [
+     1,
      2,
-     2,
-     1
+     2
     ]
    },
    {
@@ -2175,24 +2055,24 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-26685",
-      "title": "Bata Kolhapuri Chappal (UK 10)",
-      "price": 1469,
-      "brand": "Bata",
+      "sku": "AC-18917",
+      "title": "SLIPPERY SOAP Honey No-Sling Tire Shine, Long Lasting Gloss, Water-Resistant, Protection From UV Rays, 1 Gallon",
+      "price": 6169,
+      "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-26690",
-      "title": "Bata Kolhapuri Chappal (UK 9)",
-      "price": 1249,
-      "brand": "Bata",
+      "sku": "AC-00584",
+      "title": "NA unisex-adult Slipper",
+      "price": 1659,
+      "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-26687",
-      "title": "Bata Kolhapuri Chappal (UK 6)",
-      "price": 589,
-      "brand": "Bata",
+      "sku": "AC-01092",
+      "title": "Koolaburra by UGG Men's Rommie Nylon Slipper",
+      "price": 1689,
+      "brand": "",
       "intent": true
      }
     ],
@@ -2200,9 +2080,9 @@
     "sem": {
      "used": false
     },
-    "ms": 24,
+    "ms": 179,
     "judge": [
-     1,
+     3,
      1,
      1
     ]
@@ -2218,6 +2098,13 @@
     "slots": {},
     "top3": [
      {
+      "sku": "AC-29640",
+      "title": "Myntra Rakhi Gift Box",
+      "price": 389,
+      "brand": "Myntra",
+      "intent": true
+     },
+     {
       "sku": "AC-33523",
       "title": "Pepperfury Diwali Gift Hamper",
       "price": 1989,
@@ -2225,17 +2112,10 @@
       "intent": true
      },
      {
-      "sku": "AC-33769",
-      "title": "Wipro AG Diwali Paper Lantern (Orange)",
-      "price": 789,
+      "sku": "AC-33767",
+      "title": "Wipro AG Diwali Gifting Box",
+      "price": 1489,
       "brand": "Wipro AG",
-      "intent": true
-     },
-     {
-      "sku": "AC-33628",
-      "title": "Syska Diwali String Light 100 (Multi Colour)",
-      "price": 3489,
-      "brand": "Syska",
       "intent": true
      }
     ],
@@ -2243,11 +2123,11 @@
     "sem": {
      "used": false
     },
-    "ms": 2,
+    "ms": 26,
     "judge": [
-     1,
      2,
-     2
+     1,
+     1
     ]
    },
    {
@@ -2257,33 +2137,28 @@
     "arm": "0",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "forWhom": "women",
-     "budget": 1750,
-     "flexible": false,
-     "brand": "best_rated"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [
      {
-      "sku": "AC-01732",
-      "title": "Gold Bangle Bracelet for Women Wide Grooved Cuff Bracelets Gold Chunky Cuff Wrap Bracelet Gold Bangle Bracelet Jewelry Gifts for Girls",
-      "price": 719,
-      "brand": "",
+      "sku": "AC-26773",
+      "title": "Bluestone 22K Gold Bangles 12 g (16 g)",
+      "price": 112489,
+      "brand": "Bluestone",
       "intent": false
      },
      {
-      "sku": "AC-01670",
-      "title": "Sakytal Boho Gold Bangle Bracelet Set Indian Multi Layered Bangles Bracelets Stackable Textured Bracelet for Women",
-      "price": 749,
-      "brand": "",
+      "sku": "AC-28607",
+      "title": "Malabar 22K Gold Bangles 12 g (16 g)",
+      "price": 134989,
+      "brand": "Malabar",
       "intent": false
      },
      {
-      "sku": "AC-02708",
-      "title": "KACON 925 Sterling Silver Bangle Bracelet, Fashion Simple Open Bangles Cuff Jewelry for Women",
-      "price": 829,
-      "brand": "",
+      "sku": "AC-28604",
+      "title": "Malabar 22K Gold Bangles (12 g)",
+      "price": 94989,
+      "brand": "Malabar",
       "intent": false
      }
     ],
@@ -2291,7 +2166,7 @@
     "sem": {
      "used": false
     },
-    "ms": 336,
+    "ms": 360,
     "judge": [
      1,
      1,
@@ -2334,11 +2209,11 @@
     "sem": {
      "used": false
     },
-    "ms": 24,
+    "ms": 205,
     "judge": [
-     2,
-     2,
-     2
+     1,
+     1,
+     1
     ]
    },
    {
@@ -2352,24 +2227,24 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-24811",
-      "title": "Apple Watch Series 9 (41 mm, GPS) Smartwatch",
-      "price": 42900,
-      "brand": "Apple",
-      "intent": true
-     },
-     {
-      "sku": "AC-24810",
-      "title": "Apple Watch SE (2nd Generation, 40 mm, GPS) Smartwatch",
-      "price": 29900,
-      "brand": "Apple",
-      "intent": true
-     },
-     {
-      "sku": "AC-31152",
-      "title": "Seiko 5 Automatic Watch (Steel)",
-      "price": 19989,
+      "sku": "AC-31154",
+      "title": "Seiko Analog Watch for Men (Silver)",
+      "price": 12989,
       "brand": "Seiko",
+      "intent": true
+     },
+     {
+      "sku": "AC-26874",
+      "title": "Casio Analog Watch for Men (Brown)",
+      "price": 8289,
+      "brand": "Casio",
+      "intent": true
+     },
+     {
+      "sku": "AC-30076",
+      "title": "Nixon Analog Watch for Men (Brown)",
+      "price": 8989,
+      "brand": "Nixon",
       "intent": true
      }
     ],
@@ -2377,7 +2252,7 @@
     "sem": {
      "used": false
     },
-    "ms": 37,
+    "ms": 155,
     "judge": [
      1,
      1,
@@ -2395,23 +2270,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01569",
-      "title": "Cute Cat Frog Rabbit Animal Pins, Personality Animation Enamel Pin Set, Brooches for Bag, Lapel, Buckle, Hat, Clothing Accessories, Birthday Gift, Christmas Presents",
-      "price": 829,
+      "sku": "AC-10191",
+      "title": "Well Happy Birthday Jesus Funny Quote Office Ugly Christmas Sweater Unisex Crewneck Graphic Sweatshirt",
+      "price": 2499,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-03992",
-      "title": "Blue Orchards Horse Party Plates and Napkins Pack (52 Pieces for 16 Guests) - Horse Plates and Napkins, Horse Birthday Party, Cowboy Theme Party, Western Birthday Decorations, Wild Horse Party",
-      "price": 829,
+      "sku": "AC-02957",
+      "title": "Birthday Magnets for Cruise Door,STRUGGANT Cruise Door Decorations Ship Sticker Cruise Essentials for Cabin Door Stateroom (Birthday)",
+      "price": 1159,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-00298",
-      "title": "Teacher Appreciation Gifts for Women Men Teacher’s Day Thank You Gift for Teacher Tutor Mentor Professor 2023 Graduation Gift for Teacher Retirement Birthday Back to School Leaving Christmas Gift",
-      "price": 539,
+      "sku": "AC-11985",
+      "title": "Birthday Gifts for Women Bath Relaxing Spa Gifts for Mom Candle Gift Basket for Best Friends Unique Gifts for Women Sleep Well Gift Set Get Well Soon Gifts for Sister Wife Her Coworker Bestie",
+      "price": 2169,
       "brand": "",
       "intent": true
      }
@@ -2420,11 +2295,11 @@
     "sem": {
      "used": false
     },
-    "ms": 5,
+    "ms": 23,
     "judge": [
      2,
      2,
-     3
+     1
     ]
    },
    {
@@ -2463,7 +2338,7 @@
     "sem": {
      "used": false
     },
-    "ms": 60,
+    "ms": 252,
     "judge": [
      1,
      1,
@@ -2506,7 +2381,7 @@
     "sem": {
      "used": false
     },
-    "ms": 33,
+    "ms": 126,
     "judge": [
      1,
      1,
@@ -2549,7 +2424,7 @@
     "sem": {
      "used": false
     },
-    "ms": 25,
+    "ms": 118,
     "judge": [
      1,
      1,
@@ -2567,24 +2442,24 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-20129",
-      "title": "Timex Women's Q 36mm Watch",
-      "price": 11589,
-      "brand": "Timex",
+      "sku": "AC-31154",
+      "title": "Seiko Analog Watch for Men (Silver)",
+      "price": 12989,
+      "brand": "Seiko",
       "intent": true
      },
      {
-      "sku": "AC-24811",
-      "title": "Apple Watch Series 9 (41 mm, GPS) Smartwatch",
-      "price": 42900,
-      "brand": "Apple",
+      "sku": "AC-26874",
+      "title": "Casio Analog Watch for Men (Brown)",
+      "price": 8289,
+      "brand": "Casio",
       "intent": true
      },
      {
-      "sku": "AC-24810",
-      "title": "Apple Watch SE (2nd Generation, 40 mm, GPS) Smartwatch",
-      "price": 29900,
-      "brand": "Apple",
+      "sku": "AC-30076",
+      "title": "Nixon Analog Watch for Men (Brown)",
+      "price": 8989,
+      "brand": "Nixon",
       "intent": true
      }
     ],
@@ -2592,9 +2467,9 @@
     "sem": {
      "used": false
     },
-    "ms": 29,
+    "ms": 173,
     "judge": [
-     3,
+     1,
      1,
      1
     ]
@@ -2606,45 +2481,40 @@
     "arm": "0",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "forWhom": "women",
-     "budget": 1250,
-     "flexible": false,
-     "brand": "best_rated"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [
      {
-      "sku": "AC-01732",
-      "title": "Gold Bangle Bracelet for Women Wide Grooved Cuff Bracelets Gold Chunky Cuff Wrap Bracelet Gold Bangle Bracelet Jewelry Gifts for Girls",
-      "price": 719,
-      "brand": "",
+      "sku": "AC-26773",
+      "title": "Bluestone 22K Gold Bangles 12 g (16 g)",
+      "price": 112489,
+      "brand": "Bluestone",
       "intent": false
      },
      {
-      "sku": "AC-01670",
-      "title": "Sakytal Boho Gold Bangle Bracelet Set Indian Multi Layered Bangles Bracelets Stackable Textured Bracelet for Women",
-      "price": 749,
-      "brand": "",
+      "sku": "AC-28607",
+      "title": "Malabar 22K Gold Bangles 12 g (16 g)",
+      "price": 134989,
+      "brand": "Malabar",
       "intent": false
      },
      {
-      "sku": "AC-02708",
-      "title": "KACON 925 Sterling Silver Bangle Bracelet, Fashion Simple Open Bangles Cuff Jewelry for Women",
-      "price": 829,
-      "brand": "",
+      "sku": "AC-28604",
+      "title": "Malabar 22K Gold Bangles (12 g)",
+      "price": 94989,
+      "brand": "Malabar",
       "intent": false
      }
     ],
-    "n_results": 45,
+    "n_results": 48,
     "sem": {
      "used": false
     },
-    "ms": 312,
+    "ms": 374,
     "judge": [
      1,
      1,
-     2
+     1
     ]
    },
    {
@@ -2658,13 +2528,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-03938",
-      "title": "Chemistry Gifts - Chemistry Periodic Table Blanket - for Kid Flannel Throw Blanket Teacher Ultra Soft Fleece Bed Couch Living Room 30 X 40 Inch for Pet",
-      "price": 1659,
-      "brand": "",
-      "intent": true
-     },
-     {
       "sku": "AC-23617",
       "title": "BIADNBZ Reversible Sectional Sofa with Chaise Lounge and Cupholders, L-Shape 4-Seat Couch Living Room Furniture Set for Apartment Office, w/2 Pillows, Black",
       "price": 51139,
@@ -2672,9 +2535,16 @@
       "intent": true
      },
      {
-      "sku": "AC-23254",
-      "title": "BIADNBZ Sectional Couch for Living Room with Right Chaise Lounge Storage Ottoman L-Shaped Sofas, Gray",
-      "price": 47209,
+      "sku": "AC-23545",
+      "title": "LUMISOL Upholstered Living Room Sectional Sofa, L Shape Furniture Couch with 3 Pillows, Fabric Sofa Couch for Large Space Apartments Office, Grey",
+      "price": 50089,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-23678",
+      "title": "Flieks Modern Upholstered Living Room Sectional Sofa, L Shape Furniture Couch with 3 Pillows, Grey",
+      "price": 55859,
       "brand": "",
       "intent": true
      }
@@ -2683,9 +2553,9 @@
     "sem": {
      "used": false
     },
-    "ms": 52,
+    "ms": 344,
     "judge": [
-     3,
+     1,
      1,
      1
     ]
@@ -2726,7 +2596,7 @@
     "sem": {
      "used": false
     },
-    "ms": 26,
+    "ms": 118,
     "judge": [
      1,
      2,
@@ -2738,29 +2608,29 @@
     "q": "blazer for wedding guest",
     "kind": "synonym",
     "arm": "0",
-    "intentN": 47,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-22465",
-      "title": "Unique Wedding Guest Book Alternative Custom Personalized, Maple Tree Natural Wood Slab Handcrafted Engraved Carved Customized Signs Cedar Live Edge Wood Sign Country Farmhouse Western (2, Natural)",
-      "price": 10429,
+      "sku": "AC-10077",
+      "title": "Iynnijoy Men's Wedding Blazer Shawl One Button Dress Dinner Tuxedo Suit Jacket for Prom Party",
+      "price": 3329,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-14819",
-      "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
-      "price": 3379,
+      "sku": "AC-16375",
+      "title": "Mens 2 Piece Suit Set Slim Fit 2 Button Dress Suits Tuxedo Set Wedding Blazer Jacket Pants Tie Business Party Prom Suit",
+      "price": 5839,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-22469",
-      "title": "Custom Personalized Wedding Guest Book Alternative Natural Wood Slab Handcrafted Engraved Carved Customized Wood Signs Cedar Live Edge County Farmhouse Western (2, Natural)",
-      "price": 10429,
+      "sku": "AC-16787",
+      "title": "2 Pieces Suits for Men Slim Fit Blazer Mens Suit Wedding Prom Dress Tuxedo Jacket Pants Set",
+      "price": 5589,
       "brand": "",
       "intent": true
      }
@@ -2769,11 +2639,11 @@
     "sem": {
      "used": false
     },
-    "ms": 48,
+    "ms": 116,
     "judge": [
-     3,
-     3,
-     3
+     1,
+     2,
+     2
     ]
    },
    {
@@ -2783,26 +2653,14 @@
     "arm": "0",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "category": "amazon home",
-     "budget": 1250,
-     "flexible": false,
-     "forWhom": "women"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [
      {
-      "sku": "AC-03970",
-      "title": "Cute Ferrets Blanket Ferret Gifts for Women Ferret Lovers Lightweight Soft Flannel Fleece Throw Blankets for Couch Bed Sofa X-Small (40\"X30\")",
-      "price": 829,
-      "brand": "",
-      "intent": false
-     },
-     {
-      "sku": "AC-03530",
-      "title": "COFISUKI Ceramic Coffee Mug - Cute Mug Gifts for Women or Coffee Lovers, Funny Coffee or Tea Cup for Office and Home, Ceramic Cups12 oz",
-      "price": 579,
-      "brand": "",
+      "sku": "AC-09905",
+      "title": "adidas Unisex-Child Tech Fall 2.0 Wrestling Shoe",
+      "price": 4289,
+      "brand": "Adidas",
       "intent": false
      },
      {
@@ -2811,17 +2669,24 @@
       "price": 809,
       "brand": "",
       "intent": false
+     },
+     {
+      "sku": "AC-08740",
+      "title": "Wild Bobby If It's Not a Bassett Hound Its Just a Dog Gift Dog Lover Unisex Crewneck Graphic Sweatshirt",
+      "price": 2499,
+      "brand": "",
+      "intent": false
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false
     },
-    "ms": 482,
+    "ms": 657,
     "judge": [
      3,
      3,
-     2
+     3
     ]
    },
    {
@@ -2860,7 +2725,7 @@
     "sem": {
      "used": false
     },
-    "ms": 123,
+    "ms": 209,
     "judge": [
      1,
      1,
@@ -2872,184 +2737,68 @@
     "q": "didgeridoo",
     "kind": "dead_end",
     "arm": "0",
-    "intentN": 24,
-    "null": false,
-    "questions": 2,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali"
-    },
-    "top3": [
-     {
-      "sku": "AC-29640",
-      "title": "Myntra Rakhi Gift Box",
-      "price": 389,
-      "brand": "Myntra",
-      "intent": true
-     },
-     {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
-      "sku": "AC-31256",
-      "title": "Solimo Rakhi Set 5",
-      "price": 139,
-      "brand": "",
-      "intent": true
-     }
-    ],
-    "n_results": 48,
+    "intentN": 0,
+    "null": true,
+    "questions": 0,
+    "slots": {},
+    "top3": [],
+    "n_results": 0,
     "sem": {
      "used": false
     },
-    "ms": 153,
-    "judge": [
-     3,
-     3,
-     3
-    ]
+    "ms": 201,
+    "judge": []
    },
    {
     "id": "s098",
     "q": "hoverboard",
     "kind": "dead_end",
     "arm": "0",
-    "intentN": 24,
-    "null": false,
-    "questions": 2,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali"
-    },
-    "top3": [
-     {
-      "sku": "AC-29640",
-      "title": "Myntra Rakhi Gift Box",
-      "price": 389,
-      "brand": "Myntra",
-      "intent": true
-     },
-     {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
-      "sku": "AC-31256",
-      "title": "Solimo Rakhi Set 5",
-      "price": 139,
-      "brand": "",
-      "intent": true
-     }
-    ],
-    "n_results": 48,
+    "intentN": 0,
+    "null": true,
+    "questions": 0,
+    "slots": {},
+    "top3": [],
+    "n_results": 0,
     "sem": {
      "used": false
     },
-    "ms": 157,
-    "judge": [
-     3,
-     3,
-     3
-    ]
+    "ms": 216,
+    "judge": []
    },
    {
     "id": "s099",
     "q": "periscope",
     "kind": "dead_end",
     "arm": "0",
-    "intentN": 24,
-    "null": false,
-    "questions": 2,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali"
-    },
-    "top3": [
-     {
-      "sku": "AC-29640",
-      "title": "Myntra Rakhi Gift Box",
-      "price": 389,
-      "brand": "Myntra",
-      "intent": true
-     },
-     {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
-      "sku": "AC-31256",
-      "title": "Solimo Rakhi Set 5",
-      "price": 139,
-      "brand": "",
-      "intent": true
-     }
-    ],
-    "n_results": 48,
+    "intentN": 0,
+    "null": true,
+    "questions": 0,
+    "slots": {},
+    "top3": [],
+    "n_results": 0,
     "sem": {
      "used": false
     },
-    "ms": 163,
-    "judge": [
-     3,
-     3,
-     3
-    ]
+    "ms": 188,
+    "judge": []
    },
    {
     "id": "s100",
     "q": "bobsled",
     "kind": "dead_end",
     "arm": "0",
-    "intentN": 24,
-    "null": false,
-    "questions": 2,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali"
-    },
-    "top3": [
-     {
-      "sku": "AC-29640",
-      "title": "Myntra Rakhi Gift Box",
-      "price": 389,
-      "brand": "Myntra",
-      "intent": true
-     },
-     {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
-      "sku": "AC-31256",
-      "title": "Solimo Rakhi Set 5",
-      "price": 139,
-      "brand": "",
-      "intent": true
-     }
-    ],
-    "n_results": 48,
+    "intentN": 0,
+    "null": true,
+    "questions": 0,
+    "slots": {},
+    "top3": [],
+    "n_results": 0,
     "sem": {
      "used": false
     },
     "ms": 150,
-    "judge": [
-     3,
-     3,
-     3
-    ]
+    "judge": []
    }
   ],
   "B": [
@@ -3081,7 +2830,7 @@
     "n_results": 2,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07653",
@@ -3104,9 +2853,9 @@
      ],
      "added": 2,
      "top_cos": 0.851,
-     "ms": 558
+     "ms": 1319
     },
-    "ms": 561
+    "ms": 1334
    },
    {
     "id": "s052",
@@ -3143,7 +2892,7 @@
     "n_results": 20,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-00112",
@@ -3166,9 +2915,9 @@
      ],
      "added": 20,
      "top_cos": 0.856,
-     "ms": 22
+     "ms": 59
     },
-    "ms": 46
+    "ms": 79
    },
    {
     "id": "s053",
@@ -3205,7 +2954,7 @@
     "n_results": 6,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-04288",
@@ -3228,9 +2977,9 @@
      ],
      "added": 6,
      "top_cos": 0.852,
-     "ms": 19
+     "ms": 55
     },
-    "ms": 67
+    "ms": 190
    },
    {
     "id": "s054",
@@ -3267,7 +3016,7 @@
     "n_results": 5,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-31257",
@@ -3290,9 +3039,9 @@
      ],
      "added": 5,
      "top_cos": 0.868,
-     "ms": 22
+     "ms": 60
     },
-    "ms": 72
+    "ms": 356
    },
    {
     "id": "s055",
@@ -3329,7 +3078,7 @@
     "n_results": 3,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-31257",
@@ -3352,9 +3101,9 @@
      ],
      "added": 3,
      "top_cos": 0.868,
-     "ms": 22
+     "ms": 47
     },
-    "ms": 72
+    "ms": 178
    },
    {
     "id": "s056",
@@ -3391,7 +3140,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07415",
@@ -3414,9 +3163,9 @@
      ],
      "added": 48,
      "top_cos": 0.88,
-     "ms": 21
+     "ms": 60
     },
-    "ms": 24
+    "ms": 70
    },
    {
     "id": "s057",
@@ -3453,7 +3202,7 @@
     "n_results": 5,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07603",
@@ -3476,9 +3225,9 @@
      ],
      "added": 5,
      "top_cos": 0.858,
-     "ms": 21
+     "ms": 53
     },
-    "ms": 25
+    "ms": 64
    },
    {
     "id": "s058",
@@ -3515,7 +3264,7 @@
     "n_results": 28,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-02972",
@@ -3538,9 +3287,9 @@
      ],
      "added": 28,
      "top_cos": 0.873,
-     "ms": 22
+     "ms": 62
     },
-    "ms": 24
+    "ms": 73
    },
    {
     "id": "s059",
@@ -3570,7 +3319,7 @@
     "n_results": 2,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-06660",
@@ -3593,9 +3342,9 @@
      ],
      "added": 2,
      "top_cos": 0.88,
-     "ms": 21
+     "ms": 60
     },
-    "ms": 45
+    "ms": 159
    },
    {
     "id": "s060",
@@ -3632,7 +3381,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-14690",
@@ -3655,9 +3404,9 @@
      ],
      "added": 48,
      "top_cos": 0.889,
-     "ms": 21
+     "ms": 61
     },
-    "ms": 22
+    "ms": 81
    },
    {
     "id": "s061",
@@ -3687,7 +3436,7 @@
     "n_results": 2,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-01205",
@@ -3704,9 +3453,9 @@
      ],
      "added": 2,
      "top_cos": 0.856,
-     "ms": 27
+     "ms": 74
     },
-    "ms": 30
+    "ms": 81
    },
    {
     "id": "s062",
@@ -3743,7 +3492,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-14690",
@@ -3766,9 +3515,9 @@
      ],
      "added": 48,
      "top_cos": 0.889,
-     "ms": 27
+     "ms": 78
     },
-    "ms": 28
+    "ms": 101
    },
    {
     "id": "s063",
@@ -3805,7 +3554,7 @@
     "n_results": 16,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-03687",
@@ -3828,9 +3577,9 @@
      ],
      "added": 16,
      "top_cos": 0.868,
-     "ms": 23
+     "ms": 54
     },
-    "ms": 100
+    "ms": 165
    },
    {
     "id": "s064",
@@ -3867,7 +3616,7 @@
     "n_results": 7,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07580",
@@ -3890,16 +3639,16 @@
      ],
      "added": 7,
      "top_cos": 0.886,
-     "ms": 20
+     "ms": 58
     },
-    "ms": 108
+    "ms": 63
    },
    {
     "id": "s065",
     "q": "anniversary gift ideas for husband",
     "kind": "real_suggest",
     "arm": "only",
-    "intentN": 8,
+    "intentN": 9,
     "null": false,
     "questions": 0,
     "slots": {},
@@ -3926,10 +3675,10 @@
       "intent": true
      }
     ],
-    "n_results": 8,
+    "n_results": 9,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07580",
@@ -3950,77 +3699,139 @@
        "cos": 0.873
       }
      ],
-     "added": 8,
+     "added": 9,
      "top_cos": 0.89,
-     "ms": 20
+     "ms": 54
     },
-    "ms": 94
+    "ms": 133
    },
    {
     "id": "s066",
     "q": "housewarming gifts",
     "kind": "real_suggest",
     "arm": "only",
-    "intentN": 43,
+    "intentN": 27,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
+     {
+      "sku": "AC-36104",
+      "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+      "price": 489,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-36103",
+      "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+      "price": 289,
+      "brand": "",
+      "intent": true
+     },
      {
       "sku": "AC-00838",
       "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
       "price": 829,
       "brand": "",
       "intent": true
-     },
-     {
-      "sku": "AC-22461",
-      "title": "Personalized Olive Wood and Resin Charcuterie Board, Wedding Gift, Engagement Gift, Anniversary Gift, Housewarming Gift (Pearl Blue)",
-      "price": 10849,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-12242",
-      "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-      "price": 2579,
-      "brand": "",
-      "intent": true
      }
     ],
-    "n_results": 43,
+    "n_results": 27,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
+      {
+       "sku": "AC-36104",
+       "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+       "price": 489,
+       "cos": 0.886
+      },
+      {
+       "sku": "AC-36103",
+       "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+       "price": 289,
+       "cos": 0.883
+      },
       {
        "sku": "AC-00838",
        "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
        "price": 829,
        "cos": 0.882
-      },
-      {
-       "sku": "AC-22461",
-       "title": "Personalized Olive Wood and Resin Charcuterie Board, Wedding Gift, Engagement Gift, Anniversary Gift, Housewarming Gift (Pearl Blue)",
-       "price": 10849,
-       "cos": 0.877
-      },
-      {
-       "sku": "AC-12242",
-       "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-       "price": 2579,
-       "cos": 0.876
       }
      ],
-     "added": 43,
-     "top_cos": 0.882,
-     "ms": 18
+     "added": 27,
+     "top_cos": 0.886,
+     "ms": 45
     },
-    "ms": 62
+    "ms": 47
    },
    {
     "id": "s067",
     "q": "housewarming gifts india",
+    "kind": "real_suggest",
+    "arm": "only",
+    "intentN": 4,
+    "null": false,
+    "questions": 0,
+    "slots": {},
+    "top3": [
+     {
+      "sku": "AC-36104",
+      "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+      "price": 489,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-36103",
+      "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+      "price": 289,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-36102",
+      "title": "Amazon Basics Potted Jade Plant (Housewarming Gift)",
+      "price": 389,
+      "brand": "",
+      "intent": true
+     }
+    ],
+    "n_results": 4,
+    "sem": {
+     "used": true,
+     "index_load_ms": 14,
+     "top": [
+      {
+       "sku": "AC-36104",
+       "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+       "price": 489,
+       "cos": 0.883
+      },
+      {
+       "sku": "AC-36103",
+       "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+       "price": 289,
+       "cos": 0.878
+      },
+      {
+       "sku": "AC-36102",
+       "title": "Amazon Basics Potted Jade Plant (Housewarming Gift)",
+       "price": 389,
+       "cos": 0.871
+      }
+     ],
+     "added": 4,
+     "top_cos": 0.883,
+     "ms": 74
+    },
+    "ms": 237
+   },
+   {
+    "id": "s068",
+    "q": "housewarming gifts under ₹1000",
     "kind": "real_suggest",
     "arm": "only",
     "intentN": 6,
@@ -4029,23 +3840,23 @@
     "slots": {},
     "top3": [
      {
+      "sku": "AC-36104",
+      "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+      "price": 489,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-36103",
+      "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+      "price": 289,
+      "brand": "",
+      "intent": true
+     },
+     {
       "sku": "AC-00838",
       "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
       "price": 829,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-04338",
-      "title": "Patelai 6 Pack Easter Kitchen Towels Dish Towels Seasonal Cloth Tea Towel Love Truck Happy Easter Hand Towel Be Mine Dishcloth Holiday Cloth Towel for Home Housewarming Gift",
-      "price": 1329,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-12242",
-      "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-      "price": 2579,
       "brand": "",
       "intent": true
      }
@@ -4053,163 +3864,101 @@
     "n_results": 6,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
-       "sku": "AC-00838",
-       "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
-       "price": 829,
-       "cos": 0.855
+       "sku": "AC-36104",
+       "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+       "price": 489,
+       "cos": 0.886
       },
       {
-       "sku": "AC-04338",
-       "title": "Patelai 6 Pack Easter Kitchen Towels Dish Towels Seasonal Cloth Tea Towel Love Truck Happy Easter Hand Towel Be Mine Dishcloth Holiday Cloth Towel for Home Housewarming Gift",
-       "price": 1329,
-       "cos": 0.853
+       "sku": "AC-36103",
+       "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+       "price": 289,
+       "cos": 0.883
       },
-      {
-       "sku": "AC-12242",
-       "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-       "price": 2579,
-       "cos": 0.853
-      }
-     ],
-     "added": 6,
-     "top_cos": 0.855,
-     "ms": 17
-    },
-    "ms": 82
-   },
-   {
-    "id": "s068",
-    "q": "housewarming gifts under ₹1000",
-    "kind": "real_suggest",
-    "arm": "only",
-    "intentN": 43,
-    "null": false,
-    "questions": 0,
-    "slots": {},
-    "top3": [
-     {
-      "sku": "AC-00838",
-      "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
-      "price": 829,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-22461",
-      "title": "Personalized Olive Wood and Resin Charcuterie Board, Wedding Gift, Engagement Gift, Anniversary Gift, Housewarming Gift (Pearl Blue)",
-      "price": 10849,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-12242",
-      "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-      "price": 2579,
-      "brand": "",
-      "intent": true
-     }
-    ],
-    "n_results": 43,
-    "sem": {
-     "used": true,
-     "index_load_ms": 6,
-     "top": [
       {
        "sku": "AC-00838",
        "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
        "price": 829,
        "cos": 0.882
-      },
-      {
-       "sku": "AC-22461",
-       "title": "Personalized Olive Wood and Resin Charcuterie Board, Wedding Gift, Engagement Gift, Anniversary Gift, Housewarming Gift (Pearl Blue)",
-       "price": 10849,
-       "cos": 0.877
-      },
-      {
-       "sku": "AC-12242",
-       "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-       "price": 2579,
-       "cos": 0.876
       }
      ],
-     "added": 43,
-     "top_cos": 0.882,
-     "ms": 19
+     "added": 6,
+     "top_cos": 0.886,
+     "ms": 46
     },
-    "ms": 83
+    "ms": 145
    },
    {
     "id": "s069",
     "q": "housewarming gifts under 5000",
     "kind": "real_suggest",
     "arm": "only",
-    "intentN": 40,
+    "intentN": 25,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
+     {
+      "sku": "AC-36104",
+      "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+      "price": 489,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-36103",
+      "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+      "price": 289,
+      "brand": "",
+      "intent": true
+     },
      {
       "sku": "AC-00838",
       "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
       "price": 829,
       "brand": "",
       "intent": true
-     },
-     {
-      "sku": "AC-12242",
-      "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-      "price": 2579,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-14810",
-      "title": "Last Name Metal Sign, Family Name Sign, Personalized Metal Wall Decor, Housewarming Gift, Sign for Front Porch, Metal Monogram Sign, Housewarming Gift (18\" Width)",
-      "price": 3749,
-      "brand": "",
-      "intent": true
      }
     ],
-    "n_results": 40,
+    "n_results": 25,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
+      {
+       "sku": "AC-36104",
+       "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+       "price": 489,
+       "cos": 0.886
+      },
+      {
+       "sku": "AC-36103",
+       "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+       "price": 289,
+       "cos": 0.883
+      },
       {
        "sku": "AC-00838",
        "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
        "price": 829,
        "cos": 0.882
-      },
-      {
-       "sku": "AC-12242",
-       "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-       "price": 2579,
-       "cos": 0.876
-      },
-      {
-       "sku": "AC-14810",
-       "title": "Last Name Metal Sign, Family Name Sign, Personalized Metal Wall Decor, Housewarming Gift, Sign for Front Porch, Metal Monogram Sign, Housewarming Gift (18\" Width)",
-       "price": 3749,
-       "cos": 0.87
       }
      ],
-     "added": 40,
-     "top_cos": 0.882,
-     "ms": 17
+     "added": 25,
+     "top_cos": 0.886,
+     "ms": 44
     },
-    "ms": 56
+    "ms": 47
    },
    {
     "id": "s070",
     "q": "gifts for mother birthday",
     "kind": "real_suggest",
     "arm": "only",
-    "intentN": 32,
+    "intentN": 33,
     "null": false,
     "questions": 0,
     "slots": {},
@@ -4236,10 +3985,10 @@
       "intent": true
      }
     ],
-    "n_results": 32,
+    "n_results": 33,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-04147",
@@ -4260,18 +4009,18 @@
        "cos": 0.881
       }
      ],
-     "added": 32,
+     "added": 33,
      "top_cos": 0.887,
-     "ms": 20
+     "ms": 50
     },
-    "ms": 64
+    "ms": 60
    },
    {
     "id": "s071",
     "q": "gift for new home",
     "kind": "vague",
     "arm": "only",
-    "intentN": 32,
+    "intentN": 34,
     "null": false,
     "questions": 0,
     "slots": {},
@@ -4298,10 +4047,10 @@
       "intent": true
      }
     ],
-    "n_results": 32,
+    "n_results": 34,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07653",
@@ -4322,11 +4071,11 @@
        "cos": 0.859
       }
      ],
-     "added": 32,
+     "added": 34,
      "top_cos": 0.862,
-     "ms": 19
+     "ms": 59
     },
-    "ms": 26
+    "ms": 250
    },
    {
     "id": "s072",
@@ -4363,7 +4112,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-14471",
@@ -4386,9 +4135,9 @@
      ],
      "added": 48,
      "top_cos": 0.88,
-     "ms": 17
+     "ms": 92
     },
-    "ms": 63
+    "ms": 198
    },
    {
     "id": "s073",
@@ -4425,7 +4174,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-14811",
@@ -4448,9 +4197,9 @@
      ],
      "added": 48,
      "top_cos": 0.87,
-     "ms": 18
+     "ms": 45
     },
-    "ms": 69
+    "ms": 212
    },
    {
     "id": "s074",
@@ -4487,7 +4236,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-11316",
@@ -4510,9 +4259,9 @@
      ],
      "added": 48,
      "top_cos": 0.888,
-     "ms": 19
+     "ms": 63
     },
-    "ms": 103
+    "ms": 232
    },
    {
     "id": "s075",
@@ -4549,7 +4298,7 @@
     "n_results": 47,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-22461",
@@ -4572,9 +4321,9 @@
      ],
      "added": 47,
      "top_cos": 0.867,
-     "ms": 19
+     "ms": 55
     },
-    "ms": 88
+    "ms": 167
    },
    {
     "id": "s076",
@@ -4611,7 +4360,7 @@
     "n_results": 5,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-17853",
@@ -4634,9 +4383,9 @@
      ],
      "added": 5,
      "top_cos": 0.853,
-     "ms": 21
+     "ms": 87
     },
-    "ms": 73
+    "ms": 302
    },
    {
     "id": "s077",
@@ -4673,7 +4422,7 @@
     "n_results": 4,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-02204",
@@ -4696,9 +4445,9 @@
      ],
      "added": 4,
      "top_cos": 0.865,
-     "ms": 19
+     "ms": 55
     },
-    "ms": 44
+    "ms": 184
    },
    {
     "id": "s078",
@@ -4735,7 +4484,7 @@
     "n_results": 10,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-00298",
@@ -4758,9 +4507,9 @@
      ],
      "added": 10,
      "top_cos": 0.889,
-     "ms": 19
+     "ms": 43
     },
-    "ms": 86
+    "ms": 272
    },
    {
     "id": "s079",
@@ -4797,7 +4546,7 @@
     "n_results": 13,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07537",
@@ -4820,9 +4569,9 @@
      ],
      "added": 13,
      "top_cos": 0.854,
-     "ms": 19
+     "ms": 41
     },
-    "ms": 22
+    "ms": 54
    },
    {
     "id": "s080",
@@ -4831,16 +4580,15 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 2,
+    "questions": 1,
     "slots": {
-     "category": "amazon fashion",
-     "forWhom": "women"
+     "category": "fashion & clothing"
     },
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-02875",
@@ -4862,9 +4610,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 31
     },
-    "ms": 81
+    "ms": 88
    },
    {
     "id": "s081",
@@ -4873,23 +4621,37 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "budget": 500,
-     "flexible": false,
-     "brand": "best_rated",
-     "category": "amazon fashion"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
-     "top": [],
+     "index_load_ms": 14,
+     "top": [
+      {
+       "sku": "AC-28580",
+       "title": "Liberty Classic Chappal (White UK 7)",
+       "price": 429,
+       "cos": 0.823
+      },
+      {
+       "sku": "AC-28581",
+       "title": "Liberty Classic Chappal (White UK 8)",
+       "price": 459,
+       "cos": 0.822
+      },
+      {
+       "sku": "AC-30633",
+       "title": "Relaxo Chappal for Men (White UK 8)",
+       "price": 459,
+       "cos": 0.815
+      }
+     ],
      "reason": "below_threshold",
-     "ms": 16
+     "ms": 133
     },
-    "ms": 245
+    "ms": 283
    },
    {
     "id": "s082",
@@ -4926,7 +4688,7 @@
     "n_results": 8,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-31257",
@@ -4949,9 +4711,9 @@
      ],
      "added": 8,
      "top_cos": 0.881,
-     "ms": 19
+     "ms": 62
     },
-    "ms": 21
+    "ms": 70
    },
    {
     "id": "s083",
@@ -4960,23 +4722,37 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "forWhom": "women",
-     "budget": 1750,
-     "flexible": false,
-     "brand": "best_rated"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
-     "top": [],
+     "index_load_ms": 14,
+     "top": [
+      {
+       "sku": "AC-20073",
+       "title": "SAS Sanibel",
+       "price": 11269,
+       "cos": 0.834
+      },
+      {
+       "sku": "AC-01397",
+       "title": "Angelica Collection Antique Smooth Finish Brass Mind, Body and Soul Expandable Bangle",
+       "price": 1249,
+       "cos": 0.821
+      },
+      {
+       "sku": "AC-00623",
+       "title": "Angelica Collection Antique Stipple Finish Brass Caduceus Expandable Bangle",
+       "price": 1249,
+       "cos": 0.819
+      }
+     ],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 61
     },
-    "ms": 430
+    "ms": 461
    },
    {
     "id": "s084",
@@ -5013,7 +4789,7 @@
     "n_results": 11,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-31257",
@@ -5036,53 +4812,57 @@
      ],
      "added": 11,
      "top_cos": 0.858,
-     "ms": 19
+     "ms": 73
     },
-    "ms": 43
+    "ms": 241
    },
    {
     "id": "s085",
     "q": "bhaiya ke liye watch",
     "kind": "hinglish",
     "arm": "only",
-    "intentN": 0,
+    "intentN": 1,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "forWhom": "women",
-     "size": "xs",
-     "budget": 1250,
-     "flexible": false
-    },
-    "top3": [],
-    "n_results": 0,
+    "questions": 0,
+    "slots": {},
+    "top3": [
+     {
+      "sku": "AC-12588",
+      "title": "PANHUI Smart Watch",
+      "price": 2229,
+      "brand": "",
+      "intent": true
+     }
+    ],
+    "n_results": 1,
     "sem": {
-     "used": false,
-     "index_load_ms": 6,
+     "used": true,
+     "index_load_ms": 14,
      "top": [
       {
-       "sku": "AC-04491",
-       "title": "Byikun Smart Watch That Can Text and Call, 116S Heart Rate Watch Smart Wristband Waterproof Sports Watch for Men Women, Fitness Watch, Activity Trackers and Smartwatches for iPhone Android",
-       "price": 579,
-       "cos": 0.828
+       "sku": "AC-12588",
+       "title": "PANHUI Smart Watch",
+       "price": 2229,
+       "cos": 0.847
       },
       {
-       "sku": "AC-24738",
-       "title": "JewelryWe Womens Handmade Braid Watch Analog Quartz Bracelet Dress Watch Vintage Adjustable Weave Wristwatch",
-       "price": 999,
-       "cos": 0.825
+       "sku": "AC-16691",
+       "title": "Swatch Ishtar by Jean-Michel Basquiat Quartz Watch",
+       "price": 8269,
+       "cos": 0.839
       },
       {
-       "sku": "AC-26881",
-       "title": "Casio F-91W Digital Watch (Black)",
-       "price": 1189,
-       "cos": 0.825
+       "sku": "AC-12787",
+       "title": "PANHUI Smart Watch Fitness Watch with Blood Pressure Heart Rate Monitor Bluetooth Phone Watch IP67 Waterproof Smartwatch",
+       "price": 2199,
+       "cos": 0.838
       }
      ],
-     "reason": "below_threshold",
-     "ms": 16
+     "added": 1,
+     "top_cos": 0.847,
+     "ms": 40
     },
-    "ms": 309
+    "ms": 456
    },
    {
     "id": "s086",
@@ -5119,7 +4899,7 @@
     "n_results": 14,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-09480",
@@ -5142,9 +4922,9 @@
      ],
      "added": 14,
      "top_cos": 0.868,
-     "ms": 22
+     "ms": 58
     },
-    "ms": 24
+    "ms": 66
    },
    {
     "id": "s087",
@@ -5153,23 +4933,37 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "category": "cell phones & accessories",
-     "budget": 1250,
-     "flexible": false,
-     "brand": "best_rated"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
-     "top": [],
+     "index_load_ms": 14,
+     "top": [
+      {
+       "sku": "AC-24841",
+       "title": "Samsung 43-inch (109 cm) Smart Tizen FHD TV",
+       "price": 17990,
+       "cos": 0.842
+      },
+      {
+       "sku": "AC-24842",
+       "title": "Samsung 43-inch (109 cm) Crystal 4K UHD Smart Tizen TV",
+       "price": 24990,
+       "cos": 0.84
+      },
+      {
+       "sku": "AC-24847",
+       "title": "Samsung 75-inch (190 cm) Crystal 4K UHD Smart Tizen TV",
+       "price": 109990,
+       "cos": 0.84
+      }
+     ],
      "reason": "below_threshold",
-     "ms": 16
+     "ms": 45
     },
-    "ms": 460
+    "ms": 367
    },
    {
     "id": "s088",
@@ -5206,7 +5000,7 @@
     "n_results": 19,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-31139",
@@ -5229,9 +5023,9 @@
      ],
      "added": 19,
      "top_cos": 0.859,
-     "ms": 17
+     "ms": 31
     },
-    "ms": 48
+    "ms": 104
    },
    {
     "id": "s089",
@@ -5240,23 +5034,37 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "budget": 1750,
-     "flexible": false,
-     "brand": "best_rated",
-     "category": "appliances"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
-     "top": [],
+     "index_load_ms": 14,
+     "top": [
+      {
+       "sku": "AC-21952",
+       "title": "SYNTRAVA Wireless Earbuds Back Sport Earphones Bluetooth Headphones Over-Ear Buds with Earhooks Built-in Mic Headset[580-A2001]",
+       "price": 14189,
+       "cos": 0.828
+      },
+      {
+       "sku": "AC-06842",
+       "title": "Seeed Studio 24GHz mmWave Sensor - Human Static Presence Module Lite - Human Presence, FMCW, Configurable Underlying Parameter, Arduino Support, Home Assistant, ESPHome.",
+       "price": 1239,
+       "cos": 0.826
+      },
+      {
+       "sku": "AC-24640",
+       "title": "Wireless Earbuds Bluetooth Headphones with 30H Cycle Playtime Built-in Mic Stereo Earphones Sound IP67 Waterproof Sports Headsets Air Buds Pro Touch Control Smart Pop-up Auto Pairing",
+       "price": 659,
+       "cos": 0.823
+      }
+     ],
      "reason": "below_threshold",
-     "ms": 16
+     "ms": 33
     },
-    "ms": 256
+    "ms": 138
    },
    {
     "id": "s090",
@@ -5265,41 +5073,37 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 2,
-    "slots": {
-     "size": "xs",
-     "budget": 1250,
-     "flexible": false
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
-       "sku": "AC-27799",
-       "title": "HRX by Hrithik Roshan Slim Fit Jeans for Men (Dark Wash)",
-       "price": 989,
-       "cos": 0.808
+       "sku": "AC-17143",
+       "title": "Hush Puppies Men's Heath Wt Oxford",
+       "price": 5769,
+       "cos": 0.825
       },
       {
-       "sku": "AC-27859",
-       "title": "Jockey Wallet for Men (Black)",
-       "price": 589,
-       "cos": 0.808
+       "sku": "AC-23199",
+       "title": "Lucchese Bootmaker Men's Rudy Square Toe Cowboy Boots Western",
+       "price": 26289,
+       "cos": 0.825
       },
       {
-       "sku": "AC-27854",
-       "title": "Jockey Vests 2 Pack for Men (L)",
-       "price": 1029,
-       "cos": 0.807
+       "sku": "AC-19884",
+       "title": "ARIAT Men's Wexford Waterproof Country Boot",
+       "price": 16019,
+       "cos": 0.823
       }
      ],
      "reason": "below_threshold",
-     "ms": 16
+     "ms": 36
     },
-    "ms": 230
+    "ms": 159
    },
    {
     "id": "s091",
@@ -5308,23 +5112,37 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "forWhom": "women",
-     "budget": 1250,
-     "flexible": false,
-     "brand": "best_rated"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
-     "top": [],
+     "index_load_ms": 14,
+     "top": [
+      {
+       "sku": "AC-25007",
+       "title": "2GOLD 22K Gold Bangles 8 g (16 g)",
+       "price": 89989,
+       "cos": 0.837
+      },
+      {
+       "sku": "AC-25006",
+       "title": "2GOLD 22K Gold Bangles 8 g (12 g)",
+       "price": 77489,
+       "cos": 0.835
+      },
+      {
+       "sku": "AC-25005",
+       "title": "2GOLD 22K Gold Bangles (8 g)",
+       "price": 70399,
+       "cos": 0.835
+      }
+     ],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 35
     },
-    "ms": 404
+    "ms": 249
    },
    {
     "id": "s092",
@@ -5361,7 +5179,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-23254",
@@ -5384,9 +5202,9 @@
      ],
      "added": 48,
      "top_cos": 0.879,
-     "ms": 20
+     "ms": 36
     },
-    "ms": 74
+    "ms": 169
    },
    {
     "id": "s093",
@@ -5395,23 +5213,37 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "budget": 250,
-     "flexible": false,
-     "brand": "best_rated",
-     "category": "amazon fashion"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
-     "top": [],
+     "index_load_ms": 14,
+     "top": [
+      {
+       "sku": "AC-09625",
+       "title": "Libin Women's Golf Pants Lightweight Slacks Work Casual Dress Office Business Pants",
+       "price": 2919,
+       "cos": 0.811
+      },
+      {
+       "sku": "AC-35427",
+       "title": "Faber-Castell School Bag (Black)",
+       "price": 1639,
+       "cos": 0.809
+      },
+      {
+       "sku": "AC-35853",
+       "title": "Slazenger Tennis Racket",
+       "price": 1289,
+       "cos": 0.809
+      }
+     ],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 35
     },
-    "ms": 277
+    "ms": 137
    },
    {
     "id": "s094",
@@ -5420,11 +5252,8 @@
     "arm": "only",
     "intentN": 1,
     "null": true,
-    "questions": 2,
-    "slots": {
-     "category": "amazon fashion",
-     "forWhom": "women"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [
      {
       "sku": "AC-10077",
@@ -5437,7 +5266,7 @@
     "n_results": 1,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-10077",
@@ -5460,9 +5289,9 @@
      ],
      "added": 1,
      "top_cos": 0.846,
-     "ms": 16
+     "ms": 37
     },
-    "ms": 360
+    "ms": 151
    },
    {
     "id": "s095",
@@ -5471,42 +5300,37 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "category": "amazon home",
-     "budget": 1250,
-     "flexible": false,
-     "forWhom": "women"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
-       "sku": "AC-05459",
-       "title": "Girl Who Likes Peckers Loves Chickens Funny Saying PopSockets Swappable PopGrip",
-       "price": 999,
-       "cos": 0.821
+       "sku": "AC-04596",
+       "title": "Legion Tech L50 Left-Handed Wired Gaming Mouse",
+       "price": 1499,
+       "cos": 0.835
       },
       {
-       "sku": "AC-34588",
-       "title": "Amazon Basics Bike GPS Tracker",
-       "price": 989,
-       "cos": 0.819
+       "sku": "AC-01359",
+       "title": "TekJuic The Ultimate Geek Accessory - Recycled CPU Processor Keychain Made from Reclaimed Computer Parts",
+       "price": 1489,
+       "cos": 0.827
       },
       {
-       "sku": "AC-36048",
-       "title": "VTech Action Figure (Single)",
-       "price": 789,
-       "cos": 0.818
+       "sku": "AC-08614",
+       "title": "Golden Doodle Dog Lover Pet Owner Animal Lover Men's Graphic T-Shirt",
+       "price": 2079,
+       "cos": 0.823
       }
      ],
      "reason": "below_threshold",
-     "ms": 16
+     "ms": 56
     },
-    "ms": 546
+    "ms": 454
    },
    {
     "id": "s096",
@@ -5515,21 +5339,37 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 2,
-    "slots": {
-     "brand": "best_rated",
-     "forWhom": "women"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
-     "top": [],
+     "index_load_ms": 14,
+     "top": [
+      {
+       "sku": "AC-35090",
+       "title": "boAt Power Bank 20000 mAh",
+       "price": 2489,
+       "cos": 0.841
+      },
+      {
+       "sku": "AC-12973",
+       "title": "Dash Camera",
+       "price": 3499,
+       "cos": 0.84
+      },
+      {
+       "sku": "AC-00645",
+       "title": "Stride Rite Unisex-Child M2p Journey Athletic Sneaker",
+       "price": 1989,
+       "cos": 0.838
+      }
+     ],
      "reason": "below_threshold",
-     "ms": 16
+     "ms": 61
     },
-    "ms": 323
+    "ms": 363
    },
    {
     "id": "s097",
@@ -5538,17 +5378,13 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali",
-     "size": "xs"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-20213",
@@ -5570,9 +5406,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 43
     },
-    "ms": 294
+    "ms": 188
    },
    {
     "id": "s098",
@@ -5581,17 +5417,13 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali",
-     "size": "xs"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-22561",
@@ -5613,9 +5445,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 73
     },
-    "ms": 295
+    "ms": 331
    },
    {
     "id": "s099",
@@ -5624,17 +5456,13 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali",
-     "size": "xs"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-00834",
@@ -5656,9 +5484,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 69
     },
-    "ms": 302
+    "ms": 391
    },
    {
     "id": "s100",
@@ -5667,17 +5495,13 @@
     "arm": "only",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali",
-     "size": "xs"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [],
     "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-06144",
@@ -5699,9 +5523,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 25
+     "ms": 54
     },
-    "ms": 341
+    "ms": 247
    }
   ],
   "C": [
@@ -5716,23 +5540,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01382",
-      "title": "Superhero Capes and Mask for Kids Superhero Costumes for Boys Superhero Toys for Kids Dress up 4-10 Year Old Boy Gifts",
-      "price": 1399,
+      "sku": "AC-02768",
+      "title": "Best Dad Gift printed on 16 oz Beer Glass Pint Unique Gift Idea for Dads, Men, Him and Fathers Day (Best Father)",
+      "price": 1249,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-02200",
-      "title": "SUNBVE Kids Girls Cute Fashion Soft Cotton Dress Socks Gift",
-      "price": 1909,
+      "sku": "AC-05925",
+      "title": "Funny Golf Gift for Men - The Golfer's Decision Wheel - Great Golf Gift for Dad, Boss, Office, or Fathers Day - Golf Gag Gift Ideas",
+      "price": 1079,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-33478",
-      "title": "Myntra Gifting Box for Her (White)",
-      "price": 3989,
+      "sku": "AC-29640",
+      "title": "Myntra Rakhi Gift Box",
+      "price": 389,
       "brand": "Myntra",
       "intent": true
      }
@@ -5740,7 +5564,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07653",
@@ -5763,13 +5587,13 @@
      ],
      "added": 1,
      "top_cos": 0.851,
-     "ms": 54
+     "ms": 47
     },
-    "ms": 65,
+    "ms": 63,
     "judge": [
-     2,
-     3,
-     3
+     1,
+     1,
+     2
     ]
    },
    {
@@ -5783,23 +5607,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-06069",
-      "title": "ACNH | Collection Item Pack - Fish Model Set | All 80 Aquatic Models | New Horizons",
-      "price": 489,
+      "sku": "AC-31311",
+      "title": "Tanishq Bridal Diamond Set",
+      "price": 89989,
+      "brand": "Tanishq",
+      "intent": true
+     },
+     {
+      "sku": "AC-02919",
+      "title": "Giveena 10th 2023 Wedding Anniversary Ornament - Christmas Ceramic Ornament Gift Anniversary for Couple, Parents, Friend Her Him - 10th Wedding Anniversary Present Holiday Decoration Hanging Ornament",
+      "price": 1329,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-18083",
-      "title": "La Belleza red Rhinestones Luxury Hand-Made Bodice Beaded Appliques for Prom Wedding Dance ddress 12.5\" *21.5\" Large Pattern V-Neck and can Easy to use for Designs",
-      "price": 6589,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-11025",
-      "title": "Urban Villa Tablecloth Cuisine Stripes Table Cloth Tabletop Cover Kitchen Dining Tablecloth 100% Cotton Great Parties Wedding Holiday Dinner Aqua Multi Rectangle 60X84 Inches 6-8 Seats Table Cloth",
-      "price": 2079,
+      "sku": "AC-14819",
+      "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
+      "price": 3379,
       "brand": "",
       "intent": true
      }
@@ -5807,7 +5631,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-00112",
@@ -5830,13 +5654,13 @@
      ],
      "added": 1,
      "top_cos": 0.856,
-     "ms": 22
+     "ms": 47
     },
-    "ms": 91,
+    "ms": 69,
     "judge": [
-     3,
+     1,
      2,
-     3
+     1
     ]
    },
    {
@@ -5871,10 +5695,10 @@
       "intent": true
      }
     ],
-    "n_results": 49,
+    "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-04288",
@@ -5895,14 +5719,14 @@
        "cos": 0.85
       }
      ],
-     "added": 1,
+     "added": 0,
      "top_cos": 0.852,
-     "ms": 24
+     "ms": 121
     },
-    "ms": 94,
+    "ms": 315,
     "judge": [
      2,
-     3,
+     2,
      3
     ]
    },
@@ -5911,7 +5735,7 @@
     "q": "diwali gift ideas for employees",
     "kind": "real_suggest",
     "arm": "1",
-    "intentN": 25,
+    "intentN": 27,
     "null": false,
     "questions": 0,
     "slots": {},
@@ -5941,7 +5765,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-31257",
@@ -5962,11 +5786,11 @@
        "cos": 0.849
       }
      ],
-     "added": 3,
+     "added": 2,
      "top_cos": 0.868,
-     "ms": 22
+     "ms": 44
     },
-    "ms": 90,
+    "ms": 223,
     "judge": [
      1,
      2,
@@ -5984,13 +5808,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-29640",
-      "title": "Myntra Rakhi Gift Box",
-      "price": 389,
-      "brand": "Myntra",
-      "intent": true
-     },
-     {
       "sku": "AC-33778",
       "title": "Wipro AG Diwali String Lights 10 m 100 LED (5 m 50 LED)",
       "price": 489,
@@ -5998,17 +5815,24 @@
       "intent": true
      },
      {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
+      "sku": "AC-33425",
+      "title": "Hattal Diwali Rangoli Kit",
+      "price": 189,
+      "brand": "Hattal",
+      "intent": true
+     },
+     {
+      "sku": "AC-33428",
+      "title": "Invisibles Diwali Decoration Wall Sticker (50 cm)",
+      "price": 189,
+      "brand": "",
       "intent": true
      }
     ],
     "n_results": 15,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-31257",
@@ -6031,13 +5855,13 @@
      ],
      "added": 0,
      "top_cos": 0.868,
-     "ms": 18
+     "ms": 47
     },
-    "ms": 94,
+    "ms": 196,
     "judge": [
-     2,
      1,
-     3
+     1,
+     1
     ]
    },
    {
@@ -6045,37 +5869,37 @@
     "q": "birthday gift for",
     "kind": "real_suggest",
     "arm": "1",
-    "intentN": 49,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01569",
-      "title": "Cute Cat Frog Rabbit Animal Pins, Personality Animation Enamel Pin Set, Brooches for Bag, Lapel, Buckle, Hat, Clothing Accessories, Birthday Gift, Christmas Presents",
-      "price": 829,
+      "sku": "AC-10191",
+      "title": "Well Happy Birthday Jesus Funny Quote Office Ugly Christmas Sweater Unisex Crewneck Graphic Sweatshirt",
+      "price": 2499,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-03992",
-      "title": "Blue Orchards Horse Party Plates and Napkins Pack (52 Pieces for 16 Guests) - Horse Plates and Napkins, Horse Birthday Party, Cowboy Theme Party, Western Birthday Decorations, Wild Horse Party",
-      "price": 829,
+      "sku": "AC-02957",
+      "title": "Birthday Magnets for Cruise Door,STRUGGANT Cruise Door Decorations Ship Sticker Cruise Essentials for Cabin Door Stateroom (Birthday)",
+      "price": 1159,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-00298",
-      "title": "Teacher Appreciation Gifts for Women Men Teacher’s Day Thank You Gift for Teacher Tutor Mentor Professor 2023 Graduation Gift for Teacher Retirement Birthday Back to School Leaving Christmas Gift",
-      "price": 539,
+      "sku": "AC-11985",
+      "title": "Birthday Gifts for Women Bath Relaxing Spa Gifts for Mom Candle Gift Basket for Best Friends Unique Gifts for Women Sleep Well Gift Set Get Well Soon Gifts for Sister Wife Her Coworker Bestie",
+      "price": 2169,
       "brand": "",
       "intent": true
      }
     ],
-    "n_results": 49,
+    "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07415",
@@ -6096,15 +5920,15 @@
        "cos": 0.877
       }
      ],
-     "added": 1,
+     "added": 0,
      "top_cos": 0.88,
-     "ms": 24
+     "ms": 68
     },
-    "ms": 26,
+    "ms": 83,
     "judge": [
      2,
      2,
-     2
+     1
     ]
    },
    {
@@ -6118,23 +5942,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01569",
-      "title": "Cute Cat Frog Rabbit Animal Pins, Personality Animation Enamel Pin Set, Brooches for Bag, Lapel, Buckle, Hat, Clothing Accessories, Birthday Gift, Christmas Presents",
-      "price": 829,
+      "sku": "AC-06731",
+      "title": "CENTRAL 23 Funny Birthday Card For Men - '4 Out Of 5 People' - Rude Birthday Gifts For Dad Mom - Funny Birthday Card For Son Or Daughter - Prank Birthday Card - Comes With Fun Stickers",
+      "price": 499,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-03992",
-      "title": "Blue Orchards Horse Party Plates and Napkins Pack (52 Pieces for 16 Guests) - Horse Plates and Napkins, Horse Birthday Party, Cowboy Theme Party, Western Birthday Decorations, Wild Horse Party",
-      "price": 829,
+      "sku": "AC-01773",
+      "title": "65th Birthday Gifts for Men Women Hats 65 Vintage 1958 Embroidered Baseball Cap",
+      "price": 1829,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-00298",
-      "title": "Teacher Appreciation Gifts for Women Men Teacher’s Day Thank You Gift for Teacher Tutor Mentor Professor 2023 Graduation Gift for Teacher Retirement Birthday Back to School Leaving Christmas Gift",
-      "price": 539,
+      "sku": "AC-02928",
+      "title": "Henghere 50th Birthday Gifts for Men Women, 50th Birthday Present, 50 Year Old Birthday Party Decorations, Vintage - Fifty Birthday Decorations Coffee Mug, Black & Rose Gold 2",
+      "price": 1249,
       "brand": "",
       "intent": true
      }
@@ -6142,7 +5966,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07603",
@@ -6165,13 +5989,13 @@
      ],
      "added": 1,
      "top_cos": 0.858,
-     "ms": 28
+     "ms": 70
     },
-    "ms": 31,
+    "ms": 93,
     "judge": [
-     2,
-     3,
-     3
+     1,
+     1,
+     1
     ]
    },
    {
@@ -6179,37 +6003,37 @@
     "q": "birthday gift for women",
     "kind": "real_suggest",
     "arm": "1",
-    "intentN": 49,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01569",
-      "title": "Cute Cat Frog Rabbit Animal Pins, Personality Animation Enamel Pin Set, Brooches for Bag, Lapel, Buckle, Hat, Clothing Accessories, Birthday Gift, Christmas Presents",
-      "price": 829,
+      "sku": "AC-11985",
+      "title": "Birthday Gifts for Women Bath Relaxing Spa Gifts for Mom Candle Gift Basket for Best Friends Unique Gifts for Women Sleep Well Gift Set Get Well Soon Gifts for Sister Wife Her Coworker Bestie",
+      "price": 2169,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-03992",
-      "title": "Blue Orchards Horse Party Plates and Napkins Pack (52 Pieces for 16 Guests) - Horse Plates and Napkins, Horse Birthday Party, Cowboy Theme Party, Western Birthday Decorations, Wild Horse Party",
-      "price": 829,
+      "sku": "AC-12387",
+      "title": "Gifts for Women, Birthday Gifts for Women, Happy Birthday Gifts Basket for Women, Gift Set for Best Friends Female Women Sister Mom Wife Her Girlfriend Coworker Bestie Bff",
+      "price": 2499,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-00298",
-      "title": "Teacher Appreciation Gifts for Women Men Teacher’s Day Thank You Gift for Teacher Tutor Mentor Professor 2023 Graduation Gift for Teacher Retirement Birthday Back to School Leaving Christmas Gift",
-      "price": 539,
+      "sku": "AC-11281",
+      "title": "Gifts for Women, Birthday Gifts for Women Self Care Gift for Women Pamper Gift Basket for Women Her,Friends,Mom,Wife 11 pcs Lavender Gift Unique Gift Ideas for Women Christmas Gifts",
+      "price": 2499,
       "brand": "",
       "intent": true
      }
     ],
-    "n_results": 49,
+    "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-02972",
@@ -6230,15 +6054,15 @@
        "cos": 0.864
       }
      ],
-     "added": 1,
+     "added": 0,
      "top_cos": 0.873,
-     "ms": 30
+     "ms": 105
     },
-    "ms": 32,
+    "ms": 129,
     "judge": [
-     2,
-     3,
-     2
+     1,
+     1,
+     1
     ]
    },
    {
@@ -6276,7 +6100,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-06660",
@@ -6299,12 +6123,12 @@
      ],
      "added": 0,
      "top_cos": 0.88,
-     "ms": 22
+     "ms": 46
     },
-    "ms": 75,
+    "ms": 135,
     "judge": [
      2,
-     2,
+     1,
      1
     ]
    },
@@ -6319,23 +6143,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-10257",
-      "title": "SA SILVERAGE Dangle Earrings for Women Party Fashion Jewelry, 925 Sterling Silver Teardrop Earrings Wedding Ear Ring Trending Boho Designer Earring Daily Occasion Gift",
-      "price": 2249,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-06773",
-      "title": "Sister Gifts from Sister Birthday Gift Ideas Sister Gifts for Women Sister in Law Friendship Gifts for Women Friends Unbiological Sister Big Sister Bookmarks for Book Lover Bookworm Wedding Christmas",
-      "price": 789,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-03632",
-      "title": "Funny Retro Vinyl Record Coasters for Drinks with Vinyl Record Player Holder for Music Lovers,Set of 6 Conversation Piece Sayings Drink Coaster,Housewarming Hostess Gifts, Wedding Registry Gift Ideas",
+      "sku": "AC-02919",
+      "title": "Giveena 10th 2023 Wedding Anniversary Ornament - Christmas Ceramic Ornament Gift Anniversary for Couple, Parents, Friend Her Him - 10th Wedding Anniversary Present Holiday Decoration Hanging Ornament",
       "price": 1329,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-14819",
+      "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
+      "price": 3379,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-15275",
+      "title": "7.2Ft Wedding Arch Backdrop Stand Square Arch Gold Metal Arch Backdrop Stand for Wedding Ceremony Birthday,Party,Friends Gathering,Christmas,Garden Decoration",
+      "price": 4169,
       "brand": "",
       "intent": true
      }
@@ -6343,7 +6167,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-14690",
@@ -6366,13 +6190,13 @@
      ],
      "added": 0,
      "top_cos": 0.889,
-     "ms": 22
+     "ms": 46
     },
-    "ms": 25,
+    "ms": 59,
     "judge": [
      1,
-     2,
-     2
+     1,
+     1
     ]
    },
    {
@@ -6410,7 +6234,7 @@
     "n_results": 7,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-01205",
@@ -6427,12 +6251,12 @@
      ],
      "added": 1,
      "top_cos": 0.856,
-     "ms": 37
+     "ms": 42
     },
-    "ms": 38,
+    "ms": 43,
     "judge": [
-     2,
-     2,
+     1,
+     1,
      1
     ]
    },
@@ -6447,23 +6271,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-10257",
-      "title": "SA SILVERAGE Dangle Earrings for Women Party Fashion Jewelry, 925 Sterling Silver Teardrop Earrings Wedding Ear Ring Trending Boho Designer Earring Daily Occasion Gift",
-      "price": 2249,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-06773",
-      "title": "Sister Gifts from Sister Birthday Gift Ideas Sister Gifts for Women Sister in Law Friendship Gifts for Women Friends Unbiological Sister Big Sister Bookmarks for Book Lover Bookworm Wedding Christmas",
-      "price": 789,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-03632",
-      "title": "Funny Retro Vinyl Record Coasters for Drinks with Vinyl Record Player Holder for Music Lovers,Set of 6 Conversation Piece Sayings Drink Coaster,Housewarming Hostess Gifts, Wedding Registry Gift Ideas",
+      "sku": "AC-02919",
+      "title": "Giveena 10th 2023 Wedding Anniversary Ornament - Christmas Ceramic Ornament Gift Anniversary for Couple, Parents, Friend Her Him - 10th Wedding Anniversary Present Holiday Decoration Hanging Ornament",
       "price": 1329,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-14819",
+      "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
+      "price": 3379,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-15275",
+      "title": "7.2Ft Wedding Arch Backdrop Stand Square Arch Gold Metal Arch Backdrop Stand for Wedding Ceremony Birthday,Party,Friends Gathering,Christmas,Garden Decoration",
+      "price": 4169,
       "brand": "",
       "intent": true
      }
@@ -6471,7 +6295,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-14690",
@@ -6494,13 +6318,13 @@
      ],
      "added": 0,
      "top_cos": 0.889,
-     "ms": 24
+     "ms": 48
     },
-    "ms": 26,
+    "ms": 69,
     "judge": [
      1,
-     2,
-     2
+     1,
+     1
     ]
    },
    {
@@ -6508,7 +6332,7 @@
     "q": "anniversary gift for couple",
     "kind": "real_suggest",
     "arm": "1",
-    "intentN": 35,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
@@ -6538,7 +6362,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-03687",
@@ -6559,11 +6383,11 @@
        "cos": 0.857
       }
      ],
-     "added": 6,
+     "added": 0,
      "top_cos": 0.868,
-     "ms": 25
+     "ms": 68
     },
-    "ms": 124,
+    "ms": 162,
     "judge": [
      1,
      1,
@@ -6575,29 +6399,29 @@
     "q": "anniversary gifts for him",
     "kind": "real_suggest",
     "arm": "1",
-    "intentN": 41,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-19775",
-      "title": "Diamond Stud Earrings for Women, Hoop Earrings 1Ct-3Ct Moissanite Earrings, Gifts for Wife Mom Girlfriend, Annivers ary Jewelry Present for Wife, Birthday Valentines Gifts",
-      "price": 13099,
+      "sku": "AC-14784",
+      "title": "Personalized 1st Anniversary Gift for Him or Her, First Dance Song, Paper Anniversary Gift",
+      "price": 2419,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-03229",
-      "title": "PREZZY 70th Birthday Gifts for Girls Vintage Made In May 1953 70 Year Of Being Awesome Coffee Mug Floral Style Custom Name Ceramic Tea Cup 11oz 15oz Christmas Anniversary Cup Gift Ideas",
-      "price": 1249,
+      "sku": "AC-14825",
+      "title": "7th or 22nd Anniversary Gift, First Dance Wedding Song",
+      "price": 2829,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
+      "sku": "AC-14776",
+      "title": "Personalized Leather 3rd Anniversary Gift for Him or Her, First Dance Song",
+      "price": 3079,
       "brand": "",
       "intent": true
      }
@@ -6605,7 +6429,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07580",
@@ -6626,15 +6450,15 @@
        "cos": 0.879
       }
      ],
-     "added": 2,
+     "added": 0,
      "top_cos": 0.886,
-     "ms": 31
+     "ms": 73
     },
-    "ms": 173,
+    "ms": 87,
     "judge": [
-     3,
-     3,
-     2
+     1,
+     1,
+     1
     ]
    },
    {
@@ -6642,7 +6466,7 @@
     "q": "anniversary gift ideas for husband",
     "kind": "real_suggest",
     "arm": "1",
-    "intentN": 40,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
@@ -6655,16 +6479,16 @@
       "intent": true
      },
      {
-      "sku": "AC-00041",
-      "title": "Men's Jurassic Park 25th Anniversary Logo T-Shirt",
-      "price": 1499,
+      "sku": "AC-03724",
+      "title": "Vintage 1983 Etched 16oz Can Coffee Drinking Glass Cup – Happy 40th Birthday Gifts Women Men, Cheers to Turning 40 Year Old Woman Decorations Decor, Anniversary Bday Party Favors, Gift Ideas 1.0",
+      "price": 909,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-01065",
-      "title": "ZLHZW Necklace with Picture Inside Personalized Photo Projection Angel Wing Sterling Silver Pendant Custom Jewelry Birthday Anniversary Memorial Customized Gifts for Women Wife Girls Mom Her",
-      "price": 1659,
+      "sku": "AC-02801",
+      "title": "Vintage 1983 Etched 1.75oz Shot Glass – Happy 40th Birthday Gifts Women Men, Cheers to 40 Years, Turning 40 Year Old Woman Decorations Decor, Anniversary Bday Party Favors, Best Gift Ideas 1.0",
+      "price": 1079,
       "brand": "",
       "intent": true
      }
@@ -6672,7 +6496,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07580",
@@ -6693,15 +6517,15 @@
        "cos": 0.873
       }
      ],
-     "added": 2,
+     "added": 0,
      "top_cos": 0.89,
-     "ms": 26
+     "ms": 66
     },
-    "ms": 125,
+    "ms": 219,
     "judge": [
      3,
-     2,
-     2
+     3,
+     3
     ]
    },
    {
@@ -6709,62 +6533,62 @@
     "q": "housewarming gifts",
     "kind": "real_suggest",
     "arm": "1",
-    "intentN": 49,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
+      "sku": "AC-36102",
+      "title": "Amazon Basics Potted Jade Plant (Housewarming Gift)",
+      "price": 389,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-07549",
-      "title": "Personalized Cutting Board, Couples Gift for Wedding, Anniversary, Housewarming, Engagement, Christmas, Birthday, USA Handmade Cutting Boards, Great Customized Gift for Bride, Groom, Friends, Parents",
-      "price": 1659,
+      "sku": "AC-36104",
+      "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+      "price": 489,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-12241",
-      "title": "Supxotic Square Wood Cheese Board Beautiful Charcuterie Boards and Knife Set - Extra Large Bamboo Charcuterie Board Set with 4 Knife - Unique Housewarming gift, Birthday, Anniversary, Wedding Gifts",
-      "price": 3249,
+      "sku": "AC-36103",
+      "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+      "price": 289,
       "brand": "",
       "intent": true
      }
     ],
-    "n_results": 49,
+    "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
+      {
+       "sku": "AC-36104",
+       "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+       "price": 489,
+       "cos": 0.886
+      },
+      {
+       "sku": "AC-36103",
+       "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+       "price": 289,
+       "cos": 0.883
+      },
       {
        "sku": "AC-00838",
        "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
        "price": 829,
        "cos": 0.882
-      },
-      {
-       "sku": "AC-22461",
-       "title": "Personalized Olive Wood and Resin Charcuterie Board, Wedding Gift, Engagement Gift, Anniversary Gift, Housewarming Gift (Pearl Blue)",
-       "price": 10849,
-       "cos": 0.877
-      },
-      {
-       "sku": "AC-12242",
-       "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-       "price": 2579,
-       "cos": 0.876
       }
      ],
-     "added": 1,
-     "top_cos": 0.882,
-     "ms": 27
+     "added": 4,
+     "top_cos": 0.886,
+     "ms": 82
     },
-    "ms": 98,
+    "ms": 93,
     "judge": [
      1,
      1,
@@ -6776,29 +6600,29 @@
     "q": "housewarming gifts india",
     "kind": "real_suggest",
     "arm": "1",
-    "intentN": 31,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
+      "sku": "AC-11340",
+      "title": "EthinicCraftHub® 2 PCS Indian Silk Saree Curtain Window Treatments Boho Gypsy Hippy Bohemian Wall Hanging Hippy Room Decor Curtain",
+      "price": 3749,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-07549",
-      "title": "Personalized Cutting Board, Couples Gift for Wedding, Anniversary, Housewarming, Engagement, Christmas, Birthday, USA Handmade Cutting Boards, Great Customized Gift for Bride, Groom, Friends, Parents",
-      "price": 1659,
+      "sku": "AC-03092",
+      "title": "Bless International Beautiful Indian Bohemian Psychedelic Hippie Peacock Mandala Window Curtain Panels for Bedroom, Living, Shower & Balcony (Golden Blue (38x83 Inches)(96x210 Cms))",
+      "price": 1829,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-12241",
-      "title": "Supxotic Square Wood Cheese Board Beautiful Charcuterie Boards and Knife Set - Extra Large Bamboo Charcuterie Board Set with 4 Knife - Unique Housewarming gift, Birthday, Anniversary, Wedding Gifts",
-      "price": 3249,
+      "sku": "AC-00456",
+      "title": "Indian Earrings for Women Jhumka Earrings for Girls Silver Boho Beaded Tassels Earrings Indian Chandelier Earrings Ethnic Fashion Jewelry",
+      "price": 749,
       "brand": "",
       "intent": true
      }
@@ -6806,36 +6630,36 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
-       "sku": "AC-00838",
-       "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
-       "price": 829,
-       "cos": 0.855
+       "sku": "AC-36104",
+       "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+       "price": 489,
+       "cos": 0.883
       },
       {
-       "sku": "AC-04338",
-       "title": "Patelai 6 Pack Easter Kitchen Towels Dish Towels Seasonal Cloth Tea Towel Love Truck Happy Easter Hand Towel Be Mine Dishcloth Holiday Cloth Towel for Home Housewarming Gift",
-       "price": 1329,
-       "cos": 0.853
+       "sku": "AC-36103",
+       "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+       "price": 289,
+       "cos": 0.878
       },
       {
-       "sku": "AC-12242",
-       "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-       "price": 2579,
-       "cos": 0.853
+       "sku": "AC-36102",
+       "title": "Amazon Basics Potted Jade Plant (Housewarming Gift)",
+       "price": 389,
+       "cos": 0.871
       }
      ],
-     "added": 3,
-     "top_cos": 0.855,
-     "ms": 25
+     "added": 0,
+     "top_cos": 0.883,
+     "ms": 55
     },
-    "ms": 125,
+    "ms": 157,
     "judge": [
      1,
      1,
-     1
+     2
     ]
    },
    {
@@ -6849,60 +6673,60 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
-      "brand": "",
+      "sku": "AC-35898",
+      "title": "Barbie Puzzle 1000 pcs",
+      "price": 789,
+      "brand": "Barbie",
       "intent": true
      },
      {
-      "sku": "AC-07549",
-      "title": "Personalized Cutting Board, Couples Gift for Wedding, Anniversary, Housewarming, Engagement, Christmas, Birthday, USA Handmade Cutting Boards, Great Customized Gift for Bride, Groom, Friends, Parents",
-      "price": 1659,
-      "brand": "",
+      "sku": "AC-35997",
+      "title": "Mattel Puzzle 1000 pcs",
+      "price": 789,
+      "brand": "Mattel",
       "intent": true
      },
      {
-      "sku": "AC-12241",
-      "title": "Supxotic Square Wood Cheese Board Beautiful Charcuterie Boards and Knife Set - Extra Large Bamboo Charcuterie Board Set with 4 Knife - Unique Housewarming gift, Birthday, Anniversary, Wedding Gifts",
-      "price": 3249,
-      "brand": "",
+      "sku": "AC-35944",
+      "title": "Hasbro Puzzle 1000 pcs",
+      "price": 789,
+      "brand": "Hasbro",
       "intent": true
      }
     ],
-    "n_results": 49,
+    "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
+      {
+       "sku": "AC-36104",
+       "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+       "price": 489,
+       "cos": 0.886
+      },
+      {
+       "sku": "AC-36103",
+       "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+       "price": 289,
+       "cos": 0.883
+      },
       {
        "sku": "AC-00838",
        "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
        "price": 829,
        "cos": 0.882
-      },
-      {
-       "sku": "AC-22461",
-       "title": "Personalized Olive Wood and Resin Charcuterie Board, Wedding Gift, Engagement Gift, Anniversary Gift, Housewarming Gift (Pearl Blue)",
-       "price": 10849,
-       "cos": 0.877
-      },
-      {
-       "sku": "AC-12242",
-       "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-       "price": 2579,
-       "cos": 0.876
       }
      ],
-     "added": 23,
-     "top_cos": 0.882,
-     "ms": 22
+     "added": 1,
+     "top_cos": 0.886,
+     "ms": 86
     },
-    "ms": 95,
+    "ms": 197,
     "judge": [
-     3,
-     3,
-     3
+     1,
+     1,
+     1
     ]
    },
    {
@@ -6910,62 +6734,62 @@
     "q": "housewarming gifts under 5000",
     "kind": "real_suggest",
     "arm": "1",
-    "intentN": 49,
+    "intentN": 47,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
+      "sku": "AC-36102",
+      "title": "Amazon Basics Potted Jade Plant (Housewarming Gift)",
+      "price": 389,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-07549",
-      "title": "Personalized Cutting Board, Couples Gift for Wedding, Anniversary, Housewarming, Engagement, Christmas, Birthday, USA Handmade Cutting Boards, Great Customized Gift for Bride, Groom, Friends, Parents",
-      "price": 1659,
+      "sku": "AC-36104",
+      "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+      "price": 489,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-12241",
-      "title": "Supxotic Square Wood Cheese Board Beautiful Charcuterie Boards and Knife Set - Extra Large Bamboo Charcuterie Board Set with 4 Knife - Unique Housewarming gift, Birthday, Anniversary, Wedding Gifts",
-      "price": 3249,
+      "sku": "AC-36103",
+      "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+      "price": 289,
       "brand": "",
       "intent": true
      }
     ],
-    "n_results": 49,
+    "n_results": 47,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
+      {
+       "sku": "AC-36104",
+       "title": "Solimo Steel Thali & Bowl Set (Housewarming Gift)",
+       "price": 489,
+       "cos": 0.886
+      },
+      {
+       "sku": "AC-36103",
+       "title": "Solimo Brass Diya Set of 5 (Housewarming Gift)",
+       "price": 289,
+       "cos": 0.883
+      },
       {
        "sku": "AC-00838",
        "title": "WORPBOPE Front Door Porch Wreaths Wooden Decorations Farmhouse Hangers House warming New Home Holiday Gifts for Porch Decor",
        "price": 829,
        "cos": 0.882
-      },
-      {
-       "sku": "AC-12242",
-       "title": "PrintShop Personalized All Visitors Must Be Approved by The Cats Doormat Gifts for Cat Owner Lover Funny Housewarming Door Decor Welcome Indoor Outdoor Home Decoration, White",
-       "price": 2579,
-       "cos": 0.876
-      },
-      {
-       "sku": "AC-14810",
-       "title": "Last Name Metal Sign, Family Name Sign, Personalized Metal Wall Decor, Housewarming Gift, Sign for Front Porch, Metal Monogram Sign, Housewarming Gift (18\" Width)",
-       "price": 3749,
-       "cos": 0.87
       }
      ],
-     "added": 1,
-     "top_cos": 0.882,
-     "ms": 32
+     "added": 6,
+     "top_cos": 0.886,
+     "ms": 53
     },
-    "ms": 80,
+    "ms": 63,
     "judge": [
      1,
      1,
@@ -6983,23 +6807,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01675",
-      "title": "Aunt and Niece Gifts, Aunt Necklace, Aunt Gifts from Niece, Niece Gifts from Aunt, Sterling Silver Infinity pearl Necklaces for Women, Christmas Gifts for Niece Aunt, Mothers Day Birthday Gift Ideas",
-      "price": 1339,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-12279",
-      "title": "Rqhoqci Aunt Gifts from Niece, Aunt Blanket from Niece, Gifts for Aunt, Aunt Birthday Gifts, Birthday Gifts for Aunt, Gifts for Aunts from Niece Nephew, Auntie Gifts Throw Blanket 50\"X60\"",
-      "price": 2249,
-      "brand": "",
-      "intent": true
-     },
-     {
-      "sku": "AC-14722",
-      "title": "Birthday Gift Tumbler, New Album 20oz Tumbler, Personalized tumbler, coffe tumbler 2023 Gift",
+      "sku": "AC-11985",
+      "title": "Birthday Gifts for Women Bath Relaxing Spa Gifts for Mom Candle Gift Basket for Best Friends Unique Gifts for Women Sleep Well Gift Set Get Well Soon Gifts for Sister Wife Her Coworker Bestie",
       "price": 2169,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-12387",
+      "title": "Gifts for Women, Birthday Gifts for Women, Happy Birthday Gifts Basket for Women, Gift Set for Best Friends Female Women Sister Mom Wife Her Girlfriend Coworker Bestie Bff",
+      "price": 2499,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-11281",
+      "title": "Gifts for Women, Birthday Gifts for Women Self Care Gift for Women Pamper Gift Basket for Women Her,Friends,Mom,Wife 11 pcs Lavender Gift Unique Gift Ideas for Women Christmas Gifts",
+      "price": 2499,
       "brand": "",
       "intent": true
      }
@@ -7007,7 +6831,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-04147",
@@ -7030,13 +6854,13 @@
      ],
      "added": 1,
      "top_cos": 0.887,
-     "ms": 23
+     "ms": 53
     },
-    "ms": 95,
+    "ms": 71,
     "judge": [
-     2,
-     2,
-     2
+     1,
+     1,
+     1
     ]
    },
    {
@@ -7050,13 +6874,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01559",
-      "title": "Cute Little Turtle Home Iwatch Bands, Smartwatch Bands Compatible With Apple Watch Wristbands Soft Silicone Strap Replacement For Series 8/7/6/5/4/3/2/1/Se Unisex Gifts Ideas For Women Men",
-      "price": 1159,
-      "brand": "",
-      "intent": true
-     },
-     {
       "sku": "AC-11897",
       "title": "Blue Evil Eye Turkish Nazar Money Fortune Tree Flower Design Protection Gift Home Decor for Any Purpose",
       "price": 2499,
@@ -7064,9 +6881,16 @@
       "intent": true
      },
      {
-      "sku": "AC-02831",
-      "title": "Cute Coasters 4 Felt Pizza Coasters for Drinks with Wooden Pizza Paddle Coaster Holder - House Warming Gifts New Home - Unique Gifts, Fun Gifts",
-      "price": 1239,
+      "sku": "AC-12196",
+      "title": "Blue Evil Eye Turkish Nazar Money Fortune Tree Owl Design Protection Gift Home Decor for Any Purpose",
+      "price": 2489,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-11295",
+      "title": "Cute Easter Bunny Wreath Decoration Bunny Hanging Welcome Sign Front Door Easter Rabbit Garland Home Decoration Outdoor Indoor Decor Props Gifts",
+      "price": 3329,
       "brand": "",
       "intent": true
      }
@@ -7074,7 +6898,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07653",
@@ -7097,12 +6921,12 @@
      ],
      "added": 1,
      "top_cos": 0.862,
-     "ms": 17
+     "ms": 63
     },
-    "ms": 27,
+    "ms": 273,
     "judge": [
-     2,
-     2,
+     1,
+     1,
      2
     ]
    },
@@ -7117,13 +6941,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-14471",
-      "title": "JIUYAOBA Bag Storage Organizer for Kitchen Drawer, Bamboo Organizer, Compatible with Gallon, Quart, Sandwich and Snack Variety Size Bag (Original 1 Box 6 Slots)",
-      "price": 2499,
-      "brand": "",
-      "intent": true
-     },
-     {
       "sku": "AC-03176",
       "title": "Under Sink Organizer, 2 Tier Under Kitchen Sink Organizer, Sliding Under Bathroom Sink Organizer and Storage, Multi-purpose Kitchen Organization Black Colour",
       "price": 1369,
@@ -7131,9 +6948,16 @@
       "intent": true
      },
      {
-      "sku": "AC-11160",
-      "title": "YouCopia StoraRoll Drawer Food Wrap Dispenser, Foil, Plastic and Wax Paper Organizer with Cutter and Labels for Kitchen Organization",
-      "price": 2079,
+      "sku": "AC-21149",
+      "title": "GOFLAME 5-Tier Bookshelf, Tall Bookcase Shelf with Metal Frame, Industrial Floor Storage Shelf Organizer, DIY Shelving Unit Display Rack for Study, Living Room, Kitchen, Rustic Brown",
+      "price": 10849,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-11663",
+      "title": "3-Tier Shelf Adjustable, Heavy Duty Storage Shelving Unit (200 Lbs Loading Capacity Per Shelf) Metal Shelves Steel Organizer Wire Rack Shelf for Pantry Garage Kitchen 23.22\"D x13.39\"W x 31.5\"H Black",
+      "price": 3329,
       "brand": "",
       "intent": true
      }
@@ -7141,7 +6965,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-14471",
@@ -7162,15 +6986,15 @@
        "cos": 0.876
       }
      ],
-     "added": 48,
+     "added": 0,
      "top_cos": 0.88,
-     "ms": 18
+     "ms": 73
     },
-    "ms": 67,
+    "ms": 184,
     "judge": [
      1,
-     1,
-     1
+     2,
+     2
     ]
    },
    {
@@ -7208,7 +7032,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-14811",
@@ -7231,9 +7055,9 @@
      ],
      "added": 38,
      "top_cos": 0.87,
-     "ms": 19
+     "ms": 74
     },
-    "ms": 75,
+    "ms": 294,
     "judge": [
      2,
      2,
@@ -7258,16 +7082,16 @@
       "intent": true
      },
      {
-      "sku": "AC-08279",
-      "title": "Allenjoy Red Superhero Cityscape Themed Photography Backdrop for Boys1st Birthday Party Baby Shower Decorations Family Gathering Background Banner Favors Photo Shoot Photobooth Studio Props",
-      "price": 1409,
+      "sku": "AC-07441",
+      "title": "HIPVVILD Beach Pool Party Decorations Tableware - Summer Beach Party Decorations Dinnerware For Birthday & Baby Shower, Paper Plate, Napkin, Tablecloth, Fork, Beach Pool Party Supplies | Serve 24",
+      "price": 1739,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-08215",
-      "title": "LUCKBTY Cartoon Candyland Sweets Backdrop for Photography, 7X5ft Winter Ice-Cream House Lollipop Sun Rainbow Background, Baby Shower Birthday Party Banner Props BJMYLU155",
-      "price": 1629,
+      "sku": "AC-08279",
+      "title": "Allenjoy Red Superhero Cityscape Themed Photography Backdrop for Boys1st Birthday Party Baby Shower Decorations Family Gathering Background Banner Favors Photo Shoot Photobooth Studio Props",
+      "price": 1409,
       "brand": "",
       "intent": true
      }
@@ -7275,7 +7099,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-11316",
@@ -7296,11 +7120,11 @@
        "cos": 0.882
       }
      ],
-     "added": 7,
+     "added": 5,
      "top_cos": 0.888,
-     "ms": 18
+     "ms": 61
     },
-    "ms": 100,
+    "ms": 361,
     "judge": [
      1,
      2,
@@ -7312,29 +7136,29 @@
     "q": "wedding return gifts",
     "kind": "vague",
     "arm": "1",
-    "intentN": 48,
+    "intentN": 49,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-11428",
-      "title": "Cabtnca Mr Mrs Gifts, Mr Mrs Est 2023 Mugs, Mr and Mrs Mugs, Wedding Gifts for Couple, Newlywed Gifts, New Couple Gifts for Him and Her, Valentines Mugs Cups, Christmas Gifts for Couples, 14Oz",
-      "price": 2159,
+      "sku": "AC-18083",
+      "title": "La Belleza red Rhinestones Luxury Hand-Made Bodice Beaded Appliques for Prom Wedding Dance ddress 12.5\" *21.5\" Large Pattern V-Neck and can Easy to use for Designs",
+      "price": 6589,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-14780",
-      "title": "Personalized Coaster Wedding Gifts for Couple Unique Birch Wooden Coasters, Anniversary Gifts, Personalized Wedding Gift, Housewarming Gift, Set of 4, 6, 8, 12, 16",
-      "price": 2819,
+      "sku": "AC-11025",
+      "title": "Urban Villa Tablecloth Cuisine Stripes Table Cloth Tabletop Cover Kitchen Dining Tablecloth 100% Cotton Great Parties Wedding Holiday Dinner Aqua Multi Rectangle 60X84 Inches 6-8 Seats Table Cloth",
+      "price": 2079,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-06773",
-      "title": "Sister Gifts from Sister Birthday Gift Ideas Sister Gifts for Women Sister in Law Friendship Gifts for Women Friends Unbiological Sister Big Sister Bookmarks for Book Lover Bookworm Wedding Christmas",
-      "price": 789,
+      "sku": "AC-12325",
+      "title": "Mr and Mrs Personalized Champagne Flutes - Wedding Toasting Glasses - His Her Engraved Flute Glasses - Mr and Mrs Couples Glasses - Set of 2",
+      "price": 4169,
       "brand": "",
       "intent": true
      }
@@ -7342,7 +7166,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-22461",
@@ -7363,15 +7187,15 @@
        "cos": 0.862
       }
      ],
-     "added": 3,
+     "added": 1,
      "top_cos": 0.867,
-     "ms": 17
+     "ms": 48
     },
-    "ms": 85,
+    "ms": 147,
     "judge": [
-     1,
-     1,
-     3
+     2,
+     2,
+     1
     ]
    },
    {
@@ -7409,7 +7233,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-17853",
@@ -7432,12 +7256,12 @@
      ],
      "added": 5,
      "top_cos": 0.853,
-     "ms": 21
+     "ms": 72
     },
-    "ms": 71,
+    "ms": 291,
     "judge": [
      2,
-     3,
+     2,
      1
     ]
    },
@@ -7476,7 +7300,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-02204",
@@ -7499,9 +7323,9 @@
      ],
      "added": 0,
      "top_cos": 0.865,
-     "ms": 17
+     "ms": 76
     },
-    "ms": 43,
+    "ms": 308,
     "judge": [
      1,
      1,
@@ -7543,7 +7367,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-00298",
@@ -7566,9 +7390,9 @@
      ],
      "added": 0,
      "top_cos": 0.889,
-     "ms": 18
+     "ms": 59
     },
-    "ms": 88,
+    "ms": 403,
     "judge": [
      1,
      1,
@@ -7586,31 +7410,31 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01559",
-      "title": "Cute Little Turtle Home Iwatch Bands, Smartwatch Bands Compatible With Apple Watch Wristbands Soft Silicone Strap Replacement For Series 8/7/6/5/4/3/2/1/Se Unisex Gifts Ideas For Women Men",
-      "price": 1159,
-      "brand": "",
+      "sku": "AC-29640",
+      "title": "Myntra Rakhi Gift Box",
+      "price": 389,
+      "brand": "Myntra",
       "intent": true
      },
      {
-      "sku": "AC-01929",
-      "title": "Blue Rhinestone Bow Brooch Ladies Large Bow Badge Vintage Fashion Jewelry Gift Elegant Ladies Bow Jewelry Gift Suitable for Suits Dresses Shirts Scarves Sweaters",
-      "price": 569,
-      "brand": "",
+      "sku": "AC-33523",
+      "title": "Pepperfury Diwali Gift Hamper",
+      "price": 1989,
+      "brand": "Pepperfury",
       "intent": true
      },
      {
-      "sku": "AC-08740",
-      "title": "Wild Bobby If It's Not a Bassett Hound Its Just a Dog Gift Dog Lover Unisex Crewneck Graphic Sweatshirt",
-      "price": 2499,
-      "brand": "",
+      "sku": "AC-33526",
+      "title": "Pepperfury Festive Gift Hamper",
+      "price": 1989,
+      "brand": "Pepperfury",
       "intent": true
      }
     ],
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-07537",
@@ -7633,13 +7457,13 @@
      ],
      "added": 1,
      "top_cos": 0.854,
-     "ms": 17
+     "ms": 46
     },
-    "ms": 20,
+    "ms": 70,
     "judge": [
      2,
-     2,
-     2
+     1,
+     1
     ]
    },
    {
@@ -7653,31 +7477,31 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-18083",
-      "title": "La Belleza red Rhinestones Luxury Hand-Made Bodice Beaded Appliques for Prom Wedding Dance ddress 12.5\" *21.5\" Large Pattern V-Neck and can Easy to use for Designs",
-      "price": 6589,
+      "sku": "AC-01612",
+      "title": "Barode Crystal Bridal Jewelry Set for Women Silver Rhinestone Bride Wedding Necklace Earrings Bracelet Set Bridesmaid Gifts fit with Wedding Dress",
+      "price": 969,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-11025",
-      "title": "Urban Villa Tablecloth Cuisine Stripes Table Cloth Tabletop Cover Kitchen Dining Tablecloth 100% Cotton Great Parties Wedding Holiday Dinner Aqua Multi Rectangle 60X84 Inches 6-8 Seats Table Cloth",
-      "price": 2079,
+      "sku": "AC-02919",
+      "title": "Giveena 10th 2023 Wedding Anniversary Ornament - Christmas Ceramic Ornament Gift Anniversary for Couple, Parents, Friend Her Him - 10th Wedding Anniversary Present Holiday Decoration Hanging Ornament",
+      "price": 1329,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-27481",
-      "title": "Global Desi Bridal Lehenga Choli (Maroon)",
-      "price": 4989,
-      "brand": "Global Desi",
+      "sku": "AC-14819",
+      "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
+      "price": 3379,
+      "brand": "",
       "intent": true
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-02875",
@@ -7699,13 +7523,13 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 16
+     "ms": 39
     },
-    "ms": 19,
+    "ms": 53,
     "judge": [
+     1,
      2,
-     2,
-     1
+     2
     ]
    },
    {
@@ -7719,31 +7543,31 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-26685",
-      "title": "Bata Kolhapuri Chappal (UK 10)",
-      "price": 1469,
-      "brand": "Bata",
+      "sku": "AC-18917",
+      "title": "SLIPPERY SOAP Honey No-Sling Tire Shine, Long Lasting Gloss, Water-Resistant, Protection From UV Rays, 1 Gallon",
+      "price": 6169,
+      "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-26690",
-      "title": "Bata Kolhapuri Chappal (UK 9)",
-      "price": 1249,
-      "brand": "Bata",
+      "sku": "AC-00584",
+      "title": "NA unisex-adult Slipper",
+      "price": 1659,
+      "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-26687",
-      "title": "Bata Kolhapuri Chappal (UK 6)",
-      "price": 589,
-      "brand": "Bata",
+      "sku": "AC-01092",
+      "title": "Koolaburra by UGG Men's Rommie Nylon Slipper",
+      "price": 1689,
+      "brand": "",
       "intent": true
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-28580",
@@ -7765,11 +7589,11 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 43
     },
-    "ms": 42,
+    "ms": 120,
     "judge": [
-     1,
+     3,
      1,
      1
     ]
@@ -7785,6 +7609,13 @@
     "slots": {},
     "top3": [
      {
+      "sku": "AC-29640",
+      "title": "Myntra Rakhi Gift Box",
+      "price": 389,
+      "brand": "Myntra",
+      "intent": true
+     },
+     {
       "sku": "AC-33523",
       "title": "Pepperfury Diwali Gift Hamper",
       "price": 1989,
@@ -7792,24 +7623,17 @@
       "intent": true
      },
      {
-      "sku": "AC-33769",
-      "title": "Wipro AG Diwali Paper Lantern (Orange)",
-      "price": 789,
+      "sku": "AC-33767",
+      "title": "Wipro AG Diwali Gifting Box",
+      "price": 1489,
       "brand": "Wipro AG",
-      "intent": true
-     },
-     {
-      "sku": "AC-33628",
-      "title": "Syska Diwali String Light 100 (Multi Colour)",
-      "price": 3489,
-      "brand": "Syska",
       "intent": true
      }
     ],
     "n_results": 28,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-31257",
@@ -7832,13 +7656,13 @@
      ],
      "added": 1,
      "top_cos": 0.881,
-     "ms": 20
+     "ms": 42
     },
-    "ms": 22,
+    "ms": 52,
     "judge": [
-     1,
      2,
-     2
+     1,
+     1
     ]
    },
    {
@@ -7848,45 +7672,59 @@
     "arm": "1",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "forWhom": "women",
-     "budget": 1750,
-     "flexible": false,
-     "brand": "best_rated"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [
      {
-      "sku": "AC-01732",
-      "title": "Gold Bangle Bracelet for Women Wide Grooved Cuff Bracelets Gold Chunky Cuff Wrap Bracelet Gold Bangle Bracelet Jewelry Gifts for Girls",
-      "price": 719,
-      "brand": "",
+      "sku": "AC-26773",
+      "title": "Bluestone 22K Gold Bangles 12 g (16 g)",
+      "price": 112489,
+      "brand": "Bluestone",
       "intent": false
      },
      {
-      "sku": "AC-01670",
-      "title": "Sakytal Boho Gold Bangle Bracelet Set Indian Multi Layered Bangles Bracelets Stackable Textured Bracelet for Women",
-      "price": 749,
-      "brand": "",
+      "sku": "AC-28607",
+      "title": "Malabar 22K Gold Bangles 12 g (16 g)",
+      "price": 134989,
+      "brand": "Malabar",
       "intent": false
      },
      {
-      "sku": "AC-02708",
-      "title": "KACON 925 Sterling Silver Bangle Bracelet, Fashion Simple Open Bangles Cuff Jewelry for Women",
-      "price": 829,
-      "brand": "",
+      "sku": "AC-28604",
+      "title": "Malabar 22K Gold Bangles (12 g)",
+      "price": 94989,
+      "brand": "Malabar",
       "intent": false
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
-     "top": [],
+     "index_load_ms": 14,
+     "top": [
+      {
+       "sku": "AC-20073",
+       "title": "SAS Sanibel",
+       "price": 11269,
+       "cos": 0.834
+      },
+      {
+       "sku": "AC-01397",
+       "title": "Angelica Collection Antique Smooth Finish Brass Mind, Body and Soul Expandable Bangle",
+       "price": 1249,
+       "cos": 0.821
+      },
+      {
+       "sku": "AC-00623",
+       "title": "Angelica Collection Antique Stipple Finish Brass Caduceus Expandable Bangle",
+       "price": 1249,
+       "cos": 0.819
+      }
+     ],
      "reason": "below_threshold",
-     "ms": 16
+     "ms": 56
     },
-    "ms": 433,
+    "ms": 400,
     "judge": [
      1,
      1,
@@ -7928,7 +7766,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-31257",
@@ -7951,13 +7789,13 @@
      ],
      "added": 1,
      "top_cos": 0.858,
-     "ms": 17
+     "ms": 43
     },
-    "ms": 43,
+    "ms": 150,
     "judge": [
-     2,
-     2,
-     2
+     1,
+     1,
+     1
     ]
    },
    {
@@ -7971,31 +7809,31 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-24811",
-      "title": "Apple Watch Series 9 (41 mm, GPS) Smartwatch",
-      "price": 42900,
-      "brand": "Apple",
-      "intent": true
-     },
-     {
-      "sku": "AC-24810",
-      "title": "Apple Watch SE (2nd Generation, 40 mm, GPS) Smartwatch",
-      "price": 29900,
-      "brand": "Apple",
-      "intent": true
-     },
-     {
-      "sku": "AC-31152",
-      "title": "Seiko 5 Automatic Watch (Steel)",
-      "price": 19989,
+      "sku": "AC-31154",
+      "title": "Seiko Analog Watch for Men (Silver)",
+      "price": 12989,
       "brand": "Seiko",
+      "intent": true
+     },
+     {
+      "sku": "AC-26874",
+      "title": "Casio Analog Watch for Men (Brown)",
+      "price": 8289,
+      "brand": "Casio",
+      "intent": true
+     },
+     {
+      "sku": "AC-30076",
+      "title": "Nixon Analog Watch for Men (Brown)",
+      "price": 8989,
+      "brand": "Nixon",
       "intent": true
      }
     ],
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-12588",
@@ -8018,9 +7856,9 @@
      ],
      "added": 1,
      "top_cos": 0.847,
-     "ms": 17
+     "ms": 74
     },
-    "ms": 51,
+    "ms": 220,
     "judge": [
      1,
      1,
@@ -8038,23 +7876,23 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-01569",
-      "title": "Cute Cat Frog Rabbit Animal Pins, Personality Animation Enamel Pin Set, Brooches for Bag, Lapel, Buckle, Hat, Clothing Accessories, Birthday Gift, Christmas Presents",
-      "price": 829,
+      "sku": "AC-10191",
+      "title": "Well Happy Birthday Jesus Funny Quote Office Ugly Christmas Sweater Unisex Crewneck Graphic Sweatshirt",
+      "price": 2499,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-03992",
-      "title": "Blue Orchards Horse Party Plates and Napkins Pack (52 Pieces for 16 Guests) - Horse Plates and Napkins, Horse Birthday Party, Cowboy Theme Party, Western Birthday Decorations, Wild Horse Party",
-      "price": 829,
+      "sku": "AC-02957",
+      "title": "Birthday Magnets for Cruise Door,STRUGGANT Cruise Door Decorations Ship Sticker Cruise Essentials for Cabin Door Stateroom (Birthday)",
+      "price": 1159,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-00298",
-      "title": "Teacher Appreciation Gifts for Women Men Teacher’s Day Thank You Gift for Teacher Tutor Mentor Professor 2023 Graduation Gift for Teacher Retirement Birthday Back to School Leaving Christmas Gift",
-      "price": 539,
+      "sku": "AC-11985",
+      "title": "Birthday Gifts for Women Bath Relaxing Spa Gifts for Mom Candle Gift Basket for Best Friends Unique Gifts for Women Sleep Well Gift Set Get Well Soon Gifts for Sister Wife Her Coworker Bestie",
+      "price": 2169,
       "brand": "",
       "intent": true
      }
@@ -8062,7 +7900,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-09480",
@@ -8085,13 +7923,13 @@
      ],
      "added": 1,
      "top_cos": 0.868,
-     "ms": 21
+     "ms": 88
     },
-    "ms": 23,
+    "ms": 111,
     "judge": [
      2,
      2,
-     3
+     1
     ]
    },
    {
@@ -8129,7 +7967,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-24841",
@@ -8151,9 +7989,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 49
     },
-    "ms": 74,
+    "ms": 263,
     "judge": [
      1,
      1,
@@ -8195,7 +8033,7 @@
     "n_results": 49,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-31139",
@@ -8218,9 +8056,9 @@
      ],
      "added": 1,
      "top_cos": 0.859,
-     "ms": 16
+     "ms": 52
     },
-    "ms": 49,
+    "ms": 166,
     "judge": [
      1,
      1,
@@ -8262,7 +8100,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-21952",
@@ -8284,9 +8122,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 91
     },
-    "ms": 44,
+    "ms": 217,
     "judge": [
      1,
      1,
@@ -8304,31 +8142,31 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-20129",
-      "title": "Timex Women's Q 36mm Watch",
-      "price": 11589,
-      "brand": "Timex",
+      "sku": "AC-31154",
+      "title": "Seiko Analog Watch for Men (Silver)",
+      "price": 12989,
+      "brand": "Seiko",
       "intent": true
      },
      {
-      "sku": "AC-24811",
-      "title": "Apple Watch Series 9 (41 mm, GPS) Smartwatch",
-      "price": 42900,
-      "brand": "Apple",
+      "sku": "AC-26874",
+      "title": "Casio Analog Watch for Men (Brown)",
+      "price": 8289,
+      "brand": "Casio",
       "intent": true
      },
      {
-      "sku": "AC-24810",
-      "title": "Apple Watch SE (2nd Generation, 40 mm, GPS) Smartwatch",
-      "price": 29900,
-      "brand": "Apple",
+      "sku": "AC-30076",
+      "title": "Nixon Analog Watch for Men (Brown)",
+      "price": 8989,
+      "brand": "Nixon",
       "intent": true
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-17143",
@@ -8350,11 +8188,11 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 53
     },
-    "ms": 46,
+    "ms": 205,
     "judge": [
-     3,
+     1,
      1,
      1
     ]
@@ -8366,49 +8204,63 @@
     "arm": "1",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "forWhom": "women",
-     "budget": 1250,
-     "flexible": false,
-     "brand": "best_rated"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [
      {
-      "sku": "AC-01732",
-      "title": "Gold Bangle Bracelet for Women Wide Grooved Cuff Bracelets Gold Chunky Cuff Wrap Bracelet Gold Bangle Bracelet Jewelry Gifts for Girls",
-      "price": 719,
-      "brand": "",
+      "sku": "AC-26773",
+      "title": "Bluestone 22K Gold Bangles 12 g (16 g)",
+      "price": 112489,
+      "brand": "Bluestone",
       "intent": false
      },
      {
-      "sku": "AC-01670",
-      "title": "Sakytal Boho Gold Bangle Bracelet Set Indian Multi Layered Bangles Bracelets Stackable Textured Bracelet for Women",
-      "price": 749,
-      "brand": "",
+      "sku": "AC-28607",
+      "title": "Malabar 22K Gold Bangles 12 g (16 g)",
+      "price": 134989,
+      "brand": "Malabar",
       "intent": false
      },
      {
-      "sku": "AC-02708",
-      "title": "KACON 925 Sterling Silver Bangle Bracelet, Fashion Simple Open Bangles Cuff Jewelry for Women",
-      "price": 829,
-      "brand": "",
+      "sku": "AC-28604",
+      "title": "Malabar 22K Gold Bangles (12 g)",
+      "price": 94989,
+      "brand": "Malabar",
       "intent": false
      }
     ],
-    "n_results": 45,
+    "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
-     "top": [],
+     "index_load_ms": 14,
+     "top": [
+      {
+       "sku": "AC-25007",
+       "title": "2GOLD 22K Gold Bangles 8 g (16 g)",
+       "price": 89989,
+       "cos": 0.837
+      },
+      {
+       "sku": "AC-25006",
+       "title": "2GOLD 22K Gold Bangles 8 g (12 g)",
+       "price": 77489,
+       "cos": 0.835
+      },
+      {
+       "sku": "AC-25005",
+       "title": "2GOLD 22K Gold Bangles (8 g)",
+       "price": 70399,
+       "cos": 0.835
+      }
+     ],
      "reason": "below_threshold",
-     "ms": 19
+     "ms": 61
     },
-    "ms": 408,
+    "ms": 424,
     "judge": [
      1,
      1,
-     2
+     1
     ]
    },
    {
@@ -8422,13 +8274,6 @@
     "slots": {},
     "top3": [
      {
-      "sku": "AC-03938",
-      "title": "Chemistry Gifts - Chemistry Periodic Table Blanket - for Kid Flannel Throw Blanket Teacher Ultra Soft Fleece Bed Couch Living Room 30 X 40 Inch for Pet",
-      "price": 1659,
-      "brand": "",
-      "intent": true
-     },
-     {
       "sku": "AC-23617",
       "title": "BIADNBZ Reversible Sectional Sofa with Chaise Lounge and Cupholders, L-Shape 4-Seat Couch Living Room Furniture Set for Apartment Office, w/2 Pillows, Black",
       "price": 51139,
@@ -8436,9 +8281,16 @@
       "intent": true
      },
      {
-      "sku": "AC-23254",
-      "title": "BIADNBZ Sectional Couch for Living Room with Right Chaise Lounge Storage Ottoman L-Shaped Sofas, Gray",
-      "price": 47209,
+      "sku": "AC-23545",
+      "title": "LUMISOL Upholstered Living Room Sectional Sofa, L Shape Furniture Couch with 3 Pillows, Fabric Sofa Couch for Large Space Apartments Office, Grey",
+      "price": 50089,
+      "brand": "",
+      "intent": true
+     },
+     {
+      "sku": "AC-23678",
+      "title": "Flieks Modern Upholstered Living Room Sectional Sofa, L Shape Furniture Couch with 3 Pillows, Grey",
+      "price": 55859,
       "brand": "",
       "intent": true
      }
@@ -8446,7 +8298,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-23254",
@@ -8469,11 +8321,11 @@
      ],
      "added": 0,
      "top_cos": 0.879,
-     "ms": 18
+     "ms": 47
     },
-    "ms": 71,
+    "ms": 282,
     "judge": [
-     3,
+     1,
      1,
      1
     ]
@@ -8513,7 +8365,7 @@
     "n_results": 3,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-09625",
@@ -8535,9 +8387,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 20
+     "ms": 49
     },
-    "ms": 48,
+    "ms": 125,
     "judge": [
      1,
      2,
@@ -8549,29 +8401,29 @@
     "q": "blazer for wedding guest",
     "kind": "synonym",
     "arm": "1",
-    "intentN": 47,
+    "intentN": 48,
     "null": false,
     "questions": 0,
     "slots": {},
     "top3": [
      {
-      "sku": "AC-22465",
-      "title": "Unique Wedding Guest Book Alternative Custom Personalized, Maple Tree Natural Wood Slab Handcrafted Engraved Carved Customized Signs Cedar Live Edge Wood Sign Country Farmhouse Western (2, Natural)",
-      "price": 10429,
+      "sku": "AC-10077",
+      "title": "Iynnijoy Men's Wedding Blazer Shawl One Button Dress Dinner Tuxedo Suit Jacket for Prom Party",
+      "price": 3329,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-14819",
-      "title": "Alternative Wedding Guest Book 20-236 pieces Wooden Puzzle Engagement Guest Book Personalized Guestbook Sign with Monogram, Names Wedding Gifts Idea Rustic Guestbook (Style 4 - Names)",
-      "price": 3379,
+      "sku": "AC-16375",
+      "title": "Mens 2 Piece Suit Set Slim Fit 2 Button Dress Suits Tuxedo Set Wedding Blazer Jacket Pants Tie Business Party Prom Suit",
+      "price": 5839,
       "brand": "",
       "intent": true
      },
      {
-      "sku": "AC-22469",
-      "title": "Custom Personalized Wedding Guest Book Alternative Natural Wood Slab Handcrafted Engraved Carved Customized Wood Signs Cedar Live Edge County Farmhouse Western (2, Natural)",
-      "price": 10429,
+      "sku": "AC-16787",
+      "title": "2 Pieces Suits for Men Slim Fit Blazer Mens Suit Wedding Prom Dress Tuxedo Jacket Pants Set",
+      "price": 5589,
       "brand": "",
       "intent": true
      }
@@ -8579,7 +8431,7 @@
     "n_results": 48,
     "sem": {
      "used": true,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-10077",
@@ -8602,13 +8454,13 @@
      ],
      "added": 0,
      "top_cos": 0.846,
-     "ms": 17
+     "ms": 50
     },
-    "ms": 66,
+    "ms": 157,
     "judge": [
-     3,
-     3,
-     3
+     1,
+     2,
+     2
     ]
    },
    {
@@ -8618,26 +8470,14 @@
     "arm": "1",
     "intentN": 0,
     "null": true,
-    "questions": 3,
-    "slots": {
-     "category": "amazon home",
-     "budget": 1250,
-     "flexible": false,
-     "forWhom": "women"
-    },
+    "questions": 0,
+    "slots": {},
     "top3": [
      {
-      "sku": "AC-03970",
-      "title": "Cute Ferrets Blanket Ferret Gifts for Women Ferret Lovers Lightweight Soft Flannel Fleece Throw Blankets for Couch Bed Sofa X-Small (40\"X30\")",
-      "price": 829,
-      "brand": "",
-      "intent": false
-     },
-     {
-      "sku": "AC-03530",
-      "title": "COFISUKI Ceramic Coffee Mug - Cute Mug Gifts for Women or Coffee Lovers, Funny Coffee or Tea Cup for Office and Home, Ceramic Cups12 oz",
-      "price": 579,
-      "brand": "",
+      "sku": "AC-09905",
+      "title": "adidas Unisex-Child Tech Fall 2.0 Wrestling Shoe",
+      "price": 4289,
+      "brand": "Adidas",
       "intent": false
      },
      {
@@ -8646,40 +8486,47 @@
       "price": 809,
       "brand": "",
       "intent": false
+     },
+     {
+      "sku": "AC-08740",
+      "title": "Wild Bobby If It's Not a Bassett Hound Its Just a Dog Gift Dog Lover Unisex Crewneck Graphic Sweatshirt",
+      "price": 2499,
+      "brand": "",
+      "intent": false
      }
     ],
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
-       "sku": "AC-05459",
-       "title": "Girl Who Likes Peckers Loves Chickens Funny Saying PopSockets Swappable PopGrip",
-       "price": 999,
-       "cos": 0.821
+       "sku": "AC-04596",
+       "title": "Legion Tech L50 Left-Handed Wired Gaming Mouse",
+       "price": 1499,
+       "cos": 0.835
       },
       {
-       "sku": "AC-34588",
-       "title": "Amazon Basics Bike GPS Tracker",
-       "price": 989,
-       "cos": 0.819
+       "sku": "AC-01359",
+       "title": "TekJuic The Ultimate Geek Accessory - Recycled CPU Processor Keychain Made from Reclaimed Computer Parts",
+       "price": 1489,
+       "cos": 0.827
       },
       {
-       "sku": "AC-36048",
-       "title": "VTech Action Figure (Single)",
-       "price": 789,
-       "cos": 0.818
+       "sku": "AC-08614",
+       "title": "Golden Doodle Dog Lover Pet Owner Animal Lover Men's Graphic T-Shirt",
+       "price": 2079,
+       "cos": 0.823
       }
      ],
      "reason": "below_threshold",
-     "ms": 16
+     "ms": 33
     },
-    "ms": 580,
+    "ms": 303,
     "judge": [
      3,
      3,
-     2
+     3
     ]
    },
    {
@@ -8717,7 +8564,7 @@
     "n_results": 48,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-35090",
@@ -8739,9 +8586,9 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 18
+     "ms": 32
     },
-    "ms": 64,
+    "ms": 118,
     "judge": [
      1,
      1,
@@ -8753,40 +8600,15 @@
     "q": "didgeridoo",
     "kind": "dead_end",
     "arm": "1",
-    "intentN": 24,
-    "null": false,
-    "questions": 2,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali"
-    },
-    "top3": [
-     {
-      "sku": "AC-29640",
-      "title": "Myntra Rakhi Gift Box",
-      "price": 389,
-      "brand": "Myntra",
-      "intent": true
-     },
-     {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
-      "sku": "AC-31256",
-      "title": "Solimo Rakhi Set 5",
-      "price": 139,
-      "brand": "",
-      "intent": true
-     }
-    ],
-    "n_results": 48,
+    "intentN": 0,
+    "null": true,
+    "questions": 0,
+    "slots": {},
+    "top3": [],
+    "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-20213",
@@ -8808,54 +8630,25 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 35
     },
-    "ms": 208,
-    "judge": [
-     3,
-     3,
-     3
-    ]
+    "ms": 157,
+    "judge": []
    },
    {
     "id": "s098",
     "q": "hoverboard",
     "kind": "dead_end",
     "arm": "1",
-    "intentN": 24,
-    "null": false,
-    "questions": 2,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali"
-    },
-    "top3": [
-     {
-      "sku": "AC-29640",
-      "title": "Myntra Rakhi Gift Box",
-      "price": 389,
-      "brand": "Myntra",
-      "intent": true
-     },
-     {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
-      "sku": "AC-31256",
-      "title": "Solimo Rakhi Set 5",
-      "price": 139,
-      "brand": "",
-      "intent": true
-     }
-    ],
-    "n_results": 48,
+    "intentN": 0,
+    "null": true,
+    "questions": 0,
+    "slots": {},
+    "top3": [],
+    "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-22561",
@@ -8877,54 +8670,25 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 62
     },
-    "ms": 209,
-    "judge": [
-     3,
-     3,
-     3
-    ]
+    "ms": 262,
+    "judge": []
    },
    {
     "id": "s099",
     "q": "periscope",
     "kind": "dead_end",
     "arm": "1",
-    "intentN": 24,
-    "null": false,
-    "questions": 2,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali"
-    },
-    "top3": [
-     {
-      "sku": "AC-29640",
-      "title": "Myntra Rakhi Gift Box",
-      "price": 389,
-      "brand": "Myntra",
-      "intent": true
-     },
-     {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
-      "sku": "AC-31256",
-      "title": "Solimo Rakhi Set 5",
-      "price": 139,
-      "brand": "",
-      "intent": true
-     }
-    ],
-    "n_results": 48,
+    "intentN": 0,
+    "null": true,
+    "questions": 0,
+    "slots": {},
+    "top3": [],
+    "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-00834",
@@ -8946,54 +8710,25 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 55
     },
-    "ms": 220,
-    "judge": [
-     3,
-     3,
-     3
-    ]
+    "ms": 273,
+    "judge": []
    },
    {
     "id": "s100",
     "q": "bobsled",
     "kind": "dead_end",
     "arm": "1",
-    "intentN": 24,
-    "null": false,
-    "questions": 2,
-    "slots": {
-     "category": "amazon fashion",
-     "occasion": "diwali"
-    },
-    "top3": [
-     {
-      "sku": "AC-29640",
-      "title": "Myntra Rakhi Gift Box",
-      "price": 389,
-      "brand": "Myntra",
-      "intent": true
-     },
-     {
-      "sku": "AC-29104",
-      "title": "Meera Rakhi Set 10",
-      "price": 239,
-      "brand": "Meera",
-      "intent": true
-     },
-     {
-      "sku": "AC-31256",
-      "title": "Solimo Rakhi Set 5",
-      "price": 139,
-      "brand": "",
-      "intent": true
-     }
-    ],
-    "n_results": 48,
+    "intentN": 0,
+    "null": true,
+    "questions": 0,
+    "slots": {},
+    "top3": [],
+    "n_results": 0,
     "sem": {
      "used": false,
-     "index_load_ms": 6,
+     "index_load_ms": 14,
      "top": [
       {
        "sku": "AC-06144",
@@ -9015,14 +8750,10 @@
       }
      ],
      "reason": "below_threshold",
-     "ms": 17
+     "ms": 53
     },
-    "ms": 210,
-    "judge": [
-     3,
-     3,
-     3
-    ]
+    "ms": 270,
+    "judge": []
    }
   ]
  }

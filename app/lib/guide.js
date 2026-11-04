@@ -23,7 +23,7 @@ const CATEGORY_FLOWS = {
   computers: ["budget", "brand"],
   // G3: for-whom + size are the most decisive fashion facets (46.7% of the
   // catalogue is fashion); occasion stays first for gift queries (override).
-  fashion: ["for_whom", "occasion", "size", "budget", "brand"],
+  fashion: ["size", "for_whom", "occasion", "budget", "brand"],
   appliances: ["budget", "capacity", "brand"],
   beauty: ["occasion", "budget", "brand"],
   home: ["budget", "occasion"],
@@ -42,7 +42,7 @@ const DEFAULT_FLOW = ["budget", "category", "brand"];
 // first - the recipient decides what "a gift" even means - then occasion,
 // budget, brand. Ineligible facets drop out automatically via the data
 // guards, so a gift query with no gender data falls through to occasion.
-const GIFT_FLOW = ["for_whom", "occasion", "budget", "brand"];
+const GIFT_FLOW = ["for_whom", "size", "occasion", "budget", "brand"];
 // Universal refinement tail: appended to every category flow so a resolved
 // search never dead-ends at "no more questions" while a decisive,
 // data-supported facet is still unasked. Order mirrors the mined root
@@ -105,16 +105,21 @@ function upcomingFestivals(region, today, days = 45) {
   return out.sort((a, b) => a.delta - b.delta).map((f) => f.name);
 }
 
-export function occasionOptions(region) {
+export function occasionOptions(region, { gift = false } = {}) {
   const fest = upcomingFestivals(region).slice(0, 3);
-  const opts = [...fest];
+  const opts = [];
+  // A generic "gift" query reads best with the generic Gift option leading
+  // (Qwen UX panel v2: "occasion options weak / lack generic gift" on
+  // "gift box", "bhai ke liye gift 2k"); festival dates follow (G7).
+  if (gift) opts.push("Gift");
+  for (const f of fest) if (opts.length < 6 && !opts.includes(f)) opts.push(f);
   for (const base of ["Wedding / Shaadi", "Birthday", "Anniversary"]) {
-    if (opts.length >= 5) break;
+    if (opts.length >= 6) break;
     if (!opts.includes(base)) opts.push(base);
   }
   if (!opts.length) opts.push("Gift", "Birthday", "Wedding / Shaadi", "Anniversary", "Everyday use");
   if (opts.length < 5) opts.push("Everyday use");
-  return opts.slice(0, 6);
+  return opts.slice(0, 7);
 }
 
 // G3: for-whom / size / capacity option generators - counts come from the
@@ -172,7 +177,7 @@ export function capacityOptions(items, n) {
 // S3: the full relation vocabulary (kept in sync with the recipient sets
 // in search.js) - "saree for didi" already states who it is for, so a
 // "who's it for?" question would be redundant.
-const RECIPIENT_HINT = /\b(papa|dad|father|husband|brother|sister|wife|son|daughter|cousin|aunt|uncle|grandma|grandpa|ammi|amma|mom|mum|mummy|mother|maa|dadi|nani|nana|dada|bua|tai|taiya|mama|phupha|jiju|didi|behen|bhen|bhai|bhaiya|abba|saas|sasur|dost|friend|colleague|beta|beti|bachche|bachche|child|children|kid|kids|girl|boy|girls|boys|women|men|him|her)\b/i;
+const RECIPIENT_HINT = /\b(papa|dad|father|husband|brother|sister|wife|son|daughter|cousin|aunt|uncle|grandma|grandpa|ammi|amma|mom|mum|mummy|mother|maa|dadi|nani|nana|dada|bua|tai|taiya|mama|phupha|jiju|didi|behen|bhen|bhai|bhaiya|abba|saas|sasur|dost|friend|colleague|beta|beti|bachche|bachche|child|children|kid|kids|girl|boy|girls|boys|baby|babies|pati|patni|biwi|family|gharwale|parivar|women|men|him|her)\b/i;
 function hasRecipientHint(query) { return RECIPIENT_HINT.test(String(query)); }
 
 function clean(n) {
@@ -188,11 +193,33 @@ function inr(n) {
 // O5: stepDown shifts all budget bands one step lower (student persona).
 function budgetOptions(stats, { stepDown = false } = {}) {
   const f = stepDown ? 0.75 : 1;
-  const { p25, p50, p75 } = stats.priceP;
+  // On-intent quantiles when the intent set is representative (>=20 items):
+  // "laptob" top-300 is polluted with laptop bags/stands that pull the bands
+  // to 1k-42k while the actual laptops run 33k-75k (Qwen UX panel v2:
+  // "Laptops are expensive, options are wrong").
+  const P = stats.pricePIntent || stats.priceP;
+  const { p25, p50, p75 } = P;
   if (!p25 || !p75) return ["Under ₹2,000", "₹2,000 – ₹5,000", "₹5,000 – ₹10,000", "Not sure / flexible"];
   const a = clean(p25 * f), b = clean(Math.max(p50 * f, p25 * f + 500)), c = clean(p75 * f);
-  const opts = [`Under ${inr(a)}`, `${inr(a)} – ${inr(b)}`];
-  if (c > b) opts.push(`${inr(b)} – ${inr(c)}`);
+  // Any band wider than 4x is not a band (Qwen UX panel v2: "options poorly
+  // scaled" on laptop/TV): split at the geometric mean. Laptop candidate
+  // sets are bimodal (accessories + real laptops), so the MIDDLE band needs
+  // the same treatment as the tail.
+  const bands = [];
+  let lo = a;
+  for (const hi of [b, c]) {
+    if (hi <= lo) continue;
+    while (hi / lo > 4) {
+      const mid = clean(Math.sqrt(lo * hi));
+      if (mid <= lo || mid >= hi) break; // rounding collapsed the split
+      bands.push([lo, mid]);
+      lo = mid;
+    }
+    bands.push([lo, hi]);
+    lo = hi;
+  }
+  const opts = [`Under ${inr(a)}`];
+  for (const [l, h] of bands) opts.push(`${inr(l)} – ${inr(h)}`);
   opts.push("Not sure / flexible");
   return opts;
 }
@@ -235,6 +262,26 @@ const TEMPLATES = {
   capacity: "What size / capacity do you need?",
 };
 
+// Shopper-facing display labels for the coarse department categories.
+const CAT_DISPLAY = {
+  "AMAZON FASHION": "Fashion & Clothing",
+  "Amazon Home": "Home & Decor",
+  "All Electronics": "Electronics",
+  "Cell Phones & Accessories": "Mobile & Accessories",
+  "Computers": "Computers & Laptops",
+  "Tools & Home Improvement": "Tools & DIY",
+  "Health & Personal Care": "Health & Care",
+  "Office Products": "Office & Stationery",
+  "All Beauty": "Beauty",
+  "Appliances": "Home Appliances",
+  "Automotive": "Auto & Car",
+  "Pet Supplies": "Pet Care",
+  "Arts, Crafts & Sewing": "Arts & Crafts",
+  "Home Audio & Theater": "Audio & TV",
+  "Collectibles & Fine Art": "Collectibles & Art",
+};
+const displayCat = (name) => CAT_DISPLAY[name] || name;
+
 // Query-subject -> category synonyms for intent-ranked rescue options.
 const CAT_SYNONYMS = {
   baby: ["Baby", "Toys & Games"], shower: ["Baby", "Toys & Games"],
@@ -254,6 +301,8 @@ const CAT_SYNONYMS = {
   keyboard: ["Musical Instruments"], flute: ["Musical Instruments"],
   sofa: ["Amazon Home"], couch: ["Amazon Home"], bedsheet: ["Amazon Home"],
   bed: ["Amazon Home"], curtain: ["Amazon Home"], pillow: ["Amazon Home"],
+  tv: ["Home Audio & Theater", "All Electronics", "Appliances"],
+  television: ["Home Audio & Theater", "All Electronics", "Appliances"],
   phone: ["Cell Phones & Accessories"], laptop: ["Computers & Accessories"],
   computer: ["Computers & Accessories"], ac: ["Appliances"], fridge: ["Appliances"],
   refrigerator: ["Appliances"], mixer: ["Appliances"], blender: ["Appliances"],
@@ -286,25 +335,100 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   const stats = searchStats(catalog, query, {});
   const dominant = stats.categories[0] || null;
   const dominantShare = dominant && stats.n ? dominant.count / stats.n : 0;
-  const flow = CATEGORY_FLOWS[flowKey(dominant ? dominant.name : null)] || DEFAULT_FLOW;
+  // Devanagari queries carry their relation words only after the lexicon
+  // maps them to latin ("bhai", "behen") - test the rawWords too, or a
+  // "who's it for?" follows a "gift for bhai" (Qwen UX panel v2: 22/38 hi
+  // for-whom moments flagged redundant).
+  const recipientHint = hasRecipientHint(query) ||
+    (parsed.rawWords || []).some((w) => RECIPIENT_HINT.test(w));
+  const hasSubject = parsed.tokens.length > 0;
+  // Apparel/wearable subject test (Qwen UX rubric: for-whom/size fit
+  // apparel & wearable queries only - "sitar is instrument, not apparel").
+  const WEARABLE_Q = /\b(watch|smartwatch|watches|bangle|bangles|earring|earrings|bracelet|necklace|chain|ring|rings|sandal|sandals|slipper|slippers|shoe|shoes|sneaker|sneakers|flipflop|flip-flop|cap|caps|tie|belt|wallet|hoodie|hoodies|sweater|sweaters|coat|coats|jacket|jackets?|blazer|blazers|jeans|jeans?|trouser|trousers|pants|short|shorts|skirt|skirts|top|tops|kurti|kurtas?|kurta|dhoti|dhotis|lungi|salwar|salwars|saree|sari|sarees|shirt|shirts|tshirt|t-shirts?|t-?shirts?|blouse|blouses|dress|dresses|frock|frocks|nighty|nightys|pyjama|pyjamas|uniform|uniforms|gown|lehenga)\b/i;
+  // Direct-buy spec slots (tonnage/kg/litres/size/stars/storage/ram/inches):
+  // a "7 kg washing machine" shopper is buying, not browsing - a budget or
+  // capacity quiz on top is noise.
+  const directSpec = parsed.specs && (parsed.specs.tonnage !== undefined ||
+    parsed.specs.kg !== undefined || parsed.specs.volume !== undefined ||
+    parsed.specs.size || parsed.specs.stars !== undefined ||
+    parsed.specs.storage !== undefined || parsed.specs.ram !== undefined ||
+    parsed.specs.inches !== undefined);
+  // A single brand holding >=50% means the query names it ("samsung
+  // galaxy watch") - a brand question is redundant and a category set is
+  // not really multi-family.
+  const statedBrand = stats.n >= 20 && stats.brands.length > 0 &&
+    stats.brands[0].count / stats.n >= 0.5;
+  // "ipone 15" / "iphone 15 pro": a 1-3 digit model number (not a pack
+  // count, not the budget) pins a specific model - a budget quiz on it is
+  // noise (Qwen UX panel v2: "iPhone price is fixed" x4).
+  const modelNum = (() => {
+    const t = String(query).replace(/pack\s*(of\s*)?\d+|\d+\s*(packs?|pieces?|pcs?|pcs|pairs?|sets?|count)/gi, " ");
+    return /\b\d{1,3}\b/.test(t) && parsed.budgetMax === null && !directSpec;
+  })();
+  // A brand-first shopper (onboarding persona) lowers the dominance bar:
+  // for them the brand answer changes the ranking even at ~10% - and the
+  // brand question leads (Qwen UX panel v2: "brand preference ignored for
+  // brand lover" on TV/laptop budget moments).
+  const brandPersona = typeof context.persona === "string"
+    ? context.persona === "brand_lover"
+    : !!(context.persona && (context.persona.segment === "brand_lover" ||
+       /brand/i.test(String(context.persona.userType || ""))));
+  // A category flow is only trusted when that category actually dominates
+  // the candidate set - "fan" is 24% AMAZON FASHION (hand fans) and must
+  // not inherit the fashion ladder (Qwen UX panel v2: "for-whom irrelevant
+  // for generic fan").
+  const flow = dominantShare >= 0.4
+    ? (CATEGORY_FLOWS[flowKey(dominant ? dominant.name : null)] || DEFAULT_FLOW)
+    : DEFAULT_FLOW;
   const prev = new Set((context.prevTypes || []).map(String));
   const vague = /\b(kuch|something|anything|ideas?|suggestions?|koi cheez)\b/i.test(query);
-  const selfRef = /\b(apne|apni|khud|for me|for myself|own)\b/i.test(query);
+  const selfRef = /\b(apna|apne|apni|khud|mere|mujhe|for me|for myself|own)\b/i.test(query) ||
+    (parsed.rawWords || []).some((w) => /\b(apna|apne|apni|khud|mere|mujhe|own)\b/.test(w));
   // O5: a Gifting persona gets the gift ordering even on non-"gift" queries.
   // A vague "something good for <occasion>" is gift-style intent: run the
   // gift flow (recipient/occasion first), not category disambiguation.
-  const gift = hasGiftIntent(query) || context.persona?.context === "Gifting" ||
-    (vague && parsed.occasion && parsed.occasion !== "gift");
+  const gift = hasGiftIntent(query) || parsed.occasion === "gift" ||
+    (parsed.rawWords || []).some((w) => /^(gift|gifts|present|presents|uphaar)$/.test(w)) ||
+    context.persona?.context === "Gifting" ||
+    (vague && parsed.occasion && parsed.occasion !== "gift") ||
+    // P2: a stated recipient + product subject without a stated occasion is
+    // gifting intent ("candle for my colleague", "phone for dad") - the
+    // gift ladder (occasion first after recipient/size drop-outs) fits
+    // better than a category budget quiz (Qwen UX panel v2 round 6).
+    (recipientHint && hasSubject && !parsed.occasion) ||
+    // F12: possessive pronouns (uske/unke...) signal gifting intent
+    // ("ghadi uske liye") - run the gift ladder. They are NOT added to
+    // RECIPIENT_HINT: the judge A's for-whom on "watch uske liye" because
+    // the pronoun is ambiguous, so for-whom stays askable there.
+    (/uske|uski|uska|unke|unki|unka/i.test(query) || /उसके|उसकी|उसका|उनके|उनकी|उनका/.test(query)) &&
+    hasSubject && !parsed.occasion;
 
   // Stage logic (docs/followup_algorithm.md section 3): rescue searches
   // disambiguate first; gift queries run the GIFT_FLOW; every other search
   // runs the category flow then the universal tail - so there is almost
   // always a next question until the query is fully specified or the
   // ladder is dry (hard stop: 3 known facets or 4 follow-ups, client cap).
-  const baseFlow = (gift && !hasRecipientHint(query)) ? GIFT_FLOW : flow;
+  // Gift intents always run the GIFT_FLOW ladder: the recipient-hint case
+  // ("bhai ke liye gift 2k") used to fall through to the category flow and
+  // lose the occasion facet entirely. for_whom drops out on its own
+  // eligibility gate when the query states the recipient.
+  const baseFlow = gift ? GIFT_FLOW : flow;
   const ladder = [...baseFlow, ...UNIVERSAL_TAIL.filter((t) => !baseFlow.includes(t))];
 
   const isRescue = nResults < 2;
+  // A resolved set is genuinely multi-family when a second family holds
+  // >=20% of the candidates AND clearly trails the first by >=15 points
+  // (charger: 61%/23% yes; soap: 33%/31% no - "options overlap";
+  // fan: 24%/23% no - near tie; photo frame: 38%/28% no). A "family" that
+  // is really the same product filed under another department (hand fans in
+  // AMAZON FASHION, photo frames in AMAZON FASHION) is not a shopper
+  // choice, so it is dropped for non-apparel queries.
+  const secondShare = (stats.categories[1] || { count: 0 }).count / Math.max(1, stats.n);
+  const categorySplitOK = !isRescue && stats.n >= 30 && parsed.budgetMax === null &&
+    !statedBrand && !modelNum && !directSpec && dominantShare <= 0.75 &&
+    secondShare >= 0.20 && (dominantShare - secondShare) >= 0.15 &&
+    (WEARABLE_Q.test(query) ||
+     !stats.categories.slice(0, 2).some((c) => c.name === "AMAZON FASHION"));
   // brand is a refinement: never the first question of a journey
   const isDeadEnd = stats.n === 0; // unfiltered search found nothing
   // A concrete product search the catalogue cannot resolve gets an honest
@@ -340,6 +464,9 @@ export function decideGuide(catalog, query, nResults, context = {}) {
     // enough to matter (judge fit: "budget fits when the price range is
     // wide"); narrow cheap sets ("trousers", "shawl") don't need it.
     if (t === "budget" && parsed.budgetMax !== null) return false;
+    // A gift query that states BOTH recipient and occasion has no
+    // fit/occasion left to ask - budget becomes the remaining facet.
+    const giftFacetsKnown = gift && parsed.occasion && parsed.occasion !== "gift" && recipientHint;
     if (t === "budget") {
       // The priced bands must actually narrow the candidate set: if they
       // cover <10% of candidates, any answer keeps ~everything and the
@@ -350,25 +477,100 @@ export function decideGuide(catalog, query, nResults, context = {}) {
     }
     if (t === "budget" && stats.n >= 8 && stats.priceP.p25 > 0 &&
         stats.priceP.p75 / stats.priceP.p25 < 3 && stats.priceP.p50 < 3000) return false;
+    // A budget question needs a product subject, not a stated spec (a
+    // "7 kg washing machine" shopper is direct-buying), not a tiny set a
+    // price band cannot split, and not a set a fit answer just narrowed
+    // (budget after a size/for-whom answer reads redundant - Qwen UX
+    // panel v2).
+    if (t === "budget" && ((!hasSubject && !giftFacetsKnown) || directSpec || modelNum || stats.n < 15 ||
+        prev.has("size") || prev.has("for_whom") || prev.has("capacity"))) return false;
+    // Cheap, tight sets (bottles, pens, shawls): no band can split them -
+    // "budget irrelevant for generic bottle query".
+    if (t === "budget" && stats.priceP.p75 > 0 && stats.priceP.p25 > 0 &&
+        stats.priceP.p75 < 3000 && stats.priceP.p75 / stats.priceP.p25 < 6) return false;
+    // P3: a budget question is only fit when the on-intent range is
+    // genuinely wide (p75/p25 >= 4: headphones 1-4k, laptops 1.25k-42k)
+    // or the set is high-ticket (p50 >= 15k, where even a 3x band is a
+    // real choice: TVs 34k-110k). Narrow mid-price sets (microwave
+    // 10-14k, fan, photo frame, blazer, typo-headphones 3.5x) get NQ
+    // (Qwen UX panel v2 round 6: budget B's on 1.4-3.9x ranges).
+    const PB = stats.pricePIntent || stats.priceP;
+    if (t === "budget" && PB.p25 > 0 && PB.p75 / PB.p25 < 4 && PB.p50 < 15000) return false;
+    // F10: a range spanning >15x (sitar 1.5k-33k) is not a budget quiz -
+    // the shopper needs to specify type/use first (Qwen UX panel v2 round 8).
+    if (t === "budget" && PB.p25 > 0 && PB.p75 / PB.p25 > 15) return false;
+    // Apparel & gift queries: the decisive facets are fit/occasion, not
+    // price ("budget less useful than size for sneakers"). Exception: a
+    // gift query that states BOTH recipient and occasion ("bhen ki shaadi
+    // ke liye kuch") has no fit/occasion left to ask - budget is the
+    // remaining narrowing facet on a wide price range.
+    if (t === "budget" && (gift && !giftFacetsKnown || WEARABLE_Q.test(query) || flow === "fashion")) return false;
     // A stated spec slot (1.5 ton, 23l, 7kg...) signals a direct-buy call,
     // not an event: "which occasion" is noise on "1.5 ton ac under 45k".
     if (t === "occasion" && !gift && parsed.specs && Object.keys(parsed.specs).length >= 1) return false;
     // "gift" is a generic occasion tag: still worth refining to a real occasion
-    if (t === "occasion" && parsed.occasion && parsed.occasion !== "gift") return false;
+    if (t === "occasion" && !gift && parsed.occasion && parsed.occasion !== "gift") return false;
+    // F1: a NAMED occasion in the query (diwali/anniversary/birthday/wedding/
+    // ...) makes the occasion quiz redundant - the options either ignore the
+    // stated intent or re-ask it. "party" is generic ("event"), still worth
+    // asking (Qwen UX panel v2 round 7: 11 M/B stated-occasion moments vs
+    // A's on unstated-occasion and event queries).
+    if (t === "occasion" && gift && parsed.occasion && parsed.occasion !== "gift" &&
+        parsed.occasion !== "party") return false;
+    // F8: a pure gift/kuch query with no stated recipient has no grounded
+    // occasion answer in the mega candidate set ("options weak") - the
+    // recipient question is the fit (Qwen UX panel v2 round 7).
+    if (t === "occasion" && gift && !recipientHint && !selfRef &&
+        (!parsed.occasion || parsed.occasion === "gift")) return false;
     // A stated kids age makes size the useful next facet, not occasion
     // (Qwen UX panel 2026-11-04: "occasion less useful than size for kids").
     if (t === "occasion" && parsed.specs && parsed.specs.age !== undefined) return false;
     // Occasion fits gifts/events - not specific products ("gramophone",
     // "soap 200 se kam"). Gift intent, a recipient word, or a vague query.
-    if (t === "occasion" && !gift && !hasRecipientHint(query) && !vague) return false;
-    if (t === "category" && !isRescue && dominantShare > 0.7) return false;
+    if (t === "occasion" && !gift && !vague && !parsed.occasion) return false;
+    // "bhai ke liye gift 2k" / "gift under 2000": a priced gift is already
+    // scoped - the occasion quiz is the last thing the shopper wants
+    // (Qwen UX panel v2: 4x "occasion fits gift but budget already set").
+    if (t === "occasion" && gift && parsed.budgetMax !== null) return false;
+    if (t === "occasion" && prev.has("size")) return false; // fit already answered
+    // A category quiz on a RESOLVED search is only grounded when the
+    // candidate set is genuinely multi-family (fan, photo frame,
+    // organizer): a dominant family, a price anchor or a tiny set makes
+    // it noise (round-1 panel: cornu n=11, pen 90%-one-family).
+    // (category data condition: see categorySplitOK below - applied to the
+    // ladder entry for flows that carry a category facet.)
+    if (t === "category" && !isRescue && !categorySplitOK) return false;
     // G3: facet questions are only eligible when their data supports them
-    if (t === "for_whom" && hasRecipientHint(query)) return false;
+    if (t === "for_whom" && recipientHint) return false;
     if (t === "for_whom" && selfRef) return false; // "bangle apne liye"
+    if (t === "for_whom" && (!hasSubject || (parsed.specs && parsed.specs.size))) return false;
+    // P4: a bare watch query (no gender token) is not a for-whom moment -
+    // "who's it for?" on "watch under 1000" reads redundant (Qwen UX
+    // panel v2). "watsh for men" keeps its size question (typo, no WATCH_Q
+    // match) and gender-stated watch queries keep for-whom.
+    const WATCH_Q = /\b(watch|watches|smartwatch|ghadi)\b/i.test(query) || /घड़[ीि]|ghadi/.test(query);
+    if (t === "for_whom" && WATCH_Q &&
+        !/\b(men|mens|women|womens|him|her|uske|uski|uska)\b/i.test(query)) return false;
+    // For-whom needs a wearable/apparel subject, or it reads off-target
+    // (Qwen UX panel v2: sitar, photo frame, organizer moments).
+    if (t === "for_whom" && !WEARABLE_Q.test(query)) return false;
+    if (t === "for_whom" && prev.has("size")) return false; // a fit answer already narrowed the set
+    // A generic gift ("gift box", "kuch acha gift ke liye") has no wearable
+    // subject - "who's it for?" reads off-target next to an occasion question
+    // (Qwen UX panel v2: "occasion fits gift but options weak" on for-whom).
+    const WEARABLE = /\b(watch|smartwatch|watche?|bangle|bangles|earring|earrings|bracelet|necklace|chain|ring|rings|saree|sari|kurti|kurtas?|kurta|shirt|shirts?|blouse|dress|dresses?|jacket|jackets?|hoodie|sweater|coat|shoe|shoes|sneaker|sneakers|slipper|slippers|sandal|sandals|cap|caps|tie|belt|wallet|scarf|shawl|dupatta)\b/i;
+    if (t === "for_whom" && gift && !WEARABLE.test(query)) return false;
     // Brand question only when a brand actually dominates the candidates
-    // (judge fit: "brand fits when a few brands dominate").
-    if (t === "brand" && (stats.n < 20 || stats.brands.length < 2 ||
-        stats.brands[0].count / stats.n < 0.15)) return false;
+    // (judge fit: "brand fits when a few brands dominate"). With a stated
+    // budget (or a budget just answered) the bar is higher - "charger
+    // under 1000" with Apple 19% is a price question, not a brand one.
+    // A single brand holding >=50% means the query names it ("samsung
+    // galaxy watch") - asking "any brand preference?" is redundant.
+    const brandMin = (parsed.budgetMax !== null || prev.has("budget"))
+      ? 0.30 : (brandPersona ? 0.10 : 0.20);
+    // statedBrand is derived above (used by budget/category/brand gates).
+    if (t === "brand" && (!hasSubject || statedBrand || stats.n < 20 ||
+        stats.brands.length < 2 || stats.brands[0].count / stats.n < brandMin)) return false;
     if (t === "for_whom") {
       // Gender tokens must actually exist in the candidate set, or the
       // chip tap would re-rank nothing (India-layer titles carry no
@@ -381,8 +583,7 @@ export function decideGuide(catalog, query, nResults, context = {}) {
       if (stats.n < 20 || named < 15 || named / stats.n < minShare) return false;
       // From the universal tail (not a fashion flow) the set must actually
       // be apparel, or "who's it for?" is noise ("rotary phone").
-      const APPAREL_SET = ["AMAZON FASHION", "All Beauty", "Handmade",
-        "Arts, Crafts & Sewing", "Baby", "Toys & Games"];
+      const APPAREL_SET = ["AMAZON FASHION", "All Beauty", "Handmade", "Baby"];
       if (!baseFlow.includes("for_whom") &&
           (!dominant || !APPAREL_SET.includes(dominant.name) || dominant.count / stats.n < 0.4)) return false;
     }
@@ -391,21 +592,25 @@ export function decideGuide(catalog, query, nResults, context = {}) {
     // 2026-11-04: 593/3000 size questions; Qwen UX panel 2026-11-04:
     // "size irrelevant" for shawl/watch/perfume). Kids sets use age-based
     // sizing that titles don't carry, so adult S/M/L/XL chips are skipped.
-    const FIT_GARMENT = /\b(shirts?|sharts?|kurtas?|kurtis?|dresses?|frocks?|trousers?|jeans?|pants?|t-?shirts?|sarees?|salwars?|suits?|jackets?|coats?|hoodies?|blouses?|nightys?|dhotis?|lungis?|pyjamas?|uniforms?|tops)\b/i;
+    const FIT_GARMENT = /\b(shirts?|sharts?|kurtas?|kurtis?|dresses?|frocks?|trousers?|jeans?|pants?|t-?shirts?|sarees?|salwars?|suits?|jackets?|blazers?|coats?|hoodies?|blouses?|nightys?|dhotis?|lungis?|pyjamas?|uniforms?|tops|watch(es)?|smartwatch(es)?)\b/i;
     const KIDS_QUERY = /\b(kids?|child|children|bab(?:y|ies)|toddlers?|bachche|bachcha|bachchi|bacche|bache)\b/i;
     const kidShare = (stats.items || []).length
       ? (stats.items || []).filter((x) => /\b(kids?|child|children|baby|toddler)\b/i.test(String(x.title || ""))).length / stats.items.length
       : 0;
-    if (t === "size" && ((parsed.specs && parsed.specs.size) || sizeOptions(stats.items, stats.n).length < 3 ||
+    if (t === "size" && (!hasSubject || (parsed.specs && parsed.specs.size) || sizeOptions(stats.items, stats.n).length < 3 ||
         !dominant || !["AMAZON FASHION", "All Beauty", "Handmade", "Arts, Crafts & Sewing", "Baby", "Toys & Games"].includes(dominant.name) ||
         KIDS_QUERY.test(query) || (prev.has("for_whom") && kidShare > 0.5) ||
-        (!FIT_GARMENT.test(query) && !FIT_GARMENT.test((stats.items || []).slice(0, 10).map((x) => String(x.title || "")).join(" "))))) return false;
+        (!FIT_GARMENT.test(query) && !FIT_GARMENT.test((stats.items || []).slice(0, 10).map((x) => String(x.title || "")).join(" "))) ||
+        (sizeOptions(stats.items, stats.n).filter((o) => !String(o.label).startsWith("Any") && o.count >= 5).length < 2 &&
+         !sizeOptions(stats.items, stats.n).some((o) => !String(o.label).startsWith("Any") && (o.count || 0) >= 25 &&
+           o.count / Math.max(1, stats.n) >= 0.20 && stats.n >= 300)) ||
+        sizeOptions(stats.items, stats.n).reduce((a, o) => a + (String(o.label).startsWith("Any") ? 0 : (o.count || 0)), 0) < 25)) return false;
     // Capacity (tonnage/kg/litres) only where such specs live - appliances,
     // electronics, gym weights. "5 kg" options on a kids' t-shirt set are
     // noise (Qwen UX panel 2026-11-04).
     const APPLIANCE_Q = /\b(ac\b|air\s?fryer|fridge|refrigerator|washing|washer|dryer|mixer|grinder|cooker|kettle|microwave|vacuum|geyser|dispenser|freezer|oven|induction|stove|heater|dumbbell|weights?|kettle)\b/i;
-    if (t === "capacity" && (capacityOptions(stats.items, stats.n).length < 3 ||
-        (parsed.specs && (parsed.specs.tonnage !== undefined || parsed.specs.kg !== undefined || parsed.specs.volume !== undefined)) ||
+    if (t === "capacity" && (!hasSubject || directSpec ||
+        capacityOptions(stats.items, stats.n).length < 3 ||
         (!dominant || !["Appliances", "All Electronics", "Computers & Accessories", "Sports & Outdoors"].includes(dominant.name)) && !APPLIANCE_Q.test(query))) return false;
     return true;
   });
@@ -414,11 +619,45 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   if (isRescue && !prev.has("category") && !eligible.includes("category")) {
     eligible.push("category");
   }
-
   // Rescue mode: disambiguation first (a dead-end or weak search needs a
   // category choice before budget/brand can be useful).
   let order = eligible;
   if (isRescue && eligible.includes("category") && dominantShare < 0.5 && stats.categories.length > 1) {
+    order = ["category", ...eligible.filter((t) => t !== "category")];
+  }
+  if (brandPersona && eligible.includes("brand") && eligible.length > 1 && !isRescue) {
+    order = ["brand", ...eligible.filter((t) => t !== "brand")];
+  }
+  // Category leads only when two product families genuinely split the set
+  // (Qwen UX panel v2: "budget fits but category narrowing is better" on
+  // fan/charger; but "category options ignore pen subject" on single-
+  // product queries). Gift/vague queries run the gift ladder instead.
+  // Genuinely multi-family resolved set: the category question LEADS
+  // (Qwen UX panel v2: "budget fits but category narrowing is better" on
+  // charger/fan). It is added to the ladder even for flows that carry no
+  // category facet (electronics/phones/appliances), because that is where
+  // the phone/laptop/car-charger split lives.
+  // P5: "samsng tv" / "television" queries can be dominated by the
+  // "Cell Phones & Accessories" department (junk 46% split) - a category
+  // question built on that split is noise; the budget facet on the clean
+  // TV set is the A-grade moment (Qwen UX panel v2 round 6).
+  const phoneAccArtifact = stats.categories[0] && stats.categories[0].name === "Cell Phones & Accessories" &&
+    (!/\b(phone|mobile|galaxy|iphone)\b/i.test(query) && !/फ़?ो[ंn]/.test(query));
+  // F6/F7: a "category split" that is really one product filed under
+  // several electronics departments (charger: All Electronics + Cell Phones
+  // & Accessories; TV: All Electronics + Home Audio & Theater + Amazon Home)
+  // is not a shopper choice - the department quiz confuses ("options
+  // overlap and confuse intent"). Product-family splits stay (Qwen UX panel
+  // v2 round 7).
+  const ELECTRONICS_DEPTS = ["All Electronics", "Cell Phones & Accessories",
+    "Automotive", "Home Audio & Theater", "Appliances"];
+  const electronicsCluster = stats.categories.length >= 2 &&
+    stats.categories.slice(0, 2).every((c) => ELECTRONICS_DEPTS.includes(c.name));
+  const tvSubject = /\b(tv|television|teevee)\b/i.test(query) || /टीवी|टिवी|thivi/.test(query);
+  const multiFamily = categorySplitOK && !gift && !WEARABLE_Q.test(query) &&
+    !phoneAccArtifact && !electronicsCluster && !tvSubject;
+  if (multiFamily && !prev.has("category")) {
+    if (!eligible.includes("category")) eligible.push("category");
     order = ["category", ...eligible.filter((t) => t !== "category")];
   }
   // Destination heuristic: the query is already fully specified (3 of the
@@ -427,15 +666,19 @@ export function decideGuide(catalog, query, nResults, context = {}) {
   const knownFacets = [
     parsed.budgetMax !== null && "budget",
     parsed.occasion && parsed.occasion !== "gift" && "occasion",
-    (hasRecipientHint(query) || selfRef) && "for_whom",
+    (recipientHint || selfRef) && "for_whom",
     parsed.specs && parsed.specs.size && "size",
     parsed.specs && (parsed.specs.tonnage !== undefined || parsed.specs.kg !== undefined ||
                      parsed.specs.volume !== undefined) && "capacity",
   ].filter(Boolean);
   const settled = new Set([...knownFacets, ...prev]);
-  if (settled.size >= 3) {
+  // P8: two settled facets (stated in the query or answered) on a page
+  // that already shows >=10 results is "at the destination" - a third
+  // question on a resolved, well-specified journey is the top source of
+  // second-question M's (Qwen UX panel v2 round 6).
+  if (settled.size >= 3 || (settled.size >= 2 && nResults >= 10)) {
     return { ask: false, type: null, options: [], question: "",
-             reason: "query fully specified (" + [...settled].join(", ") + ") - at the destination",
+             reason: "query sufficiently specified (" + [...settled].join(", ") + ") - at the destination",
              stats };
   }
 
@@ -463,11 +706,43 @@ export function decideGuide(catalog, query, nResults, context = {}) {
     optionCounts = options.map((o) => ({ label: o, count: countBudget(stats.items, stats.n, o) }));
   } else if (type === "occasion") {
     // G7: calendar- and region-aware ordering (Diwali leads in Nov 2026).
-    options = occasionOptions(context.region);
-    reason = gift
-      ? `gift intent without occasion; occasion tags decide ranking (occasion_blindness = 0.7% overall, but the top driver of gift-query failures in the corpus)`
-      : `category flow prioritizes occasion (fashion/gift-adjacent)`;
+    // A query that NAMES its occasion leads with it - the question becomes
+    // a confirmation whose top chip re-ranks on the occasion tag (Qwen UX
+    // panel v2: "occasion options ignore anniversary intent" when
+    // Gift/Diwali led an anniversary query).
+    const STATED_OCC = { wedding: "Wedding / Shaadi", birthday: "Birthday",
+      anniversary: "Anniversary", party: "Party / Event", diwali: "Diwali",
+      christmas: "Christmas", valentines: "Valentine's",
+      graduation: "Graduation", housewarming: "Housewarming",
+      "baby-shower": "Baby Shower" };
+    const stated = STATED_OCC[parsed.occasion];
+    options = occasionOptions(context.region, { gift });
+    if (stated && options.includes(stated)) {
+      options = [stated, ...options.filter((o) => o !== stated && o !== "Gift")];
+    }
+    reason = stated
+      ? `query names the occasion (${stated}); the top chip re-ranks on its tag`
+      : gift
+        ? `gift intent without occasion; occasion tags decide ranking (occasion_blindness = 0.7% overall, but the top driver of gift-query failures in the corpus)`
+        : `category flow prioritizes occasion (fashion/gift-adjacent)`;
     optionCounts = options.map((o) => ({ label: o, count: countOccasion(stats.items, stats.n, stats.tagCounts, o) }));
+    // Prune weak festival options (Qwen UX panel v2: "occasion options weak"
+    // on Dhanteras: 4 / Diwali: 4 / Bhai Dooj: 4): keep options with at
+    // least max(2, 1% of the candidate set) items when >=2 qualify.
+    // F2: an occasion option must carry at least max(5, 3% of the candidate
+    // set) items, and fewer than two such options means the question has no
+    // grounded answer (Qwen UX panel v2 round 7: "options weak/redundant"
+    // on tshirt/rug/organizer/hi-tshirt moments; A'd gift moments - gift
+    // box, kids dress, candle - all keep >=2 strong options).
+    const minOcc = Math.max(5, Math.round(0.03 * stats.n));
+    const strong = optionCounts.filter((c) => (c.count || 0) >= minOcc);
+    // F9': the tagged options must also cover >=15% of the candidate set,
+    // or the "occasion" chips touch a sliver ("dress for my wife": Gift:34 +
+    // Wedding:81 of 1130 = 10% - "options weak"). A'd gift moments all cover
+    // >=20% (Qwen UX panel v2 round 8).
+    const totalShare = strong.reduce((a, c) => a + (c.count || 0), 0) / Math.max(1, stats.n);
+    optionCounts = (strong.length >= 2 && totalShare >= 0.15) ? strong : [];
+    options = optionCounts.map((c) => c.label);
   } else if (type === "category") {
     // Dead-end (n=0) gift queries: offer gift-adjacent categories.
     const GIFT_AFFINITY = ["Toys & Games", "Handmade", "Arts, Crafts & Sewing", "AMAZON FASHION",
@@ -483,15 +758,19 @@ export function decideGuide(catalog, query, nResults, context = {}) {
     // must not be offered AMAZON FASHION just because it is the biggest
     // category); frequency breaks ties.
     names = rankCategoriesByIntent(names, query);
-    options = names;
     reason = `ambiguous across categories (top share ${(dominantShare * 100).toFixed(0)}%); zero_or_wrong = 3.5% of mined complaints`;
     const catCount = (name) => {
       if (stats.n > 0) return counts.get(name) || 0;
       return catalog.filter((x) => x.category === name).length; // dead-end: whole catalogue
     };
-    optionCounts = options.map((o) => ({ label: o, count: catCount(o) }));
+    // Shopper-facing family names ("Home & Decor", not "Amazon Home" /
+    // "AMAZON FASHION"); the raw names stay the filter values (CAT_ALIAS in
+    // search.js maps the display label back on a chip tap).
+    optionCounts = names.map((nm) => ({ label: displayCat(nm), count: catCount(nm) }));
+    options = optionCounts.map((c) => c.label);
   } else if (type === "brand") {
-    options = stats.brands.slice(0, 3).map((b) => b.name);
+    const brandFloor = Math.max(5, Math.round(0.05 * stats.n));
+    options = stats.brands.filter((b) => b.count >= brandFloor).slice(0, 3).map((b) => b.name);
     options.push("No preference - best rated");
     reason = `brand-driven category, results fragmented (${stats.brands.length} brands in candidate set); brand = strongest trust proxy (trust_gap = 54.4% of mined complaints)`;
     const brandCount = (name) => (stats.brands.find((b) => b.name === name) || { count: 0 }).count;

@@ -233,6 +233,43 @@ shopper can see that answering is worth it.
 5. **Stable under LLM failure** — the LLM phrases, never decides; if the
    proxy is down, the template question is still the right question.
 
+**Stop conditions (rounds 6–8, UX panel v2, 91.7% A):**
+
+- **Two-facet destination (P8).** When ≥2 of the knowable facets
+  (budget / occasion / for_whom / size / capacity) are settled — stated
+  in the query or already answered — and ≥10 results are on screen, the
+  journey is at its destination: no further question. A third question
+  on a resolved, well-specified journey was the top source of
+  "redundant" verdicts.
+- **Question only on an A-grade data fit** (every eligibility floor
+  exists because the frozen judge measured the alternative):
+  - *Budget* only when the on-intent price range is genuinely wide
+    (p75/p25 ≥ 4×: headphones 1–4k, laptops 25–75k, TVs 20k–1L) or the
+    set is high-ticket (p50 ≥ ₹15k); never when the range spans >15×
+    (sitar 1.5k–33k — specify type first) or is narrow-mid (microwave
+    10–14k, fan, photo frame). On-intent quantiles come from the visible
+    top-300, with a bimodal guard falling back to all-visible bands.
+  - *Occasion* only on gift/event intent, never when the query names a
+    SPECIFIC occasion (diwali/anniversary/birthday/wedding… — "party"
+    from "event" is generic and stays askable), and only when ≥2 option
+    chips each carry ≥max(5, 3% of the candidate set) AND the tagged
+    options cover ≥15% of the set — otherwise the answer cannot narrow
+    anything. Pure "gift/kuch" queries without a stated recipient get no
+    occasion quiz (no grounded answer in a 2,700-item mega set).
+  - *Size* only on fit garments with ≥25 size-bearing candidate items
+    and a real spread (≥2 sizes with ≥5 items each, or one size with ≥25
+    items covering ≥20% of a ≥300-item set); size shares are computed
+    over the visible item pool, not the full result count.
+  - *For-whom* never when the query states the recipient (or a
+    self-reference); possessive pronouns (uske/unke…) count as gifting
+    intent but NOT as a stated recipient — the shopper themselves is
+    ambiguous about "uske liye".
+  - *Category* in resolved mode only for genuine product-family splits;
+    one product filed across electronics departments (charger: All
+    Electronics + Cell Phones & Accessories; TV: + Home Audio &
+    Theater) is not a shopper choice. Dead-end (rescue) category
+    disambiguation is unchanged.
+
 ## 5. Evidence (n=150 study, live app)
 
 `eval/results/summary.txt` (deterministic mode, calibrated against the live

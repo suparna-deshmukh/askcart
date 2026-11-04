@@ -209,7 +209,22 @@
     "राइस": "rice",
     "कुकर": "cooker",
     "परफ्यूम": "perfume",
-    "परफ्युम": "perfume"
+    "परफ्युम": "perfume",
+    "अम्मी": "ammi",
+    "अम्मा": "amma",
+    "अम्मू": "ammi",
+    "पति": "pati",
+    "पत्नी": "patni",
+    "बर्थडे": "birthday",
+    "सूट": "suit",
+    "फैमिली": "family",
+    "परिवार": "parivar",
+    "जन्मदिन": "birthday",
+    "जन्म दीन": "birthday",
+    "इवेंट": "event",
+    "वर्सरी": "anniversary",
+    "घरवाले": "family",
+    "घर वाले": "family"
   },
   "_rasoi_note": "'kitchen' is a context modifier in the engine (it never scores on its own), so rasoi maps to the concrete product word 'utensils'."
 }

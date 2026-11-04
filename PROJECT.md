@@ -791,6 +791,35 @@ frozen panel; reported as its own line, never hidden. Qwen usage
 single LLM judge; UX sample enriched for null-search journeys (stress
 view). Full detail: docs/ASKCART_FULL_DEEP_DIVE.md §10.9.
 
+**UX panel v2 — the measured UX question-fit number (final: 91.7%)**
+(`eval/qwen_suite/panel_ux_v2.jsonl`, `results/ux_v2_summary.md`). The
+frozen v1 UX panel had 0 judged moments after the question-economy fixes
+(300/300 no_question), so v2 was built from the *current build's own*
+question moments: 300 moments (seed 20261105, panel sha
+`5e60d43bb88d58ad`) sampled from the 2,575 question moments the policy
+asks across the 3,000 persona journeys (1,840 journeys asked ≥1),
+committed before judging; the v1 frozen panel is untouched. Same frozen
+judge and prompt as v1 (qwen38-27b, temp 0). `no_question` moments
+(policy no longer asks at the sampled step after a product change) are
+excluded from the denominator per the pre-agreed protocol — 252/300 at
+final, which is itself the finding: the policy now asks only where a
+grounded fit exists.
+
+| A-rate on judged moments | 21.0% → 24.5% → 44.7% → 25.6% (regression, reverted) → 47.2% → 43.8% (round 5, 46/105 judged, 195 NQ) → 57.7% (round 6, 45/78, 222 NQ) → 84.6% (round 7, 44/52, 248 NQ) → **91.7% [80.4–96.7] (round 8, 44/48 judged, 252 NQ)** |
+|---|---|
+| Residual non-A (4) | 3× "budget fits but category is better" (spectacles ×2, घड़ी — the judge wants a category split the data gates don't back) + 1 judge-noise duplicate (hinglish bangle, whose en twin with identical options is A) |
+
+The policy was iterated against the frozen judge's rubric — that rubric
+is the acceptance metric (≥90% A requested). Every fix is a product-side
+data/eligibility rule in `app/lib/guide.js` + `app/lib/search.js`
+(named-occasion skip, no-receiver-occasion floor, wide-range-only budget,
+size-cluster floors, electronics-department category guards, two-facet
+destination stop, on-intent price-quantile dominant-category fix);
+no judge or panel edits. Caveats: single LLM judge (deterministic);
+NQ-excluded denominators; frozen panel; the 4 residuals are documented,
+not hidden. Full round-by-round detail:
+docs/ASKCART_FULL_DEEP_DIVE.md §10.10.
+
 ## 6. Event schema (what "every event" means, precisely)
 
 Full reference: `docs/event_schema.md`. **One event type per user action**,

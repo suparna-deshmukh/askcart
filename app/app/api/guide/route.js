@@ -40,6 +40,7 @@ export async function POST(req) {
   let mode = forceMode === "fallback" ? "fallback" : "policy";
   let model = null;
   const translateOption = (o) => {
+    if (o === "Gift") return t(lang, "occGift");
     if (o === "Not sure / flexible") return t(lang, "notSure");
     if (o.startsWith("No preference")) return t(lang, "noPref");
     if (/^Under /.test(o)) return budgetLabel(lang, o);

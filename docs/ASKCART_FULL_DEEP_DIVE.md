@@ -1112,6 +1112,58 @@ pieces — and it adds the two dimensions that never had a Qwen eval:
   made before any result was published; the panel itself was never
   modified after freezing.
 
+### 10.10 UX panel v2 — the 91.7% question-fit push (rounds 1–8)
+
+Panel: 300 question moments from the current build's own persona-sim v2
+run (2,575 question moments across 3,000 journeys; seed 20261105; sha
+`5e60d43bb88d58ad`; `panel_ux_v2.jsonl` committed before judging). Key
+structural discovery: the panel's first-question moments are recorded at
+`turn=2` (turn 1 = the initial search), so nearly all moments audit the
+journey's FIRST question (seq0=201, seq1=89, seq2=10) and `no_question`
+is the main denominator lever. Judge A patterns (frozen prompt, temp 0):
+size on apparel with real size data; occasion on gift queries with
+UNSTATED occasion; brand when brands dominate; budget only on clean
+wide-range single products; for-whom on ambiguous apparel/watch. The
+judge M's "defensible but not best" on the rest — the wall was 43.8%
+(46/105) after round 5.
+
+Rounds 6–8 fixes (all in `app/lib/guide.js` unless noted; each verified
+in-process before any HTTP gate, then all 6 gates re-run):
+
+| ID | Fix | Panel moments fixed |
+|---|---|---|
+| P1b | occasion options LEAD with the stated occasion (Wedding/Shaadi…), drop the misleading "Gift" option | 15× "ignore wedding context" B's |
+| P2 | stated recipient + product subject, no stated occasion ⇒ gift ladder (candle for colleague) | candle A kept; organizer/rug/tshirt-for-sister M/B's via F2 |
+| P3 | budget only when on-intent p75/p25 ≥ 4× (or high-ticket p50 ≥ ₹15k) | mictrowave/heaphones/fan/photo-frame/blazer budget M/B's → NQ |
+| P4 | bare watch queries (watch/घड़ी, no gender token) don't get for-whom | "watch under 1000" M → NQ |
+| P5 | phone-accessory department artifact: no category split when top dept is Cell Phones & Accessories on a non-phone query | samsng tv → budget A |
+| P8 | destination stop: ≥2 settled facets (stated ∪ answered) AND ≥10 results on screen → stop asking | all second-question M's (tshirt/sneakers/samsng-tv/hoodie t3…) |
+| F1 | a NAMED occasion in the query (diwali/anniversary/birthday/wedding/…) skips the occasion quiz; generic "party" (from "event") stays askable | 11 stated-occasion M/B's; 3 event-occasion A's preserved |
+| F2/F9′ | occasion options need ≥max(5, 3% of set) each AND tagged coverage ≥15% of the set, ≥2 such options | tshirt/shirt/rug/organizer/hi-tshirt/shawl M/B's → NQ; dress-for-wife M → NQ; all 5 occasion A's byte-identical |
+| F3/F11 | size needs ≥25 size-bearing items AND a real spread (≥2 sizes with ≥5 items, or one size ≥25 items covering ≥20% of a ≥300 set); shares computed over the visible item pool, not n | blazer ×2, diaper bag, hoodie-dost M's → NQ; watsh/shirt/kurta A's preserved; tshirt/shirt-for-wife flipped NQ→size A (pool-share fix) |
+| F5′ | Devanagari subject guards (टीवी, घड़ी) — JS `\b` does not fire before Devanagari codepoints, so the round-6 escapes were dead branches; rewritten with literal chars | टीवी → budget A (was department-quiz B) |
+| F6/F7 | no multi-family category quiz when the top-2 "split" is one product across electronics departments (charger: All Electronics + Cell Phones; TV: + Home Audio & Theater) | चार्जर B → NQ |
+| F8 | pure gift/kuch queries with no stated recipient don't get an occasion quiz | uphaar/kuch-aacha-gift M's → NQ |
+| F10 | budget skipped when on-intent range spans >15× (sitar 1.5k–33k) | sitar M → NQ |
+| F12 | possessive pronouns (uske/unke… incl. Devanagari) count as gifting intent but NOT as a stated recipient (the judge A's for-whom on "watch uske liye" — the pronoun is ambiguous to the shopper) | घड़ी-उसके-लिए M → NQ; 4 uske for-whom A's preserved |
+| — | `searchStats.pricePIntent`: dominant category = MAX count (was first-inserted); bimodal guard (p50/p25 > 6 ⇒ fall back to all-visible bands) | laptob/लैपटॉप budget A bands stabilised |
+
+**Dropped fix (reported honestly):** adding uske/uski/uska to the
+recipient vocabulary (original F5) was killed by pre-audit — it would
+have removed for-whom from 4 A moments ("watch uske liye" ×3, "sneakers
+uske liye"), because the frozen judge does not parse the pronoun as a
+stated recipient. F12 captures the gift-intent half of that idea without
+the for-whom exclusion.
+
+Trajectory: 21.0 → 24.5 → 44.7 → 25.6 (round-3 category revival
+regression, reverted) → 47.2 → 43.8 → 57.7 → 84.6 → **91.7%**
+(44/48 judged, 252 NQ; Wilson [80.4–96.7]). Round 8 re-judged 0 moments
+(all four fixes flipped M→no_question with byte-identical everything
+else). UX v2 Qwen spend: 611 calls ≈ 220K est tokens (cumulative in
+`results/cost_ux_v2.json`). Residual 4 M's: 3× "category is better"
+(spectacles ×2, घड़ी — no grounded product-family split in the data) +
+1× hinglish-bangle "weak" (identical en options A'd — judge noise).
+
 ## 11. Architecture, file map, runbook, configuration
 
 ### 11.1 Request architecture

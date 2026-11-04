@@ -38,13 +38,13 @@ def main():
     personas = {p["pid"]: p for p in ps.build_personas()}
     by_journey = {}
     for c in cases:
-        by_journey.setdefault((c["pid"], c["query"]), []).append(c)
+        by_journey.setdefault((c["pid"], c.get("sim_dim", c["dim"]), c["query"]), []).append(c)
 
     def replay_one(jkey):
-        pid, q = jkey
+        pid, simdim, q = jkey
         p = personas[pid]
-        matches = [(d, q2) for d, q2 in ps.queries_for(p) if q2 == q]
-        assert matches, f"query not found for persona {pid}: {q}"
+        matches = [(d, q2) for d, q2 in ps.queries_for(p) if d == simdim and q2 == q]
+        assert matches, f"query not found for persona {pid} dim {simdim}: {q}"
         dim, qq = matches[0]
         return jkey, *replay(url, p, dim, qq)
 

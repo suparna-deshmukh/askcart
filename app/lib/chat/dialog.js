@@ -409,6 +409,16 @@ export async function handleTurn(state, input, ctx) {
 
   // ---- NLU -----------------------------------------------------------------
   const tNlu = Date.now();
+  // Mid-journey budget statements are answers even when the policy stopped
+  // asking: a bare "1800" (or "not sure about budget") typed after a search
+  // is a budget refinement, not a new query (golden g10/g56).
+  if (!state.pending && state.last && (state.last.all || []).length) {
+    const raw = String(input.text || "").trim();
+    const budgetish = /^\d{1,6}\s*(k|l|lakh)?$/i.test(raw) ||
+      (/(not sure|flexible|koi fikar nahi|pakka nahi)/i.test(raw) &&
+       /budget|price|kimat|kitna/i.test(raw));
+    if (budgetish) state.pending = { type: "budget" };
+  }
   let nlu = classify(state, String(input.text || ""));
   // A typed "brand" answer must name a catalog brand; otherwise the text is
   // re-read as a normal message (a pending brand question must not swallow

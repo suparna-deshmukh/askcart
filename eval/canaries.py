@@ -135,7 +135,11 @@ def post(url, payload):
 # G3 guided-facet checks (assertions, not eyeball): the guide must only ask
 # a facet question when the candidate set can visibly act on the answer.
 G3_CHECKS = [
-    ("guide_for_whom", "shirt under 1k", {}, "for_whom"),
+    # Fashion ladder is size-first when titles carry S/M/L (Qwen UX panel v2:
+    # "size is better" on watch/smartwatch; size moments 83% A). Saree titles
+    # carry no S/M/L, so for-whom stays first there.
+    ("guide_for_whom", "bangle", {}, "for_whom"),
+    ("guide_size_first", "shirt under 1k", {}, "size"),
     ("guide_no_gender_data", "kurti", {}, "not_for_whom"),
     ("guide_recipient_hint", "kurti for ammi", {}, "not_for_whom"),
     ("facet_size_l", "cotton kurti", {"size": "l"}, "L"),
@@ -152,6 +156,8 @@ def check_g3(url):
             if expect == "for_whom":
                 named = sum(o.get("count", 0) for o in (g.get("optionCounts") or [])[:3])
                 ok = t == "for_whom" and named >= 15
+            elif expect == "size":
+                ok = t == "size"
             else:
                 ok = t != "for_whom"
         else:

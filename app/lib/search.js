@@ -44,7 +44,7 @@ const OCCASIONS = {
   party: "party", diwali: "diwali", christmas: "christmas", xmas: "christmas",
   valentines: "valentines", "valentine's": "valentines", "baby shower": "baby-shower",
   graduation: "graduation", housewarming: "housewarming",
-  rakhi: "diwali", festival: "diwali", gift: "gift"
+  rakhi: "diwali", festival: "diwali", event: "party", gift: "gift"
 };
 
 export function parseQuery(q) {
@@ -224,6 +224,7 @@ function parseSpecs(s) {
     break;
   }
   if ((m = s.match(/(\d+(?:\.\d+)?)\s*ton\b/))) specs.tonnage = parseFloat(m[1]);
+  if ((m = s.match(/(\d{1,3}(?:\.\d+)?)\s*kg\b/i))) specs.kg = parseFloat(m[1]);
   if ((m = s.match(/(\d)\s*stars?\b/))) specs.stars = parseInt(m[1], 10);
   if ((m = s.match(/(\d{2,3})\s*(?:inch|inches)\b/))) specs.inches = parseInt(m[1], 10);
   if ((m = s.match(/(\d{1,3}(?:\.\d+)?)\s*(?:litre|liter)\b/))) specs.volume = parseFloat(m[1]);
@@ -554,7 +555,15 @@ function keyToken(tokens) {
 
 const CAT_ALIAS = { "electronics": "electronics", "fashion": "fashion",
   "home & decor": "home", "home decor": "home", "beauty": "beauty",
-  "sports": "sports", "office": "office" };
+  "sports": "sports", "office": "office",
+  // Shopper-facing display labels (guide.js CAT_DISPLAY) map back to the
+  // raw department names for the substring filter below.
+  "fashion & clothing": "fashion", "mobile & accessories": "cell phones",
+  "computers & laptops": "computers", "tools & diy": "tools",
+  "health & care": "health", "office & stationery": "office",
+  "home appliances": "appliances", "auto & car": "automotive",
+  "pet care": "pet", "arts & crafts": "arts, crafts",
+  "audio & tv": "audio & theater", "collectibles & art": "collectibles" };
 
 // Shared scorer: returns every matching item with its score (pre-sort).
 function scoreAll(catalog, q, { relax = false, category = null, occasion = null, budgetMax = null, brand = null, naive = false, forWhom = null, size = null, capacity = null } = {}) {
@@ -918,12 +927,44 @@ export function searchStats(catalog, q, opts = {}) {
   }
   prices.sort((a, b) => a - b);
   const pct = (p) => prices.length ? prices[Math.min(prices.length - 1, Math.floor(p * prices.length))] : 0;
+  // On-intent price quantiles over the VISIBLE top-300 (by score): budget
+  // bands should cover the products the shopper actually sees for this
+  // query, not accessory/related matches ranked below the fold (Qwen UX
+  // panel v2: "options wrong" on laptop/TV typo queries).
   const top = (m, n) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([name, count]) => ({ name, count }));
+  const visible = (hits.length ? [...base].sort((a, b) => (b.score || 0) - (a.score || 0)) : base).slice(0, 300);
+  // Bimodal guard: when the on-intent set mixes the real product with
+  // same-word accessories (microwave ovens 10-14k + microwave covers 2k),
+  // the quantiles span both - fall back to the dominant category's
+  // on-intent subset when it is a clear majority.
+  const intentVisible = visible.filter((h) => h.intent);
+  let priceIntent = intentVisible;
+  if (intentVisible.length >= 20) {
+    const sp = intentVisible.map((h) => h.price).sort((a, b) => a - b);
+    const spread = sp[Math.floor(0.75 * sp.length)] / Math.max(1, sp[Math.floor(0.25 * sp.length)]);
+    // Dominant = MAX category, not first-inserted (catalogue-order
+    // catCounts.keys().next() mis-targeted the bimodal fallback).
+    let domCat = null, domN = 0;
+    for (const [c, n] of catCounts) if (n > domN) { domN = n; domCat = c; }
+    const domIntent = intentVisible.filter((h) => h.category === domCat);
+    if (spread > 6 && domIntent.length >= 20 && domIntent.length / intentVisible.length >= 0.5) {
+      priceIntent = domIntent;
+    }
+  }
+  const intentPrices = priceIntent.map((h) => h.price).sort((a, b) => a - b);
+  const intentPct = (p) => intentPrices.length ? intentPrices[Math.min(intentPrices.length - 1, Math.floor(p * intentPrices.length))] : 0;
+  // Final bimodal guard: if the chosen on-intent subset is still bimodal
+  // (p50 > 6x p25 - real laptops + laptop desks inside one department),
+  // its quantiles span two price worlds; fall back to the all-visible
+  // bands instead (Qwen UX panel v2: laptob allP bands are the A'd set).
+  const iP25 = intentPct(0.25), iP50 = intentPct(0.5);
   return {
     n: hits.length,
     categories: top(catCounts, 4),
     brands: top(brandCounts, 4),
     priceP: { p25: pct(0.25), p50: pct(0.5), p75: pct(0.75) },
+    pricePIntent: intentPrices.length >= 20 && !(iP25 > 0 && iP50 / iP25 > 6)
+      ? { p25: iP25, p50: iP50, p75: intentPct(0.75) } : null,
     // G1: facet counts come from the top-300 candidates BY SCORE (the set
     // the shopper can actually see), not catalogue order.
     items: (hits.length ? [...base].sort((a, b) => (b.score || 0) - (a.score || 0)) : base).slice(0, 300),
