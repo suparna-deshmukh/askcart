@@ -284,7 +284,17 @@ function AskCartHome() {
   const [s, setS] = useState(null); // active search state (see below)
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState(null);
-  const [cart, setCart] = useState(() => (typeof window === "undefined" ? {} : lsCart()));
+  // SSR-safe: server and first client render must agree. The old
+  // typeof-window initializer hydrated a previous session's cart on the
+  // client only -> "Hydration failed" mismatch on the cart badge. Cart
+  // hydrates after mount instead.
+  const [cart, setCart] = useState({});
+  const [cartHydrated, setCartHydrated] = useState(false);
+  useEffect(() => {
+    const c = lsCart();
+    if (c && Object.keys(c).length) setCart(c);
+    setCartHydrated(true);
+  }, []);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [order, setOrder] = useState(null);
@@ -414,8 +424,9 @@ function AskCartHome() {
   }, []);
 
   useEffect(() => {
+    if (!cartHydrated) return; // never clobber localStorage before the mount-time load
     try { localStorage.setItem("askcart_cart", JSON.stringify(cart)); } catch {}
-  }, [cart]);
+  }, [cart, cartHydrated]);
 
   function ensureJourney(query) {
     if (journeyRef.current && !journeyRef.current.ended && journeyRef.current.query === query) return journeyRef.current;
