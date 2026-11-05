@@ -36,11 +36,11 @@ export function llmAvailable() {
   return !!BASE && !!KEY;
 }
 
-export async function chat(messages, { maxTokens = 500, temperature = 0.2, timeoutMs = 45000, thinking = null } = {}) {
+export async function chat(messages, { maxTokens = 500, temperature = 0.2, timeoutMs = 45000, thinking = null, attempts = 4 } = {}) {
   if (!llmAvailable()) throw new Error("NO_KEY");
   let budget = maxTokens;
   let lastErr = null;
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < attempts; attempt++) {
     try {
       const payload = { model: MODEL, messages, temperature, max_tokens: budget };
       if (thinking === false) payload.extra_body = { chat_template_kwargs: { enable_thinking: false } };
@@ -53,7 +53,7 @@ export async function chat(messages, { maxTokens = 500, temperature = 0.2, timeo
       if (!r.ok) {
         lastErr = new Error(`HTTP ${r.status} ${(await r.text()).slice(0, 150)}`);
         if (r.status === 404 || r.status === 400) break;
-        await new Promise((res) => setTimeout(res, 2500 * (attempt + 1)));
+        if (attempt + 1 < attempts) await new Promise((res) => setTimeout(res, 2500 * (attempt + 1)));
         continue;
       }
       const d = await r.json();
@@ -61,7 +61,7 @@ export async function chat(messages, { maxTokens = 500, temperature = 0.2, timeo
       const content = choice?.message?.content;
       if (content === null || content === undefined) {
         // thinking model spent the whole token budget on reasoning
-        if (choice?.finish_reason === "length" && attempt < 3) {
+        if (choice?.finish_reason === "length" && attempt + 1 < attempts) {
           budget = Math.floor(budget * 2.5);
           continue;
         }
@@ -70,7 +70,7 @@ export async function chat(messages, { maxTokens = 500, temperature = 0.2, timeo
       return { text: content, model: d.model || MODEL };
     } catch (e) {
       lastErr = e;
-      await new Promise((res) => setTimeout(res, 2500 * (attempt + 1)));
+      if (attempt + 1 < attempts) await new Promise((res) => setTimeout(res, 2500 * (attempt + 1)));
     }
   }
   throw lastErr || new Error("LLM_FAILED");

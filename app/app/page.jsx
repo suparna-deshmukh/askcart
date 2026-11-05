@@ -175,13 +175,16 @@ const WHY_COPY = {
   occasion: "The same product can be for a shaadi, a birthday or everyday use — the occasion changes what counts as a good match. (Top reason gift searches miss.)",
   category: "Your search matched several different product types — picking one avoids unrelated results. (3rd most common reason searches fail.)",
   brand: "Within these results a few brands hold most of the ratings — brand is the fastest way to trust a pick. (The #1 reason shoppers distrust results.)",
+  any: "No single filter dominated these results, so this is an open question — type a brand, a use or a detail and the results re-rank on it.",
 };
 
 function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip }) {
   const [whyOpen, setWhyOpen] = useState(false);
   const [typed, setTyped] = useState("");
   const counts = Object.fromEntries((guide.optionCounts || []).map((c) => [c.label, c.count]));
-  const refine = !!guide.refine;
+  // A typed-only "any" question always gets the full card: the compact
+  // strip has no typed input and would render an unanswerable question.
+  const refine = !!guide.refine && guide.type !== "any";
   const submitTyped = () => { if (typed.trim()) { onTyped(typed); setTyped(""); } };
   if (refine) {
     // G11: resolved searches get a compact one-row strip, never a card
@@ -301,11 +304,12 @@ function AskCartHome() {
   // 7.1: product detail drawer (linkable via ?sku=)
   const [pdp, setPdp] = useState(null);
   const [moreN, setMoreN] = useState(24); // 7.3: "Show more" page size
-  // P3-lite: Guided vs Plain compare toggle. Plain = the legacy keyword
-  // baseline (naive mode: no budget/occasion understanding, no questions)
-  // so a reviewer can A/B the two in the same session. Not persisted: a
-  // fresh visitor always lands on the guided experience.
-  const [plainMode, setPlainMode] = useState(false);
+  // P3-lite: Plain = the legacy keyword baseline (naive mode: no budget/
+  // occasion understanding, no questions) kept only as a reviewer A/B
+  // behind ?mode=plain. Guided is the default and the only mode the UI
+  // offers - a guided-search product must not make the shopper pick the
+  // mode (product requirement 2026-11-05).
+  const [plainMode, setPlainMode] = useState(() => params.get("mode") === "plain");
   const [chatOpen, setChatOpen] = useState(false);
   const [chatNudge, setChatNudge] = useState(false);
   // Chat-shared session: a search the assistant applies re-runs the SAME
@@ -1086,7 +1090,7 @@ function AskCartHome() {
                 </div>
               )}
               {s && plainMode && (
-                <div className="meta" role="status">Plain mode — baseline keyword search: no budget or occasion understanding, no follow-up questions. Switch to Guided to see the difference on the same query.</div>
+                <div className="meta" role="status">Plain mode — baseline keyword search: no budget or occasion understanding, no follow-up questions. <button className="fchip" onClick={() => switchPlainMode(false)}>Switch to Guided</button></div>
               )}
               {s && s.rollback && (
                 <div className="meta" style={{ marginTop: -8, marginBottom: 10 }}>
@@ -1158,10 +1162,6 @@ function AskCartHome() {
                 <>
                   <div className="filters">
                     <div className="frow">
-                      <span className="flabel" title="Guided = budget/occasion-aware search with at most 3 questions. Plain = the legacy keyword baseline, no questions.">Mode</span>
-                      <button className={!plainMode ? "fchip on" : "fchip"} onClick={() => switchPlainMode(false)}>Guided</button>
-                      <button className={plainMode ? "fchip on" : "fchip"} onClick={() => switchPlainMode(true)}>Plain</button>
-                      <span className="fsep" />
                       <span className="flabel">Sort</span>
                       {SORTS.map((x) => (
                         <button key={x.id} className={f.sort === x.id ? "fchip on" : "fchip"} onClick={() => setFilter("sort", x.id)}>{x.label}</button>

@@ -65,7 +65,7 @@ export async function POST(req) {
         "Rewrite ONLY the question sentence (max 12 words). Keep options identical.";
       const { text, model: m } = await chat(
         [{ role: "system", content: PHRASE_SYSTEM }, { role: "user", content: userMsg }],
-        { maxTokens: 240, temperature: 0.4 },
+        { maxTokens: 240, temperature: 0.4, timeoutMs: 1500, attempts: 1 },
       );
       const raw = text.replace(/```json/gi, "").replace(/```/g, "").trim();
       const obj = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));

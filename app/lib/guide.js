@@ -261,6 +261,7 @@ const TEMPLATES = {
   for_whom: "Quick one - who's it for?",
   size: "Any size you need? (or I'll show all)",
   capacity: "What size / capacity do you need?",
+  any: "Anything else that would help me narrow it down?",
 };
 
 // Shopper-facing display labels for the coarse department categories.
@@ -787,11 +788,41 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
       return out("brand", opts, opts.map((o) => ({ label: o, count: o.startsWith("No preference") ? stats.n : (stats.brands.find((b) => b.name === o) || { count: 0 }).count })),
         "guaranteed first question: brand-led candidate set (relaxed data floor)");
     }
-    // No tier 6: a department "category" split (Fashion / Electronics /
-    // Cell-Phones) on a single-product subject ("watch", "घड़ी",
-    // "organizer") is not a shopper choice (F6/F7) - every such moment was
-    // B'd by the frozen judge, so the fallback stops instead.
-    return null;
+    // No department "category" tier (F6/F7): a Fashion/Electronics/
+    // Cell-Phones split on a single-product subject ("watch", "घड़ी",
+    // "organizer") is not a shopper choice - every such moment was B'd
+    // by the frozen judge, so it is skipped.
+    // Tier 6 - brand when the budget is ALREADY stated (the "budget
+    // headphones under 3000" case: every tier above either needs a
+    // gift/wearable/vague subject or budgetMax===null, so a priced
+    // product query asked nothing). Brand is still the trust facet
+    // (trust_gap = 54.4% of mined complaints) and every chip carries a
+    // live count, so it is never a one-chip quiz. Counts are computed
+    // over ON-INTENT items that respect the stated budget - stats.brands
+    // spans all scored hits (for "5 star ac under 30k" that is 2005 items
+    // whose top brands are Adidas/Nike/Apple - a brand question built on
+    // that set would offer the wrong brand world).
+    if (parsed.budgetMax !== null && !parsed.brand && stats.n >= 10) {
+      const budgeted = stats.items.filter((h) => h.intent && h.price <= parsed.budgetMax);
+      const bc = new Map();
+      for (const h of budgeted) if (h.brand) bc.set(h.brand, (bc.get(h.brand) || 0) + 1);
+      const brands = [...bc.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+      const live = brands.filter((b) => b.count >= 3).slice(0, 3);
+      if (live.length >= 2) {
+        const opts = live.map((b) => b.name);
+        opts.push("No preference - best rated");
+        const total = budgeted.length;
+        return out("brand", opts, opts.map((o) => ({ label: o, count: o.startsWith("No preference") ? total : bc.get(o) })),
+          "guaranteed first question (last resort): budget already stated - brand counts over the on-budget on-intent candidate set");
+      }
+    }
+    // Tier 7 - absolute last resort: a typed-only open question. Product
+    // thesis (user requirement 2026-11-05): every search asks at least
+    // one question, no matter how good the first match is. When no data
+    // facet has >=2 live options, the question is "type it" - the typed
+    // answer runs the normal refinement search (no chips, no quiz).
+    return out("any", [], [],
+      "guaranteed first question (typed last resort): no data facet with >=2 live options - open typed refinement");
   };
 
   if (!order.length) {
