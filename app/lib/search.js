@@ -637,7 +637,8 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     (SYNONYMS[t] || []).some((x) => SOFA_WORDS.has(x)));
   const preRaw = new Set(parsed.rawWords);
   const kidsWanted = forWhom === "kids" || parsed.forWhom === "kids" ||
-    [...preRaw].some((w) => CHILD_RECIPIENTS.has(w));
+    [...preRaw].some((w) => CHILD_RECIPIENTS.has(w)) ||
+    (parsed.specs && parsed.specs.age !== undefined && parsed.specs.age <= 12);
   const bottleCtx = tokens.some((t) => ["bottle", "flask", "thermos"].includes(t));
   const babyWanted = [...preRaw].some((w) => ["baby", "infant", "nija", "shishu"].includes(w));
   const required = nonMod.length >= 2 ? nonMod : (nonMod.length === 1 ? nonMod : tokens);

@@ -548,6 +548,10 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     if (t === "for_whom" && recipientHint) return false;
     if (t === "for_whom" && selfRef) return false; // "bangle apne liye"
     if (t === "for_whom" && (!hasSubject || (parsed.specs && parsed.specs.size))) return false;
+    // A stated child age ("gift for 5 year old") already answers who it is
+    // for - Men/Women would be wrong options. The search side applies the
+    // kids boost from the same age slot.
+    if (t === "for_whom" && parsed.specs && parsed.specs.age !== undefined) return false;
     // P4: a bare watch query (no gender token) is not a for-whom moment -
     // "who's it for?" on "watch under 1000" reads redundant (Qwen UX
     // panel v2). "watsh for men" keeps its size question (typo, no WATCH_Q
@@ -716,7 +720,8 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // split of the gift set is the decisive facet ("shadi gift under 2000"
     // -> Women 106 / Men 51 / Kids 88).
     if ((gift || isWearableQ(query)) && !recipientHint && !selfRef &&
-        !(watchBare && !genderTok) && !(parsed.specs && parsed.specs.size)) {
+        !(watchBare && !genderTok) && !(parsed.specs && parsed.specs.size) &&
+        !(parsed.specs && parsed.specs.age !== undefined)) {
       const fw = forWhomOptions(stats.items, stats.n);
       const named = fw.slice(0, 3).filter((o) => (o.count || 0) >= 3);
       if (named.length >= 2) return out("for_whom", fw.map((o) => o.label), fw,
