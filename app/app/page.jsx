@@ -524,7 +524,7 @@ function AskCartHome() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, n_results: nResults, turn, prev_types: prevTypes,
-                             journey_id: jn ? jn.id : null, region, persona, lang, slots }),
+                             journey_id: jn ? jn.id : null, region, persona, lang, slots, planner: true }),
     });
     return r.json();
   }
@@ -583,6 +583,7 @@ function AskCartHome() {
         track("guide_question_shown", {
           query, question_type: g.guide.type, turn: 2, options_count: g.guide.options.length,
           mode: g.mode, refine: true, reason: g.decision && g.decision.reason,
+          planner: (g.decision && g.decision.planner) || null,
           journey_id: journeyRef.current.id,
         });
         setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: true } });
@@ -622,7 +623,7 @@ function AskCartHome() {
       guideShownAtRef.current = Date.now();
       track("guide_question_shown", {
         query, question_type: guide.type, turn, options_count: guide.options.length,
-        mode: g.mode, reason: g.decision && g.decision.reason, journey_id: journeyRef.current.id,
+        mode: g.mode, reason: g.decision && g.decision.reason, planner: (g.decision && g.decision.planner) || null, journey_id: journeyRef.current.id,
       });
       // s.turn stays at the last displayed search (1) - the search after
       // this chip answer is turn 2, same numbering as the n=150 study.
@@ -730,7 +731,7 @@ function AskCartHome() {
           track("guide_question_shown", {
             query: s.query, question_type: g2.guide.type, turn: turnNow + 1,
             options_count: g2.guide.options.length, mode: g2.mode, refine: true,
-            reason: g2.decision && g2.decision.reason, journey_id: journeyRef.current.id,
+            reason: g2.decision && g2.decision.reason, planner: (g2.decision && g2.decision.planner) || null, journey_id: journeyRef.current.id,
           });
           setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true } });
           setBusy(false);
@@ -753,7 +754,7 @@ function AskCartHome() {
         track("guide_question_shown", {
           query: s.query, question_type: g.guide.type, turn: turnNow + 1,
           options_count: g.guide.options.length, mode: g.mode,
-          reason: g.decision && g.decision.reason, journey_id: journeyRef.current.id,
+          reason: g.decision && g.decision.reason, planner: (g.decision && g.decision.planner) || null, journey_id: journeyRef.current.id,
         });
         setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: false } });
         setBusy(false);
@@ -835,7 +836,7 @@ function AskCartHome() {
           track("guide_question_shown", {
             query: s.query, question_type: g2.guide.type, turn: turnNow + 1,
             options_count: g2.guide.options.length, mode: g2.mode, refine: true,
-            reason: g2.decision && g2.decision.reason, journey_id: journeyRef.current.id,
+            reason: g2.decision && g2.decision.reason, planner: (g2.decision && g2.decision.planner) || null, journey_id: journeyRef.current.id,
           });
           setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true } });
           setBusy(false);
@@ -854,7 +855,7 @@ function AskCartHome() {
         track("guide_question_shown", {
           query: s.query, question_type: g.guide.type, turn: turnNow + 1,
           options_count: g.guide.options.length, mode: g.mode,
-          reason: g.decision && g.decision.reason, journey_id: journeyRef.current.id,
+          reason: g.decision && g.decision.reason, planner: (g.decision && g.decision.planner) || null, journey_id: journeyRef.current.id,
         });
         setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: false } });
         setBusy(false);

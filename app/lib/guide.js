@@ -1,3 +1,5 @@
+import { planQuestionType } from "./guide_planner.js";
+
 // Follow-up question policy for AskCart.
 //
 // Design: the policy DECIDES (type + data-driven options + reason); the LLM
@@ -332,7 +334,7 @@ function rankCategoriesByIntent(names, query) {
 }
 
 // Returns the decision. `context`: { turn, prevTypes } from the client.
-export function decideGuide(catalog, query, nResults, context = {}) {
+export async function decideGuide(catalog, query, nResults, context = {}) {
   const parsed = parseQuery(query);
   // Follow-up questions must be built on the NARROWED subset (user
   // requirement 2026-11-05: "each next question based on the previous
@@ -854,7 +856,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   let optionCounts = [];
   let reason = "";
   let fallback = null;
-  let chosen = false;
+  const grounded = new Map();
   outer: for (const t of order) {
     type = t;
     if (type === "budget") {
@@ -959,8 +961,36 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
       if (!fallback) fallback = { type: t, options: [...options], optionCounts: [...optionCounts], reason };
       continue outer;
     }
-    chosen = true;
-    break;
+    grounded.set(t, { options: [...options], optionCounts: [...optionCounts], reason });
+  }
+
+  // Item D (2026-11-05): the AI planner picks the question TYPE among the
+  // grounded candidates (client opt-in via context.planner). The pick is
+  // validated against the grounded map - an unknown or ungrounded type
+  // falls through to the deterministic per-category order. The planner only
+  // sees the type list + a set summary: it never sees options, prices or
+  // SKUs, so it cannot influence WHAT the shopper is shown.
+  let plannerInfo = null;
+  if (context.planner && grounded.size >= 2) {
+    try {
+      plannerInfo = await planQuestionType({
+        query,
+        slots: context.slots || {},
+        prevTypes: [...prev],
+        types: [...grounded.keys()],
+        setSummary: `n=${stats.n}; top categories: ` +
+          stats.categories.slice(0, 4).map((c) => `${c.name}:${c.count}`).join(", ") +
+          `; price p25/p50/p75: ${inr(stats.priceP.p25)}/${inr(stats.priceP.p50)}/${inr(stats.priceP.p75)}`,
+      });
+    } catch { plannerInfo = null; }
+  }
+
+  let chosen = null;
+  if (plannerInfo && grounded.has(plannerInfo.type)) {
+    chosen = { type: plannerInfo.type, ...grounded.get(plannerInfo.type) };
+  }
+  if (!chosen) {
+    for (const t of order) if (grounded.has(t)) { chosen = { type: t, ...grounded.get(t) }; break; }
   }
   if (!chosen) {
     const fb = firstQuestionFallback();
@@ -969,6 +999,11 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
              reason: "no grounded facet left (every eligible facet has <2 live options)", stats };
   }
 
+  type = chosen.type;
+  options = chosen.options;
+  optionCounts = chosen.optionCounts;
+  reason = chosen.reason + (plannerInfo && type === plannerInfo.type ? ` [planner:${plannerInfo.via}]` : "");
+
   return {
     ask: true,
     type,
@@ -976,6 +1011,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     optionCounts,
     question: TEMPLATES[type],
     reason,
+    planner: plannerInfo && type === plannerInfo.type ? plannerInfo.via : null,
     stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue },
   };
 }

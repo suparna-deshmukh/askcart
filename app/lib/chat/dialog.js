@@ -391,7 +391,7 @@ export async function handleTurn(state, input, ctx) {
 
   // ---- chips -------------------------------------------------------------
   if (input.type === "chip") {
-    const r = handleChip(state, input.chip_id, ctx, events, ui_actions);
+    const r = await handleChip(state, input.chip_id, ctx, events, ui_actions);
     if (r) {
       act = r.act; text = r.text; components = r.components; chips = r.chips;
       meta.intent = "chip:" + String(input.chip_id).split(":")[0]; meta.via = "rules";
@@ -655,7 +655,7 @@ export async function handleTurn(state, input, ctx) {
 
     default: {
       // search / refine
-      const r = productTurn(state, nlu, ctx, events, ui_actions);
+      const r = await productTurn(state, nlu, ctx, events, ui_actions);
       act = r.act; text = r.text; components = r.components; chips = r.chips;
       meta.n_results = r.n; meta.intent_n = r.intentN;
       facts = r.facts || facts;
@@ -691,7 +691,7 @@ export async function handleTurn(state, input, ctx) {
 }
 
 // ---- search / refine turn -------------------------------------------------
-function productTurn(state, nlu, ctx, events, ui_actions) {
+async function productTurn(state, nlu, ctx, events, ui_actions) {
   const catalog = ctx.catalog;
   const lang = state.lang;
   let query = null;
@@ -784,7 +784,7 @@ function productTurn(state, nlu, ctx, events, ui_actions) {
   if (intentN < 2) {
     // rescue question (same policy engine as the page)
     if (state.asked.length < MAX_QUESTIONS) {
-      const d = decideGuide(catalog, query, intentN, { turn: state.asked.length + 2, prevTypes: state.asked, lang });
+      const d = await decideGuide(catalog, query, intentN, { turn: state.asked.length + 2, prevTypes: state.asked, lang });
       if (d.ask) {
         state.asked.push(d.type);
         state.pending = { type: d.type };
@@ -798,7 +798,7 @@ function productTurn(state, nlu, ctx, events, ui_actions) {
       }
     }
     events.push({ type: "demand_signal", payload: { query } });
-    const d2 = decideGuide(catalog, query, intentN, { turn: state.asked.length + 2, prevTypes: state.asked, lang });
+    const d2 = await decideGuide(catalog, query, intentN, { turn: state.asked.length + 2, prevTypes: state.asked, lang });
     const suggest = d2.stats && d2.stats.topCategory ? displayCatShort(d2.stats.topCategory) : null;
     return {
       act: "not_found_with_substitutes",
@@ -818,7 +818,7 @@ function productTurn(state, nlu, ctx, events, ui_actions) {
     facts: { items: top, skus: top.map((r) => r.sku), slots: state.slots, n: res.length },
   };
   if (state.asked.length < MAX_QUESTIONS) {
-    const d = decideGuide(catalog, query, intentN, { turn: state.asked.length + 2, prevTypes: state.asked, lang });
+    const d = await decideGuide(catalog, query, intentN, { turn: state.asked.length + 2, prevTypes: state.asked, lang });
     if (d.ask) {
       out.question = d.type;
       out.chips = guideChips(d, lang);
@@ -909,7 +909,7 @@ function applySearch(state, query) {
   };
 }
 
-function handleChip(state, chipId, ctx, events, ui_actions) {
+async function handleChip(state, chipId, ctx, events, ui_actions) {
   const lang = state.lang;
   const [head, ...rest] = String(chipId || "").split(":");
   const val = rest.join(":");
@@ -922,7 +922,7 @@ function handleChip(state, chipId, ctx, events, ui_actions) {
     events.push({ type: "chat_question_answered", payload: { type: type || "unknown", via: "skip" } });
     if (state.q && state.last) {
       // re-search with the same slots (question skipped)
-      const r = productTurn(state, { intent: "search", kind: "keep", query: state.q, slots_delta: {}, productTokens: [], keepSlots: true }, ctx, events, ui_actions);
+      const r = await productTurn(state, { intent: "search", kind: "keep", query: state.q, slots_delta: {}, productTokens: [], keepSlots: true }, ctx, events, ui_actions);
       return { ...r, text: T_(lang, "skip"), act: r.act === "ask_question" ? "show_results" : r.act };
     }
     return { act: "deflect", text: T_(lang, "skip"), components: [], chips: [], n: 0, intentN: 0, facts: {} };
@@ -930,7 +930,7 @@ function handleChip(state, chipId, ctx, events, ui_actions) {
   if (head === "more" || head === "cheaper" || head === "different") {
     if (head === "cheaper") state.slots = { ...state.slots, budgetMax: state.slots.budgetMax ? Math.round(state.slots.budgetMax * 0.7 / 50) * 50 : 2000 };
     if (head === "more" && state.last) return showMore(state, events);
-    const r = productTurn(state, { intent: "search", kind: "keep", query: state.q, slots_delta: {}, productTokens: [], keepSlots: true }, ctx, events, ui_actions);
+    const r = await productTurn(state, { intent: "search", kind: "keep", query: state.q, slots_delta: {}, productTokens: [], keepSlots: true }, ctx, events, ui_actions);
     return r;
   }
   if (head === "cart") {
@@ -1034,7 +1034,7 @@ function handleChip(state, chipId, ctx, events, ui_actions) {
   events.push({ type: "chat_question_answered", payload: { type, via: "chip" } });
   events.push({ type: "chat_apply_to_results", payload: { query: state.q, slots_changed: 1 } });
   if (!state.q) return { act: "deflect", text: T_(lang, "oos_unrecognized"), components: [], chips: [], n: 0, intentN: 0, facts: {} };
-  const r = productTurn(state, { intent: "search", kind: "keep", query: state.q, slots_delta: {}, productTokens: [], keepSlots: true }, ctx, events, ui_actions);
+  const r = await productTurn(state, { intent: "search", kind: "keep", query: state.q, slots_delta: {}, productTokens: [], keepSlots: true }, ctx, events, ui_actions);
   const echo = echoLine(state, r);
   if (echo) r.components.unshift({ kind: "notice", text: echo });
   return r;

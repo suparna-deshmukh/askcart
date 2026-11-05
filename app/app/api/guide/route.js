@@ -26,9 +26,12 @@ export async function POST(req) {
   const forceMode = body.mode || null;
   // O2: region/persona/lang are additive context (client carries them).
   const lang = ["en", "hi", "hinglish"].includes(body.lang) ? body.lang : "en";
-  const decision = decideGuide(loadCatalog(), q, nResults, {
+  const decision = await decideGuide(loadCatalog(), q, nResults, {
     turn, prevTypes, region: body.region || null, persona: body.persona || null, lang,
     slots: body.slots || {},
+    // Item D: the page opts into the AI question-type planner; canaries and
+    // the chat dialog keep the deterministic policy order.
+    planner: body.planner === true,
   });
 
   if (!decision.ask) {
@@ -92,6 +95,7 @@ export async function POST(req) {
       reason: decision.reason,
       rescue: decision.stats ? decision.stats.rescue : null,
       topCategory: decision.stats ? decision.stats.topCategory : null,
+      planner: decision.planner || null,
     },
   });
 }

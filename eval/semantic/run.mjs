@@ -108,7 +108,7 @@ async function runArm(armParam, queries) {
     let prevN = intentN;
     const asked = [];
     while (intentN < 2 && questions < 3) {
-      const g = decideGuide(catalog, p.query, intentN, { turn: questions + 2, prevTypes: asked, lang: "en" });
+      const g = await decideGuide(catalog, p.query, intentN, { turn: questions + 2, prevTypes: asked, lang: "en" });
       if (!g.ask) break;
       const label = pickOption(g);
       asked.push(g.type); questions++;

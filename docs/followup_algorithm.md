@@ -367,6 +367,37 @@ analytics (`llm` vs `fallback`). Before the fix a slow LLM cost up to
 ~32 s (45 s default timeout + 4-attempt backoff) before the template
 landed.
 
+### 3.8 AI planner for the question TYPE (Item D, 2026-11-05)
+
+On the live page (the client sends `planner: true`) the AI picks WHICH
+grounded question type to ask; the deterministic policy still decides
+everything else - options, counts, order, stop conditions.
+
+- `decideGuide` first collects the **grounded map**: for every eligible
+  facet type, its data-floored option set (>=2 live data options, the
+  same gate as before). Only types in this map are askable.
+- When >=2 types are grounded, the planner
+  (`app/lib/guide_planner.js`) picks one from a compact prompt that
+  carries ONLY: the query, the answered slots, the types already asked,
+  a set summary (n, top-4 categories, price p25/p50/p75) and the
+  candidate type list. It answers `{"type": ...}`. The pick is
+  validated against the grounded map - an unknown or ungrounded type
+  falls back to the deterministic per-category order. The planner
+  never sees options, prices or SKUs, so it cannot influence WHAT the
+  shopper is shown.
+- Providers, in order: Qwen38-27B via LiteLLM (thinking off,
+  temperature 0, 60 output tokens, single attempt, 1500 ms timeout) ->
+  Gemini REST fallback (`GEMINI_API_KEY` / `GEMINI_MODEL` from
+  `~/askcart/.env`, 2500 ms) -> deterministic policy. Three consecutive
+  failures open a 5-minute breaker; a 10-minute in-memory cache keyed
+  on query|slots|prev|types keeps repeat turns free.
+- `decision.planner` (`llm` | `gemini` | null) is returned in the
+  response and logged on `guide_question_shown` as `planner`.
+- Deterministic mode (canaries, the chat dialog, eval harnesses) does
+  NOT send `planner: true`: the per-category order of section 3.6
+  applies exactly as before, so all frozen gates keep testing the
+  policy, and the chat's template/LLM parity holds.
+
 ## 5. Evidence (n=150 study, live app)
 
 `eval/results/summary.txt` (deterministic mode, calibrated against the live
@@ -383,7 +414,9 @@ identical to deterministic; 53 Qwen-phrased + 12 policy no-question +
 Large-scale confirmation: 3,000-query simulation, guided null 0.0%,
 100% resolved, 98.6% by turn 2 (eval/results/sim_summary.json).
 
-## 6. LLM integration (Qwen only — no Gemini anywhere)
+## 6. LLM integration (Qwen primary; Gemini only as planner fallback)
+
+Gemini appears in exactly ONE place: the question-type planner's second provider (section 3.8) when the Qwen proxy is down. Question PHRASING and everything in the chat remain Qwen-only; Gemini never phrases, answers or filters.
 
 `app/app/api/guide/route.js`:
 

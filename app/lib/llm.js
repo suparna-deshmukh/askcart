@@ -14,7 +14,7 @@ function envFile() {
   return cands[0];
 }
 
-function env(name) {
+export function env(name) {
   const v = process.env[name];
   if (v) return v.trim();
   try {

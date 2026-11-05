@@ -1157,3 +1157,54 @@ BEFORE any run (2b81ab5), then ran it.
   0 grounding / 37/37 safe, ui tour 17 shots, contrast 16/16,
   sync_doc_numbers --check OK.
 - Local commit only, no GitHub/remote; localhost :3000.
+
+## 2026-11-05 — Item D: AI decides which question to ask (Qwen -> Gemini -> policy)
+- **User requirement:** the question sequence should be decided by AI
+  ("the AI will detect: this is the query, this is the requirement, and
+  these are the possible questions").
+- **Design (thesis intact):** the data policy still generates EVERY
+  option, count, order and stop condition. The AI only picks WHICH
+  grounded question TYPE to ask next, among the types the policy has
+  already validated on the narrowed set (>=2 live data options). It can
+  never invent a type, an option, a price or a SKU; an unknown or
+  ungrounded pick falls back to the deterministic per-category order.
+- **Changes:**
+  - `decideGuide` is now async and collects the full **grounded map**
+    (all eligible facet types with live data options) instead of breaking
+    at the first eligible type; then: planner pick (if grounded) ->
+    deterministic order -> fallback ladder. `decision.planner`
+    (llm|gemini|null) + `[planner:llm|gemini]` reason suffix in the
+    response; `guide_question_shown.planner` logged on all 6 track sites.
+  - New `app/lib/guide_planner.js`: compact prompt (query, answered
+    slots, types already asked, set summary n/top-4 categories/price
+    quantiles, candidate type list) -> `{"type":...}`; Qwen38-27B via
+    LiteLLM (thinking off, temp 0, 60 out-tokens, 1 attempt, 1500 ms)
+    -> Gemini REST fallback (GEMINI_API_KEY / GEMINI_MODEL from .env,
+    2500 ms) -> deterministic policy; 3 consecutive failures open a
+    5-min breaker; 10-min in-memory cache keyed
+    query|slots|prev|types (repeat turns free).
+  - `decideGuide` callers await the promise: `api/guide/route.js`
+    (forwards `planner: body.planner === true`), `chat/dialog.js`
+    (productTurn + handleChip became async; canaries and the chat keep
+    the deterministic policy - no planner flag - so frozen gates and the
+    chat's template/LLM parity are untouched), `eval/semantic/run.mjs`.
+  - `llm.js`: `env()` exported (additive).
+- **Docs:** followup_algorithm.md new section 3.8 + section 6 retitled
+  (Gemini appears in exactly one place: the planner's second provider).
+- **Verified:**
+  - HTTP: `planner:true` on "shirt under 5000" -> `planner: llm`
+    (Qwen picked for_whom over the deterministic size-first order);
+    no flag -> deterministic size (canary path unchanged).
+  - Live page: "shirt under 5000" renders "Quick one - who's it for?"
+    (planner-driven), event logged
+    `guide_question_shown {question_type: for_whom, planner: "llm"}`.
+  - Planner skips the LLM entirely when <2 grounded types (single-choice
+    sets, e.g. "saree") - verified in-process.
+  - Qwen latency measured warm: 550-1100 ms per pick (1500 ms budget);
+    Gemini currently 503 on this key (service side) - the fallback chain
+    then lands on deterministic policy, which is the designed safe
+    behaviour; noted honestly rather than hidden.
+- Gates green (all 6) after the change: canaries 111+6 0-fail, semantic
+  suite ALL TESTS PASS, chat eval CHAT_LLM=0 76/76 / 0 / 37/37,
+  ui tour 17 shots, contrast 16/16, sync OK.
+- Local commit only, no GitHub/remote; localhost :3000.
