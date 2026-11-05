@@ -22,6 +22,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { pathToFileURL } from "node:url";
+import { SAMPLE_QUERIES } from "../app/app/lib/sample_queries.js";
 
 const REPO = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const APP = path.join(REPO, "app");
@@ -195,8 +196,8 @@ for (const f of ["eval/evalv2/panel.jsonl", "eval/semantic/panel.jsonl"]) {
   } catch {}
 }
 for (const t of PARITY_QUERIES) addQ(t);
-addQ("shaadi gift under 2k"); addQ("phone under 15k for college"); addQ("gift under 2000");
-addQ("headphones"); addQ("1.5 ton ac under 45k"); addQ("saree for ammi under 2k");
+for (const t of SAMPLE_QUERIES) addQ(t); // hero example catalog (single source of truth)
+addQ("gift under 2000"); addQ("headphones"); // extra demo queries
 const cache = {};
 let ci = 0;
 for (const [k, t] of known) {

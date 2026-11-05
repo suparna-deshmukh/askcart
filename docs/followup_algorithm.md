@@ -324,7 +324,48 @@ not-found, never a quiz.
     one product filed across electronics departments (charger: All
     Electronics + Cell Phones & Accessories; TV: + Home Audio &
     Theater) is not a shopper choice. Dead-end (rescue) category
-    disambiguation is unchanged.
+  disambiguation is unchanged.
+
+### 3.7 Guaranteed first question (product requirement, 2026-11-05)
+
+The product premise: **every search asks at least one follow-up
+question, no matter how good the first match is**, and guided mode is
+the only default (the in-page Guided/Plain toggle was removed; plain
+survives as a reviewer A/B behind `?mode=plain`).
+
+First-question ladder (turn 1, on-intent results on screen):
+1. The A-grade tiers of §3.6 (for-whom → occasion → subject-free
+   category → budget → size → brand), all data-floored.
+2. **Tier 6 - brand when the budget is ALREADY stated** (priced product
+   queries like "budget headphones under 3000", where every A-grade
+   tier required `budgetMax === null`). Brand counts are computed over
+   **on-intent items that respect the stated budget** - NOT
+   `stats.brands`, which spans all scored hits: "5 star ac under 30k"
+   matches 2,005 loose hits (token "star"/"ac" contamination) whose top
+   brands are Adidas 33 / Nike 31 / Apple 29, while only 5 true-AC
+   intent items exist (Voltas/Blue Star/LG/Midea). An all-hits brand
+   question would offer the wrong brand world; the AC query now falls
+   through to tier 7.
+3. **Tier 7 - typed-only "Anything else that would help me narrow it
+   down?"** (no chips) - the absolute last resort (e.g. single-brand
+   set "boAt headphones under 3000"). The typed answer runs the normal
+   refinement search. This guarantees `ask: true` for every resolved
+   first turn; dead-ends (ok=false) still go to the category rescue.
+
+Best-match timing (decision, 2026-11-05): **results are shown
+immediately** after the search; the question renders as the compact
+strip ABOVE the filter bar (G11 placement) and never hides the grid.
+Hiding results behind a question would add time-to-value against the
+minimum-question principle; the strip + trail chips keep the guided
+ladder legible.
+
+Question latency: the LLM phrasing call (policy decides type/options;
+LLM only rephrases) runs a **single attempt with a 1500 ms timeout**
+(`attempts: 1` in the llm client); on timeout/ failure the
+deterministic template is used and the mode is reported honestly in
+analytics (`llm` vs `fallback`). Before the fix a slow LLM cost up to
+~32 s (45 s default timeout + 4-attempt backoff) before the template
+landed.
 
 ## 5. Evidence (n=150 study, live app)
 

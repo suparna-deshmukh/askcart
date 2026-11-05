@@ -995,3 +995,108 @@ BEFORE any run (2b81ab5), then ran it.
   sync_doc_numbers --check OK. CSS-only — zero LLM tokens.
 - Local commit only (`T3:` prefix), no GitHub/remote; localhost dev
   server :3000.
+
+## 2026-11-05 — Hydration mismatch fixed (search page)
+- **User report:** "Hydration failed because the server rendered HTML
+  didn't match the client" showing on localhost.
+- **Root cause:** the cart state initializer
+  `useState(() => typeof window === "undefined" ? {} : lsCart())` in
+  `app/app/page.jsx` — a server/client branch inside a Client Component.
+  When a previous session's cart sat in localStorage, the server HTML
+  (cart 0, no badge) and the first client render (cart N, badge)
+  diverged. The analytics tab needed no change (all its data already
+  loads post-mount via fetch state, so `ago()`/`Date.now` never render
+  during SSR).
+- **Fix:** cart starts `{}` on both sides; a post-mount `useEffect`
+  loads `lsCart()`; the persist effect is gated on a `cartHydrated`
+  flag so it can never clobber localStorage with `{}` before the
+  mount-time load (effect-ordering hazard: both effects run on mount).
+- **Verified:** puppeteer — seeded a 2-item cart into localStorage,
+  full reload → zero hydration errors, badge shows "Cart2".
+- Gates green: canaries 111+6 0-fail, semantic ALL PASS, chat eval
+  76/76 / 0 / 37/37, ui tour 17 shots, contrast 16/16, sync OK.
+
+## 2026-11-05 — Guided by default, no mode prompt, always-ask
+- **User report:** "budget headphones under 3000" showed 48 products
+  with no follow-up question and a Guided/Plain mode picker; demand:
+  guided by default, filters (sort/price/brand) always shown, a
+  question asked no matter what the best match is.
+- **Changes:**
+  - Mode toggle removed from the filter row; guided is the only mode
+    the UI offers. Plain survives as a reviewer A/B behind
+    `?mode=plain`, with a "Switch to Guided" chip in the plain notice.
+  - Filters already rendered for every resolved query (verified kept).
+  - `guide.js` firstQuestionFallback: **Tier 6** brand with live
+    counts when the budget is already stated (counts over on-intent
+    items within the stated budget — the all-hits `stats.brands` set
+    was catching "5 star ac under 30k" → 2,005 hits, top brands
+    Adidas 33/Nike 31/Apple 29 vs 5 true-AC intent items); **Tier 7**
+    typed-only "Anything else that would help me narrow it down?" as
+    the absolute last resort (full card, never the chip strip) so
+    every resolved first turn asks.
+  - Phrasing latency: `chat()` gained an `attempts` option; the guide
+    phrasing call is now `attempts: 1, timeoutMs: 1500` → template
+    fallback when the LLM is slow (measured 31.8 s → 3.2 s end-to-end;
+    mode reported honestly: llm vs fallback).
+- **Best-match timing decision (user asked to rethink):** results show
+  IMMEDIATELY; the question renders as the compact strip above the
+  filter bar (G11) — hiding results behind a question adds
+  time-to-value against the minimum-question principle.
+- **Verified live:** "budget headphones under 3000" → brand strip
+  (Apple 40/boAt 6/Samsung 3, on-budget counts) + full filter row, no
+  Mode chips; "5 star ac under 30k" → typed card; "boAt headphones
+  under 3000" → typed card.
+- Docs: followup_algorithm.md §3.7 (ladder + timing + latency).
+- Gates green (all 6) after the change.
+
+## 2026-11-05 — Back button + full-width top pane
+- **User report:** no way to navigate back through the site; the top
+  pane used only a centered 1180px section.
+- **Changes:** `.topbar-inner` now `width: 100%` (padding 8px 20px) —
+  logo, back button, language segment, Analytics and Cart span the
+  whole top pane. New 44px back button (left of logo, disabled at
+  home) backed by a `navStack` of surface snapshots `{tab, cartOpen,
+  checkoutOpen, order, pdp}`; push points: tab switch, analytics
+  subtab switch, cart open, buy-now, cart→checkout, order placed, PDP
+  open. Closes (X) do not push — closing IS going back. Back restores
+  the previous snapshot exactly + syncs the URL; the logo resets to
+  the search tab, keeps the active search state and clears the stack.
+- One CSS brace typo from the patch (stray `}` after the .backbtn
+  rules) broke the dev build (HTTP 500) — caught by the live check,
+  fixed before gates.
+- **Verified @1280:** topbar-inner x=0 w=1280 (was x=50 w=1180);
+  Search→Analytics→Back→Search round trip; Search→PDP→Back keeps
+  results; cart open→Back closes cart; logo from Analytics → search
+  tab with previous results intact and stack cleared.
+- Gates green (all 6) after the change.
+
+## 2026-11-05 — Sample-query catalog 6 → 18 (analytics-visible)
+- **User ask:** the 5–6 sample queries on the search page are what
+  users will click — add many more so search can be tested well; make
+  sure the updated catalog is reflected in analytics; do the other
+  house steps for data items.
+- **Data:** new single source of truth `app/app/lib/sample_queries.js`
+  (18 chips: budget, occasion, recipient incl. Hinglish relations,
+  appliance specs, cheap/sasta, vague intent). Replaces two weak
+  candidates after live verification — "512gb phone under 25k"
+  (2 intent, top = Nokia 105) → "laptop under 50k for college"
+  (48 intent, HP i3) and "t-shirt under 500" (top = maxi dress) →
+  "43 inch tv under 35k" (16 intent, Xiaomi 43") + "running shoes
+  under 3k" dropped for "500w mixer grinder" (24 intent, Pigeon 500W).
+  Every chip verified against the live /api/search (≥2 on-intent,
+  on-topic top pick).
+- **Analytics:** chips are tracked `source:"example"` via
+  search_start/search_results — they surface in Analytics → Search &
+  Guide → Top queries (event stream; verified the panel lists
+  chip-clicked queries).
+- **Semantic cache (house pattern for known queries):**
+  `scripts/build_embeddings.mjs` now pulls the catalog from the data
+  file (replaces 6 hardcoded hero queries); new
+  `scripts/refresh_query_cache.mjs` does a cache-only refresh (same
+  e5-small int8 model, no index rebuild) — ran it:
+  query_emb_cache.json 220 → 233 entries (13 added), so clicking any
+  new chip costs zero runtime embedding calls.
+- **Verified:** hero renders 18 chips; clicking "sasta smartwatch"
+  runs the search (48 products, best match) and the guide asks brand
+  (Fire-Boltt 11/boAt 10/Amazfit 7).
+- Gates green (all 6) after the change; ui tour hero shot refreshed.

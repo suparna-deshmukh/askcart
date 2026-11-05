@@ -9,15 +9,12 @@ import { AnalyticsView } from "./ui/analytics";
 import { ProductDetail, Tile } from "./ui/pdp";
 import { ChatLauncher } from "./ui/chat/ChatLauncher";
 import { ChatPanel } from "./ui/chat/ChatPanel";
+import { SAMPLE_QUERIES } from "./lib/sample_queries";
 
-const EXAMPLES = [
-  "shaadi gift under 2k",
-  "budget headphones under 3000",
-  "diwali decorations",
-  "gift for 5 year old",
-  "phone under 15k for college",
-  "wristwatch for dad under 5k",
-];
+// Hero "popular" chips - single source of truth in lib/sample_queries.js
+// (verified against the live search API; precomputed in the semantic
+// query-emb cache; clicks tracked with source:"example" -> Analytics).
+const EXAMPLES = SAMPLE_QUERIES;
 
 const SORTS = [
   { id: "relevance", label: "Relevance" },
