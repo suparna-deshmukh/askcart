@@ -334,7 +334,21 @@ function rankCategoriesByIntent(names, query) {
 // Returns the decision. `context`: { turn, prevTypes } from the client.
 export function decideGuide(catalog, query, nResults, context = {}) {
   const parsed = parseQuery(query);
-  const stats = searchStats(catalog, query, {});
+  // Follow-up questions must be built on the NARROWED subset (user
+  // requirement 2026-11-05: "each next question based on the previous
+  // answer"): chip-applied facets constrain the stats, so option counts,
+  // price quantiles, brand splits and tag shares describe the set the
+  // shopper is actually looking at right now.
+  const slots = context.slots || {};
+  const statsOpts = {};
+  if (slots.brand) statsOpts.brand = slots.brand;
+  if (slots.budget != null) statsOpts.budgetMax = slots.budget;
+  if (slots.occasion) statsOpts.occasion = slots.occasion;
+  if (slots.category) statsOpts.category = slots.category;
+  if (slots.forWhom) statsOpts.forWhom = slots.forWhom;
+  if (slots.size) statsOpts.size = slots.size;
+  if (slots.capacity) statsOpts.capacity = slots.capacity;
+  const stats = searchStats(catalog, query, statsOpts);
   const dominant = stats.categories[0] || null;
   const dominantShare = dominant && stats.n ? dominant.count / stats.n : 0;
   // Devanagari queries carry their relation words only after the lexicon
@@ -668,29 +682,15 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     if (!eligible.includes("category")) eligible.push("category");
     order = ["category", ...eligible.filter((t) => t !== "category")];
   }
-  // Destination heuristic: the query is already fully specified (3 of the
-  // 5 knowable facets stated in the query text or already answered) - the
-  // shopper is at their destination, stop asking.
-  const knownFacets = [
-    parsed.budgetMax !== null && "budget",
-    parsed.occasion && parsed.occasion !== "gift" && "occasion",
-    (recipientHint || selfRef) && "for_whom",
-    parsed.specs && parsed.specs.size && "size",
-    parsed.specs && (parsed.specs.tonnage !== undefined || parsed.specs.kg !== undefined ||
-                     parsed.specs.volume !== undefined) && "capacity",
-  ].filter(Boolean);
-  const settled = new Set([...knownFacets, ...prev]);
-  // P8: two settled facets (stated in the query or answered) on a page
-  // that already shows >=10 results is "at the destination" - a third
-  // question on a resolved, well-specified journey is the top source of
-  // second-question M's (Qwen UX panel v2 round 6).
-  // The two-settled stop applies only after the shopper has ANSWERED at
-  // least one question: the first question is guaranteed (product thesis -
-  // every search is guided from the first result), so "shaadi gift under
-  // 2000" (occasion+budget stated) still gets a first question (for-whom).
-  if (settled.size >= 3 || (settled.size >= 2 && prev.size >= 1 && nResults >= 10)) {
+  // Destination stop (2026-11-05, user requirement: keep asking after
+  // every answer, each question on the narrowed set). Stop only when the
+  // narrowed set is a pickable shortlist (<=6 items). The old P8
+  // "two settled facets" stop ended chains after a single answer - the
+  // exact behaviour the user reported ("after answering one question,
+  // it is not asking me any other question").
+  if (nResults <= 6) {
     return { ask: false, type: null, options: [], question: "",
-             reason: "query sufficiently specified (" + [...settled].join(", ") + ") - at the destination",
+             reason: "destination reached (" + nResults + " items - a pickable shortlist)",
              stats };
   }
 
@@ -703,7 +703,11 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   // stated still skipped) > budget (visible-quantile bands) > size
   // (>=10 sized items) > brand (>=2 brands) > category (genuine split) >
   // budget band (cap-split when the budget is already stated) as the absolute last resort.
-  const firstQ = prev.size === 0 && !isRescue && nResults >= 2;
+  // Last-resort ladder - runs on EVERY turn, not just the first: after a
+  // chip answer the narrowed set still gets its next question (user
+  // requirement 2026-11-05), unless the set is a pickable shortlist
+  // (destination stop above) or every type was already asked.
+  const firstQ = !isRescue && nResults >= 2;
   const firstQuestionFallback = () => {
     if (!firstQ) return null;
     const out = (type, options, optionCounts, reason) => ({
@@ -721,7 +725,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // -> Women 106 / Men 51 / Kids 88).
     if ((gift || isWearableQ(query)) && !recipientHint && !selfRef &&
         !(watchBare && !genderTok) && !(parsed.specs && parsed.specs.size) &&
-        !(parsed.specs && parsed.specs.age !== undefined)) {
+        !(parsed.specs && parsed.specs.age !== undefined) && !prev.has("for_whom")) {
       const fw = forWhomOptions(stats.items, stats.n);
       const named = fw.slice(0, 3).filter((o) => (o.count || 0) >= 3);
       if (named.length >= 2) return out("for_whom", fw.map((o) => o.label), fw,
@@ -732,6 +736,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // stated kids age makes size the useful facet, not occasion). F2/F9'
     // floors as the main path (no Dhanteras:4/Diwali:4 one-chip quizzes).
     if ((gift || vague) && !selfRef && parsed.budgetMax === null &&
+        !prev.has("occasion") &&
         !(parsed.specs && parsed.specs.age !== undefined) &&
         !(parsed.occasion && parsed.occasion !== "gift" && parsed.occasion !== "party")) {
       const occOpts = occasionOptions(context.region, { gift });
@@ -746,7 +751,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // queries ("बहन की शादी के लिए कुछ", "kuch gift dena hai"): the product
     // FAMILY is the actual unknown. Genuinely multi-family set only
     // (nothing over 50%, second family >= 15%).
-    if (!hasSubject && (gift || vague) && parsed.budgetMax === null && stats.n >= 30 &&
+    if (!prev.has("category") && !hasSubject && (gift || vague) && parsed.budgetMax === null && stats.n >= 30 &&
         dominantShare <= 0.5 && (stats.categories[1] || { count: 0 }).count / Math.max(1, stats.n) >= 0.15) {
       const names = rankCategoriesByIntent(stats.categories.slice(0, 4).map((c) => c.name), query);
       const cats = names.map((nm) => ({ label: displayCat(nm), count: (stats.categories.find((c) => c.name === nm) || { count: 0 }).count }));
@@ -756,7 +761,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // Tier 3 - budget: the main path's budget gates, ported (a priced,
     // spec-anchored, model-anchored, wearable or unscoped-gift set never
     // gets a budget quiz) plus the discriminative-band coverage floor.
-    if (parsed.budgetMax === null && hasSubject && !directSpec && !modelNum &&
+    if (!prev.has("budget") && parsed.budgetMax === null && hasSubject && !directSpec && !modelNum &&
         stats.n >= 15 && !(gift && !giftFacetsKnown) && !isWearableQ(query) &&
         PB.p25 > 0 && (PB.p75 / PB.p25 >= 4 || PB.p50 >= 15000) && PB.p75 / PB.p25 <= 15 &&
         !(stats.priceP.p25 > 0 && stats.priceP.p75 < 3000 && stats.priceP.p75 / stats.priceP.p25 < 6)) {
@@ -769,7 +774,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     }
     // Tier 4 - size: >=2 sizes with >= max(5, 3% of set) items, apparel-ish
     // dominant family, size not already stated in the query.
-    if (!(parsed.specs && parsed.specs.size)) {
+    if (!(parsed.specs && parsed.specs.size) && !prev.has("size")) {
       const szAll = sizeOptions(stats.items, stats.n).filter((o) => !String(o.label).startsWith("Any"));
       const minSz = Math.max(5, Math.round(0.03 * stats.n));
       const szStrong = szAll.filter((o) => (o.count || 0) >= minSz);
@@ -785,6 +790,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     const bTop = (stats.brands[0] || { count: 0 }).count || 0;
     const bThird = (stats.brands[2] || { count: 0 }).count || 0;
     if (parsed.budgetMax === null && !gift && stats.n >= 30 && stats.brands.length >= 2 &&
+        !prev.has("brand") &&
         bTop / Math.max(1, stats.n) >= 0.08 &&
         stats.brands.slice(0, 3).reduce((a, b) => a + b.count, 0) / Math.max(1, stats.n) >= 0.25 &&
         bTop - bThird >= 3 && bTop >= 1.25 * Math.max(1, bThird)) {
@@ -807,7 +813,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // spans all scored hits (for "5 star ac under 30k" that is 2005 items
     // whose top brands are Adidas/Nike/Apple - a brand question built on
     // that set would offer the wrong brand world).
-    if (parsed.budgetMax !== null && !parsed.brand && stats.n >= 10) {
+    if (parsed.budgetMax !== null && !parsed.brand && !prev.has("brand") && stats.n >= 10) {
       const budgeted = stats.items.filter((h) => h.intent && h.price <= parsed.budgetMax);
       const bc = new Map();
       for (const h of budgeted) if (h.brand) bc.set(h.brand, (bc.get(h.brand) || 0) + 1);
@@ -826,8 +832,9 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // one question, no matter how good the first match is. When no data
     // facet has >=2 live options, the question is "type it" - the typed
     // answer runs the normal refinement search (no chips, no quiz).
-    return out("any", [], [],
-      "guaranteed first question (typed last resort): no data facet with >=2 live options - open typed refinement");
+    if (!prev.has("any")) return out("any", [], [],
+      "guaranteed question (typed last resort): no data facet with >=2 live options - open typed refinement");
+    return null;
   };
 
   if (!order.length) {

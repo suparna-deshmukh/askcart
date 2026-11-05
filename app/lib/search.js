@@ -396,6 +396,8 @@ const SYNONYMS = {
   watch: ["smartwatch", "wristwatch"],
   tshirt: ["shirt"],
   tv: ["television"],
+  kurta: ["kurti"],
+  kurti: ["kurta"],
   blender: ["mixer"],
   mixer: ["blender"],
   computer: ["laptop", "desktop"],
@@ -942,7 +944,11 @@ export function search(catalog, q, opts = {}) {
   }
   for (const r of results) delete r._acc;
   const limit = Math.max(1, Math.min(96, Math.floor(Number(opts.limit) || 12)));
-  return results.slice(0, limit);
+  const out = results.slice(0, limit);
+  // Full pre-cap match count for the "N of M left" echo. Plain array
+  // property: dropped by JSON serialisation, invisible to all callers.
+  out.total = results.length;
+  return out;
 }
 
 // Aggregate stats over the matched set (or the whole catalogue when the

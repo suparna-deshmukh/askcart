@@ -328,7 +328,8 @@ function AskCartHome() {
     track("chat_apply_to_results", { query, slots_changed: Object.keys(opts).filter((k) => opts[k] != null).length, journey_id: journeyRef.current.id });
     const trail = [query];
     if (meta.trailLabel) trail.push({ label: meta.trailLabel, opts: { budget: opts.budget || null, occasion: opts.occasion || null, category: opts.category || null, brand: opts.brand || null, forWhom: opts.forWhom || null, size: opts.size || null, capacity: opts.capacity || null } });
-    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, parsed: res.parsed,
+    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results,
+           total: res.total_matches ?? res.results.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null, trail, exhausted: !ok, error: null,
            echo: meta.echo || null });
     setMoreN(24);
@@ -515,11 +516,15 @@ function AskCartHome() {
   async function askGuide(query, nResults, turn) {
     const jn = journeyRef.current;
     const prevTypes = jn ? jn.prevTypes || [] : [];
+    // Cumulative chip answers (from the trail) so the policy builds its
+    // next question on the NARROWED set, not the original query's set.
+    const slots = {};
+    if (s) for (const t of s.trail.slice(1)) if (t && typeof t === "object" && t.opts) Object.assign(slots, t.opts);
     const r = await fetch("/api/guide", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, n_results: nResults, turn, prev_types: prevTypes,
-                             journey_id: jn ? jn.id : null, region, persona, lang }),
+                             journey_id: jn ? jn.id : null, region, persona, lang, slots }),
     });
     return r.json();
   }
@@ -547,7 +552,7 @@ function AskCartHome() {
       endJourney(journeyRef.current, { resolved: !!s && s.ok === true, turns: s ? s.turn : 1 });
     }
     setBusy(true);
-    setS({ query, turn: 1, ok: null, results: [], filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
+    setS({ query, turn: 1, ok: null, results: [], total: null, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
     setInput("");
     journeyRef.current = ensureJourney(query);
     track("search_start", { query, source, journey_id: journeyRef.current.id });
@@ -563,7 +568,7 @@ function AskCartHome() {
     // study and the simulation use). Loose/relax results alone do not count.
     const ok = res.results.filter((r) => r.intent).length >= 2;
     markResultsShown(query, res.results, 1, "results");
-    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
+    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, total: res.total_matches ?? res.results.length, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
     setMoreN(24);
     if (ok) {
       track("resolved", { query, turns: 1, n_results: res.results.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
@@ -627,9 +632,19 @@ function AskCartHome() {
     setBusy(false);
   }
 
-  // G10: one-line echo of what changed, shown above the results.
-  function echoFor(chip, finalResults, prevResults) {
-    return `${chip} · ${finalResults.length} of ${prevResults.length} left`;
+  // Cumulative facet answers from the trail (newest step wins) so every
+  // refinement search keeps ALL earlier answers, not just the latest one.
+  function trailOpts() {
+    const merged = {};
+    if (s) for (const t of s.trail.slice(1)) if (t && typeof t === "object" && t.opts) Object.assign(merged, t.opts);
+    return merged;
+  }
+
+  // G10: one-line echo of what changed, shown above the results. Totals
+  // are full pre-cap match counts, so "N of M left" counts the whole
+  // matching set, not the 48-item display cap.
+  function echoFor(chip, totalNow, totalPrev) {
+    return `${chip} · ${totalNow} of ${totalPrev} left`;
   }
   async function applyAnswer(chip, guide) {
     if (!s || busy) return;
@@ -674,7 +689,7 @@ function AskCartHome() {
     } else {
       opts = { category: chip };
     }
-    let res = await doSearch(s.query, { relax: true, turn: turnNow, ...opts });
+    let res = await doSearch(s.query, { relax: true, turn: turnNow, ...trailOpts(), ...opts });
     if (res.error) {
       setS((st) => st && { ...st, error: res.error });
       setBusy(false);
@@ -684,7 +699,7 @@ function AskCartHome() {
     if (res.results.filter((r) => r.intent).length < 2 && opts.category) {
       // the picked category was a dead end - retry without it, other
       // constraints (budget/occasion) still applied
-      res = await doSearch(s.query, { relax: true, turn: turnNow, category: null,
+      res = await doSearch(s.query, { relax: true, turn: turnNow, ...trailOpts(), category: null,
                                       budget: opts.budget ?? null, occasion: opts.occasion ?? null });
       delete appliedOpts.category;
     }
@@ -697,10 +712,11 @@ function AskCartHome() {
     const ok = finalResults.filter((r) => r.intent).length >= 2;
     const wasOk = s.ok === true;
     markResultsShown(s.query, finalResults, turnNow, "results");
-    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: finalResults, parsed: res.parsed,
+    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: finalResults,
+           total: res.total_matches ?? finalResults.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null,
            trail: [...s.trail, { label: trailLabel, opts: appliedOpts }],
-           echo: echoFor(trailLabel, finalResults, s.results), error: null });
+           echo: echoFor(trailLabel, res.total_matches ?? finalResults.length, s.total ?? s.results.length), error: null });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: finalResults.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
       // Keep guiding: a resolved result is a start, not the destination.
@@ -797,14 +813,59 @@ function AskCartHome() {
     setBusy(true);
     const turnNow = s.turn + 1;
     const t0 = Date.now();
-    const res = await doSearch(s.query + " " + txt, { relax: true, turn: turnNow });
+    const res = await doSearch(s.query + " " + txt, { relax: true, turn: turnNow, ...trailOpts() });
     setBusy(false);
     if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
-    const ok = res.results.filter((r) => r.intent).length >= 2;
+    const intentN = res.results.filter((r) => r.intent).length;
+    const ok = intentN >= 2;
     markResultsShown(s.query, res.results, turnNow, "results");
-    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: res.results, parsed: res.parsed,
+    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: res.results,
+           total: res.total_matches ?? res.results.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, { label: txt, opts: null }],
-           echo: `${txt} · ${res.results.length} of ${s.results.length} left`, error: null });
+           echo: `${txt} · ${res.total_matches ?? res.results.length} of ${s.total ?? s.results.length} left`, error: null });
+    if (ok) {
+      track("resolved", { query: s.query, turns: turnNow, n_results: intentN, journey_id: journeyRef.current.id });
+      // Same keep-guiding rule as chip answers: the typed text narrows
+      // the set, so the next question is built on the narrowed set.
+      if (!plainMode && turnNow < 5) {
+        const g2 = await askGuide(s.query + " " + txt, intentN, turnNow + 1);
+        if (g2.guide) {
+          journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g2.guide.type];
+          guideShownAtRef.current = Date.now();
+          track("guide_question_shown", {
+            query: s.query, question_type: g2.guide.type, turn: turnNow + 1,
+            options_count: g2.guide.options.length, mode: g2.mode, refine: true,
+            reason: g2.decision && g2.decision.reason, journey_id: journeyRef.current.id,
+          });
+          setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true } });
+          setBusy(false);
+          return;
+        }
+      }
+      endJourney(journeyRef.current, { resolved: true, turns: turnNow, ordered: journeyRef.current.ordered });
+      setBusy(false);
+      return;
+    }
+    if (turnNow < 5) {
+      const g = await askGuide(s.query + " " + txt, intentN, turnNow + 1);
+      if (g.guide) {
+        journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g.guide.type];
+        guideShownAtRef.current = Date.now();
+        track("guide_question_shown", {
+          query: s.query, question_type: g.guide.type, turn: turnNow + 1,
+          options_count: g.guide.options.length, mode: g.mode,
+          reason: g.decision && g.decision.reason, journey_id: journeyRef.current.id,
+        });
+        setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: false } });
+        setBusy(false);
+        return;
+      }
+      track("guide_no_question", { query: s.query, turn: turnNow + 1, reason: (g.decision && g.decision.reason) || "" });
+    }
+    track("unresolved", { query: s.query, turns: turnNow });
+    setS((st) => st && { ...st, exhausted: true });
+    endJourney(journeyRef.current, { resolved: false, turns: turnNow, ordered: journeyRef.current.ordered });
+    setBusy(false);
   }
 
   // G5: every question has an exit. Skipped types become ineligible.
@@ -839,7 +900,8 @@ function AskCartHome() {
     if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
     const ok = res.results.filter((r) => r.intent).length >= 2;
     markResultsShown(s.query, res.results, remaining.length + 1, "results");
-    setS((st) => st && { ...st, ok, ms: Date.now() - t0, results: res.results, parsed: res.parsed,
+    setS((st) => st && { ...st, ok, ms: Date.now() - t0, results: res.results,
+                         total: res.total_matches ?? res.results.length, parsed: res.parsed,
                          trail: st.trail.filter((_, j) => j !== i), echo: null,
                          guide: null, exhausted: false });
   }

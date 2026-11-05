@@ -1100,3 +1100,60 @@ BEFORE any run (2b81ab5), then ran it.
   runs the search (48 products, best match) and the guide asks brand
   (Fire-Boltt 11/boAt 10/Amazfit 7).
 - Gates green (all 6) after the change; ui tour hero shot refreshed.
+
+## 2026-11-05 — Guided chain: every answer narrows, every answer asks again
+- **User report:** after answering one question the chain stopped; picking a
+  filter then typing a free-text answer silently DROPPED earlier filters
+  ("picked Apple, then refined — see mixed brands again"); echo said
+  "48 of 48 left" (the display cap, not the match count).
+- **Changes:**
+  - `page.jsx` new `trailOpts()`: EVERY refinement search (chip answer,
+    category dead-end retry, typed free-text) now carries ALL earlier
+    facet answers from the trail; the newest answer overrides. This is the
+    root cause of the brand-loss path — the typed path re-ran the search
+    with only the appended text, so brand/size/for-whom answers were lost.
+  - `answerTyped` unresolvable-text path now mirrors `applyAnswer`'s
+    keep-guiding block: after the refinement search it asks the next
+    question on the EXTENDED query (stats built on the narrowed set),
+    tracks `guide_question_shown {refine:true}`, and ends the journey with
+    the same resolved/unresolved bookkeeping as the chip path.
+  - Echo totals: `search()` attaches the pre-cap match count
+    (`out.total`, dropped by JSON serialisation — invisible to all other
+    callers); `/api/search` returns `total_matches`; every results state
+    carries `total`; `echoFor` renders "N of M left" over the full matching
+    set instead of two 48-capped lengths.
+  - `search.js`: `kurta ↔ kurti` synonym. The catalogue's dominant spelling
+    is "Kurti"; the intent token "kurta" never matched it, so a correctly
+    narrowed set (kurta + size M + brand Fabindia) scored 0/48 on-intent
+    and the policy read the journey as a dead end ("concrete search not
+    resolved by the catalogue") — no follow-up question, and the 15 true
+    matches ranked past the 48-item cap. After the synonym: 30/48 intent,
+    top-3 intent.
+  - (Already staged this session) `guide.js`: decision stats now built from
+    the trail's cumulative `slots` (narrowed subset, not the original
+    query); the old P8 "two settled facets" stop — which ended chains after
+    a single answer — is replaced by the destination stop
+    (narrowed set ≤ 6 items = pickable shortlist); per-tier
+    `!prev.has(type)` exclusions so a type is never re-asked; the
+    last-resort typed ladder runs on EVERY turn, not just the first.
+    `route.js` forwards `slots`; `askGuide` sends them from the trail.
+- **Stop conditions (documented in followup_algorithm.md §3.7):**
+  destination (≤ 6 items), the 4-follow-up turn cap, skip, or no grounded
+  facet left (every data option sparse) — the dead-end no-quiz policy for
+  out-of-catalogue queries is unchanged.
+- **Verified live (puppeteer, two full chains):**
+  - "kurta under 2000" → Q1 size (S87/M86/L65/XL70/Any 1654) → M
+    ("M · 495 of 1654 left") → Q2 for-whom (Women 6/Men 23/Kids 0
+    disabled/Unisex 1654) → Women → Q3 brand (Fabindia 33/…) → Fabindia
+    ("Fabindia · 76 of 495 left") → Q4 typed card → type "cotton" →
+    "cotton · 76 of 76 left", Fabindia Cotton Kurti leads → chain ends at
+    the 4-follow-up cap (Q5 correctly absent).
+  - "budget headphones under 3000" → Q1 brand → Apple ("Apple · 142 of
+    186 left") → Q2 typed card → "for calls" → top 12/12 brands Apple
+    (previously mixed boAt/Bose — the user-reported bug), destination stop
+    (5 items).
+- Gates green (all 6): canaries 111+6 0-fail, semantic suite ALL TESTS
+  PASS (no-op guarantee intact), chat eval CHAT_LLM=0 76/76 intent /
+  0 grounding / 37/37 safe, ui tour 17 shots, contrast 16/16,
+  sync_doc_numbers --check OK.
+- Local commit only, no GitHub/remote; localhost :3000.

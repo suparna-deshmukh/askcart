@@ -55,6 +55,9 @@ export async function POST(req) {
       if (relN > strictN) results = rel;
     }
   }
+  // Full pre-cap match count for the client echo ("N of M left").
+  // Semantic fill can only grow the DISPLAYED list, never the count.
+  const totalMatches = results.total ?? results.length;
   // ---- semantic fallback (additive) -------------------------------------
   // Runs ONLY when lexical search returns <2 on-intent results (the existing
   // null condition), so resolved queries return byte-identical responses.
@@ -145,6 +148,7 @@ export async function POST(req) {
       return o;
     }),
     parsed,
+    total_matches: Math.max(totalMatches, out.length),
     catalogSize: catalog.length,
     semantic: sem,
   });

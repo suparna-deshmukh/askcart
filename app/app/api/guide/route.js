@@ -28,6 +28,7 @@ export async function POST(req) {
   const lang = ["en", "hi", "hinglish"].includes(body.lang) ? body.lang : "en";
   const decision = decideGuide(loadCatalog(), q, nResults, {
     turn, prevTypes, region: body.region || null, persona: body.persona || null, lang,
+    slots: body.slots || {},
   });
 
   if (!decision.ask) {
