@@ -192,11 +192,26 @@ export function itemWordSet(item) {
 
 // Hard constraints: budget (strict, then x1.6 relax), brand, recipient/gender/
 // kids exclusions, car/auto context, accessory hints, per-stem diversity cap.
-export function applyConstraints(hits, parsed, catalog, { budgetMax = null, brand = null, forWhom = null, relax = false } = {}) {
+export function applyConstraints(hits, parsed, catalog, { budgetMax = null, brand = null, forWhom = null, relax = false, category = null, size = null, capacity = null } = {}) {
   const c = cfg();
   const tokenSet = new Set((parsed && parsed.tokens) || []);
   const rawWords = new Set(String((parsed && parsed.raw) || "").toLowerCase().match(/[a-z']+/g) || []);
   const brandKey = brand ? String(brand).toLowerCase() : null;
+  // Hard facet filters (chip / chat slots) - semantic fill must respect
+  // them exactly like lexical: "1.5 ton" chosen must not be filled with
+  // 1-ton ACs because they are cosine-neighbours.
+  const catKey = category ? String(category).toLowerCase() : null;
+  const sizeKey = size && /^(xxl|xl|l|m|s|xs)$/i.test(String(size)) ? String(size).toLowerCase() : null;
+  let capRe = null;
+  if (capacity) {
+    const cm = String(capacity).match(/([\d.]+)\s*(ton|kg|l)\b/i);
+    if (cm) {
+      const u = cm[2].toLowerCase();
+      capRe = u === "ton" ? new RegExp("\\b" + cm[1] + "\\s*ton\\b", "i")
+            : u === "kg" ? new RegExp("\\b" + cm[1] + "\\s*kg", "i")
+            : new RegExp("\\b" + cm[1] + "\\s*(litre|liters)", "i");
+    }
+  }
   const tryBudget = (cap) => {
     const out = [];
     for (const [i, cos] of hits) {
@@ -205,6 +220,9 @@ export function applyConstraints(hits, parsed, catalog, { budgetMax = null, bran
       if (budgetMax != null && item.price > cap) continue;
       if (brandKey && !(item.brand && String(item.brand).toLowerCase() === brandKey)) continue;
       const ws = itemWordSet(item);
+      if (catKey && !item.category.toLowerCase().includes(catKey)) continue;
+      if (sizeKey && !ws.has(sizeKey)) continue;
+      if (capRe && !capRe.test(item.title)) continue;
       if (audienceDelta(rawWords, ws, forWhom) < 0) continue;
       if (autoContextDelta(tokenSet, ws) < 0) continue;
       if (accessoryDelta(ACC_HINT_WORDS.filter((w) => !tokenSet.has(w)), ws) < 0) continue;

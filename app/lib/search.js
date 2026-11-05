@@ -446,7 +446,7 @@ export function autoContextDelta(tokenSet, itemPos) {
 
 // Adult/male/female/child recipient vs item gender/kids tokens, plus the G3
 // for-whom boosts. Returns the score delta (0 when nothing applies).
-export function audienceDelta(rawWords, itemPos, forWhom = null) {
+export function audienceDelta(rawWords, itemPos, forWhom = null, strong = false) {
   let adult = false, male = false, female = false, child = false;
   for (const w of rawWords) {
     if (ADULT_RECIPIENTS.has(w)) adult = true;
@@ -470,8 +470,12 @@ export function audienceDelta(rawWords, itemPos, forWhom = null) {
     for (const w of ["cat", "dog", "pet", "parrot", "bird", "aquarium", "hamster", "rabbit"])
       if (itemPos.has(w)) { delta -= 2.5; break; }
   }
-  if ((male || g3male) && (itemPos.has("womens") || itemPos.has("women"))) delta -= 1.0;
-  if ((female || g3female) && (itemPos.has("men") || itemPos.has("mens"))) delta -= 1.0;
+  // strong = an EXPLICIT for-whom chip answer (not just a parsed
+  // recipient word): the shopper committed, so the opposite-gender
+  // penalty must actually remove those items from the top of the list.
+  const oppPen = strong ? 3.0 : 1.0;
+  if ((male || g3male) && (itemPos.has("womens") || itemPos.has("women"))) delta -= oppPen;
+  if ((female || g3female) && (itemPos.has("men") || itemPos.has("mens"))) delta -= oppPen;
   // Positive pull for a stated recipient ("gift for men", "shoes for mummy")
   if (male && (itemPos.has("men") || itemPos.has("mens") || itemPos.has("male"))) delta += 1.0;
   if (female && (itemPos.has("women") || itemPos.has("womens") || itemPos.has("female") ||
@@ -662,6 +666,11 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     }
   }
   if (Object.keys(g3).length) specs = { ...specs, ...g3 };
+  // Precompiled title-regexes for capacity chip filters: the word index
+  // splits "1.5" into "1"+"5", so spec numbers must match the raw title.
+  const capTonnageRe = g3.tonnage !== undefined ? new RegExp("\\b" + g3.tonnage + "\\s*ton\\b", "i") : null;
+  const capKgRe = g3.kg !== undefined ? new RegExp("\\b" + g3.kg + "\\s*kg", "i") : null;
+  const capVolRe = g3.volume !== undefined ? new RegExp("\\b" + g3.volume + "\\s*(litre|liters)", "i") : null;
   // Budget-only query ("under 500"), or a tokenless recipient query
   // ("things for dad" - every word stopped out): browse mode - top-rated
   // items within the cap (and the occasion/audience when given), instead of
@@ -687,9 +696,21 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     const occLeadAt = (ci, item) => !WEARABLE.test(String(item.title)) &&
       (OCC_WORDS[occ] || [occ]).some((w) =>
         idx.titles[ci].split(/[^a-z0-9]+/).slice(0, 4).includes(w));
-    const inBrowse = (item) => {
+    const inBrowse = (item, idxI) => {
       if (budget !== null && item.price > budget) return false;
       if (occ && !(item.tags && item.tags.includes(occ))) return false;
+      // Explicit facet selections (chips / chat slots) are HARD filters in
+      // browse mode exactly like in the main scoring loop.
+      if (catKey && catKey !== "any category" &&
+          !item.category.toLowerCase().includes(catKey)) return false;
+      if (brandKey && !bestRated) {
+        const b = String(item.brand || "").toLowerCase();
+        if (!b || b !== brandKey) return false;
+      }
+      if (g3.size && !idx.words[idxI].has(g3.size)) return false;
+      if (capTonnageRe && !capTonnageRe.test(item.title)) return false;
+      if (capKgRe && !capKgRe.test(item.title)) return false;
+      if (capVolRe && !capVolRe.test(item.title)) return false;
       return true;
     };
     const toBrowse = (item, idxI) => {
@@ -717,7 +738,7 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
       }
       return { ...item, score, intent: true };
     };
-    for (let i = 0; i < catalog.length; i++) if (inBrowse(catalog[i])) browse.push(toBrowse(catalog[i], i));
+    for (let i = 0; i < catalog.length; i++) if (inBrowse(catalog[i], i)) browse.push(toBrowse(catalog[i], i));
     if (occ && giftIntent) {
       // "shaadi gift under 2k" - the gift tag is the real filter; keep
       // themed (occasion-leading) items alongside the gift-tagged ones.
@@ -847,19 +868,33 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
       else if (!hostHit && accessoryDelta(accHints, idx.pos[i]) < 0) score += 2.0;
     }
     if (bottleCtx && !babyWanted && idx.pos[i].has("baby")) score -= 1.5;
-    if (catKey && catKey !== "any category" && item.category.toLowerCase().includes(catKey)) { score += 1.5; hits++; }
-    if (brandKey && !bestRated) {
-      const b = String(item.brand || "").toLowerCase();
-      if (b && b === brandKey) { score += 2; hits++; }
-      else if (!b) { score += 0.75; hits++; } // unbranded generics stay in play
+    // Explicit category selection (chip / chat slot) is a HARD filter.
+    if (catKey && catKey !== "any category") {
+      if (!item.category.toLowerCase().includes(catKey)) continue;
+      score += 1.5; hits++;
     }
+    if (brandKey && !bestRated) {
+      // Explicit brand selection (chip / chat slot) is a HARD filter: the
+      // shopper picked a brand, so non-brand items must not appear.
+      // (Was a soft +2 boost: "budget headphones under 3000" + Apple
+      // still surfaced Bose/boAt - the brand answer was invisible.)
+      const b = String(item.brand || "").toLowerCase();
+      if (!b || b !== brandKey) continue;
+      score += 2; hits++;
+    }
+    // Explicit size / capacity selections (chips) are HARD filters over
+    // the same title-derived spec vocabulary the options are built from.
+    if (g3.size && !idx.words[i].has(g3.size)) continue;
+    if (capTonnageRe && !capTonnageRe.test(item.title)) continue;
+    if (capKgRe && !capKgRe.test(item.title)) continue;
+    if (capVolRe && !capVolRe.test(item.title)) continue;
     // Brand-leading titles ("Redmi 13C ...", "JBL Flip 6 ...") are genuine
     // product listings; keyword-stuffed titles lead with junk words.
     if (idx.firstWords[i] && idx.brandSet.has(idx.firstWords[i])) score += 0.75;
     // Car/auto context + recipient/gender/kids adjustments + for-whom G3
     // boosts (shared with the semantic fallback via the exported helpers).
     if (matched > 0) score += autoContextDelta(tokenSet, idx.pos[i]);
-    if (matched > 0) score += audienceDelta(rawWords, idx.pos[i], forWhom || parsed.forWhom);
+    if (matched > 0) score += audienceDelta(rawWords, idx.pos[i], forWhom || parsed.forWhom, !!forWhom);
     // Query modifiers that also appear in the title confirm the intended
     // product kind ("office chair" -> an "Office Chair", not a dining chair).
     let modBonus = 0;

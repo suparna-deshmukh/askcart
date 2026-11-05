@@ -97,6 +97,7 @@ export async function POST(req) {
         else {
           const constrained = applyConstraints(topK(qv, idx), parsed, catalog, {
             budgetMax: budget, brand: body.brand || null, forWhom, relax: true,
+            category: searchOpts.category, size: searchOpts.size, capacity: searchOpts.capacity,
           });
           const picks = thresholdPicks(constrained);
           if (process.env.EVAL_MODE === "1") {

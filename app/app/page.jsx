@@ -477,13 +477,13 @@ function AskCartHome() {
     track("nav_back", { to: prev.tab, stack: navStack.length - 1 });
   }
 
-  async function doSearch(query, { relax = false, category = null, occasion = null, budget = null, turn = 1, limit = 48, forWhom = null, size = null, capacity = null, naive = false } = {}) {
+  async function doSearch(query, { relax = false, category = null, occasion = null, budget = null, brand = null, turn = 1, limit = 48, forWhom = null, size = null, capacity = null, naive = false } = {}) {
     try {
       const t0 = Date.now();
       const r = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, relax, category, occasion, budget, limit, forWhom, size, capacity, naive }),
+        body: JSON.stringify({ query, relax, category, occasion, budget, brand, limit, forWhom, size, capacity, naive }),
       });
       const j = await r.json();
       if (!Array.isArray(j.results)) {
@@ -688,12 +688,12 @@ function AskCartHome() {
                                       budget: opts.budget ?? null, occasion: opts.occasion ?? null });
       delete appliedOpts.category;
     }
-    // Never move the shopper away from a good result set: if their answer
-    // made things worse, keep the previous picks and say so.
-    const newIntent = res.results.filter((r) => r.intent).length;
-    const oldIntent = s.results.filter((r) => r.intent).length;
-    const keepNew = newIntent > oldIntent || (newIntent === oldIntent && res.results.length >= s.results.length);
-    const finalResults = keepNew ? res.results : s.results;
+    // An explicit chip answer is the shopper's instruction: the filter is
+    // applied even when the on-intent count drops - that IS the filter
+    // working ("budget headphones under 3000" + Apple must not silently
+    // fall back to the mixed list). An empty facet leaves the honest
+    // zero-results state, which re-asks the rescue question.
+    const finalResults = res.results;
     const ok = finalResults.filter((r) => r.intent).length >= 2;
     const wasOk = s.ok === true;
     markResultsShown(s.query, finalResults, turnNow, "results");
