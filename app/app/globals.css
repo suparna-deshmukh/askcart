@@ -64,9 +64,16 @@ body.largetext { font-size: 16.5px; }
   border-bottom: 1px solid var(--border);
 }
 .topbar-inner {
-  max-width: 1180px; margin: 0 auto; padding: 12px 24px;
-  display: flex; align-items: center; gap: 18px;
+  width: 100%; padding: 8px 20px;
+  display: flex; align-items: center; gap: 14px;
 }
+.backbtn {
+  flex: none; width: 44px; height: 44px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text); font-size: 18px; line-height: 1; cursor: pointer;
+}
+.backbtn:disabled { opacity: .35; cursor: default; }
+.backbtn:not(:disabled):hover { background: var(--surface-2); }
 .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
 .logo-mark {
   width: 34px; height: 34px; border-radius: 9px; flex: none;

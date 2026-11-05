@@ -447,14 +447,37 @@ function AskCartHome() {
   }
 
   function switchTab(next) {
+    if (next === tab) return;
+    pushNav();
     setTab(next);
     try { window.history.replaceState(null, "", "/?tab=" + next); } catch {}
     track("page_view", { screen: next });
   }
   function switchAnview(next) {
+    if (next === anview) return;
+    pushNav();
     setAnview(next);
     try { window.history.replaceState(null, "", "/?tab=analytics&anview=" + next); } catch {}
     track("page_view", { screen: "analytics", subtab: next });
+  }
+  // In-app back navigation: a stack of surface snapshots (tab + which
+  // drawers/screens are open). Back pops the previous snapshot; the logo
+  // resets to home. Closes (X buttons) do not push - closing IS going back.
+  const [navStack, setNavStack] = useState([]);
+  function pushNav() {
+    setNavStack((st) => [...st, { tab, cartOpen, checkoutOpen, order, pdp: pdp ? { ...pdp } : null }].slice(-10));
+  }
+  function goBack() {
+    if (!navStack.length) return;
+    const prev = navStack[navStack.length - 1];
+    setNavStack(navStack.slice(0, -1));
+    setTab(prev.tab);
+    setCartOpen(prev.cartOpen);
+    setCheckoutOpen(prev.checkoutOpen);
+    setOrder(prev.order);
+    setPdp(prev.pdp);
+    try { window.history.replaceState(null, "", prev.tab === "analytics" ? "/?tab=analytics" : "/"); } catch {}
+    track("nav_back", { to: prev.tab, stack: navStack.length - 1 });
   }
 
   async function doSearch(query, { relax = false, category = null, occasion = null, budget = null, turn = 1, limit = 48, forWhom = null, size = null, capacity = null, naive = false } = {}) {
@@ -868,6 +891,7 @@ function AskCartHome() {
     return () => clearTimeout(t2);
   }, [cartToast]);
   function buyNow(item) {
+    pushNav();
     const jn = journeyRef.current;
     if (jn) jn.added = true;
     if (jn && item._from === "recommended") {
@@ -879,6 +903,7 @@ function AskCartHome() {
     setCheckoutOpen(true);
   }
   function placeOrder(total) {
+    pushNav();
     const items = Object.entries(cart);
     const jn = journeyRef.current;
     if (jn) {
@@ -945,6 +970,7 @@ function AskCartHome() {
       .slice(0, 4);
   }
   function openPdp(r, from, position) {
+    pushNav();
     setPdp({ ...r, _from: from, _position: position });
     try { window.history.replaceState(null, "", `/?sku=${r.sku}`); } catch {}
   }
@@ -985,7 +1011,8 @@ function AskCartHome() {
       <div className="appshell-main">
       <div className="topbar">
         <div className="topbar-inner">
-          <div className="logo" onClick={() => { setTab("search"); window.scrollTo({ top: 0 }); }}>
+          <button className="backbtn" onClick={goBack} disabled={!navStack.length} aria-label="Back" title="Back">←</button>
+          <div className="logo" onClick={() => { setNavStack([]); setTab("search"); window.scrollTo({ top: 0 }); }}>
             <div className="logo-mark">A</div>
             <div className="logo-word">Ask<span>Cart</span></div>
             <span className="logo-tag">guided shopping · India</span>
@@ -1002,7 +1029,7 @@ function AskCartHome() {
           <button className={"anbtn" + (tab === "analytics" ? " on" : "")} onClick={() => switchTab("analytics")}>
             <span className="anbtn-dot" /> Analytics
           </button>
-          <button className={"cartbtn" + (cartOpen ? " on" : "")} onClick={() => { setCartOpen(true); track("cart_view", { item_count: cartCount, total: Object.values(cart).reduce((a, e) => a + e.item.price * e.qty, 0) }); }}>
+          <button className={"cartbtn" + (cartOpen ? " on" : "")} onClick={() => { if (!cartOpen) pushNav(); setCartOpen(true); track("cart_view", { item_count: cartCount, total: Object.values(cart).reduce((a, e) => a + e.item.price * e.qty, 0) }); }}>
             <span className="carticon">🛒</span> Cart
             {cartCount > 0 && <span className="cartcount" key={cartCount}>{cartCount}</span>}
           </button>
@@ -1360,7 +1387,7 @@ function AskCartHome() {
                      region={region}
                      onOpenSku={(x) => openPdpSku(x.sku, s ? s.results : (preview ? preview.items : []), "pdp")} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} setCart={setCart}
-                  onCheckout={(total) => { setCartOpen(false); setCheckoutOpen(true); }} />
+                  onCheckout={(total) => { pushNav(); setCartOpen(false); setCheckoutOpen(true); }} />
       <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} cart={cart} onPlaced={placeOrder} />
       <OrderToast order={order} onClose={() => setOrder(null)} />
     </div>
