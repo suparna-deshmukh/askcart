@@ -128,24 +128,25 @@ body.largetext { font-size: 16.5px; }
   background: var(--guide-bg);
   border: 1px solid var(--guide-border); border-left: 4px solid var(--guide);
   border-radius: 14px;
-  padding: 14px 20px 16px 18px; margin-bottom: 14px; animation: fade .25s ease;
+  padding: 16px 20px 18px 18px; margin-bottom: 14px; animation: fadeup .15s ease-out;
   position: relative;
 }
-.qcard .qe { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--guide-text); margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
+.qcard .qe { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--guide-text); margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.qprog, .qstrip-prog { font-size: 10.5px; font-weight: 800; letter-spacing: .04em; color: var(--guide-text); background: #fff; border: 1px solid var(--guide-border); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .qcard .qcard-why { font-size: 11px; font-weight: 700; color: var(--guide-text); text-transform: none; letter-spacing: 0; text-decoration: underline dotted; cursor: pointer; }
 .qcard .qcard-skip { margin-left: auto; font-size: 11.5px; font-weight: 600; color: var(--text-2); text-transform: none; letter-spacing: 0; background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 8px; min-height: 32px; }
 .qcard .qcard-skip:hover { background: rgba(0,0,0,.05); color: var(--text); }
 .qcard .qcard-whybox { font-size: 12.5px; color: var(--guide-text); background: #fff; border: 1px dashed var(--guide-border); border-radius: 10px; padding: 9px 12px; margin-top: 8px; line-height: 1.5; }
-.qcard .qcard-typed { display: flex; gap: 8px; margin-top: 10px; }
-.qcard .qcard-typed input { flex: 1; font-size: 13px; padding: 9px 12px; border: 1.5px solid var(--guide-border); border-radius: 10px; background: #fff; }
+.qcard .qcard-typed { display: flex; gap: 8px; margin-top: 12px; }
+.qcard .qcard-typed input { flex: 1; font-size: 14px; padding: 11px 14px; min-height: 44px; border: 1.5px solid var(--guide-border); border-radius: 12px; background: #fff; }
 .qcard .qcard-typed input:focus { outline: none; border-color: var(--guide); box-shadow: 0 0 0 3px rgba(245, 158, 11, .15); }
-.qcard .qcard-typed button { font-size: 12.5px; font-weight: 700; padding: 9px 14px; border-radius: 10px; background: var(--guide); border: none; color: #fff; cursor: pointer; }
-.qcard .q { font-size: 15.5px; font-weight: 650; }
+.qcard .qcard-typed button { font-size: 13.5px; font-weight: 700; padding: 11px 16px; min-height: 44px; border-radius: 12px; background: var(--guide); border: none; color: #fff; cursor: pointer; }
+.qcard .q { font-size: 16px; font-weight: 650; letter-spacing: -.01em; margin-top: 2px; }
 .qcard .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .qcard .chips button {
-  font-size: 13.5px; font-weight: 600; padding: 9px 16px; border-radius: 999px; min-height: 40px;
+  font-size: 14px; font-weight: 600; padding: 10px 18px; border-radius: 999px; min-height: 44px;
   background: #fff; border: 1.5px solid var(--border-strong); color: var(--text-2); cursor: pointer;
-  transition: all .12s; display: inline-flex; align-items: center; gap: 7px;
+  transition: all .12s; display: inline-flex; align-items: center; gap: 8px;
 }
 .qcard .chips button:hover { border-color: var(--guide); color: var(--guide-text); background: #fffaf0; box-shadow: var(--shadow-sm); }
 .qcard .chips button .ccnt { font-size: 11.5px; font-weight: 600; color: var(--text-3); background: var(--surface-2); border-radius: 999px; padding: 1px 7px; }
@@ -286,6 +287,7 @@ body.largetext { font-size: 16.5px; }
 .drawer { width: 400px; max-width: 92vw; background: #fff; height: 100%; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; animation: slidein .2s ease; }
 @keyframes slidein { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+@keyframes fadeup { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .modal { width: 480px; max-width: 92vw; max-height: 84vh; overflow: auto; background: #fff; border-radius: 16px; box-shadow: var(--shadow-lg); padding: 6px 0 0; }
 .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 12px; border-bottom: 1px solid var(--border); }
 .drawer-head h3 { font-size: 16.5px; font-weight: 750; }
@@ -421,16 +423,16 @@ button:focus-visible, input:focus-visible, [role="button"]:focus-visible, a:focu
 .qstrip {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;
   background: var(--guide-bg); border: 1px solid var(--guide-border); border-radius: 999px;
-  padding: 7px 10px 7px 16px; animation: fade .2s ease;
+  padding: 8px 12px 8px 16px; min-height: 56px; animation: fadeup .15s ease-out;
 }
-.qstrip-q { font-size: 13px; font-weight: 650; color: var(--guide-text); white-space: nowrap; }
+.qstrip-q { font-size: 13.5px; font-weight: 650; color: var(--guide-text); white-space: nowrap; }
 .qstrip-why { font-size: 10.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
 .qstrip-lbl { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--guide-text); white-space: nowrap; }
 .qstrip-chips { display: flex; gap: 7px; overflow-x: auto; flex: 1; scrollbar-width: none; }
 .qchip {
-  font-size: 12.5px; font-weight: 600; padding: 7px 13px; border-radius: 999px; white-space: nowrap;
+  font-size: 13px; font-weight: 600; padding: 8px 14px; min-height: 40px; border-radius: 999px; white-space: nowrap;
   background: #fff; border: 1.5px solid var(--border-strong); color: var(--text-2); cursor: pointer;
-  display: inline-flex; align-items: center; gap: 6px; transition: all .12s;
+  display: inline-flex; align-items: center; gap: 7px; transition: all .12s;
 }
 .qchip:hover { border-color: var(--guide); color: var(--guide-text); }
 .qchip:disabled { opacity: .45; cursor: not-allowed; }

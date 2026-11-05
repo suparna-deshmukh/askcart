@@ -1208,3 +1208,28 @@ BEFORE any run (2b81ab5), then ran it.
   suite ALL TESTS PASS, chat eval CHAT_LLM=0 76/76 / 0 / 37/37,
   ui tour 17 shots, contrast 16/16, sync OK.
 - Local commit only, no GitHub/remote; localhost :3000.
+
+## 2026-11-05 — Item E: question UI restyle (progress, bigger targets, calmer motion)
+- **User report:** "the UI for asking these questions is terrible - improve it".
+- **Changes (existing tokens only, no new colours):**
+  - Progress badge `N/4` on every question (full card eyebrow row AND the
+    compact strip) - the chain now visibly counts itself; tooltip
+    "Question N of 4". Value = current search turn, capped at 4
+    (`QuestionCard progress={Math.min(4, s.turn)}`).
+  - Full card: question line 15.5 -> 16px/650 with -0.01em tracking,
+    chips 13.5 -> 14px with 44px min-height pills (44px tap targets),
+    typed input 14px/44px min-height/radius 12, send button 44px.
+  - Strip: single row kept, 56px min-height, chips 13px/40px
+    min-height, horizontal scroll for long option sets.
+  - Motion: both question surfaces animate with a new `fadeup`
+    keyframe (8px, 150ms ease-out, the motion spec's message rhythm);
+    the global `prefers-reduced-motion` block already disables it.
+- **Verified live:** "kurta under 2000" chain renders 1/4 -> 2/4 -> 3/4
+  -> 4/4 across strip/strip/strip/card (screenshots /tmp/e_strip1.png,
+  /tmp/e_strip3.png, /tmp/e_card_final.png); 360px mobile
+  "gift for 5 year old" full card (1/4) verified at
+  /tmp/e_mobile1.png - no overflow, chips wrap, typed row intact.
+- Gates green (all 6) after the change: canaries 111+6 0-fail, semantic
+  suite ALL TESTS PASS, chat eval CHAT_LLM=0 76/76 / 0 / 37/37,
+  ui tour 17 shots, contrast 16/16, sync OK.
+- Local commit only, no GitHub/remote; localhost :3000.

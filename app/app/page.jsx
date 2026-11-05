@@ -175,7 +175,7 @@ const WHY_COPY = {
   any: "No single filter dominated these results, so this is an open question — type a brand, a use or a detail and the results re-rank on it.",
 };
 
-function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip }) {
+function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1 }) {
   const [whyOpen, setWhyOpen] = useState(false);
   const [typed, setTyped] = useState("");
   const counts = Object.fromEntries((guide.optionCounts || []).map((c) => [c.label, c.count]));
@@ -189,6 +189,7 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip }) {
     return (
       <div className="qstrip" role="group" aria-label={t(lang, "qOptional")}>
         <span className="qstrip-lbl">{t(lang, "qOptional")}</span>
+        <span className="qstrip-prog" title={"Question " + progress + " of 4"}>{progress}/4</span>
         <span className="qstrip-q">{guide.question}</span>
         <div className="qstrip-chips">
           {guide.options.map((c) => (
@@ -206,6 +207,7 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip }) {
     <div className="qcard">
       <div className="qe">
         <span>{t(lang, "qEyebrow")}</span>
+        <span className="qprog" title={"Question " + progress + " of 4"}>{progress}/4</span>
         <button className="qcard-why" onClick={() => setWhyOpen(!whyOpen)} aria-expanded={whyOpen}>ⓘ {t(lang, "whyAsk")}</button>
         <button className="qcard-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
       </div>
@@ -1212,7 +1214,7 @@ function AskCartHome() {
                 <QuestionCard guide={s.guide} lang={lang} busy={busy}
                               onChip={(c) => applyAnswer(c, s.guide)}
                               onTyped={(txt) => answerTyped(txt, s.guide)}
-                              onSkip={skipGuide} />
+                              onSkip={skipGuide} progress={Math.min(4, s.turn)} />
               )}
 
               {s && s.error && (
