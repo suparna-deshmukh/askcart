@@ -1277,3 +1277,33 @@ BEFORE any run (2b81ab5), then ran it.
   suite ALL TESTS PASS (no-op guarantee intact), chat eval CHAT_LLM=0
   76/76 / 0 / 37/37, ui tour 17 shots, contrast 16/16, sync OK.
 - Local commit only, no GitHub/remote; localhost :3000.
+
+## 2026-11-06 — Item B: back button returns to the hero (recommended searches)
+- **User report:** "The back button isn't working. If I search something and
+  remove it, I can't go back and see the recommended search options again."
+- **Root cause:** the nav stack only snapshotted surface state (tab / cart /
+  checkout / order / PDP) - the active-search state `s` was never part of it,
+  and nothing could return the user to the hero once a search had been made.
+- **Changes (page.jsx only):**
+  - `pushNav(extra)` now merges extra fields into the snapshot; `goBack()`
+    restores `s` when the popped snapshot carries a `search` key
+    (`if ("search" in prev) setS(prev.search)`). Other snapshots (tab
+    switches, drawers) lack the key and leave the current search untouched.
+  - Every `startSearch` pushes a `{ search: null }` snapshot first - so the
+    Back arrow from a results view always lands on the hero with the
+    recommended-query chips (works from both the top-bar back button and
+    after any tab excursion).
+  - New `resetToHero()`: ends the open journey (unresolved), clears `s` and
+    the input, resets the URL, tracks `hero_return`. Wired to the refine
+    input: clearing the refine box to empty (typed then fully deleted)
+    returns to the hero. Programmatic `setInput("")` from `startSearch`
+    bypasses onChange, so a fresh search is never swallowed.
+- **Verified live (puppeteer, :3000):** hero -> example-chip search ->
+  Back button -> hero with 18 chips restored (screenshot /tmp/back_hero.png);
+  second search from hero works; typing in the refine box then deleting it
+  back to empty returns to the hero (`hero ex: true` after clear, grid gone,
+  back button re-disabled).
+- Gates green (all 6) after the change: canaries 111+6 0-fail, semantic
+  suite ALL TESTS PASS, chat eval CHAT_LLM=0 76/76 / 0 / 37/37, ui tour
+  17 shots, contrast 16/16, sync OK.
+- Local commit only, no GitHub/remote; localhost :3000.

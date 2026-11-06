@@ -461,6 +461,13 @@ function AskCartHome() {
       ms: Date.now() - j.t0,
     });
   }
+  function resetToHero() {
+    if (journeyRef.current && !journeyRef.current.ended) endJourney(journeyRef.current, { resolved: false, turns: s ? s.turn : 1 });
+    setS(null);
+    setInput("");
+    try { window.history.replaceState(null, "", "/"); } catch {}
+    track("hero_return", {});
+  }
 
   function switchTab(next) {
     if (next === tab) return;
@@ -480,8 +487,8 @@ function AskCartHome() {
   // drawers/screens are open). Back pops the previous snapshot; the logo
   // resets to home. Closes (X buttons) do not push - closing IS going back.
   const [navStack, setNavStack] = useState([]);
-  function pushNav() {
-    setNavStack((st) => [...st, { tab, cartOpen, checkoutOpen, order, pdp: pdp ? { ...pdp } : null }].slice(-10));
+  function pushNav(extra) {
+    setNavStack((st) => [...st, { tab, cartOpen, checkoutOpen, order, pdp: pdp ? { ...pdp } : null, ...(extra || {}) }].slice(-10));
   }
   function goBack() {
     if (!navStack.length) return;
@@ -492,6 +499,7 @@ function AskCartHome() {
     setCheckoutOpen(prev.checkoutOpen);
     setOrder(prev.order);
     setPdp(prev.pdp);
+    if ("search" in prev) setS(prev.search);
     try { window.history.replaceState(null, "", prev.tab === "analytics" ? "/?tab=analytics" : "/"); } catch {}
     track("nav_back", { to: prev.tab, stack: navStack.length - 1 });
   }
@@ -570,6 +578,7 @@ function AskCartHome() {
       endJourney(journeyRef.current, { resolved: !!s && s.ok === true, turns: s ? s.turn : 1 });
     }
     setBusy(true);
+    pushNav({ search: null });
     setS({ query, turn: 1, ok: null, results: [], total: null, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
     setInput("");
     journeyRef.current = ensureJourney(query);
@@ -1198,7 +1207,8 @@ function AskCartHome() {
               {s && (
                 <div className="hero" style={{ paddingBottom: 0 }}>
                   <div className="searchbar">
-                    <input value={input} onChange={(e) => setInput(e.target.value)}
+                    <input value={input}
+                           onChange={(e) => { setInput(e.target.value); if (s && e.target.value === "") resetToHero(); }}
                            onKeyDown={(e) => e.key === "Enter" && startSearch(input, "input")}
                            placeholder='Refine or ask again: "wristwatch for dad under 5k"' />
                     <button onClick={() => startSearch(input, "input")} disabled={busy}>{busy ? "…" : "Search"}</button>
