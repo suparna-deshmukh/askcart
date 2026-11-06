@@ -2,10 +2,12 @@
 // Two-tier sticky header (replaces the 8-control prototype bar).
 // Tier 1: back (conditional) · logo · search · [lang, wishlist, orders, cart, account]
 // Tier 2 (desktop): category nav. Mobile (≤767): menu · logo · search · bag + tab bar.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { I } from "../kit/Icon";
 import { IconButton } from "../kit/Button";
 import { displayCat } from "../../lib/categories";
+import { track } from "../../lib/track";
+import { SAMPLE_QUERIES } from "../../lib/sample_queries";
 import { MegaMenu } from "./MegaMenu";
 
 function useOutside(close) {
@@ -28,6 +30,50 @@ export function Header({
 }) {
   const [mega, setMega] = useState(false);
   const [acct, setAcct] = useState(false);
+  // Phase 4 (brief §7.1): client-side autosuggest. Never calls the LLM —
+  // recent searches (localStorage), sample queries, categories, brands,
+  // and a "…under ₹N" completion when the input ends in a number.
+  const [sugOpen, setSugOpen] = useState(false);
+  const [sugIdx, setSugIdx] = useState(-1);
+  const [recQ, setRecQ] = useState([]);
+  useEffect(() => {
+    try { const r = JSON.parse(localStorage.getItem("askcart_recent_q_v1") || "[]"); if (Array.isArray(r)) setRecQ(r.slice(0, 5)); } catch {}
+  }, []);
+  const removeRec = (txt) => {
+    setRecQ((r) => {
+      const next = r.filter((x) => x !== txt);
+      try { localStorage.setItem("askcart_recent_q_v1", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+  const sugList = useMemo(() => {
+    const q = input.trim().toLowerCase();
+    const out = [];
+    if (q === "") {
+      recQ.forEach((r) => out.push({ sec: "Recent", text: r, kind: "recent" }));
+      return out;
+    }
+    SAMPLE_QUERIES.filter((s) => s.toLowerCase().includes(q)).slice(0, 3)
+      .forEach((s) => out.push({ sec: "Try", text: s, kind: "try" }));
+    (facets && facets.categories ? facets.categories : []).slice(0, 30)
+      .filter((c) => displayCat(c.name).toLowerCase().includes(q))
+      .slice(0, 3).forEach((c) => out.push({ sec: "Categories", text: displayCat(c.name), kind: "cat" }));
+    ((facets && facets.brands && facets.brands.top) ? facets.brands.top : []).slice(0, 30)
+      .filter((b) => b.name.toLowerCase().includes(q))
+      .slice(0, 3).forEach((b) => out.push({ sec: "Brands", text: b.name, kind: "brand" }));
+    const m = q.match(/^(.{2,}?)\s+(\d{1,3})\s*(k)?$/);
+    if (m) {
+      const n = Number(m[2]) * (m[3] ? 1000 : 1);
+      const txt = m[1] + " under " + "\u20b9" + n.toLocaleString("en-IN");
+      if (!out.some((o) => o.text.toLowerCase() === txt.toLowerCase())) out.push({ sec: "Budget", text: txt, kind: "budget" });
+    }
+    return out;
+  }, [input, facets, recQ]);
+  const pickSug = (s) => {
+    track("search_suggest_select", { text: s.text, section: s.sec });
+    setSugOpen(false); setSugIdx(-1);
+    onQuery(s.text, "suggest");
+  };
   const [langPop, setLangPop] = useState(false);
   const [mSearch, setMSearch] = useState(false);
   const g = aiStatus && aiStatus.gemini;
@@ -60,10 +106,38 @@ export function Header({
           <div className="tsearch">
             <I name="search" size={18} className="tsearch-ic" />
             <input value={input} aria-label="Search"
-                   onChange={(e) => { setInput(e.target.value); if (e.target.value === "") onSearchCleared(); }}
-                   onKeyDown={(e) => e.key === "Enter" && onSearch()}
+                   onChange={(e) => { setInput(e.target.value); if (e.target.value === "") onSearchCleared(); setSugOpen(true); setSugIdx(-1); }}
+                   onFocus={() => setSugOpen(true)}
+                   onBlur={() => setTimeout(() => setSugOpen(false), 150)}
+                   onKeyDown={(e) => {
+                     if (e.key === "ArrowDown") { e.preventDefault(); setSugIdx((i) => Math.min(i + 1, sugList.length - 1)); }
+                     else if (e.key === "ArrowUp") { e.preventDefault(); setSugIdx((i) => Math.max(i - 1, -1)); }
+                     else if (e.key === "Escape") { setSugOpen(false); setSugIdx(-1); }
+                     else if (e.key === "Enter") { if (sugIdx >= 0 && sugList[sugIdx]) pickSug(sugList[sugIdx]); else onSearch(); }
+                   }}
                    placeholder={tab === "search" ? 'Try: "wristwatch for dad under 5k"' : "Search 54,304 products…"} />
             <button className="tsearch-mic" aria-label="Voice search (coming soon)" title="Voice search — coming soon"><I name="mic" size={17} /></button>
+            {sugOpen && sugList.length > 0 && (
+              <div className="suggest" role="listbox" aria-label="Search suggestions">
+                {sugList.map((s, i) => (
+                  <div key={s.sec + s.text} className="suggest-sec">
+                    {i === 0 || sugList[i - 1].sec !== s.sec ? <div className="suggest-seclbl">{s.sec}</div> : null}
+                    <button className={"suggest-row" + (i === sugIdx ? " hot" : "")} role="option" aria-selected={i === sugIdx}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => pickSug(s)}>
+                      <I name={s.kind === "recent" ? "clock" : "search"} size={14} className="suggest-ic" />
+                      <span>{s.text}</span>
+                      {s.kind === "recent" && (
+                        <span className="sx" role="button" tabIndex={0} title="Remove from recent"
+                              onClick={(e) => { e.stopPropagation(); removeRec(s.text); }}>
+                          <I name="x" size={13} />
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           {/* Mobile-only search opener */}
           <button className="iconbtn m-search" aria-label="Search" onClick={() => setMSearch(true)}><I name="search" size={22} /></button>

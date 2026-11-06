@@ -57,10 +57,14 @@ export function Tile({ item, size = 120, className = "", imageUrl, showInfo = tr
   const th = catTheme(item && item.category, item && item.title);
   const brand = ((item && item.brand) || "").trim();
   const url = imageUrl || (item && item.image_url);
+  const fluid = size === "fluid";
   return (
-    <div className={"tile2 " + className}
-         style={{ width: size, height: size, borderRadius: 10, flex: "none",
-                  background: url ? "var(--surface)" : `linear-gradient(160deg, var(--cat-${th.c}-1), var(--cat-${th.c}-2))` }}
+    <div className={"tile2" + (fluid ? " tile2-fluid" : "") + " " + className}
+         style={fluid
+                  ? { width: "100%", aspectRatio: aspect || "1 / 1", borderRadius: 12,
+                      background: url ? "var(--surface)" : `linear-gradient(160deg, var(--cat-${th.c}-1), var(--cat-${th.c}-2))` }
+                  : { width: size, height: size, borderRadius: 10, flex: "none",
+                      background: url ? "var(--surface)" : `linear-gradient(160deg, var(--cat-${th.c}-1), var(--cat-${th.c}-2))` }}
          aria-hidden="true">
       {url ? <img src={url} alt="" loading="lazy" decoding="async"
                   onError={(e) => { e.target.style.display = "none"; }} /> : (
@@ -69,8 +73,8 @@ export function Tile({ item, size = 120, className = "", imageUrl, showInfo = tr
           <Pattern kind={th.pattern} ink={`var(--cat-${th.c}-ink)`} />
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{ position: "absolute", bottom: "10%", left: "50%", transform: "translateX(-50%)", width: "44%", height: 9, borderRadius: "50%", background: "rgba(28,27,24,.12)", filter: "blur(6px)" }} />
-            <span style={{ color: `var(--cat-${th.c}-ink)` }}>
-              <Glyph kind={glyphFor(item && item.category, item && item.title)} size={Math.max(20, Math.round(size * 0.52))} />
+            <span className="tile2-glyph" style={{ color: `var(--cat-${th.c}-ink)` }}>
+              <Glyph kind={glyphFor(item && item.category, item && item.title)} size={fluid ? 44 : Math.max(20, Math.round(size * 0.52))} />
             </span>
           </div>
           {brand && <span className="tile2-mono">{brand[0].toUpperCase()}</span>}

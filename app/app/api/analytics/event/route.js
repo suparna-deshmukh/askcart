@@ -24,6 +24,8 @@ const ALLOWED = new Set([
   "suggest_select", "language_change",
   "nav_category_click", "occasion_tile_click", "budget_tile_click", "brand_tile_click",
   "search_suggest_select", "wishlist_add", "wishlist_remove",
+  "view_density_change", "filter_sheet_open", "back_to_top", "quick_view_open",
+  "checkout_step_view", "checkout_step_complete", "order_confirm_view", "reorder_click",
   "chat_open", "chat_close", "chat_nudge_shown", "chat_nudge_dismissed",
   "chat_nudge_accepted", "chat_user_message", "chat_intent",
   "chat_tool_call", "chat_response", "chat_fallback",

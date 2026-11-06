@@ -44,3 +44,4 @@ Baseline gates (Phase 0, 2026-11-06): canaries 111+6 (0 failures) · contrast 16
 ## Phase log
 
 - Phase 0 (2026-11-06): baseline captured, gates green, notes written. No code changes.
+- Phase 4 (2026-11-06): results v2. Assumptions: (a) turn-1-resolved searches keep the compact refine strip (G11) — the prior "missing question card" report was a selector/wait artifact, verified live; (b) "Narrowed from N" is a label, not an action; (c) rating facet is 4★+/Any (old behaviour was a bool); category facet single-select; (d) brand facet shows in single-category layouts (brief hides only Category); (e) mobile search overlay has no autosuggest yet (Phase 9); (f) busy-dim on re-search deferred (skeleton only when results empty).

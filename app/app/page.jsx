@@ -22,6 +22,7 @@ import { ToasterProvider, useToast } from "./ui/kit/Toaster";
 import { WishlistView } from "./ui/wishlist";
 import { ProductCard, VARIANT_PAREN } from "./ui/cards";
 import { HeroDemo, HomeSections, useTypewriter } from "./ui/home";
+import { FilterSidebar, FilterBar } from "./ui/filters";
 import { I } from "./ui/kit/Icon";
 import { Button } from "./ui/kit/Button";
 
@@ -42,7 +43,7 @@ const PRICE_BANDS = [
   { id: "3-10k", label: "₹3k–10k", min: 3000, max: 10000 },
   { id: "10k+", label: "₹10k & up", min: 10000, max: Infinity },
 ];
-const DEFAULT_FILTERS = { sort: "relevance", brands: [], band: null, rating4: false, category: null, noAccessories: false };
+const DEFAULT_FILTERS = { sort: "relevance", brands: [], band: null, rating4: false, category: null, noAccessories: false, priceMin: null, priceMax: null };
 
 // O2: coarse region from pincode (demo use only: festival ordering +
 // delivery estimate). Coarse by design — analytics never see the pincode.
@@ -98,6 +99,9 @@ function applyFilters(items, f, bands) {
     const b = (bands || PRICE_BANDS).find((x) => x.id === f.band);
     out = out.filter((r) => r.price >= b.min && r.price < b.max);
   }
+  // Phase 4: explicit min/max (additive; defaults null = off)
+  if (f.priceMin != null) out = out.filter((r) => r.price >= f.priceMin);
+  if (f.priceMax != null) out = out.filter((r) => r.price <= f.priceMax);
   if (f.rating4) out = out.filter((r) => (r.rating || 0) >= 4);
   // C3: accessory filter facet (cases/bands/chargers for host devices)
   if (f.noAccessories) out = out.filter((r) => !r.is_accessory);
@@ -168,7 +172,7 @@ const WHY_COPY = {
   any: "No single filter dominated these results, so this is an open question — type a brand, a use or a detail and the results re-rank on it.",
 };
 
-function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1 }) {
+function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1, prevCount = null, countAfter = null }) {
   const [whyOpen, setWhyOpen] = useState(false);
   const [typed, setTyped] = useState("");
   const inputRef = useRef(null);
@@ -179,68 +183,81 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
   const refine = !!guide.refine;
   const submitTyped = () => { if (typed.trim()) { onTyped(typed); setTyped(""); } };
   const focusTyped = () => { try { inputRef.current && inputRef.current.focus(); } catch {} };
+  const answered = Math.max(0, progress - 1);
+  const meter = (countAfter != null && prevCount != null)
+    ? (<><b>{prevCount}</b> <span className="qmeter-arr">→</span> <b className="qmeter-now">{countAfter}</b> {t(lang, "productsWord")}</>)
+    : (countAfter != null ? <>{countAfter} {t(lang, "productsWord")}</> : null);
   if (refine) {
     // G11: resolved searches get a compact strip, never a card pushing
     // results down. 2026-11-06 redesign: the strip mirrors the card's
     // head row (spark + eyebrow + skip) so "marigold + spark = AskCart is
     // asking" reads the same in both states; chips wrap (never cut off)
     // and the typed row sits at the end as the "Next - type it yourself"
-    // option.
+    // option. Phase 4: narrowing meter inline, kit Button send.
     return (
-      <div className="qstrip" role="group" aria-label={t(lang, "qOptional")}>
-        <div className="qstrip-head">
-          <span className="qstrip-eyebrow"><GeminiSpark size={12} />{t(lang, "qOptional")}</span>
-          <span className="qstrip-q">{guide.question}</span>
-          <span className="qstrip-prog">Question {progress}</span>
-          <button className="qstrip-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
+      <div className="qstrip2" role="group" aria-label={t(lang, "qOptional")}>
+        <div className="qstrip2-head">
+          <span className="qstrip2-spark"><I name="sparkle" size={13} /></span>
+          <span className="qstrip2-eyebrow">{t(lang, "qOptional")}</span>
+          <span className="qstrip2-q">{guide.question}</span>
+          {meter && <span className="qmeter" aria-live="polite">{meter}</span>}
+          <span className="qstrip2-prog">Question {progress}{answered > 0 ? ` · ${answered} ${t(lang, "answered")}` : ""}</span>
+          <button className="qstrip2-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
         </div>
-        <div className="qstrip-chips">
+        <div className="qstrip2-chips">
           {guide.options.map((c) => (
-            <button key={c} className="qchip" onClick={() => onChip(c)} disabled={busy || counts[c] === 0}>
+            <button key={c} className={"qchip2" + (counts[c] === 0 ? " zero" : "")} onClick={() => onChip(c)} disabled={busy || counts[c] === 0}>
               {c}{counts[c] != null && <span className="ccnt">{counts[c]}</span>}
             </button>
           ))}
           {guide.options.length > 0 && (
-            <button className="qchip qchip-more" onClick={focusTyped}>{t(lang, "somethingElse")}</button>
+            <button className="qchip2 qchip2-more" onClick={focusTyped}>{t(lang, "somethingElse")}</button>
           )}
         </div>
-        <div className="qstrip-typed">
+        <div className="qstrip2-typed">
           <input ref={inputRef} value={typed} onChange={(e) => setTyped(e.target.value)}
                  onKeyDown={(e) => e.key === "Enter" && submitTyped()}
                  placeholder={t(lang, "orType")} aria-label="Type your answer" maxLength={80} />
-          <button onClick={submitTyped} disabled={busy || !typed.trim()}>{t(lang, "send")}</button>
+          <Button variant="guide" onClick={submitTyped} disabled={busy || !typed.trim()}>{t(lang, "send")}</Button>
         </div>
-        {guide.reason && <span className="qstrip-why" title={guide.reason}>{guide.reason}</span>}
+        {guide.reason && <span className="qstrip2-why" title={guide.reason}>{guide.reason}</span>}
       </div>
     );
   }
-  const answered = Math.max(0, progress - 1);
   return (
-    <div className="qcard">
-      <div className="qe">
-        <span className="qcard-eyebrow"><GeminiSpark />{t(lang, "qEyebrow")}</span>
-        <span className="qprog">Question {progress}{answered > 0 ? ` · ${answered} answered` : ""}</span>
-        <button className="qcard-why" onClick={() => setWhyOpen(!whyOpen)} aria-expanded={whyOpen}>ⓘ {t(lang, "whyAsk")}</button>
-        <button className="qcard-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
+    <div className="qcard2">
+      <div className="qcard2-head">
+        <span className="qcard2-spark"><I name="sparkle" size={15} /></span>
+        <span className="qcard2-eyebrow">{t(lang, "qEyebrow")}</span>
+        <span className="qcard2-dots" aria-hidden="true">
+          {[...Array(progress)].map((_, n) => (
+            <i key={n} className={n < answered ? "on" : "cur"} />
+          ))}
+        </span>
+        <span className="qcard2-progtxt">Question {progress}{answered > 0 ? ` · ${answered} ${t(lang, "answered")}` : ""}</span>
+        <button className="qcard2-why" onClick={() => setWhyOpen(!whyOpen)} aria-expanded={whyOpen}>{t(lang, "whyAsk")}</button>
+        <button className="qcard2-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
       </div>
-      {whyOpen && <div className="qcard-whybox">{WHY_COPY[guide.type] || WHY_COPY.budget}</div>}
-      <div className="q">{guide.question}</div>
-      <div className="chips" role="radiogroup" aria-label={guide.question}>
+      {whyOpen && <div className="qcard2-whybox">{WHY_COPY[guide.type] || WHY_COPY.budget}</div>}
+      <div className="qcard2-q">{guide.question}</div>
+      {meter && <div className="qmeter qmeter-card" aria-live="polite">{meter}</div>}
+      <div className="qcard2-chips" role="radiogroup" aria-label={guide.question}>
         {guide.options.map((c) => (
           <button key={c} role="radio" aria-checked="false"
+                  className={"qchip2" + (counts[c] === 0 ? " zero" : "")}
                   onClick={() => onChip(c)} disabled={busy || counts[c] === 0}>
             {c}{counts[c] != null && <span className="ccnt">{counts[c]}</span>}
           </button>
         ))}
         {guide.options.length > 0 && (
-          <button className="qchip qchip-more" onClick={focusTyped}>{t(lang, "somethingElse")}</button>
+          <button className="qchip2 qchip2-more" onClick={focusTyped}>{t(lang, "somethingElse")}</button>
         )}
       </div>
-      <div className="qcard-typed">
+      <div className="qcard2-typed">
         <input ref={inputRef} value={typed} onChange={(e) => setTyped(e.target.value)}
                onKeyDown={(e) => e.key === "Enter" && submitTyped()}
                placeholder={t(lang, "orType")} aria-label="Type your answer" maxLength={80} />
-        <button onClick={submitTyped} disabled={busy || !typed.trim()}>{t(lang, "send")}</button>
+        <Button variant="guide" onClick={submitTyped} disabled={busy || !typed.trim()}>{t(lang, "send")}</Button>
       </div>
     </div>
   );
@@ -258,6 +275,13 @@ function AskCartHome() {
   const [recent, setRecent] = useState([]);
   const [expando, setExpando] = useState(false);
   const [searchFocus, setSearchFocus] = useState(false);
+  const [showTop, setShowTop] = useState(false);
+  const [density, setDensity] = useState("cozy");
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > window.innerHeight * 2);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   const params = useSearchParams();
   if (params.get("kit") === "1") return <KitPage />;
   // shell: scroll shadow + tier-2 hide on scroll down
@@ -437,7 +461,7 @@ function AskCartHome() {
     if (meta.trailLabel) trail.push({ label: meta.trailLabel, opts: { budget: opts.budget || null, occasion: opts.occasion || null, category: opts.category || null, brand: opts.brand || null, forWhom: opts.forWhom || null, size: opts.size || null, capacity: opts.capacity || null } });
     setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results,
            total: res.total_matches ?? res.results.length, parsed: res.parsed,
-           filters: { ...DEFAULT_FILTERS }, guide: null, trail, exhausted: !ok, error: null,
+           filters: { ...DEFAULT_FILTERS }, guide: null, trail, exhausted: !ok, error: null, counts: [res.results.length],
            echo: meta.echo || null });
     setMoreN(24);
     if (ok) endJourney(journeyRef.current, { resolved: true, turns: 1 });
@@ -734,7 +758,17 @@ function AskCartHome() {
     });
   }
 
+  function noteRecentQuery(q) {
+    const t = String(q || "").trim();
+    if (!t) return;
+    try {
+      const cur = JSON.parse(localStorage.getItem("askcart_recent_q_v1") || "[]");
+      const next = [t, ...(Array.isArray(cur) ? cur : []).filter((x) => x !== t)].slice(0, 5);
+      localStorage.setItem("askcart_recent_q_v1", JSON.stringify(next));
+    } catch {}
+  }
   async function startSearch(query, source = "input", modeOverride = undefined) {
+    noteRecentQuery(query);
     if (!query.trim() || busy) return;
     const naive = modeOverride !== undefined ? modeOverride : plainMode;
     if (journeyRef.current && !journeyRef.current.ended) {
@@ -759,7 +793,7 @@ function AskCartHome() {
     // study and the simulation use). Loose/relax results alone do not count.
     const ok = res.results.filter((r) => r.intent).length >= 2;
     markResultsShown(query, res.results, 1, "results");
-    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, total: res.total_matches ?? res.results.length, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
+    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, total: res.total_matches ?? res.results.length, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null, counts: [res.results.length] });
     setMoreN(24);
     if (ok) {
       track("resolved", { query, turns: 1, n_results: res.results.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
@@ -1038,7 +1072,7 @@ function AskCartHome() {
            total: res.total_matches ?? finalResults.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null,
            trail: [...s.trail, { label: trailLabel, opts: appliedOpts }, ...aiSteps],
-           echo: echoFor(trailLabel, res.total_matches ?? finalResults.length, s.total ?? s.results.length), error: null });
+           echo: echoFor(trailLabel, res.total_matches ?? finalResults.length, s.total ?? s.results.length), error: null, counts: [...(s.counts || []), finalResults.length] });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: finalResults.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
       // Keep guiding: a resolved result is a start, not the destination.
@@ -1161,7 +1195,7 @@ function AskCartHome() {
     setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: res.results,
            total: res.total_matches ?? res.results.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, { label: txt, opts: null }, ...aiSteps],
-           echo: `${txt} · ${res.total_matches ?? res.results.length} of ${s.total ?? s.results.length} left`, error: null });
+           echo: `${txt} · ${res.total_matches ?? res.results.length} of ${s.total ?? s.results.length} left`, error: null, counts: [...(s.counts || []), res.results.length] });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: intentN, journey_id: journeyRef.current.id });
       // Same keep-guiding rule as chip answers: the typed text narrows
@@ -1279,6 +1313,8 @@ function AskCartHome() {
     else if (type === "brand") nf = { ...s.filters, brands: s.filters.brands.includes(value)
       ? s.filters.brands.filter((x) => x !== value) : [...s.filters.brands, value] };
     else if (type === "price_band") nf = { ...s.filters, band: s.filters.band === value ? null : value };
+    else if (type === "price_min") nf = { ...s.filters, priceMin: s.filters.priceMin === value ? null : value };
+    else if (type === "price_max") nf = { ...s.filters, priceMax: s.filters.priceMax === value ? null : value };
     else if (type === "rating") nf = { ...s.filters, rating4: !s.filters.rating4 };
     else if (type === "accessories") nf = { ...s.filters, noAccessories: !s.filters.noAccessories };
     else if (type === "category") nf = { ...s.filters, category: s.filters.category === value ? null : value };
@@ -1310,6 +1346,29 @@ function AskCartHome() {
       action: "View cart",
       onAction: () => { setCartOpen(true); track("cart_view", { item_count: Object.keys(cart).length + 1, source: "toast" }); } });
     offerSurvey(jn, "add_to_cart");
+  }
+  function incCart(item) {
+    const jn = journeyRef.current;
+    if (jn) jn.added = true;
+    track("add_to_cart", {
+      sku: item.sku, price: item.price, category: item.category, brand: item.brand || "",
+      cart_size: Object.keys(cart).length + (cart[item.sku] ? 0 : 1), from: "card_step",
+      journey_id: jn ? jn.id : null, query: jn ? jn.query : null,
+    });
+    setCart((c) => ({ ...c, [item.sku]: { item, qty: (c[item.sku] ? c[item.sku].qty : 0) + 1 } }));
+  }
+  function decCart(item) {
+    setCart((c) => {
+      const e = c[item.sku];
+      if (!e) return c;
+      if (e.qty <= 1) {
+        const n = { ...c }; delete n[item.sku];
+        track("remove_from_cart", { sku: item.sku, cart_size: Object.keys(n).length, price: item.price });
+        return n;
+      }
+      track("remove_from_cart", { sku: item.sku, cart_size: Object.keys(c).length, price: item.price, qty: e.qty - 1 });
+      return { ...c, [item.sku]: { ...e, qty: e.qty - 1 } };
+    });
   }
   function buyNow(item) {
     pushNav();
@@ -1437,12 +1496,30 @@ function AskCartHome() {
     for (const r of s.results) m.set(r.category, (m.get(r.category) || 0) + 1);
     return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([c]) => c);
   }, [s]);
+  // Phase 4: sidebar facet counts (live, from the current result set)
+  const brandCounts = useMemo(() => {
+    if (!s || !s.results.length) return [];
+    const m = new Map();
+    for (const r of s.results) if (r.brand) m.set(r.brand, (m.get(r.brand) || 0) + 1);
+    return [...m.entries()].sort((a, b) => b[1] - a[1]);
+  }, [s]);
+  const catCounts = useMemo(() => {
+    if (!s || !s.results.length) return [];
+    const m = new Map();
+    for (const r of s.results) m.set(r.category, (m.get(r.category) || 0) + 1);
+    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+  }, [s]);
   const f = s ? s.filters : DEFAULT_FILTERS;
   const activeFilterCount = (f.brands.length ? 1 : 0) + (f.band ? 1 : 0) + (f.rating4 ? 1 : 0) + (f.noAccessories ? 1 : 0) + (f.category ? 1 : 0) + (f.sort !== "relevance" ? 1 : 0);
 
-  const cardProps = (from) => ({
-    onAdd: (r) => addToCart(r, from),
-    onOpen: (r) => openPdp(r, from, 0),
+  const cardProps = (from, r) => ({
+    onAdd: (x) => addToCart(x, from),
+    onOpen: (x) => openPdp(x, from, 0),
+    onWish: (x) => toggleWish(x),
+    wished: r ? wish.includes(r.sku) : false,
+    cartQty: r && cart[r.sku] ? cart[r.sku].qty : 0,
+    onDec: (x) => decCart(x),
+    onInc: (x) => incCart(x),
   });
   // S6: relaxed (slightly-over-budget) results are labelled, never silent.
   const overBudget = (r) => !!(s && s.parsed && s.parsed.budgetMax &&
@@ -1566,20 +1643,18 @@ function AskCartHome() {
               )}
 
               {s && (
-                <div className="trail">
-                  <span className="step"><b>Search</b>&nbsp; {s.query}</span>
+                <div className="briefbar" role="region" aria-label={t(lang, "yourBrief")}>
+                  <span className="brief-search"><I name="search" size={13} /> {s.query}</span>
                   {s.trail.slice(1).map((t, i) => (
-                    <span key={i} style={{ display: "contents" }}>
-                      <span className="arrow">→</span>
-                      {typeof t === "object" && t.opts ? (
-                        <button className="chip-x" onClick={() => removeTrailStep(i + 1)} title="Remove this constraint">
-                          {t.label} <span className="xx">✕</span>
-                        </button>
-                      ) : (
-                        <span className="step">{typeof t === "object" ? t.label : t}</span>
-                      )}
-                    </span>
+                    typeof t === "object" && t.opts ? (
+                      <button key={i} className="brief-chip" onClick={() => removeTrailStep(i + 1)} title="Remove this constraint">
+                        {t.label} <span className="xx"><I name="x" size={12} /></span>
+                      </button>
+                    ) : (
+                      <span key={i} className="brief-step"><span className="brief-arrow">→</span> {typeof t === "object" ? t.label : t}</span>
+                    )
                   ))}
+                  <button className="brief-reset" onClick={resetToHero}>{t(lang, "startOver")}</button>
                 </div>
               )}
               {s && s.results.length > 0 && (
@@ -1623,7 +1698,9 @@ function AskCartHome() {
                 <QuestionCard guide={s.guide} lang={lang} busy={busy}
                               onChip={(c) => applyAnswer(c, s.guide)}
                               onTyped={(txt) => answerTyped(txt, s.guide)}
-                              onSkip={skipGuide} progress={s.turn} />
+                              onSkip={skipGuide} progress={s.turn}
+                              prevCount={s.counts && s.counts.length >= 2 ? s.counts[s.counts.length - 2] : null}
+                              countAfter={s.counts ? s.counts[s.counts.length - 1] : null} />
               )}
 
               {s && s.error && (
@@ -1658,110 +1735,134 @@ function AskCartHome() {
 
               {s && !busy && s.results.length > 0 && layout && (
                 <>
-                  <div className="filters">
-                    <div className="frow">
-                      <span className="flabel">Sort</span>
-                      {SORTS.map((x) => (
-                        <button key={x.id} className={f.sort === x.id ? "fchip on" : "fchip"} onClick={() => setFilter("sort", x.id)}>{x.label}</button>
-                      ))}
-                      {priceBands.length > 0 && (<><span className="fsep" /><span className="flabel">Price</span>
-                        {priceBands.map((b) => (
-                          <button key={b.id} className={f.band === b.id ? "fchip on" : "fchip"} onClick={() => setFilter("price_band", b.id)}>{b.label}</button>
-                        ))}
-                      </>)}
-                      <button className={f.rating4 ? "fchip on" : "fchip"} onClick={() => setFilter("rating", "4★+")}>4★ & up</button>
-                      <button className={f.noAccessories ? "fchip on" : "fchip"} onClick={() => setFilter("accessories", "hide")}>Hide accessories</button>
-                      {brandOpts.length > 0 && (<><span className="fsep" /><span className="flabel">Brand</span>
-                        {brandOpts.map((b) => (
-                          <button key={b} className={f.brands.includes(b) ? "fchip on" : "fchip"} onClick={() => setFilter("brand", b)}>{b}</button>
-                        ))}
-                      </>)}
-                      {catOpts.length > 0 && !layout.single && (<><span className="fsep" /><span className="flabel">Category</span>
-                        {catOpts.map((c) => (
-                          <button key={c} className={f.category === c ? "fchip on" : "fchip"} onClick={() => setFilter("category", c)}>{displayCat(c)}</button>
-                        ))}
-                      </>)}
-                      {activeFilterCount > 0 && (
-                        <button className="fchip clear" onClick={() => setFilter("clear", "clear")}>Clear all</button>
-                      )}
-                      <span className="filter-meta">{layout.filtered.length} of {s.results.length} products{s.ms ? ` · ${s.ms} ms` : ""}</span>
-                    </div>
-                  </div>
-
-                  {layout.filtered.length === 0 ? (
-                    <div className="dim" style={{ marginTop: 4 }}>
-                      <h3>Nothing left after your filters</h3>
-                      <div style={{ fontSize: 13.5, color: "var(--sub)" }}>
-                        Loosen a filter, or <button className="fchip clear" style={{ border: "none", background: "none", color: "var(--red)", cursor: "pointer", fontWeight: 700 }} onClick={() => setFilter("clear", "clear")}>clear all</button> to see every result again.
+                  {/* Phase 4 (brief §7.5): sticky sidebar on desktop,
+                      Sort/Filter bottom bar + sheets on mobile. */}
+                  <div className="res-layout">
+                    <FilterSidebar lang={lang} f={f} setFilter={setFilter} priceBands={priceBands}
+                                   brandList={brandCounts} catList={catCounts} single={layout.single}
+                                   onPriceMin={(v) => setFilter("price_min", v)} onPriceMax={(v) => setFilter("price_max", v)}
+                                   activeCount={activeFilterCount} clearAll={() => setFilter("clear", "clear")}
+                                   nAfter={layout.filtered.length} />
+                    <div className="res-main">
+                      <div className="res-toolbar">
+                        <span className="filter-meta">{layout.filtered.length} of {s.results.length} {t(lang, "productsWord")}{s.ms ? ` · ${s.ms} ms` : ""}</span>
+                        <button className="res-density" aria-label="Toggle grid density" title="Toggle grid density"
+                                onClick={() => { const d = density === "cozy" ? "compact" : "cozy"; setDensity(d); track("view_density_change", { density: d }); }}>
+                          <I name="grid" size={15} /> {density === "cozy" ? t(lang, "densityCozy") : t(lang, "densityCompact")}
+                        </button>
                       </div>
-                    </div>
-                  ) : (
-                    <>
-                      {layout.single ? (
-                        <>
-                          <div className="grid">
-                            {layout.grid.slice(0, moreN).map((r) => (
-                              <ProductCard key={r.sku} r={r} best={layout.best.has(r.sku)}
-                                           overBudget={overBudget(r)} {...cardProps("results")} />
-                            ))}
-                          </div>
-                          {layout.grid.length > moreN && (
-                            <div style={{ textAlign: "center", marginTop: 14 }}>
-                              <button className="fchip" style={{ padding: "9px 22px" }}
-                                      onClick={() => { setMoreN((n) => n + 24); track("show_more", { query: s.query, n: moreN + 24 }); }}>
-                                Show more ({layout.grid.length - moreN} left)
-                              </button>
-                            </div>
-                          )}
-                        </>
+                      {layout.filtered.length === 0 ? (
+                        <div className="emptypanel">
+                          <svg className="emptypanel-art" viewBox="0 0 96 72" aria-hidden="true">
+                            <path d="M14 18h68l-7 44a8 8 0 0 1-8 7H29a8 8 0 0 1-8-7Z" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
+                            <path d="M32 18c0-12 8-18 16-18s16 6 16 18" fill="none" stroke="currentColor" strokeWidth="2.5" />
+                            <path d="M36 34l24 18M60 34L36 52" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                          </svg>
+                          <h3>{t(lang, "nothingLeft")}</h3>
+                          <div className="emptypanel-sub">{t(lang, "nothingLeftSub")}</div>
+                          <Button onClick={() => setFilter("clear", "clear")}>{t(lang, "clearAll")}</Button>
+                        </div>
                       ) : (
                         <>
-                          <div className="group">
-                            <div className="gh">
-                              <h3>Best matches</h3>
-                              <span className="gc">{persona ? "ranked for your profile · price fit, brand preference, quality & trust" : "highest-scoring picks for this search"}</span>
+                          {s.results.length === 1 && s.turn > 1 && (
+                            <div className="pickcard" role="region" aria-label={t(lang, "yourPick")}>
+                              <div className="pickcard-head">
+                                <I name="check-circle" size={18} />
+                                <span className="pickcard-title">{t(lang, "yourPick")}</span>
+                                {s.counts && s.counts[0] > 1 && (
+                                  <span className="pickcard-from">{t(lang, "seeOther").replace("{n}", s.counts[0])}</span>
+                                )}
+                              </div>
+                              <div className="pickcard-body">
+                                <Tile item={layout.filtered[0]} size={112} showInfo={false} />
+                                <div className="pickcard-info">
+                                  {layout.filtered[0].brand ? <span className="brandb">{layout.filtered[0].brand}</span> : null}
+                                  <div className="pickcard-t">{layout.filtered[0].title}</div>
+                                  <div className="prow">
+                                    <span className="p">₹{layout.filtered[0].price.toLocaleString("en-IN")}</span>
+                                    <span className={"rpill " + (layout.filtered[0].rating >= 4 ? "good" : layout.filtered[0].rating >= 3 ? "mid" : "low")}>★ {layout.filtered[0].rating}</span>
+                                    <span className="rc">{(layout.filtered[0].num_ratings || 0).toLocaleString("en-IN")} {t(lang, "ratingsWord")}</span>
+                                  </div>
+                                  <div className="pickcard-actions">
+                                    <Button onClick={() => addToCart(layout.filtered[0], "pick")}>{t(lang, "addToCart")}</Button>
+                                    <Button variant="secondary" onClick={() => openPdp(layout.filtered[0], "pick", 0)}>{t(lang, "viewDetails")}</Button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                            <div className="grid">
-                              {layout.rec.map((r) => <ProductCard key={r.sku} r={r} best overBudget={overBudget(r)} {...cardProps("recommended")} />)}
-                            </div>
-                          </div>
-                          {layout.groups.map((g) => (
-                            <div className="group" key={g.cat}>
-                              <div className="gh">
-                                <h3>{displayCat(g.cat)}</h3>
-                                <span className="gc">{g.items.length} picks from this match</span>
+                          )}
+                          {layout.single ? (
+                            <>
+                              <div className={"grid" + (density === "compact" ? " grid-compact" : "")}>
+                                {layout.grid.slice(0, moreN).map((r) => (
+                                  <ProductCard key={r.sku} r={r} best={layout.best.has(r.sku)}
+                                               overBudget={overBudget(r)} {...cardProps("results", r)} />
+                                ))}
                               </div>
-                              <div className="grid">
-                                {g.items.map((r) => <ProductCard key={r.sku} r={r} overBudget={overBudget(r)} {...cardProps("results")} />)}
-                              </div>
-                            </div>
-                          ))}
-                          {layout.more.length > 0 && (
-                            <div className="group">
-                              <div className="gh">
-                                <h3>More products</h3>
-                                <span className="gc">{layout.more.length} more in this result set</span>
-                              </div>
-                              <div className="grid">
-                                {layout.more.slice(0, moreN).map((r) => <ProductCard key={r.sku} r={r} overBudget={overBudget(r)} {...cardProps("results")} />)}
-                              </div>
-                              {layout.more.length > moreN && (
-                                <div style={{ textAlign: "center", marginTop: 14 }}>
+                              {layout.grid.length > moreN && (
+                                <div className="res-more">
                                   <button className="fchip" style={{ padding: "9px 22px" }}
                                           onClick={() => { setMoreN((n) => n + 24); track("show_more", { query: s.query, n: moreN + 24 }); }}>
-                                    Show more ({layout.more.length - moreN} left)
+                                    {t(lang, "showMore")} ({layout.grid.length - moreN} {t(lang, "left")})
                                   </button>
                                 </div>
                               )}
-                            </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="group">
+                                <div className="gh">
+                                  <h3>{t(lang, "bestMatches")}</h3>
+                                  <span className="gc">{persona ? "ranked for your profile · price fit, brand preference, quality & trust" : "highest-scoring picks for this search"}</span>
+                                </div>
+                                <div className={"grid" + (density === "compact" ? " grid-compact" : "")}>
+                                  {layout.rec.map((r) => <ProductCard key={r.sku} r={r} best overBudget={overBudget(r)} {...cardProps("recommended", r)} />)}
+                                </div>
+                              </div>
+                              {layout.groups.map((g) => (
+                                <div className="group" key={g.cat}>
+                                  <div className="gh">
+                                    <h3>{displayCat(g.cat)}</h3>
+                                    <span className="gc">{g.items.length} {t(lang, "picksWord")} {t(lang, "fromMatch")}</span>
+                                  </div>
+                                  <div className={"grid" + (density === "compact" ? " grid-compact" : "")}>
+                                    {g.items.map((r) => <ProductCard key={r.sku} r={r} overBudget={overBudget(r)} {...cardProps("results", r)} />)}
+                                  </div>
+                                </div>
+                              ))}
+                              {layout.more.length > 0 && (
+                                <div className="group">
+                                  <div className="gh">
+                                    <h3>{t(lang, "moreProducts")}</h3>
+                                    <span className="gc">{layout.more.length} {t(lang, "moreWord")} {t(lang, "inResultSet")}</span>
+                                  </div>
+                                  <div className={"grid" + (density === "compact" ? " grid-compact" : "")}>
+                                    {layout.more.slice(0, moreN).map((r) => <ProductCard key={r.sku} r={r} overBudget={overBudget(r)} {...cardProps("results", r)} />)}
+                                  </div>
+                                  {layout.more.length > moreN && (
+                                    <div className="res-more">
+                                      <button className="fchip" style={{ padding: "9px 22px" }}
+                                              onClick={() => { setMoreN((n) => n + 24); track("show_more", { query: s.query, n: moreN + 24 }); }}>
+                                        {t(lang, "showMore")} ({layout.more.length - moreN} {t(lang, "left")})
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </>
                           )}
                         </>
                       )}
+                    </div>
+                  </div>
+                  <FilterBar lang={lang} f={f} setFilter={setFilter} priceBands={priceBands}
+                             brandList={brandCounts} catList={catCounts} single={layout.single}
+                             onPriceMin={(v) => setFilter("price_min", v)} onPriceMax={(v) => setFilter("price_max", v)}
+                             activeCount={activeFilterCount} nAfter={layout.filtered.length}
+                             sortLabel={SORTS.find((x) => x.id === f.sort) ? SORTS.find((x) => x.id === f.sort).label : "Relevance"} />
                       {s.ok === false && s.turn < 4 && (
                         <div className="meta">One follow-up question can usually tighten this — pick an option above.</div>
                       )}
-                    </>
-                  )}
                 </>
               )}
 
