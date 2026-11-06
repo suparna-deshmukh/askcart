@@ -41,6 +41,18 @@ All events carry (added client-side, `app/app/lib/track.js`):
 | `checkout_start` | checkout entered (cart or buy-now) | `item_count`, `total`, `source` (cart/buy_now) |
 | `order_complete` | prototype order placed | `order_id`, `item_count`, `total`, `source`, `items[]` |
 
+### LLM routing (2026-11-06)
+
+| Event | Emitted when | Key properties |
+|---|---|---|
+| `ai_call` | every AI decision (server-recorded on /api/guide and /api/ai-refine) | `kind` (planner/refine), `via` (llm=Qwen/gemini/rules/cache), `key_idx` (Gemini key 0-based, null when not Gemini), `ms`, `turn`, `session_id` |
+| `ai_key_exhausted` | a Gemini key hit its daily cap / quota / invalid-key and the chain rotated | `key_idx`, `reason` (rpd/quota_or_auth/invalid_key), `kind` (planner/refine) |
+
+Per-session rollups (searches, questions, answers, carts, orders, orderValue,
+AI-engine mix, chat usage) feed the Analytics → **Backend (Admin)** sub-tab;
+the Gemini key ledger itself (used/20 per key, exhaustion reason) is local
+state shown in the top-bar pill, not an event. See `docs/llm_routing.md`.
+
 ## Assistant (J10) events
 
 Emitted by `app/app/ui/chat/useChat.js` (client) and

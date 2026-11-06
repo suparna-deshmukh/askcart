@@ -66,6 +66,21 @@ function bump(map, key, fields) {
   return map[key];
 }
 
+function touchSession(st, sid, first = {}) {
+  if (!sid || !/^s_[a-z0-9]{6,40}$/i.test(String(sid))) return null;
+  const id = String(sid).slice(0, 40);
+  const now = Date.now();
+  const sj = st.sessions[id] || { journeys: 0, firstAt: now, lastAt: now, searches: 0,
+    questions: 0, answers: 0, skips: 0, views: 0, carts: 0, checkouts: 0,
+    orders: 0, orderValue: 0, persona: null,
+    ai: { qwen: 0, gemini: 0, rules: 0, switches: 0 },
+    chat: { opens: 0, msgs: 0, adds: 0 } };
+  if (!sj.firstAt) sj.firstAt = now;
+  sj.lastAt = now;
+  st.sessions[id] = sj;
+  return sj;
+}
+
 function capMap(map) {
   const keys = Object.keys(map);
   if (keys.length <= MAX_MAP) return;
@@ -141,7 +156,54 @@ export function record(type, payload = {}, env = null) {
   const p = payload || {};
   const T = st.totals;
   const qk = String(p.query || "").slice(0, 80);
+  const sj = p.session_id ? touchSession(st, p.session_id) : null;
   switch (type) {
+    case "search_results":
+      if (sj) sj.searches += 1;
+      break;
+    case "guide_question_shown":
+      if (sj) sj.questions += 1;
+      break;
+    case "guide_option_selected": case "guide_typed_answer":
+      if (sj) sj.answers += 1;
+      break;
+    case "guide_skipped":
+      if (sj) sj.skips += 1;
+      break;
+    case "onboarding_complete":
+      if (sj && p.forWhom) sj.persona = String(p.forWhom) + (p.shopStyle ? "|" + p.shopStyle : "");
+      break;
+    case "add_to_cart":
+      if (sj) sj.carts += 1;
+      break;
+    case "checkout_start":
+      if (sj) sj.checkouts += 1;
+      break;
+    case "product_impression": case "product_view":
+      if (sj) sj.views += 1;
+      break;
+    case "order_complete":
+      if (sj) { sj.orders += 1; sj.orderValue += Number(p.total) || 0; }
+      break;
+    case "ai_call":
+      if (sj) {
+        if (p.via === "gemini") sj.ai.gemini += 1;
+        else if (p.via === "rules" || p.via === "cache") sj.ai.rules += 1;
+        else sj.ai.qwen += 1;
+      }
+      break;
+    case "ai_key_exhausted":
+      if (sj) sj.ai.switches += 1;
+      break;
+    case "chat_open":
+      if (sj) sj.chat.opens += 1;
+      break;
+    case "chat_user_message":
+      if (sj) sj.chat.msgs += 1;
+      break;
+    case "chat_add_to_cart":
+      if (sj) sj.chat.adds += 1;
+      break;
     case "search_results":
       T.searches++;
       if (qk) {
@@ -348,5 +410,19 @@ export function snapshot(env = null) {
     })),
     orders: st.orders.slice(-10).reverse(),
     recent: st.events.slice(-40).reverse(),
+    userSessions: Object.entries(st.sessions)
+      .map(([sid, sj]) => ({
+        sid, firstAt: sj.firstAt || null, lastAt: sj.lastAt || null,
+        persona: sj.persona || null,
+        searches: sj.searches || 0, questions: sj.questions || 0,
+        answers: sj.answers || 0, skips: sj.skips || 0,
+        answerRate: sj.questions ? +((100 * sj.answers) / sj.questions).toFixed(0) : null,
+        views: sj.views || 0, carts: sj.carts || 0, checkouts: sj.checkouts || 0,
+        orders: sj.orders || 0, orderValue: sj.orderValue || 0,
+        ai: sj.ai || { qwen: 0, gemini: 0, rules: 0, switches: 0 },
+        chat: sj.chat || { opens: 0, msgs: 0, adds: 0 },
+      }))
+      .sort((a, b) => (b.lastAt || 0) - (a.lastAt || 0))
+      .slice(0, 200),
   };
 }

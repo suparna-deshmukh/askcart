@@ -1464,3 +1464,30 @@ BEFORE any run (2b81ab5), then ran it.
   · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0 76/76,
   0 grounding, 37/37 safe.
 - Local commit only, no GitHub/remote.
+
+## 2026-11-06 — Item 10: Backend (Admin) analytics sub-tab (all users at once)
+- analyticsStore: per-session rollups now persist in the shared store
+  (survive the 500-event live-feed window): searches, questions, answers,
+  skips, views, carts, checkouts, orders, orderValue, persona (from
+  onboarding), AI-engine mix (qwen/gemini/rules + key switches), chat usage.
+  `snapshot()` exposes `userSessions` (all sessions, newest-first, cap 200).
+- New 6th sub-tab "Backend (Admin)" in Analytics (same full-width pattern as
+  the others): stat grid (users, users-with-searches, AI decisions with
+  Qwen/Gemini/rules split, Gemini key switches, orders + AOV, cart rate),
+  client-side filters (persona / min searches / active window 1h-24h-all),
+  and one row per user: persona, last active, searches, questions, answer
+  rate, carts, orders, value, AI mix (Q/G/R + switches), funnel-to-cart %.
+  Admin-level funnel aggregates come from the same totals the shopper tabs
+  use, so every number is the same store, not a second pipeline.
+- Docs: event_schema.md gained the LLM routing section (ai_call,
+  ai_key_exhausted + rollup note pointing at docs/llm_routing.md).
+- Verified live: after one guided search + chip answer, the tester's session
+  row updated in place (2 searches, 1 question, 100% answer rate,
+  AI 0/0/1 - honest rules decision, no LLM spent); 66 users listed at once.
+- Note on the earlier width complaint: re-checked all sub-tabs at 1440px and
+  1280px - all render full width now (the inconsistency was from an earlier
+  state); the new tab follows the same full-width tables/grids.
+- Gates (all green): canaries 111+6 0-fail · contrast 16/16 · sync --check OK
+  · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0 76/76,
+  0 grounding, 37/37 safe.
+- Local commit only, no GitHub/remote.

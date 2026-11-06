@@ -491,6 +491,98 @@ function ValidationPanel({ sum, ev }) {
   );
 }
 
+function agoShort(ts) {
+  if (!ts) return "\u2013";
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return s + "s ago";
+  if (s < 3600) return Math.floor(s / 60) + "m ago";
+  if (s < 86400) return Math.floor(s / 3600) + "h ago";
+  return Math.floor(s / 86400) + "d ago";
+}
+
+// Backend (Admin) sub-tab: every user of this deployment at a glance,
+// with per-user funnel + AI-engine mix, and filters (persona / activity /
+// recency). Data: per-session rollups in the analytics store (server side),
+// so it survives the 500-event live-feed window.
+function BackendPanel({ sum }) {
+  const [persona, setPersona] = useState("all");
+  const [minSearches, setMinSearches] = useState(0);
+  const [windowH, setWindowH] = useState(0); // 0 = all time
+  const users = (sum.userSessions || []);
+  const personas = [...new Set(users.map((u) => u.persona).filter(Boolean))].sort();
+  const filtered = users.filter((u) => {
+    if (persona !== "all" && u.persona !== persona) return false;
+    if (u.searches < minSearches) return false;
+    if (windowH > 0 && !(u.lastAt && Date.now() - u.lastAt <= windowH * 3600000)) return false;
+    return true;
+  });
+  const T = sum.totals;
+  const aiTotal = users.reduce((a, u) => a + u.ai.qwen + u.ai.gemini + u.ai.rules, 0);
+  const switches = users.reduce((a, u) => a + u.ai.switches, 0);
+  const f = sum.funnel;
+  const pct = (a, b) => (b ? Math.round((100 * a) / b) + "%" : "\u2013");
+  return (
+    <div>
+      <div className="statgrid">
+        <Stat k="Users (sessions)" v={users.length.toLocaleString("en-IN")} note="per deployment, all-time" />
+        <Stat k="Users with searches" v={users.filter((u) => u.searches > 0).length.toLocaleString("en-IN")} />
+        <Stat k="AI decisions" v={aiTotal.toLocaleString("en-IN")} note={"Qwen " + users.reduce((a, u) => a + u.ai.qwen, 0) + " · Gemini " + users.reduce((a, u) => a + u.ai.gemini, 0) + " · rules " + users.reduce((a, u) => a + u.ai.rules, 0)} />
+        <Stat k="Gemini key switches" v={switches.toLocaleString("en-IN")} note="429/quota rotations" warn={switches > 0} />
+        <Stat k="Orders" v={T.orders.toLocaleString("en-IN")} note={"AOV \u20b9" + (sum.aov || 0).toLocaleString("en-IN")} />
+        <Stat k="Cart rate" v={pct(T.cartAdds, T.searches)} note={"cart adds per search"} />
+      </div>
+      <div className="an-filters">
+        <label>Persona
+          <select value={persona} onChange={(e) => setPersona(e.target.value)}>
+            <option value="all">All</option>
+            {personas.map((p) => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </label>
+        <label>Min searches
+          <select value={minSearches} onChange={(e) => setMinSearches(Number(e.target.value))}>
+            <option value={0}>Any</option><option value={1}>&ge;1</option>
+            <option value={3}>&ge;3</option><option value={5}>&ge;5</option>
+          </select>
+        </label>
+        <label>Active
+          <select value={windowH} onChange={(e) => setWindowH(Number(e.target.value))}>
+            <option value={0}>All time</option><option value={1}>Last hour</option>
+            <option value={24}>Last 24h</option>
+          </select>
+        </label>
+        <span className="dim">showing {filtered.length} of {users.length} users</span>
+      </div>
+      {filtered.length ? (
+        <table className="tbl">
+          <thead><tr>
+            <th>User</th><th>Persona</th><th>Active</th><th>Searches</th>
+            <th>Questions</th><th>Answer rate</th><th>Carts</th><th>Orders</th>
+            <th>Value</th><th>AI mix (Q/G/R)</th><th>Funnel</th>
+          </tr></thead>
+          <tbody>
+            {filtered.map((u) => (
+              <tr key={u.sid}>
+                <td className="q">{u.sid.slice(0, 12)}\u2026</td>
+                <td>{u.persona || "\u2013"}</td>
+                <td>{agoShort(u.lastAt)}</td>
+                <td>{u.searches}</td>
+                <td>{u.questions}</td>
+                <td>{u.answerRate == null ? "\u2013" : u.answerRate + "%"}</td>
+                <td>{u.carts}</td>
+                <td>{u.orders}</td>
+                <td>{u.orderValue ? "\u20b9" + u.orderValue.toLocaleString("en-IN") : "\u2013"}</td>
+                <td>{u.ai.qwen}/{u.ai.gemini}/{u.ai.rules}{u.ai.switches ? " (" + u.ai.switches + " sw)" : ""}</td>
+                <td>{pct(u.carts, u.searches)} to cart</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : <div className="feedempty">No users match these filters yet.</div>}
+      <div className="meta">Admin view of the same shared store the shopper dashboards read: one row per session (browser), funnel columns per user, AI-engine mix from ai_call events, Gemini key switches from ai_key_exhausted. Simulated traffic is tagged env=sim and kept in a separate store.</div>
+    </div>
+  );
+}
+
 export function AnalyticsView({ anview, setAnview }) {
   const [sum, setSum] = useState(null);
   const [cat, setCat] = useState(null);
@@ -530,6 +622,7 @@ export function AnalyticsView({ anview, setAnview }) {
         <button className={anview === "catalog" ? "on" : ""} onClick={() => setAnview("catalog")}>Catalogue & Brands</button>
         <button className={anview === "journeys" ? "on" : ""} onClick={() => setAnview("journeys")}>Journeys & Orders</button>
         <button className={anview === "validation" ? "on" : ""} onClick={() => setAnview("validation")}>Validation & Study</button>
+        <button className={anview === "backend" ? "on" : ""} onClick={() => setAnview("backend")}>Backend (Admin)</button>
       </div>
       {!sum ? <div className="dim">Loading live data…</div> : (
         <>
@@ -538,6 +631,7 @@ export function AnalyticsView({ anview, setAnview }) {
           {anview === "catalog" && <CatalogPanel cat={cat} sum={sum} />}
           {anview === "journeys" && <JourneysPanel sum={sum} />}
           {anview === "validation" && <ValidationPanel sum={sum} ev={ev} />}
+          {anview === "backend" && <BackendPanel sum={sum} />}
         </>
       )}
     </div>
