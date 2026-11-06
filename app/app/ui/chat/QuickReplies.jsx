@@ -2,8 +2,9 @@
 // Assistant question chips: radiogroup, arrow-key navigable, zero-count
 // options disabled (G1: never offer a dead-end chip).
 import { useRef } from "react";
+import { t } from "../../lib/i18n";
 
-export function QuickReplies({ chips, disabled, onChip }) {
+export function QuickReplies({ lang, chips, disabled, onChip }) {
   const refs = useRef([]);
   if (!chips || !chips.length) return null;
   function onKey(e) {
@@ -18,7 +19,7 @@ export function QuickReplies({ chips, disabled, onChip }) {
     }
   }
   return (
-    <div className="cht-chips" role="radiogroup" aria-label="Quick options" onKeyDown={onKey}>
+    <div className="cht-chips" role="radiogroup" aria-label={t(lang, "chtQuickOpts")} onKeyDown={onKey}>
       {chips.map((c, i) => {
         const isZero = c.count === 0;
         return (
@@ -32,7 +33,7 @@ export function QuickReplies({ chips, disabled, onChip }) {
             data-chipid={c.id}
             data-chiplabel={c.label}
             onClick={() => onChip(c.id, c.label)}
-            title={isZero ? "No matches for this option" : undefined}
+            title={isZero ? t(lang, "chtNoMatch") : undefined}
           >
             {c.label}
             {c.count != null && <span className="cht-chip-count">{c.count}</span>}

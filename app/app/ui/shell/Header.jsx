@@ -9,6 +9,7 @@ import { displayCat } from "../../lib/categories";
 import { track } from "../../lib/track";
 import { SAMPLE_QUERIES } from "../../lib/sample_queries";
 import { MegaMenu } from "./MegaMenu";
+import { t } from "../../lib/i18n";
 
 function useOutside(close) {
   const ref = useRef(null);
@@ -96,7 +97,7 @@ export function Header({
       <div className="tbar">
         <div className="tbar-in">
           {canBack && (
-            <button className="backbtn2" onClick={onBack} aria-label="Back" title="Back"><I name="arrow-left" size={20} /></button>
+            <button className="backbtn2" onClick={onBack} aria-label="Back" title={t(lang, "back")}><I name="arrow-left" size={20} /></button>
           )}
           <button className="logo2" onClick={onLogo} aria-label="AskCart home">
             <span className="logo2-mark">A<I name="sparkle" size={9} className="logo2-spark" /></span>
@@ -105,7 +106,7 @@ export function Header({
           {/* Desktop + tablet search */}
           <div className="tsearch">
             <I name="search" size={18} className="tsearch-ic" />
-            <input value={input} aria-label="Search"
+            <input value={input} aria-label={t(lang, "shSearchAria")}
                    onChange={(e) => { setInput(e.target.value); if (e.target.value === "") onSearchCleared(); setSugOpen(true); setSugIdx(-1); }}
                    onFocus={() => setSugOpen(true)}
                    onBlur={() => setTimeout(() => setSugOpen(false), 150)}
@@ -115,20 +116,20 @@ export function Header({
                      else if (e.key === "Escape") { setSugOpen(false); setSugIdx(-1); }
                      else if (e.key === "Enter") { if (sugIdx >= 0 && sugList[sugIdx]) pickSug(sugList[sugIdx]); else onSearch(); }
                    }}
-                   placeholder={tab === "search" ? 'Try: "wristwatch for dad under 5k"' : "Search 54,304 products…"} />
+                   placeholder={tab === "search" ? t(lang, "refinePlaceholder") : t(lang, "shSearchAll")} />
             <button className="tsearch-mic" aria-label="Voice search (coming soon)" title="Voice search — coming soon"><I name="mic" size={17} /></button>
             {sugOpen && sugList.length > 0 && (
-              <div className="suggest" role="listbox" aria-label="Search suggestions">
+              <div className="suggest" role="listbox" aria-label={t(lang, "shSuggest")}>
                 {sugList.map((s, i) => (
                   <div key={s.sec + s.text} className="suggest-sec">
-                    {i === 0 || sugList[i - 1].sec !== s.sec ? <div className="suggest-seclbl">{s.sec}</div> : null}
+                    {i === 0 || sugList[i - 1].sec !== s.sec ? <div className="suggest-seclbl">{t(lang, { Recent: "shRecent", Try: "shTrySec", Categories: "shCatSec", Brands: "shBrandSec", Budget: "shBudgetSec" }[s.sec] || "shTrySec")}</div> : null}
                     <button className={"suggest-row" + (i === sugIdx ? " hot" : "")} role="option" aria-selected={i === sugIdx}
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => pickSug(s)}>
                       <I name={s.kind === "recent" ? "clock" : "search"} size={14} className="suggest-ic" />
                       <span>{s.text}</span>
                       {s.kind === "recent" && (
-                        <span className="sx" role="button" tabIndex={0} title="Remove from recent"
+                        <span className="sx" role="button" tabIndex={0} title={t(lang, "shRemoveRecent")}
                               onClick={(e) => { e.stopPropagation(); removeRec(s.text); }}>
                           <I name="x" size={13} />
                         </span>
@@ -144,11 +145,11 @@ export function Header({
           <button className="iconbtn m-menu" aria-label="Menu" onClick={onMenu}><I name="menu" size={22} /></button>
           <div className="tbar-right">
             <div className="tlang" ref={langRef}>
-              <button className="iconbtn" aria-label="Language" aria-expanded={langPop} onClick={() => setLangPop(!langPop)}>
+              <button className="iconbtn" aria-label={t(lang, "shLang")} aria-expanded={langPop} onClick={() => setLangPop(!langPop)}>
                 <I name="globe" size={20} />
               </button>
               {langPop && (
-                <div className="pop langpop" role="radiogroup" aria-label="Language">
+                <div className="pop langpop" role="radiogroup" aria-label={t(lang, "shLang")}>
                   {[["en", "English"], ["hi", "हिंदी"], ["hinglish", "Hinglish"]].map(([l, lb]) => (
                     <button key={l} role="radio" aria-checked={lang === l} className={lang === l ? "on" : ""}
                             onClick={() => { setLang(l); setLangPop(false); }}>
@@ -158,7 +159,7 @@ export function Header({
                 </div>
               )}
             </div>
-            <span className="tbar-labels"><span>Wishlist</span><span>Orders</span><span>Cart</span><span>Account</span></span>
+            <span className="tbar-labels"><span>{t(lang, "navWishlist")}</span><span>{t(lang, "navOrders")}</span><span>{t(lang, "navCart")}</span><span>{t(lang, "navAccount")}</span></span>
             <IconButton name="heart" label="Wishlist" badge={wishCount} onClick={() => onTab("wishlist")} />
             <IconButton name="package" label="Orders" onClick={() => onTab("orders")} />
             <IconButton name="bag" label="Cart" badge={cartCount} onClick={onCart} className="cart-bounce-host" />
@@ -168,19 +169,19 @@ export function Header({
               </button>
               {acct && (
                 <div className="pop acctpop">
-                  <div className="acct-hello">Hello, guest</div>
-                  <button onClick={() => { onTab("orders"); setAcct(false); }}><I name="package" size={16} /> Orders</button>
-                  <button onClick={() => { onTab("wishlist"); setAcct(false); }}><I name="heart" size={16} /> Wishlist</button>
-                  <button onClick={() => { setLang(lang === "en" ? "hi" : "en"); setAcct(false); }}><I name="globe" size={16} /> Language</button>
-                  <button onClick={() => { setAcct(false); window.location.href = "/?onboard=1"; }}><I name="user" size={16} /> Restart onboarding</button>
+                  <div className="acct-hello">{t(lang, "shHello")}</div>
+                  <button onClick={() => { onTab("orders"); setAcct(false); }}><I name="package" size={16} /> {t(lang, "navOrders")}</button>
+                  <button onClick={() => { onTab("wishlist"); setAcct(false); }}><I name="heart" size={16} /> {t(lang, "navWishlist")}</button>
+                  <button onClick={() => { setLang(lang === "en" ? "hi" : "en"); setAcct(false); }}><I name="globe" size={16} /> {t(lang, "shLang")}</button>
+                  <button onClick={() => { setAcct(false); window.location.href = "/?onboard=1"; }}><I name="user" size={16} /> {t(lang, "shRestart")}</button>
                   <div className="acct-sep" />
-                  <div className="acct-tools">Prototype tools</div>
-                  <button onClick={() => { onInsights(); setAcct(false); }}><I name="bar-chart" size={16} /> Analytics / Insights</button>
+                  <div className="acct-tools">{t(lang, "shTools")}</div>
+                  <button onClick={() => { onInsights(); setAcct(false); }}><I name="bar-chart" size={16} /> {t(lang, "shInsights")}</button>
                   <div className="acct-ai">
-                    <div className="acct-ai-t"><I name="sparkle" size={13} /> AI status</div>
-                    <div>{g ? `TOTAL ${used}/${cap} calls today (all users)` : "No Gemini keys configured"}</div>
-                    {g?.keys?.map((k) => <div key={k.idx} className="ai-k">key{k.idx + 1} {k.used}/{k.rpd}{k.exhausted ? ` (${k.reason})` : ""}</div>)}
-                    <div>session budget: {Math.max(0, aiStatus?.aiMaxPerSession || 0)} left</div>
+                    <div className="acct-ai-t"><I name="sparkle" size={13} /> {t(lang, "shAiStatus")}</div>
+                    <div>{g ? t(lang, "shAiTotal", { used, cap }) : t(lang, "shAiNoKeys")}</div>
+                    {g?.keys?.map((k) => <div key={k.idx} className="ai-k">{t(lang, "shAiKey", { idx: k.idx + 1, used: k.used, cap: k.rpd })}{k.exhausted ? ` (${k.reason})` : ""}</div>)}
+                    <div>{t(lang, "shAiSession", { n: Math.max(0, aiStatus?.aiMaxPerSession || 0) })}</div>
                   </div>
                 </div>
               )}
@@ -193,29 +194,29 @@ export function Header({
             <div className="tnav-in">
               <div className="tnav-mega" ref={megaRef}>
                 <button className={mega ? "on" : ""} aria-expanded={mega} onClick={() => setMega(!mega)}>
-                  Shop by category <I name="chevron-down" size={14} />
+                  {t(lang, "navCategories")} <I name="chevron-down" size={14} />
                 </button>
-                {mega && <MegaMenu facets={facets} onQuery={onQuery} onClose={() => setMega(false)} />}
+                {mega && <MegaMenu facets={facets} onQuery={onQuery} onClose={() => setMega(false)} lang={lang} />}
               </div>
               {catLinks.map((c) => (
                 <button key={c} onClick={() => onQuery(c, "nav")}>{c}</button>
               ))}
-              <button onClick={() => onQuery("gift under 2k", "nav")}>Gifts</button>
-              <button onClick={() => onQuery("diwali decorations", "nav")}>Occasions</button>
-              <button onClick={() => onQuery("under 1000", "nav")}>Under ₹1,000</button>
+              <button onClick={() => onQuery("gift under 2k", "nav")}>{t(lang, "shNavGifts")}</button>
+              <button onClick={() => onQuery("diwali decorations", "nav")}>{t(lang, "shNavOcc")}</button>
+              <button onClick={() => onQuery("under 1000", "nav")}>{t(lang, "shUnder1k")}</button>
             </div>
           </div>
         )}
       </div>
       {/* Mobile search overlay */}
       {mSearch && (
-        <div className="msearch-ov" role="dialog" aria-label="Search">
+        <div className="msearch-ov" role="dialog" aria-label={t(lang, "shSearchAria")}>
           <I name="search" size={18} className="tsearch-ic" />
-          <input autoFocus value={input} aria-label="Search" placeholder='Try: "saree for ammi under 2k"'
+          <input autoFocus value={input} aria-label={t(lang, "shSearchAria")} placeholder={t(lang, "chtPh3")}
                  onChange={(e) => { setInput(e.target.value); if (e.target.value === "") onSearchCleared(); }}
                  onKeyDown={(e) => { if (e.key === "Enter") { setMSearch(false); onSearch(); } if (e.key === "Escape") setMSearch(false); }} />
-          <button onClick={() => { setMSearch(false); onSearch(); }}>Search</button>
-          <button className="ms-cancel" onClick={() => setMSearch(false)}>Cancel</button>
+          <button onClick={() => { setMSearch(false); onSearch(); }}>{t(lang, "shSearchBtn")}</button>
+          <button className="ms-cancel" onClick={() => setMSearch(false)}>{t(lang, "shCancel")}</button>
         </div>
       )}
     </header>

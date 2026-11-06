@@ -3,20 +3,21 @@
 import { I } from "../kit/Icon";
 import { displayCat } from "../../lib/categories";
 import { catTheme } from "../kit/Tile";
+import { t } from "../../lib/i18n";
 
 const OCCASIONS = [
-  ["Gifts", "gift under 2k"], ["Shaadi", "shaadi gift under 2k"], ["Diwali", "diwali decorations"],
-  ["Birthday", "birthday gift under 1k"], ["Anniversary", "anniversary gift"], ["Everyday", "everyday essentials"],
+  ["Gifts", "gift under 2k", "shNavGifts"], ["Shaadi", "shaadi gift under 2k", "shShaadi"], ["Diwali", "diwali decorations", "shDiwali"],
+  ["Birthday", "birthday gift under 1k", "shBirthday"], ["Anniversary", "anniversary gift", "shAnniv"], ["Everyday", "everyday essentials", null],
 ];
 
-export function MegaMenu({ facets, onQuery, onClose }) {
+export function MegaMenu({ facets, onQuery, onClose, lang }) {
   const cats = (facets?.categories || []).slice(0, 12);
   const brands = (facets?.brands?.top || []).slice(0, 8);
   return (
-    <div className="mega" role="menu" aria-label="Shop by category">
+    <div className="mega" role="menu" aria-label={t(lang, "navCategories")}>
       <div className="mega-in">
         <div className="mega-col">
-          <div className="mega-t">Categories</div>
+          <div className="mega-t">{t(lang, "shCatSec")}</div>
           {cats.map((c) => {
             const th = catTheme(c.name);
             return (
@@ -33,14 +34,14 @@ export function MegaMenu({ facets, onQuery, onClose }) {
         </div>
         <div className="mega-col">
           <div className="mega-t">Shop by occasion</div>
-          {OCCASIONS.map(([label, q]) => (
+          {OCCASIONS.map(([label, q, key]) => (
             <button key={label} role="menuitem" className="mega-item" onClick={() => { onQuery(q, "nav"); onClose(); }}>
-              <span className="mega-name">{label}</span>
+              <span className="mega-name">{key ? t(lang, key) : label}</span>
             </button>
           ))}
         </div>
         <div className="mega-col">
-          <div className="mega-t">Top brands</div>
+          <div className="mega-t">{t(lang, "shMegaBrands")}</div>
           <div className="mega-brands">
             {brands.map((b) => (
               <button key={b.name} role="menuitem" className="mega-brand" onClick={() => { onQuery(b.name, "nav"); onClose(); }}>
@@ -50,8 +51,8 @@ export function MegaMenu({ facets, onQuery, onClose }) {
           </div>
           <button className="mega-promo" onClick={() => { onQuery("", "nav_promo"); onClose(); window.dispatchEvent(new CustomEvent("askcart:focus-search")); }}>
             <I name="sparkle" size={16} />
-            <span>Not sure? Describe it</span>
-            <span className="mega-promo-sub">One smart question finds it</span>
+            <span>{t(lang, "shMegaPromo")}</span>
+            <span className="mega-promo-sub">{t(lang, "shMegaPromoSub")}</span>
           </button>
         </div>
       </div>

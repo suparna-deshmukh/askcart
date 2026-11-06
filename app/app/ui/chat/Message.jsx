@@ -3,8 +3,9 @@
 import { ProductMini } from "./ProductMini";
 import { QuickReplies } from "./QuickReplies";
 import { Feedback } from "./Feedback";
+import { t } from "../../lib/i18n";
 
-function CompareTable({ rows }) {
+function CompareTable({ rows, lang }) {
   // Data-derived marks only: lowest price and highest rating get a check.
   const bestPrice = rows.length ? Math.min(...rows.map((r) => r.price)) : null;
   const bestRating = rows.length ? Math.max(...rows.map((r) => r.rating)) : null;
@@ -12,7 +13,7 @@ function CompareTable({ rows }) {
     <div className="cht-compare">
       <table>
         <thead>
-          <tr><th>Item</th><th>Price</th><th>Rating</th><th>Specs</th></tr>
+          <tr><th>{t(lang, "chtItem")}</th><th>{t(lang, "chtPriceH")}</th><th>{t(lang, "chtRatingH")}</th><th>{t(lang, "chtSpecs")}</th></tr>
         </thead>
         <tbody>
           {rows.map((r) => (
@@ -29,17 +30,17 @@ function CompareTable({ rows }) {
   );
 }
 
-export function Message({ m, latest, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onWish, wished }) {
+export function Message({ lang, m, latest, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onWish, wished }) {
   if (m.role === "user") {
     return <div className="cht-msg cht-msg-user">{m.text}</div>;
   }
   if (m.kind === "thinking") {
-    return <div className="cht-msg"><span className="cht-typing" aria-label="Assistant is typing"><i /><i /><i /></span></div>;
+    return <div className="cht-msg"><span className="cht-typing" aria-label={t(lang, "chtTyping")}><i /><i /><i /></span></div>;
   }
   if (m.role === "system") {
     return (
       <div className="cht-msg cht-msg-err" role="status">
-        {m.error ? <><span>Couldn't reach AskCart. </span><button className="cht-retry" onClick={m.onRetry}>Retry</button></> : m.text}
+        {m.error ? <><span>{t(lang, "chtErr")} </span><button className="cht-retry" onClick={m.onRetry}>{t(lang, "chtRetry")}</button></> : m.text}
       </div>
     );
   }
@@ -54,7 +55,7 @@ export function Message({ m, latest, busy, onChip, onAdd, onOpen, onFeedback, fe
       {notices.map((n, i) => <div key={"n" + i} className="cht-notice info">{n.text}</div>)}
       {question && (
         <div className="cht-qbox" role="group" aria-label={question.text}>
-          <div className="cht-qbox-eyebrow">Quick question</div>
+          <div className="cht-qbox-eyebrow">{t(lang, "qEyebrow")}</div>
           <div className="cht-qbox-q">{question.text}</div>
           <QuickReplies chips={m.chips} disabled={!interactive} onChip={onChip} />
         </div>
@@ -63,13 +64,13 @@ export function Message({ m, latest, busy, onChip, onAdd, onOpen, onFeedback, fe
         <QuickReplies chips={m.chips} disabled={!interactive} onChip={onChip} />
       )}
       {products.map((p, pi) => p.items.map((it, ii) => (
-        <ProductMini key={it.sku + pi} item={it} pos={ii + 1}
+        <ProductMini lang={lang} key={it.sku + pi} item={it} pos={ii + 1}
                      onAdd={(x, pos) => { onAdd(x, pos); }}
                      onOpen={(x, pos) => onOpen(x, pos)}
                      onWish={onWish} wished={wished ? wished.includes(it.sku) : false} />
       )))}
-      {compare && <CompareTable rows={compare.rows} />}
-      <Feedback m={m} latest={latest} disabled={!interactive || !!feedbackDone[m.id]} onFeedback={onFeedback} />
+      {compare && <CompareTable lang={lang} rows={compare.rows} />}
+      <Feedback lang={lang} m={m} latest={latest} disabled={!interactive || !!feedbackDone[m.id]} onFeedback={onFeedback} />
     </div>
   );
 }

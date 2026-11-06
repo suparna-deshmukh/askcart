@@ -1,6 +1,7 @@
 "use client";
 // Mobile bottom tab bar (≤767px only via CSS).
 import { I } from "../kit/Icon";
+import { t } from "../../lib/i18n";
 
 const ITEMS = [
   ["home", "home", "navHome", "Home"],
@@ -10,7 +11,7 @@ const ITEMS = [
   ["cart", "bag", "navCart", "Cart"],
 ];
 
-export function TabBar({ tab, onHome, onCategories, onTab, cartCount, wishCount }) {
+export function TabBar({ tab, onHome, onCategories, onTab, cartCount, wishCount, lang }) {
   return (
     <nav className="tabbar" aria-label="Primary">
       {ITEMS.map(([id, icon, i18n, label]) => {
@@ -22,7 +23,7 @@ export function TabBar({ tab, onHome, onCategories, onTab, cartCount, wishCount 
                   aria-label={label}>
             <I name={icon} size={22} />
             {count > 0 && <span className="tb-badge">{count > 99 ? "99+" : count}</span>}
-            <span>{label}</span>
+            <span>{i18n ? t(lang, i18n) : label}</span>
           </button>
         );
       })}

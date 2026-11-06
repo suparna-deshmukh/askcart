@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Overlay } from "./kit/Overlay";
 import { I } from "./kit/Icon";
 import { track, setPersona } from "../lib/track";
+import { t } from "../lib/i18n";
 
 // O5: the 3-question persona now lives behind /?onboard=1 (it is not on the
 // first-visit path — O1). Double-barrelled options were split; every answer
@@ -16,22 +17,28 @@ import { track, setPersona } from "../lib/track";
 // select -> 220ms auto-advance. Tracking + payload unchanged.
 const STEPS = [
   { key: "context", icon: "bag",
+    tk: "obCtx", tks: "obCtxSub",
     label: "What are you mostly shopping for?",
     sub: "One tap — we calibrate the follow-up questions around it. You can always mix it later.",
     opts: ["Myself", "Family & kids", "Gifting", "Home & appliances", "A mix of all"],
+    optT: ["obMyself", "obFamily", "obGifting", "obHome", "obMix"],
     grid: true,
     optIcons: { "Myself": "user", "Family & kids": "heart", "Gifting": "gift", "Home & appliances": "home", "A mix of all": "layers" } },
   { key: "ageBand", icon: "cake",
+    tk: "obAge", tks: "obAgeSub",
     label: "How old are you?",
     sub: "Helps us match styles, sizes and question order. Never shown to anyone.",
     opts: ["Under 25", "25\u201340", "40+"],
+    optT: ["obU25", "ob2540", "ob40"],
     grid: false,
     optIcons: { "Under 25": "sparkle", "25\u201340": "user", "40+": "heart" } },
   { key: "spendStyle", icon: "wallet",
+    tk: "obSpend", tks: "obSpendSub",
     label: "How do you usually decide what's worth buying?",
     sub: "Your budget changes with the product — this tells us your default bar, not a cap.",
     opts: ["Best price — I compare a lot", "Good quality at a fair price",
            "Brand matters most", "Premium, if it's worth it"],
+    optT: ["obPrice", "obQuality", "obBrandMost", "obPremium"],
     grid: false,
     optIcons: { "Best price — I compare a lot": "wallet", "Good quality at a fair price": "badge-check",
                 "Brand matters most": "shield-check", "Premium, if it's worth it": "star" } },
@@ -63,7 +70,7 @@ export const SPEND_BRAND_AFFINITY = {
   "Premium, if it's worth it": 0.9,
 };
 
-export function Onboarding({ onDone }) {
+export function Onboarding({ onDone, lang }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [sel, setSel] = useState(null);
@@ -121,27 +128,27 @@ export function Onboarding({ onDone }) {
   }
 
   return (
-    <Overlay variant={mobile ? "sheet" : "modal"} label="Set up your shopping profile" onClose={skip} width={560}>
+    <Overlay variant={mobile ? "sheet" : "modal"} label={t(lang, "obTitle")} onClose={skip} width={560}>
       <div className="ob2">
         <div className="ob2-top">
           <button className="ob2-back" onClick={back} disabled={step === 0}>
-            <I name="arrow-left" size={14} /> Back
+            <I name="arrow-left" size={14} /> {t(lang, "obBack")}
           </button>
-          <span className="ob2-count">Question {step + 1} of {STEPS.length}</span>
-          <button className="ob2-skip" onClick={skip}>Skip for now</button>
+          <span className="ob2-count">{t(lang, "obCount", { n: step + 1, m: STEPS.length })}</span>
+          <button className="ob2-skip" onClick={skip}>{t(lang, "skip")}</button>
         </div>
         <div className="ob2-progress" aria-hidden="true"><span style={{ width: ((step + 1) / STEPS.length * 100) + "%" }} /></div>
         <div className="ob2-icon" aria-hidden="true"><I name={s.icon} size={24} /></div>
-        <h2 className="ob2-q">{s.label}</h2>
-        {s.sub && <p className="ob2-sub">{s.sub}</p>}
+        <h2 className="ob2-q">{t(lang, s.tk)}</h2>
+        {s.sub && <p className="ob2-sub">{t(lang, s.tks)}</p>}
         <div className={"ob-opts ob2-opts" + (s.grid ? " ob2-grid" : " ob2-rows")}>
-          {s.opts.map((o) => {
+          {s.opts.map((o, i) => {
             const span2 = s.grid && o === "A mix of all";
             return (
               <button key={o} className={"ob2-card" + (sel === o ? " sel" : "") + (span2 ? " span2" : "")}
                       aria-pressed={sel === o} onClick={() => pick(o)}>
                 <span className="ob2-card-ic" aria-hidden="true"><I name={s.optIcons[o] || "check"} size={20} /></span>
-                <span className="ob2-card-t">{o}</span>
+                <span className="ob2-card-t">{t(lang, s.optT[i])}</span>
                 {sel === o && <I name="check" size={16} className="ob2-card-chk" aria-hidden="true" />}
               </button>
             );

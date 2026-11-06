@@ -1499,10 +1499,10 @@ function AskCartHome() {
     // 2026-11-06: show the payoff of the answers, and wire them to behaviour.
     if (p) {
       const payoff =
-        p.context === "Gifting" ? "Because you chose Gifting, we'll ask about the occasion first."
-        : p.ageBand === "Under 25" ? "Noted - budget options will be one step lower for you."
-        : p.ageBand === "40+" ? "Larger text mode is on for you."
-        : p.spendStyle ? "Got it - we'll rank results around that bar." : null;
+        p.context === "Gifting" ? t(lang, "obPayGift")
+        : p.ageBand === "Under 25" ? t(lang, "obPayAge")
+        : p.ageBand === "40+" ? t(lang, "obPay40")
+        : p.spendStyle ? t(lang, "obPaySpend") : null;
       if (p.ageBand === "40+") { try { document.body.classList.add("largetext"); } catch {} }
       if (payoff) toast({ type: "info", text: payoff, ms: 6000 });
     }
@@ -1615,7 +1615,7 @@ function AskCartHome() {
     <div className={"appshell" + (chatOpen ? " chat-open" : "") + (pdp ? " pdp-open" : "")}>
       <div className="appshell-main">
       <Announcement festival={preview && preview.rails ? preview.rails.festival : null}
-                    days={preview && preview.rails ? preview.rails.days : null} />
+                    days={preview && preview.rails ? preview.rails.days : null} lang={lang} />
       <Header
         lang={lang} setLang={setLang}
         canBack={navStack.length > 0} onBack={goBack}
@@ -1674,7 +1674,7 @@ function AskCartHome() {
       <div className="wrap">
 
         {tab === "search" ? (
-          params.get("onboard") === "1" && !onboarded ? <Onboarding onDone={onOnboarded} /> : (
+          params.get("onboard") === "1" && !onboarded ? <Onboarding onDone={onOnboarded} lang={lang} /> : (
             <>
               {!s && (
                 <div className="hero2">
@@ -1738,7 +1738,7 @@ function AskCartHome() {
                   <div className="hero2-right"><HeroDemo /></div>
                 </div>
               )}
-              {personaModal && !s && <Onboarding onDone={onOnboarded} />}
+              {personaModal && !s && <Onboarding onDone={onOnboarded} lang={lang} />}
               {s && (
                 <div className="hero" style={{ paddingBottom: 0 }}>
                   <div className="searchbar">
@@ -1975,6 +1975,13 @@ function AskCartHome() {
                 </>
               )}
 
+              {showTop && s && (
+                <button className="bttop" aria-label={t(lang, "backToTop")} title={t(lang, "backToTop")}
+                        onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); track("back_to_top", {}); }}>
+                  <I name="arrow-up" size={20} />
+                </button>
+              )}
+
               {!s && (
                 <HomeSections lang={lang} preview={preview} facets={facets} recent={recent}
                               onQuery={(q, src) => startSearch(q, src)}
@@ -1990,10 +1997,10 @@ function AskCartHome() {
               onHome={() => { setNavStack([]); setTab("search"); window.scrollTo({ top: 0 }); }}
               onCategories={() => setNavOpen(true)}
               onTab={(t) => switchTab(t)}
-              cartCount={cartCount} wishCount={wishCount} />
+              cartCount={cartCount} wishCount={wishCount} lang={lang} />
       <Footer catalogSize={preview ? preview.catalogSize : 54304}
               onQuery={(q, src) => startSearch(q, src)}
-              onInsights={() => switchTab("analytics")} />
+              onInsights={() => switchTab("analytics")} lang={lang} />
       <NavDrawer open={navOpen} onClose={() => setNavOpen(false)}
                  lang={lang} setLang={setLang} facets={facets}
                  onQuery={(q, src) => startSearch(q, src)}
@@ -2002,6 +2009,7 @@ function AskCartHome() {
       {tab === "search" && (
         <ChatLauncher
           nudge={chatNudge}
+          lang={lang}
           onOpen={() => {
             if (chatNudge) {
               track("chat_nudge_accepted", { trigger: "null_search" });
@@ -2030,6 +2038,7 @@ function AskCartHome() {
         aiLive={!!(aiStatus && aiStatus.gemini && !aiStatus.gemini.allExhausted)}
         onWish={(it) => toggleWish(it)}
         wished={wish}
+        lang={lang}
       />
       {quick && (
         <QuickView lang={lang} item={quick}

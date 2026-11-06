@@ -3,8 +3,9 @@
 // rating chip, up to 3 reason chips, Add + Details, wishlist heart).
 import { Tile } from "../kit/Tile";
 import { I } from "../kit/Icon";
+import { t } from "../../lib/i18n";
 
-export function ProductMini({ item, onAdd, onOpen, onWish, wished, pos }) {
+export function ProductMini({ lang, item, onAdd, onOpen, onWish, wished, pos }) {
   const reasons = (item.reasons || []).slice(0, 3);
   return (
     <div className="cht-prod">
@@ -15,7 +16,7 @@ export function ProductMini({ item, onAdd, onOpen, onWish, wished, pos }) {
           <span className="cht-prod-price">₹{item.price.toLocaleString("en-IN")}</span>
           <span className="cht-prod-rating">★ {item.rating}<em> ({item.num_ratings})</em></span>
           {onWish && (
-            <button className="cht-prod-wish" aria-label={wished ? "Remove from wishlist" : "Save to wishlist"}
+            <button className="cht-prod-wish" aria-label={wished ? t(lang, "chtUnsaveWish") : t(lang, "chtSaveWish")}
                     aria-pressed={wished} onClick={() => onWish(item)}>
               <I name="heart" size={15} filled={wished} />
             </button>
@@ -27,8 +28,8 @@ export function ProductMini({ item, onAdd, onOpen, onWish, wished, pos }) {
           </div>
         )}
         <div className="cht-prod-btns">
-          <button className="cht-btn cht-btn-primary" onClick={() => onAdd(item, pos)}>Add</button>
-          <button className="cht-btn cht-btn-ghost" onClick={() => onOpen(item, pos)}>Details</button>
+          <button className="cht-btn cht-btn-primary" onClick={() => onAdd(item, pos)}>{t(lang, "chtAdd")}</button>
+          <button className="cht-btn cht-btn-ghost" onClick={() => onOpen(item, pos)}>{t(lang, "chtDetails")}</button>
         </div>
       </div>
     </div>

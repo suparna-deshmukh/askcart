@@ -2,16 +2,18 @@
 // 36px rotating announcement bar (scrolls away, not sticky). Session dismiss.
 import { useEffect, useState } from "react";
 import { I } from "../kit/Icon";
+import { t } from "../../lib/i18n";
 
-export function Announcement({ festival, days }) {
+export function Announcement({ festival, days, lang }) {
   const [i, setI] = useState(0);
   const [dismissed, setDismissed] = useState(false);
+  const R = "₹1,000 to ₹10,000";
   const msgs = [
     festival
-      ? <>{festival} is {days === 0 ? "today" : `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} ${days < 0 ? "ago" : "away"}`} · gifts under <b>₹1,000 to ₹10,000</b></>
-      : <>Not sure what to buy? Describe it, we ask <b>one smart question</b>.</>,
-    <>Hindi · Hinglish · English</>,
-    <>Demo store · checkout is simulated, <b>nothing is charged</b></>,
+      ? t(lang, days === 0 ? "annToday" : days < 0 ? "annAgo" : "annFestival", { festival: festival, n: Math.abs(days), r: R })
+      : t(lang, "announce1"),
+    t(lang, "trust2"),
+    t(lang, "announce3"),
   ];
   useEffect(() => {
     try { if (sessionStorage.getItem("askcart_announce_dismissed") === "1") setDismissed(true); } catch {}

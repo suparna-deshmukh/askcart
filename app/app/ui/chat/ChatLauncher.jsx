@@ -4,8 +4,9 @@
 // the first search that resolved, and can be dismissed (session).
 import { useEffect, useState } from "react";
 import { I } from "../kit/Icon";
+import { t } from "../../lib/i18n";
 
-export function ChatLauncher({ onOpen, nudge, onNudgeOpen, onNudgeDismiss, label }) {
+export function ChatLauncher({ onOpen, nudge, onNudgeOpen, onNudgeDismiss, label, lang }) {
   const [nudgeSeen, setNudgeSeen] = useState(() => {
     try { return sessionStorage.getItem("askcart_chat_nudge") === "1"; } catch { return true; }
   });
@@ -30,7 +31,7 @@ export function ChatLauncher({ onOpen, nudge, onNudgeOpen, onNudgeDismiss, label
     <>
       {showNudge && (
         <div className="cht-nudge" role="status">
-          <span>Ask the assistant to narrow it down, compare, or explain a product.</span>
+          <span>{t(lang, "chtNudge")}</span>
           <button onClick={dismiss} aria-label="Dismiss"><I name="x" size={14} /></button>
         </div>
       )}
@@ -40,7 +41,7 @@ export function ChatLauncher({ onOpen, nudge, onNudgeOpen, onNudgeDismiss, label
       <button
         className={"cht-fab" + (pulsed ? "" : " pulse")}
         onClick={() => { if (showNudge) { try { sessionStorage.setItem("askcart_chat_nudge", "1"); } catch {} setNudgeSeen(true); } onNudgeOpen && onNudgeOpen(); onOpen(); }}
-        aria-label="Open AskCart assistant"
+        aria-label={t(lang, "chtFabOpen")}
       >
         <I name="sparkle" size={24} />
       </button>
