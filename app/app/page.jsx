@@ -292,9 +292,9 @@ function AskCartHome() {
   const [obToast, setObToast] = useState(null);
   const [cartToast, setCartToast] = useState(null);
   // LLM routing status (top-bar pill + key-rotation toasts).
-  const [aiStatus, setAiStatus] = useState(null); // {qwen, gemini, aiMaxPerSession}
+  const [aiStatus, setAiStatus] = useState(null); // {gemini, aiMaxPerSession}
   const [aiToast, setAiToast] = useState(null);
-  const lastAiViaRef = useRef(null);   // "qwen" | "gemini"
+  const lastAiViaRef = useRef(null);   // "gemini" | null
   const lastAiKeyRef = useRef(null);
   const aiBudgetRef = useRef(8);       // AI decisions per session (cost cap)
   const aiBudgetNotedRef = useRef(false);
@@ -495,19 +495,17 @@ function AskCartHome() {
       const k = lastAiKeyRef.current;
       return "AI · Gemini" + (k == null ? "" : " key " + (k + 1) + "/" + (g ? g.keys.length : 1));
     }
-    if (lastAiViaRef.current === "qwen") return "AI · Qwen 38B";
-    const q = aiStatus && aiStatus.qwen;
-    if (q && q.available) return "AI · Qwen 38B · ready";
     if (g && !g.allExhausted) return "AI · Gemini · ready";
     return "AI · Rules (offline)";
   }
   function aiPillTitle() {
     const g = aiStatus && aiStatus.gemini;
-    const q = aiStatus && aiStatus.qwen;
-    const bits = ["Qwen (" + ((q && q.model) || "qwen38-27b") + "): " + (q && q.available ? "available" : "offline")];
-    if (g) {
+    const bits = [];
+    if (g && g.keys.length) {
       bits.push("Gemini keys (cap " + g.rpd + "/day): " +
         g.keys.map((k) => "key" + (k.idx + 1) + " " + k.used + "/" + k.rpd + (k.exhausted ? " (" + k.reason + ")" : "")).join(", "));
+    } else {
+      bits.push("Gemini: no keys configured (rule-based questions only)");
     }
     bits.push("session AI budget: " + Math.max(0, aiBudgetRef.current) + " left");
     return bits.join(" · ");
@@ -592,8 +590,8 @@ function AskCartHome() {
     if (!decision) return;
     if (decision.gemini) setAiStatus((st) => (st ? { ...st, gemini: decision.gemini } : st));
     if (decision.planner) {
-      lastAiViaRef.current = decision.planner === "gemini" ? "gemini" : "qwen";
-      if (decision.planner === "gemini") lastAiKeyRef.current = (decision.plannerAi && decision.plannerAi.keyIdx) ?? null;
+      lastAiViaRef.current = "gemini";
+      lastAiKeyRef.current = (decision.plannerAi && decision.plannerAi.keyIdx) ?? null;
       if (decision.plannerAi && decision.plannerAi.rotatedFrom != null) aiSwitchToast(decision.plannerAi.rotatedFrom, decision.plannerAi.keyIdx);
     }
     if (aiBudgetRef.current === 0 && !aiBudgetNotedRef.current) {
@@ -607,7 +605,6 @@ function AskCartHome() {
     const ai = j.ai || {};
     if (ai.gemini) setAiStatus((st) => (st ? { ...st, gemini: ai.gemini } : st));
     if (j.via === "gemini") { lastAiViaRef.current = "gemini"; lastAiKeyRef.current = ai.keyIdx ?? null; }
-    else if (j.via === "qwen") lastAiViaRef.current = "qwen";
     if (ai.rotatedFrom != null) aiSwitchToast(ai.rotatedFrom, ai.keyIdx);
     if (aiBudgetRef.current === 0 && !aiBudgetNotedRef.current) {
       aiBudgetNotedRef.current = true;

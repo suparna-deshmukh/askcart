@@ -1505,3 +1505,37 @@ BEFORE any run (2b81ab5), then ran it.
   in docs/semantic_fallback.md stating exactly what would shift (<=1 query
   in the null counts) and that a full re-run is the way to refresh headline
   numbers (est. ~50-100K tokens if requested).
+
+## 2026-11-06 — Qwen removed: Gemini-only LLM routing (user work order)
+- Per user instruction, Qwen (LiteLLM proxy) is no longer called by any
+  product path. Every AI decision now runs: state cache (10 min, 0 calls)
+  -> unambiguous-set skip (<2 grounded types or n<=12, 0 calls) -> session
+  AI budget (8, 0 calls after) -> **Gemini 3-key chain** (20 RPD/key, local
+  ledger, 429/invalid-key rotation, model cooldowns) -> deterministic policy.
+- `gemini_keys.js` gained a generic `geminiChat({system,user,maxTokens,
+  temperature,timeoutMs})` sharing the same key-chain attempt logic
+  (refactored to one `attempt()`); `geminiGenerate` is its temp-0 wrapper.
+- All five former Qwen call sites rewired: guide planner, ai-refine,
+  question phrasing (/api/guide, 1.5 s), chatbot NLU (dialog adapter keeps
+  nlu.js's chat() signature), chatbot composer (phraseSafe, 800 ms).
+  `llm.js` chat() is now referenced only by eval tooling (header says so);
+  `env()`/`ruleBasedGuide()` remain.
+- Call count per search (unchanged by the provider swap): search submit =
+  planner + phrasing (2), each answer = refine (1); a 3-question journey is
+  ~5 Gemini calls. 3 keys x 20 RPD = 60/day across all users (~12 heavy
+  journeys) - after that the rule-based chain carries the journey unchanged;
+  the pill + tooltip surface every key's x/20 usage and the toast surfaces
+  each rotation.
+- UI: top-bar pill is now Gemini-only ("AI · Gemini key 2/3" / "AI · Gemini
+  · ready" / "AI · Rules (offline)"); /api/ai-status dropped the qwen field.
+- Verified live: /api/guide planner turn attempted the key chain (usage 0->2
+  on 404 model-name responses -> model cooldowns, policy answered with an
+  honest planner:null), pill shows "AI · Gemini · ready" with key1 2/20.
+  With working keys the same path returns via:"gemini" + keyIdx (mechanism
+  proven in the rotation test earlier today).
+- docs/llm_routing.md rewritten for Gemini-only (chain, per-journey budget
+  math, degradation matrix); .env LLM_* profile marked retired.
+- Gates (all green): canaries 111+6 0-fail · contrast 16/16 · sync --check
+  OK · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0
+  76/76, 0 grounding, 37/37 safe.
+- Local commit only, no GitHub/remote.

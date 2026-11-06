@@ -16,7 +16,6 @@
 // per model, at most 2 attempts per call, 3 consecutive total failures
 // open a 5-minute breaker. 10-minute in-memory cache keyed on the
 // conversation state (repeat answers are free).
-import { chat, llmAvailable } from "./llm.js";
 import { geminiGenerate } from "./gemini_keys.js";
 
 const G = globalThis;
@@ -175,30 +174,16 @@ export async function aiRefine({ query, queryExt, slots, answerLabel, answerType
   let raw = null;
   let via = null;
   let aiMeta = {};
-  // Cost order (docs/llm_routing.md): Qwen (LiteLLM proxy, no observed daily
-  // cap, warm ~0.6-1.1 s) FIRST; the Gemini 3-key chain (20 RPD per key) only
-  // when Qwen fails or returns unparseable JSON.
-  if (llmAvailable()) {
-    try {
-      const { text } = await chat(
-        [{ role: "system", content: AI_SYSTEM }, { role: "user", content: userMsg }],
-        { maxTokens: 500, temperature: 0, timeoutMs: 3000, thinking: false, attempts: 2 },
-      );
-      const o2 = text ? extractJson(text) : null;
-      if (o2) { raw = text; via = "qwen"; obj = o2; }
-    } catch { /* fall through to Gemini chain */ }
-  }
-  let obj = obj || (raw ? extractJson(raw) : null);
-  if (!obj) {
-    try {
-      const g = await geminiGenerate({ system: AI_SYSTEM, user: userMsg, maxTokens: 512, timeoutMs: 2500 });
-      if (g) {
-        raw = g.text; via = "gemini";
-        aiMeta = { keyIdx: g.keyIdx, rotatedFrom: g.rotatedFrom ?? null, model: g.model };
-        obj = extractJson(raw);
-      }
-    } catch { /* deterministic fallback below */ }
-  }
+  // Gemini 3-key chain (20 RPD per key) is the only LLM provider (Qwen
+  // retired 2026-11-06 per user work order - docs/llm_routing.md).
+  try {
+    const g = await geminiGenerate({ system: AI_SYSTEM, user: userMsg, maxTokens: 512, timeoutMs: 2500 });
+    if (g) {
+      raw = g.text; via = "gemini";
+      aiMeta = { keyIdx: g.keyIdx, rotatedFrom: g.rotatedFrom ?? null, model: g.model };
+    }
+  } catch { /* deterministic fallback below */ }
+  const obj = raw ? extractJson(raw) : null;
   try {
     // Debug trace (localhost): raw model output + validation result.
     const fs = await import("node:fs");

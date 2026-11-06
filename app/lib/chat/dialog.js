@@ -1147,7 +1147,17 @@ function displayCatShort(c) {
 async function llmPass(state, text, ctx) {
   try {
     const { llmNlu } = await import("./nlu.js");
-    const { chat } = await import("../llm.js");
+    // Gemini-only routing (Qwen retired 2026-11-06): adapter keeps the
+    // OpenAI-style chat() signature nlu.js expects.
+    const { geminiChat } = await import("../gemini_keys.js");
+    const chat = async (msgs, opts = {}) => {
+      const sys = (msgs.find((m) => m.role === "system") || {}).content || "";
+      const usr = (msgs.find((m) => m.role === "user") || {}).content || "";
+      const r = await geminiChat({ system: sys, user: usr, maxTokens: opts.maxTokens || 160,
+                                   temperature: opts.temperature ?? 0, timeoutMs: 1500 });
+      if (!r) throw new Error("NO_GEMINI");
+      return { text: r.text, model: r.model };
+    };
     return await llmNlu({ chat }, state, text);
   } catch { return null; }
 }
@@ -1162,14 +1172,17 @@ async function phraseSafe(templateText, lang, facts, ctx) {
   if (hit && hit.exp > Date.now()) return { mode: "llm", text: hit.text };
   let controller;
   try {
-    const { chat } = await import("../llm.js");
+    const { geminiChat } = await import("../gemini_keys.js");
     const sys = "You write ONE short reply (max 40 words) for an Indian shopping assistant. " +
       "Use ONLY the facts given. Do not add products, prices, brands or claims. " +
       "Mirror the language: " + lang + ". No emojis, no exclamation marks.";
-    const { text } = await withTimeout(chat(
-      [{ role: "system", content: sys }, { role: "user", content: "Template: " + templateText + "\nFacts: " + JSON.stringify(facts).slice(0, 400) }],
-      { maxTokens: 90, temperature: 0.4 },
-    ), 800);
+    const gr = await withTimeout(geminiChat({
+      system: sys,
+      user: "Template: " + templateText + "\nFacts: " + JSON.stringify(facts).slice(0, 400),
+      maxTokens: 90, temperature: 0.4, timeoutMs: 800,
+    }), 800);
+    if (!gr) throw new Error("NO_GEMINI");
+    const text = gr.text;
     const cand = String(text || "").trim().split(/\n/)[0];
     if (!cand || cand.length > 280) throw new Error("shape");
     const g = validateGrounding(cand, facts);

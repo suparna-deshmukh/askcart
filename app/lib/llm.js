@@ -1,6 +1,8 @@
 // AskCart LLM client - Qwen38-27B via the user's LiteLLM proxy (OpenAI-compatible).
-// Replaces the earlier Gemini path. Config: LLM_BASE_URL / LLM_API_KEY / LLM_MODEL
-// from process.env, falling back to the repo .env file (dev-server friendly).
+// RETIRED 2026-11-06 (Gemini-only routing, docs/llm_routing.md): the app no
+// longer calls chat() on any product path - the guided flow, phrasing and the
+// chatbot all route through gemini_keys.js. Kept for eval tooling reference
+// and because env() / ruleBasedGuide() are still used by scripts.
 // ruleBasedGuide() is the zero-LLM deterministic fallback used by the study.
 import fs from "fs";
 import path from "path";

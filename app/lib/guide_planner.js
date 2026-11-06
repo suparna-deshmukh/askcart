@@ -7,7 +7,6 @@
 // otherwise the deterministic policy order is used ("policy").
 // 3 consecutive failures open a 5-minute breaker; a small in-memory cache
 // (10-min TTL) keyed on query|slots|prev|types keeps repeat turns free.
-import { chat, llmAvailable } from "./llm.js";
 import { geminiGenerate, geminiStatus } from "./gemini_keys.js";
 
 const G = globalThis;
@@ -59,20 +58,6 @@ export async function planQuestionType({ query, slots, prevTypes, types, setSumm
     `Types already asked: ${JSON.stringify(prevTypes || [])}\n` +
     `Result set: ${setSummary}\n` +
     `Candidate types: ${JSON.stringify(types)}`;
-
-  if (llmAvailable()) {
-    try {
-      const { text } = await chat(
-        [{ role: "system", content: PLAN_SYSTEM }, { role: "user", content: userMsg }],
-        { maxTokens: 60, temperature: 0, timeoutMs: 1500, thinking: false, attempts: 1 },
-      );
-      const type = extractType(text, types);
-      if (type) { record(key, type, "llm"); return { type, via: "llm" }; }
-      noteFail();
-    } catch {
-      noteFail();
-    }
-  }
 
   // Gemini 3-key chain (20 RPD per key; local usage ledger + 429 rotation;
   // see docs/llm_routing.md). One attempt per key, bounded latency.

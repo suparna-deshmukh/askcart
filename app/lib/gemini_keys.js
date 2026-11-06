@@ -113,64 +113,89 @@ function models() {
 const cooling = (m) => (MODEL_COOL.get(m) || 0) > Date.now();
 function cool(m, ms) { MODEL_COOL.set(m, Date.now() + ms); }
 
-// One attempt per key; keys are tried in order until one answers.
-// Returns { text, keyIdx, model, rotatedFrom } | null.
-export async function geminiGenerate({ system, user, maxTokens = 60, timeoutMs = 2500 }) {
+// Shared single-key attempt. Returns "text" | "quota" | "invalid" | "model_err".
+async function attempt(idx, model, system, user, maxTokens, temperature, timeoutMs) {
+  const k = state.keys[idx];
+  bump(idx);
+  let res;
+  try {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), timeoutMs);
+    res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      {
+        method: "POST", signal: ctrl.signal,
+        headers: { "Content-Type": "application/json", "x-goog-api-key": k.key },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents: [{ role: "user", parts: [{ text: user }] }],
+          generationConfig: { temperature, maxOutputTokens: maxTokens },
+        }),
+      },
+    );
+    clearTimeout(to);
+  } catch { cool(model, 60000); return { r: "model_err" }; }
+  if (res.status === 429 || res.status === 403) {
+    markExhausted(idx, res.status === 429 ? "rpd" : "quota_or_auth");
+    return { r: "quota" };
+  }
+  if (res.status === 404) { cool(model, 300000); return { r: "model_err" }; }
+  if (!res.ok) {
+    if (res.status === 400) {
+      // "API key not valid" is a dead key, not a bad request - drop it
+      // for the day instead of retrying it.
+      try {
+        const errTxt = await res.text();
+        if (/API key not valid|invalid API key|PERMISSION_DENIED/i.test(errTxt)) {
+          markExhausted(idx, "invalid_key");
+          return { r: "invalid" };
+        }
+      } catch { /* fall through */ }
+    }
+    cool(model, 60000);
+    return { r: "model_err" };
+  }
+  try {
+    const j = await res.json();
+    const text = j?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+    if (text) return { r: "text", text };
+  } catch { /* fall through */ }
+  cool(model, 60000);
+  return { r: "model_err" };
+}
+
+function runChain({ system, user, maxTokens, temperature, timeoutMs }) {
   load();
   const chain = models().filter((m) => !cooling(m));
-  if (!chain.length) return null;
+  if (!chain.length) return Promise.resolve(null);
   let rotatedFrom = null;
-  for (let idx = 0; idx < state.keys.length; idx++) {
+  const tryKey = (idx) => {
+    if (idx >= state.keys.length) return Promise.resolve(null);
     const k = state.keys[idx];
-    if (!k || k.exhaustedDay === state.day || k.used >= RPD) continue;
+    if (!k || k.exhaustedDay === state.day || k.used >= RPD) return tryKey(idx + 1);
     const model = chain[idx % chain.length]; // spread model risk across keys
-    bump(idx);
-    let res;
-    try {
-      const ctrl = new AbortController();
-      const to = setTimeout(() => ctrl.abort(), timeoutMs);
-      res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-        {
-          method: "POST", signal: ctrl.signal,
-          headers: { "Content-Type": "application/json", "x-goog-api-key": k.key },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: system }] },
-            contents: [{ role: "user", parts: [{ text: user }] }],
-            generationConfig: { temperature: 0, maxOutputTokens: maxTokens },
-          }),
-        },
-      );
-      clearTimeout(to);
-    } catch { cool(model, 60000); continue; }
-    if (res.status === 429 || res.status === 403) {
-      markExhausted(idx, res.status === 429 ? "rpd" : "quota_or_auth");
-      rotatedFrom = rotatedFrom ?? idx;
-      continue; // next key, immediately
-    }
-    if (res.status === 404) { cool(model, 300000); continue; }
-    if (!res.ok) {
-      if (res.status === 400) {
-        // "API key not valid" is a dead key, not a bad request - drop it
-        // for the day instead of retrying it.
-        try {
-          const errTxt = await res.text();
-          if (/API key not valid|invalid API key|PERMISSION_DENIED/i.test(errTxt)) {
-            markExhausted(idx, "invalid_key");
-            rotatedFrom = rotatedFrom ?? idx;
-            continue;
-          }
-        } catch { /* fall through */ }
-      }
-      cool(model, 60000);
-      continue;
-    }
-    try {
-      const j = await res.json();
-      const text = j?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-      if (text) { STICKY.model = model; return { text, keyIdx: idx, model, rotatedFrom }; }
-    } catch { /* fall through */ }
-    cool(model, 60000);
+    return attempt(idx, model, system, user, maxTokens, temperature, timeoutMs).then((a) => {
+      if (a.r === "text") return { text: a.text, keyIdx: idx, model, rotatedFrom };
+      if (a.r === "quota" || a.r === "invalid") rotatedFrom = rotatedFrom ?? idx;
+      return tryKey(idx + 1);
+    });
+  };
+  // first usable key
+  let start = 0;
+  while (start < state.keys.length) {
+    const k = state.keys[start];
+    if (k && k.exhaustedDay !== state.day && k.used < RPD) break;
+    start += 1;
   }
-  return null;
+  return start < state.keys.length ? tryKey(start) : Promise.resolve(null);
+}
+
+// Question-type planner / refine / phrasing calls (temperature 0 default).
+export function geminiGenerate({ system, user, maxTokens = 60, timeoutMs = 2500 }) {
+  return runChain({ system, user, maxTokens, temperature: 0, timeoutMs });
+}
+
+// Generic single-turn chat (chatbot NLU/composer, phrasing - any temperature).
+export function geminiChat({ system, user, maxTokens = 200, temperature = 0, timeoutMs = 2500 }) {
+  return runChain({ system, user, maxTokens, temperature, timeoutMs });
 }

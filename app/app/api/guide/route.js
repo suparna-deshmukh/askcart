@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { loadCatalog } from "../../../lib/catalog";
 import { parseQuery } from "../../../lib/search";
 import { decideGuide } from "../../../lib/guide.js";
-import { chat, llmAvailable } from "../../../lib/llm";
+import { geminiChat, geminiStatus } from "../../../lib/gemini_keys.js";
 import { record } from "../../../lib/analyticsStore";
-import { geminiStatus } from "../../../lib/gemini_keys.js";
 import { t, budgetLabel, occasionLabel } from "../../../app/lib/i18n.js";
 
 // The policy engine decides WHAT to ask (type + data-driven options + reason);
@@ -61,7 +60,7 @@ export async function POST(req) {
     question = t(lang, "q" + decision.type[0].toUpperCase() + decision.type.slice(1));
     options = options.map(translateOption);
     optionCounts = optionCounts.map((c) => ({ ...c, label: translateOption(c.label) }));
-  } else if (llmAvailable() && forceMode !== "fallback") {
+  } else if (!geminiStatus().allExhausted && forceMode !== "fallback") {
     try {
       const userMsg =
         `User query: "${q}"\n` +
@@ -70,10 +69,9 @@ export async function POST(req) {
         `Draft: ${decision.question}\n` +
         `Options (use exactly, same order): ${JSON.stringify(options)}\n` +
         "Rewrite ONLY the question sentence (max 12 words). Keep options identical.";
-      const { text, model: m } = await chat(
-        [{ role: "system", content: PHRASE_SYSTEM }, { role: "user", content: userMsg }],
-        { maxTokens: 240, temperature: 0.4, timeoutMs: 1500, attempts: 1 },
-      );
+      const g = await geminiChat({ system: PHRASE_SYSTEM, user: userMsg, maxTokens: 240, temperature: 0.4, timeoutMs: 1500 });
+      if (!g) throw new Error("no gemini key available");
+      const text = g.text, m = g.model;
       const raw = text.replace(/```json/gi, "").replace(/```/g, "").trim();
       const obj = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
       if (typeof obj.question === "string" && obj.question.trim()) question = obj.question.trim();
@@ -91,7 +89,7 @@ export async function POST(req) {
   if (optionCounts.length) guide.optionCounts = optionCounts;
   if (model) guide.model = model;
   try {
-    const via = decision.planner || (mode === "llm" ? "qwen" : null);
+    const via = decision.planner || (mode === "llm" ? "gemini" : null);
     if (via || body.planner === true) {
       record("ai_call", {
         kind: "planner", via: via || "rules",

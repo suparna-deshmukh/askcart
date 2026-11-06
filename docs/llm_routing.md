@@ -8,10 +8,13 @@ filters are produced by the deterministic policy when no LLM is available —
 with the LLM the sequencing is slightly better; without it, the same loop
 keeps asking.
 
-## The chain (every AI decision uses exactly this)
+## The chain (every AI decision uses exactly this) - Gemini-only since 2026-11-06
+
+Qwen (LiteLLM proxy) was REMOVED per user work order; Gemini is the only
+LLM provider. Every AI decision runs:
 
 ```
-AI decision needed (question-type pick  OR  post-answer refine)
+AI decision needed (question-type pick OR post-answer refine OR phrasing)
 │
 ├─ 1. STATE CACHE HIT (10-min TTL, key = query|slots|prev|types|answer)
 │      -> 0 LLM calls. Repeats of the same state are free.
@@ -23,25 +26,24 @@ AI decision needed (question-type pick  OR  post-answer refine)
 │      -> 0 LLM calls. One toast: "Quick mode ... built-in rules".
 │      The deterministic chain continues asking on the narrowed set.
 │
-└─ 4. PROVIDER CHAIN
-     ├─ Qwen38-27B (LiteLLM proxy)   PRIMARY - warm 0.6-1.1 s, no daily cap
-     │     seen. 1-2 attempts, 3.0 s cap, thinking off, temp 0.
-     ├─ Gemini 3-key chain            SECONDARY - only when Qwen fails or
-     │     returns unparseable JSON. One attempt per key (2.5 s each), keys
-     │     tried in order, bounded to ~7.5 s worst case.
-     └─ DETERMINISTIC POLICY          LAST RESORT - per-category question
-           order + data-driven options. Same journey, slightly less
-           intelligent sequencing.
+└─ 4. GEMINI 3-KEY CHAIN (20 RPD per key)
+     │   one attempt per key (2.5 s each), keys tried in order,
+     │   bounded to ~7.5 s worst case (client windows abort earlier and
+     │   the deterministic answer is already valid).
+     └─ DETERMINISTIC POLICY - per-category question order + data-driven
+           options. Same journey, slightly less intelligent sequencing.
 ```
 
-## Why Qwen first (cost math)
+## Calls per journey (the budget math)
 
-One guided journey = 1 planner call per question + 1 refine call per answer
-(≤ 4-5 questions). Gemini-primary would burn 60-120 calls on a single
-heavy day across all users = all 3 keys exhausted by ~2-3 journeys.
-Qwen-primary costs zero Gemini RPD on the common path; the Gemini chain is
-pure insurance, and it is also what the user sees in the pill when it is
-the one answering.
+Per search submit: **planner (1) + phrasing (1)** = up to 2 calls.
+Per follow-up answer: **refine (1)**. A 3-question journey ≈ **5 calls**.
+With 3 keys × 20 RPD = 60 calls/day across all users, ~12 heavy journeys
+exhaust the day - after that every decision comes from the deterministic
+policy (journey unchanged, sequencing less adaptive). Caching (10 min,
+same-state repeats free) and the session budget (8) extend the reach.
+The top-bar pill always shows which engine answered and each key's
+x/20 usage, so the budget is visible, not a surprise.
 
 ## Gemini key chain rules (`app/lib/gemini_keys.js`)
 
@@ -67,10 +69,10 @@ the one answering.
 
 | Decision | Provider | Output | Validation |
 |---|---|---|---|
-| Question TYPE (planner) | Qwen → Gemini keys → policy | one type from the grounded list | rejected if not in the data-validated candidate set |
-| Post-answer filters + next question (refine) | Qwen → Gemini keys → policy | JSON {filters, question} | every value re-checked against the LIVE narrowed set; ungrounded values dropped |
-| Question phrasing (English) | Qwen only (1.5 s, 1 attempt) | reworded question line | options must stay byte-identical or the template is kept |
-| Chat NLU / composer (chatbot) | Qwen (CHAT_LLM=0 → templates) | JSON / ≤40-word reply | output guard, zero-tolerance grounding |
+| Question TYPE (planner) | Gemini keys → policy | one type from the grounded list | rejected if not in the data-validated candidate set |
+| Post-answer filters + next question (refine) | Gemini keys → policy | JSON {filters, question} | every value re-checked against the LIVE narrowed set; ungrounded values dropped |
+| Question phrasing (English) | Gemini keys (1.5 s, 1 attempt/key) | reworded question line | options must stay byte-identical or the template is kept |
+| Chat NLU / composer (chatbot) | Gemini keys (CHAT_LLM=0 → templates) | JSON / ≤40-word reply | output guard, zero-tolerance grounding |
 | Semantic embeddings | local ONNX (Xenova/multilingual-e5-small) | 384-dim int8 | 0 API calls |
 
 The LLM **never** picks products, prices, SKUs, option values or constraint
@@ -100,13 +102,13 @@ facets.
 
 ## Degradation matrix (journey never breaks)
 
-| Qwen | Gemini keys | Result |
-|---|---|---|
-| up | up | best sequencing (pill: Qwen 38B) |
-| down | key 1 up | Gemini key 1 answers (pill: Gemini key 1/3) |
-| down | key 1 429 | key 2 answers + toast (pill: Gemini key 2/3) |
-| down | all 3 exhausted | deterministic policy (pill: Rules (offline)) - same loop, data-driven options, per-category order |
-| up | any | Qwen answers; Gemini untouched (0 RPD spent) |
+| Gemini keys | Result |
+|---|---|
+| key 1 up | key 1 answers (pill: Gemini key 1/3) |
+| key 1 429 / quota | key 2 answers + toast (pill: Gemini key 2/3) |
+| key 2 also 429 | key 3 answers + toast (pill: Gemini key 3/3) |
+| all 3 exhausted (or day cap reached) | deterministic policy (pill: Rules (offline)) - same loop, data-driven options, per-category order |
+| no keys configured | deterministic policy immediately; pill explains it in the tooltip |
 
 ## Config
 
@@ -115,5 +117,6 @@ GEMINI_API_KEYS=            # up to 3 keys, comma-separated (legacy GEMINI_API_K
 GEMINI_MODEL=gemini-3.8-flash
 GEMINI_RPD=20               # local ledger cap per key per day
 AI_MAX_PER_SESSION=8        # AI decisions per client session before quick mode
-LLM_BASE_URL / LLM_API_KEY / LLM_MODEL   # Qwen via LiteLLM proxy (primary)
+# LLM_BASE_URL / LLM_API_KEY / LLM_MODEL - retired 2026-11-06 (Qwen removed);
+# the LiteLLM proxy is no longer called by the app.
 ```
