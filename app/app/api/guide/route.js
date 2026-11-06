@@ -84,6 +84,7 @@ export async function POST(req) {
   }
 
   const guide = { type: decision.type, question, options, reason: decision.reason };
+  if (decision.subType) guide.subType = decision.subType;
   if (optionCounts.length) guide.optionCounts = optionCounts;
   if (model) guide.model = model;
   return NextResponse.json({

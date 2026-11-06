@@ -716,8 +716,8 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   const firstQ = !isRescue && nResults >= 2;
   const firstQuestionFallback = () => {
     if (!firstQ) return null;
-    const out = (type, options, optionCounts, reason) => ({
-      ask: true, type, options, optionCounts, question: TEMPLATES[type], reason,
+    const out = (type, options, optionCounts, reason, subType) => ({
+      ask: true, type, options, optionCounts, question: TEMPLATES[type], reason, subType: subType || null,
       stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue },
     });
     const watchBare = /\b(watch|watches|smartwatch|ghadi)\b/i.test(query) || /घड़[ीि]/.test(query);
@@ -838,38 +838,58 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // one question, no matter how good the first match is. When no data
     // facet has >=2 live options, the question is "type it" - the typed
     // answer runs the normal refinement search (no chips, no quiz).
-    if (!prev.has("any")) {
+    // 2026-11-06 (product requirement: the chain keeps asking after EVERY
+    // answer): the open "any" question may be asked up to twice per
+    // journey, each time from a DIFFERENT option source (usage tags ->
+    // brands -> real price bands -> typed), so a repeat is never the same
+    // question. prevTypes carries "any:<source>" markers for this.
+    const prevAny = [...prev].filter((t) => t.startsWith("any:"));
+    const usedAny = new Set(prevAny.map((t) => t.slice(4)));
+    const dataAnyUsed = prevAny.filter((t) => !t.endsWith(":typed")).length;
+    if (dataAnyUsed < 2) {
       // 2026-11-06 (product requirement: EVERY question carries options):
-      // the last-resort question is drawn from what the narrowed set
-      // actually holds - usage tags, then brands, then real price bands
-      // (real counts from the set, never estimates) - and the typed
-      // "Something else" escape stays available.
+      // each source is drawn from what the narrowed set actually holds
+      // (real counts, never estimates) and the typed escape stays
+      // available. At most 2 data-sourced open questions per journey;
+      // a 3rd may only be the pure-typed last resort (never the same
+      // option source twice).
       const tagOpts = (stats.tagCounts || [])
         .filter((o) => o.count >= 3 && !/^(gift|new|best|sale|offer|deal)$/i.test(o.name))
         .slice(0, 3).map((o) => ({ label: o.name, count: o.count }));
       const brandOpts = (stats.brands || []).filter((b) => b.count >= 2)
         .slice(0, 3).map((b) => ({ label: b.name, count: b.count }));
-      const setOpts = tagOpts.length >= 2 ? tagOpts : brandOpts;
-      if (setOpts.length >= 2) {
-        return out("any", setOpts.map((o) => o.label), setOpts,
-          "open refinement: options drawn from the narrowed set (usage tags / brands), typed escape available");
+      if (tagOpts.length >= 2 && !usedAny.has("tags")) {
+        return out("any", tagOpts.map((o) => o.label), tagOpts,
+          "open refinement: options drawn from the narrowed set (usage tags), typed escape available", "tags");
+      }
+      if (brandOpts.length >= 2 && !usedAny.has("brands")) {
+        return out("any", brandOpts.map((o) => o.label), brandOpts,
+          "open refinement: options drawn from the narrowed set (brands), typed escape available", "brands");
       }
       const P = stats.priceP || {};
-      if (P.p25 > 0 && P.p75 > P.p25 && stats.items.length >= 5) {
+      if (P.p25 > 0 && P.p75 > P.p25 && stats.items.length >= 5 && !usedAny.has("bands")) {
         const p25 = Math.round(P.p25).toLocaleString("en-IN");
         const p75 = Math.round(P.p75).toLocaleString("en-IN");
+        // Only "Under"/range bands: both map to an applicable budget cap.
+        // An "Over" band has no min-price semantics in the guided re-search
+        // (budget is a soft ranker), so offering it would show a filter that
+        // cannot be applied.
         const bandOpts = [
           { label: `Under \u20b9${p25}`, count: stats.items.filter((h) => h.price < P.p25).length },
           { label: `\u20b9${p25} \u2013 \u20b9${p75}`, count: stats.items.filter((h) => h.price >= P.p25 && h.price < P.p75).length },
-          { label: `Over \u20b9${p75}`, count: stats.items.filter((h) => h.price >= P.p75).length },
         ].filter((o) => o.count > 0);
         if (bandOpts.length >= 2) {
           return out("any", bandOpts.map((o) => o.label), bandOpts,
-            "open refinement: price bands from the narrowed set's actual price spread, typed escape available");
+            "open refinement: price bands from the narrowed set's actual price spread, typed escape available", "bands");
         }
       }
+      if (!usedAny.has("typed")) {
+        return out("any", [], [],
+          "guaranteed question (typed last resort): no data facet with >=2 live options - open typed refinement", "typed");
+      }
+    } else if (!usedAny.has("typed")) {
       return out("any", [], [],
-        "guaranteed question (typed last resort): no data facet with >=2 live options - open typed refinement");
+        "guaranteed question (typed last resort): data-sourced open questions exhausted - open typed refinement", "typed");
     }
     return null;
   };
@@ -895,7 +915,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   outer: for (const t of order) {
     type = t;
     if (type === "budget") {
-    options = budgetOptions(stats, { stepDown: context.persona?.userType === "Student" });
+    options = budgetOptions(stats, { stepDown: context.persona?.ageBand === "Under 25" || context.persona?.userType === "Student" });
     reason = `no explicit budget in query; candidate set price range p25 ${inr(stats.priceP.p25)} – p75 ${inr(stats.priceP.p75)} (budget_mismatch = 9.4% of mined complaints; price spread is the issue, not the label)`;
     optionCounts = options.map((o) => ({ label: o, count: countBudget(stats.items, stats.n, o) }));
   } else if (type === "occasion") {
@@ -1046,6 +1066,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     optionCounts,
     question: TEMPLATES[type],
     reason,
+    subType: chosen.subType || null,
     planner: plannerInfo && type === plannerInfo.type ? plannerInfo.via : null,
     stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue },
   };

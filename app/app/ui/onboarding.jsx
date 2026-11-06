@@ -9,21 +9,25 @@ import { track, setPersona } from "../lib/track";
 //  - context=Gifting -> occasion-first question ordering (guide.js)
 //  - userType=Student -> budget options one step lower (guide.js)
 //  - Senior -> larger text mode; all answers -> cohort segmentation
+// First-visit persona (2026-11-06): exactly 3 centered questions —
+// what you shop for, your age band, your default value bar. Every answer
+// has a visible payoff (spendStyle -> ranking + "flexible" defaults,
+// context=Gifting -> occasion-first questions, ageBand -> budget-step
+// calibration), and skip leaves the app fully usable with defaults.
 const STEPS = [
-  { key: "userType",
-    label: "Which describes you best?",
-    sub: "We use this to calibrate questions and recommendations — never to show ads.",
-    opts: ["Student", "Working professional", "Homemaker",
-           "Senior (60+)", "Buying for my family"] },
+  { key: "context",
+    label: "What are you mostly shopping for?",
+    sub: "One tap — we calibrate the follow-up questions around it. You can always mix it later.",
+    opts: ["Myself", "Family & kids", "Gifting", "Home & appliances", "A mix of all"] },
+  { key: "ageBand",
+    label: "How old are you?",
+    sub: "Helps us match styles, sizes and question order. Never shown to anyone.",
+    opts: ["Under 25", "25\u201340", "40+"] },
   { key: "spendStyle",
     label: "How do you usually decide what's worth buying?",
     sub: "Your budget changes with the product — this tells us your default bar, not a cap.",
     opts: ["Best price — I compare a lot", "Good quality at a fair price",
            "Brand matters most", "Premium, if it's worth it"] },
-  { key: "context",
-    label: "What are you mostly shopping for?",
-    sub: "One tap — you can always mix it later.",
-    opts: ["Myself", "Family & kids", "Gifting", "Home & appliances", "A mix of all"] },
 ];
 
 // spendStyle -> default budget cap used when the shopper picks
@@ -70,9 +74,10 @@ export function Onboarding({ onDone }) {
 
   function finish(next) {
     const persona = {
-      userType: next.userType || null,
-      spendStyle: next.spendStyle || null,
       context: next.context || null,
+      ageBand: next.ageBand || null,
+      spendStyle: next.spendStyle || null,
+      userType: null, // replaced by ageBand (2026-11-06 first-visit flow)
       // back-compat keys (old cohort format is shopping-for × style)
       forWhom: next.context || null,
       budgetStyle: next.spendStyle || null,
@@ -80,8 +85,8 @@ export function Onboarding({ onDone }) {
     };
     setPersona(persona);
     track("onboarding_complete", {
-      userType: persona.userType, spendStyle: persona.spendStyle,
-      context: persona.context, forWhom: persona.forWhom,
+      context: persona.context, ageBand: persona.ageBand,
+      spendStyle: persona.spendStyle, forWhom: persona.forWhom,
       budgetStyle: persona.budgetStyle, shopStyle: persona.shopStyle,
       ms: Date.now() - t0,
     });

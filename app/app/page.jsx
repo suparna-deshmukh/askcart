@@ -267,7 +267,11 @@ function AskCartHome() {
   useEffect(() => {
     try {
       const noob = new URLSearchParams(window.location.search).get("noob") === "1";
-      if (!noob && localStorage.getItem("askcart_onboarded") !== "1") setOnboarded(false);
+      if (!noob && localStorage.getItem("askcart_onboarded") !== "1") {
+        setOnboarded(false);
+        // 2026-11-06: first visit -> centered 3-question persona modal
+        setPersonaModal(true);
+      }
       const l = localStorage.getItem("askcart_lang");
       if (["en", "hi", "hinglish"].includes(l)) setLangState(l);
       const rv = JSON.parse(localStorage.getItem("askcart_region") || "null");
@@ -276,6 +280,7 @@ function AskCartHome() {
     } catch {}
   }, []);
   const [stripOpen, setStripOpen] = useState(false);
+  const [personaModal, setPersonaModal] = useState(false);
   const [obToast, setObToast] = useState(null);
   const [cartToast, setCartToast] = useState(null);
   useEffect(() => { try { document.documentElement.lang = lang === "hi" ? "hi" : lang === "hinglish" ? "hi-Latn" : "en"; } catch {} }, [lang]);
@@ -539,13 +544,16 @@ function AskCartHome() {
     }
   }
 
-  async function askGuide(query, nResults, turn) {
+  async function askGuide(query, nResults, turn, slotsOverride) {
     const jn = journeyRef.current;
     const prevTypes = jn ? jn.prevTypes || [] : [];
     // Cumulative chip answers (from the trail) so the policy builds its
     // next question on the NARROWED set, not the original query's set.
-    const slots = {};
-    if (s) for (const t of s.trail.slice(1)) if (t && typeof t === "object" && t.opts) Object.assign(slots, t.opts);
+    // slotsOverride = the post-answer slots (the closure's `s` is still the
+    // pre-answer render - using it here asked the next question on the
+    // OLD set, which is why the chain stopped after a chip answer).
+    const slots = slotsOverride || {};
+    if (!slotsOverride && s) for (const t of s.trail.slice(1)) if (t && typeof t === "object" && t.opts) Object.assign(slots, t.opts);
     const r = await fetch("/api/guide", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -605,7 +613,7 @@ function AskCartHome() {
       // n_results = intent-hit count (same semantics as the study).
       const g = await askGuide(query, res.results.filter((r) => r.intent).length, 2);
       if (g.guide) {
-        journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g.guide.type];
+        pushPrevType(g.guide);
         guideShownAtRef.current = Date.now();
         track("guide_question_shown", {
           query, question_type: g.guide.type, turn: 2, options_count: g.guide.options.length,
@@ -646,7 +654,7 @@ function AskCartHome() {
         setBusy(false);
         return;
       }
-      journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), guide.type];
+      pushPrevType(guide);
       guideShownAtRef.current = Date.now();
       track("guide_question_shown", {
         query, question_type: guide.type, turn, options_count: guide.options.length,
@@ -666,6 +674,85 @@ function AskCartHome() {
     const merged = {};
     if (s) for (const t of s.trail.slice(1)) if (t && typeof t === "object" && t.opts) Object.assign(merged, t.opts);
     return merged;
+  }
+
+  // The "any" (open refinement) question may recur with a different
+  // option source; record WHICH source was used so the policy never
+  // repeats the same open question (guide.js Tier 7 cycling).
+  function pushPrevType(guide) {
+    const jn = journeyRef.current;
+    if (!jn) return;
+    jn.prevTypes = [...(jn.prevTypes || []), guide.type === "any" && guide.subType ? "any:" + guide.subType : guide.type];
+  }
+
+  // Item 6 (Gemini ai-refine): after EVERY answer, /api/ai-refine returns
+  // validated, actionable output - filters to merge into the re-search and
+  // the next question (type + prompt + grounded options with counts).
+  // The server validates every value against the live narrowed set, so
+  // Gemini can never invent a brand/category/price/keyword; when it is
+  // down or empty the page behaves exactly as v6 (deterministic policy).
+  async function askAIRefine({ query, queryExt, slots, answer, answerType, prevTypes }) {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 5500);
+    try {
+      const r = await fetch("/api/ai-refine", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, query_ext: queryExt || "", slots, answer, answer_type: answerType, prev_types: prevTypes || [], lang }),
+        signal: ctrl.signal,
+      });
+      if (!r.ok) return null;
+      const j = await r.json();
+      if (!j || !j.ok) return null;
+      return { filters: j.filters || {}, question: j.question || null, via: j.via || null, ms: j.ms || null };
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(to);
+    }
+  }
+  function aiFilterOpts(f) {
+    const o = {};
+    if (f.brand) o.brand = f.brand;
+    if (f.category) o.category = f.category;
+    if (f.for_whom) o.forWhom = f.for_whom;
+    if (f.size) o.size = f.size;
+    if (f.occasion) o.occasion = f.occasion;
+    if (f.budget_max) o.budget = f.budget_max;
+    return o;
+  }
+  // AI-applied filters become REMOVABLE trail chips - no silent caps (O4).
+  function aiTrailSteps(aiOpts, keyword) {
+    const steps = [];
+    if (aiOpts.brand) steps.push({ label: "Brand: " + aiOpts.brand, opts: { brand: aiOpts.brand }, ai: true });
+    if (aiOpts.category) steps.push({ label: aiOpts.category, opts: { category: aiOpts.category }, ai: true });
+    if (aiOpts.forWhom) steps.push({ label: "For: " + aiOpts.forWhom, opts: { forWhom: aiOpts.forWhom }, ai: true });
+    if (aiOpts.size) steps.push({ label: "Size " + String(aiOpts.size).toUpperCase(), opts: { size: aiOpts.size }, ai: true });
+    if (aiOpts.occasion) steps.push({ label: "Occasion: " + aiOpts.occasion, opts: { occasion: aiOpts.occasion }, ai: true });
+    if (aiOpts.budget) steps.push({ label: "Budget \u2264 \u20b9" + Number(aiOpts.budget).toLocaleString("en-IN"), opts: { budget: aiOpts.budget }, ai: true });
+    if (keyword) steps.push({ label: keyword, opts: null });
+    return steps;
+  }
+  function aiRefineEvent(ai, aiOpts, turnNow) {
+    if (!ai || (!Object.keys(aiOpts).length && !(ai.filters && ai.filters.keyword) && !ai.question)) return;
+    track("ai_refine", {
+      query: s.query, filters: Object.keys(aiOpts), keyword: (ai.filters && ai.filters.keyword) || null,
+      question: ai.question ? ai.question.type : null, via: ai.via || null, ms: ai.ms || null,
+      turn: turnNow, journey_id: journeyRef.current ? journeyRef.current.id : null,
+    });
+  }
+  function aiGuideWrap(ai) {
+    if (!ai || !ai.question) return null;
+    return {
+      guide: {
+        type: ai.question.type,
+        question: ai.question.prompt,
+        options: ai.question.options.map((o) => o.label),
+        optionCounts: ai.question.options.map((o) => ({ label: o.label, count: o.count || 0 })),
+        reason: "ai_refine",
+      },
+      mode: "ai",
+      decision: { type: ai.question.type, reason: "ai_refine", planner: ai.via || null },
+    };
   }
 
   // G10: one-line echo of what changed, shown above the results. Totals
@@ -729,13 +816,35 @@ function AskCartHome() {
       else if (c) opts = { category: c.category };
       else extraQ = chip;
     }
-    let res = await doSearch(s.query + (extraQ ? " " + extraQ : ""), { relax: true, turn: turnNow, ...trailOpts(), ...opts });
+    // Item 6: the AI refine (Gemini, Qwen fallback) runs IN FLIGHT while
+    // the deterministic re-search executes; the page waits at most ~4.5s
+    // for it, so a down provider never stalls the grid (v6 latency).
+    const aiPromise = !plainMode
+      ? askAIRefine({ query: s.query, queryExt: extraQ, slots: { ...trailOpts(), ...(s.parsed && s.parsed.budgetMax ? { budget: s.parsed.budgetMax } : {}), ...(s.parsed && s.parsed.occasion ? { occasion: s.parsed.occasion } : {}) },
+                      answer: { label: trailLabel, opts }, answerType: guide.type,
+                      prevTypes: journeyRef.current ? journeyRef.current.prevTypes || [] : [] })
+      : Promise.resolve(null);
+    const optsClean = Object.fromEntries(Object.entries(opts).filter(([, v]) => v != null));
+    let res = await doSearch(s.query + (extraQ ? " " + extraQ : ""), { relax: true, turn: turnNow, ...trailOpts(), ...optsClean });
+    const ai = await Promise.race([aiPromise, new Promise((r) => setTimeout(() => r(null), 5500))]);
+    const aiOpts = ai ? aiFilterOpts(ai.filters) : {};
+    const aiKw = ai && ai.filters && ai.filters.keyword && !(extraQ || "").toLowerCase().includes(ai.filters.keyword.toLowerCase()) ? ai.filters.keyword : null;
+    const aiSteps = ai ? aiTrailSteps(aiOpts, aiKw) : [];
+    aiRefineEvent(ai, aiOpts, turnNow);
+    if (Object.keys(aiOpts).length || aiKw) {
+      // AI added a facet the rule resolution missed -> one merged
+      // re-search so the grid shows the AI-filtered products.
+      const res2 = await doSearch(s.query + (extraQ ? " " + extraQ : "") + (aiKw ? " " + aiKw : ""),
+                                   { relax: true, turn: turnNow, ...trailOpts(), ...aiOpts, ...optsClean });
+      if (!res2.error) res = res2;
+    }
     if (res.error) {
       setS((st) => st && { ...st, error: res.error });
       setBusy(false);
       return;
     }
     const appliedOpts = { ...opts };
+    const newSlots = { ...trailOpts(), ...appliedOpts, ...aiOpts };
     if (res.results.filter((r) => r.intent).length < 2 && opts.category) {
       // the picked category was a dead end - retry without it, other
       // constraints (budget/occasion) still applied
@@ -755,7 +864,7 @@ function AskCartHome() {
     setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: finalResults,
            total: res.total_matches ?? finalResults.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null,
-           trail: [...s.trail, { label: trailLabel, opts: appliedOpts }],
+           trail: [...s.trail, { label: trailLabel, opts: appliedOpts }, ...aiSteps],
            echo: echoFor(trailLabel, res.total_matches ?? finalResults.length, s.total ?? s.results.length), error: null });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: finalResults.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
@@ -763,9 +872,9 @@ function AskCartHome() {
       // Ask the next ladder question until the query is fully specified,
       // the 4-follow-up cap is hit, or the shopper skips.
       if (!plainMode && turnNow < 5) {
-        const g2 = await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1);
+        const g2 = aiGuideWrap(ai) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots));
         if (g2.guide) {
-          journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g2.guide.type];
+          pushPrevType(g2.guide);
           guideShownAtRef.current = Date.now();
           track("guide_question_shown", {
             query: s.query, question_type: g2.guide.type, turn: turnNow + 1,
@@ -786,9 +895,9 @@ function AskCartHome() {
     // We only stop when the shopper is at their destination (3 known facets),
     // the shopper skips, or no eligible facet is left.
     if (turnNow < 5) {
-      const g = await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1);
+      const g = aiGuideWrap(ai) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots));
       if (g.guide) {
-        journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g.guide.type];
+        pushPrevType(g.guide);
         guideShownAtRef.current = Date.now();
         track("guide_question_shown", {
           query: s.query, question_type: g.guide.type, turn: turnNow + 1,
@@ -853,7 +962,22 @@ function AskCartHome() {
     setBusy(true);
     const turnNow = s.turn + 1;
     const t0 = Date.now();
-    const res = await doSearch(s.query + " " + txt, { relax: true, turn: turnNow, ...trailOpts() });
+    const aiPromise = !plainMode
+      ? askAIRefine({ query: s.query, queryExt: txt, slots: { ...trailOpts(), ...(s.parsed && s.parsed.budgetMax ? { budget: s.parsed.budgetMax } : {}), ...(s.parsed && s.parsed.occasion ? { occasion: s.parsed.occasion } : {}) },
+                      answer: { label: txt, opts: null }, answerType: guide.type,
+                      prevTypes: journeyRef.current ? journeyRef.current.prevTypes || [] : [] })
+      : Promise.resolve(null);
+    let res = await doSearch(s.query + " " + txt, { relax: true, turn: turnNow, ...trailOpts() });
+    const ai = await Promise.race([aiPromise, new Promise((r) => setTimeout(() => r(null), 5500))]);
+    const aiOpts = ai ? aiFilterOpts(ai.filters) : {};
+    const aiKw = ai && ai.filters && ai.filters.keyword && !txt.toLowerCase().includes(ai.filters.keyword.toLowerCase()) ? ai.filters.keyword : null;
+    const aiSteps = ai ? aiTrailSteps(aiOpts, aiKw) : [];
+    aiRefineEvent(ai, aiOpts, turnNow);
+    if (Object.keys(aiOpts).length || aiKw) {
+      const res2 = await doSearch(s.query + " " + txt + (aiKw ? " " + aiKw : ""),
+                                   { relax: true, turn: turnNow, ...trailOpts(), ...aiOpts });
+      if (!res2.error) res = res2;
+    }
     setBusy(false);
     if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
     const intentN = res.results.filter((r) => r.intent).length;
@@ -861,16 +985,16 @@ function AskCartHome() {
     markResultsShown(s.query, res.results, turnNow, "results");
     setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: res.results,
            total: res.total_matches ?? res.results.length, parsed: res.parsed,
-           filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, { label: txt, opts: null }],
+           filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, { label: txt, opts: null }, ...aiSteps],
            echo: `${txt} · ${res.total_matches ?? res.results.length} of ${s.total ?? s.results.length} left`, error: null });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: intentN, journey_id: journeyRef.current.id });
       // Same keep-guiding rule as chip answers: the typed text narrows
       // the set, so the next question is built on the narrowed set.
       if (!plainMode && turnNow < 5) {
-        const g2 = await askGuide(s.query + " " + txt, intentN, turnNow + 1);
+        const g2 = aiGuideWrap(ai) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }));
         if (g2.guide) {
-          journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g2.guide.type];
+          pushPrevType(g2.guide);
           guideShownAtRef.current = Date.now();
           track("guide_question_shown", {
             query: s.query, question_type: g2.guide.type, turn: turnNow + 1,
@@ -887,9 +1011,9 @@ function AskCartHome() {
       return;
     }
     if (turnNow < 5) {
-      const g = await askGuide(s.query + " " + txt, intentN, turnNow + 1);
+      const g = aiGuideWrap(ai) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }));
       if (g.guide) {
-        journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g.guide.type];
+        pushPrevType(g.guide);
         guideShownAtRef.current = Date.now();
         track("guide_question_shown", {
           query: s.query, question_type: g.guide.type, turn: turnNow + 1,
@@ -920,14 +1044,14 @@ function AskCartHome() {
       query: s.query, question_type: g.type, turn: s.turn, mode: g.mode || "policy",
     });
     const jn = journeyRef.current;
-    if (jn) jn.prevTypes = [...(jn.prevTypes || []), g.type];
+    pushPrevType({ type: g.type, subType: g.subType });
     setS((st) => st && { ...st, guide: null });
     const skips = jn ? (jn.skips = (jn.skips || 0) + 1) : 1;
     const intentN = s.results.filter((r) => r.intent).length;
     if (!plainMode && s.turn < 5 && skips < 3) {
       const g2 = await askGuide(s.query, intentN, s.turn + 1);
       if (g2.guide) {
-        if (jn) jn.prevTypes = [...(jn.prevTypes || []), g2.guide.type];
+        pushPrevType(g2.guide);
         guideShownAtRef.current = Date.now();
         track("guide_question_shown", {
           query: s.query, question_type: g2.guide.type, turn: s.turn + 1,
@@ -1041,13 +1165,14 @@ function AskCartHome() {
 
   function onOnboarded(p) {
     setOnboarded(true);
+    setPersonaModal(false);
     setPersonaState(p);
     try { localStorage.setItem("askcart_onboarded", "1"); } catch {}
-    // O5: show the payoff of the answers, and wire them to behaviour.
+    // 2026-11-06: show the payoff of the answers, and wire them to behaviour.
     if (p) {
       if (p.context === "Gifting") setObToast("Because you chose Gifting, we'll ask about the occasion first.");
-      else if (p.userType === "Student") setObToast("Noted - budget options will be one step lower for you.");
-      else if (p.userType === "Senior (60+)") { setObToast("Larger text mode is on for you."); try { document.body.classList.add("largetext"); } catch {} }
+      else if (p.ageBand === "Under 25") setObToast("Noted - budget options will be one step lower for you.");
+      else if (p.ageBand === "40+") { setObToast("Larger text mode is on for you."); try { document.body.classList.add("largetext"); } catch {} }
       else if (p.spendStyle) setObToast("Got it - we'll rank results around that bar.");
       setTimeout(() => setObToast(null), 6000);
     }
@@ -1151,7 +1276,7 @@ function AskCartHome() {
             <span className="anbtn-dot" /> Analytics
           </button>
           <button className={"cartbtn" + (cartOpen ? " on" : "")} onClick={() => { if (!cartOpen) pushNav(); setCartOpen(true); track("cart_view", { item_count: cartCount, total: Object.values(cart).reduce((a, e) => a + e.item.price * e.qty, 0) }); }}>
-            <span className="carticon">🛒</span> Cart
+            <span className="carticon">🛒</span><span className="cartlabel">Cart</span>
             {cartCount > 0 && <span className="cartcount" key={cartCount}>{cartCount}</span>}
           </button>
         </div>
@@ -1202,6 +1327,11 @@ function AskCartHome() {
                     <span className="exl">{t(lang, "popular")}:</span>
                     {EXAMPLES.map((e) => <span key={e} onClick={() => startSearch(e, "example")}>{e}</span>)}
                   </div>
+                </div>
+              )}
+              {personaModal && !s && (
+                <div className="pm-overlay" role="dialog" aria-modal="true" aria-label="Set up your shopping profile">
+                  <Onboarding onDone={onOnboarded} />
                 </div>
               )}
               {s && (

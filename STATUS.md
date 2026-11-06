@@ -1307,3 +1307,56 @@ BEFORE any run (2b81ab5), then ran it.
   suite ALL TESTS PASS, chat eval CHAT_LLM=0 76/76 / 0 / 37/37, ui tour
   17 shots, contrast 16/16, sync OK.
 - Local commit only, no GitHub/remote; localhost :3000.
+
+## 2026-11-06 — Item C (6): AI (Gemini → Qwen) emits validated filters + next question after EVERY answer; chain keeps asking
+- **User report (batch):** "Use the Gemini API; take actionable outputs from it for every answer —
+  filters you apply and display; the next question must be based on the previous answer's
+  narrowed subset; results update after every answer." Item 8 in the same batch: first-visit
+  2-3 centered questions → persona (incl. age).
+- **New: `app/lib/guide_ai.js` + `/api/ai-refine`.** After each answer the server rebuilds the
+  NARROWED set (same slot→opts mapping as guide.js + this answer's opts) and asks the model for
+  `{filters, question}`. Provider chain: GEMINI_MODEL (env) → gemini-3-flash-preview →
+  gemini-3.5-flash (sticky known-good model, 5-min cooldowns on 404/503, 1-min on timeout,
+  3s each, ≤2 attempts) → **Qwen fallback** (LiteLLM, thinking off, 3s/attempt, ≤2 attempts)
+  when Gemini is down OR returns truncated JSON. 3 consecutive total failures → 5-min breaker.
+  10-min cache keyed on (query, queryExt, slots, answer, answerType, askedTypes).
+- **Every value is validated server-side against the live set** (validateAi): brand/category/
+  size/occasion/budget_max checked against the set; keyword ≤3 tokens each in titleVocab;
+  question options grounded per kind (brand/category/size strict, tag/brand/category options
+  may map loosely to the canonical set value, e.g. "Wedding / Shaadi"→wedding); ≥2 valid
+  options else the question is voided; max 2 filters; no re-ask of an answered facet.
+  Nothing ungrounded can reach the client; model down → v6 deterministic policy unchanged.
+- **Prompt hardening (found live):** Gemini 3.x thinking tokens ate the 300-token budget and
+  truncated the JSON → maxOutputTokens 512 + Qwen fallback on unparseable output. Family words
+  map explicitly (ammi/sister/didi→women, papa/brother→men, child→kids) — "for my sister" now
+  emits `for_whom:women`. "Allowed question types now: …" line kills the model re-asking an
+  answered facet; "almost always required" wording kills the lazy `question:null` (set >12).
+  Parsed slots from the query (budget/occasion) are sent as answered, so a "…under 3000"
+  query no longer gets a redundant budget question.
+- **Route fixes:** tag facets now use searchStats' FULL-POOL tagCounts (the top-300 item slice
+  dropped rare tags like "wedding" → the model's occasion options were silently voided);
+  optionCount is case-insensitive (zero-count chips were about to disable real options).
+- **Client (page.jsx):** ai-refine fires in flight with the deterministic re-search; 5500ms
+  race (client abort 5500ms — tuned to Qwen's warm ~2-4s, cold two-attempt ~8s misses and
+  falls back to the deterministic chain, which still asks the next question). AI filters
+  become REMOVABLE trail chips (O4: no silent caps); AI question rendered as a normal guide
+  with its type so prevTypes dedup works; `ai_refine` analytics event (via/filters/question/ms).
+- **Verified live (puppeteer, :3000):** "saree under 2700" → Q1 brand → typed "for my sister"
+  → trail chip "For: women ✕" + AI question "What is the occasion for this saree?" with
+  grounded options party(10)/wedding(4), server 3.9s. Chip-click chain "headphones under
+  3000": Q1 brand → Apple → Q2 price-band 2/4 → band → Q3 3/4; trail "Apple ✕ · Under ₹829 ✕".
+  Cold-miss path: deterministic chain still continues (no dead loop). Gemini state today:
+  all three model names 404/429 (quota) most of the session — Qwen carried every call; the
+  sticky chain auto-adopts Gemini when it recovers, no code change needed.
+- **Item 8 (same commit):** first-visit centered persona modal (context → age band → spend
+  style; persona = {context, ageBand, spendStyle,…}), payoff toast (Gifting / Under 25
+  budget step-down / 40+ large-text / spendStyle), skip works, not re-shown after dismiss,
+  360px no-overflow (verified earlier this session; unchanged code path re-verified via the
+  ui_tour onboarding shot).
+- **Honest notes:** proxy rate-limited (429) during intensive puppeteer testing — phrasing/
+  planner fell back to templates per design (modes logged honestly in analytics); a known
+  cosmetic 404 resource error on page load remains (pre-existing, unidentified).
+- Gates green (all 6) after the change: canaries 111+6 0-fail, contrast 16/16, sync OK,
+  semantic suite ALL TESTS PASS (no-op guarantee), ui tour 17 shots, chat eval CHAT_LLM=0
+  76/76 / 0 / 37/37.
+- Local commit only, no GitHub/remote; localhost :3000.

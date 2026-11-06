@@ -67,6 +67,13 @@ export async function chat(messages, { maxTokens = 500, temperature = 0.2, timeo
         }
         throw new Error(`empty completion (finish=${choice?.finish_reason})`);
       }
+      if (choice?.finish_reason === "length" && attempt + 1 < attempts) {
+        // Output was truncated mid-way (a thinking model can spend most of
+        // the budget on reasoning and leave a half-finished JSON). Retry
+        // with a bigger budget instead of returning a broken string.
+        budget = Math.floor(budget * 2.5);
+        continue;
+      }
       return { text: content, model: d.model || MODEL };
     } catch (e) {
       lastErr = e;
