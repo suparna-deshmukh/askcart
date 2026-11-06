@@ -53,6 +53,21 @@ AI-engine mix, chat usage) feed the Analytics → **Backend (Admin)** sub-tab;
 the Gemini key ledger itself (used/20 per key, exhaustion reason) is local
 state shown in the top-bar pill, not an event. See `docs/llm_routing.md`.
 
+### Home & wishlist (UI revamp Phase 2-3, 2026-11-06)
+
+| Event | Emitted when | Key properties |
+|---|---|---|
+| `wishlist_add` | heart tapped on card / PDP (Phase 2) | `sku`, `wishlist_size` |
+| `wishlist_remove` | removed from wishlist (Phase 2) | `sku`, `wishlist_size` |
+| `nav_category_click` | home category tile tapped | `category`, `source` (home) |
+| `occasion_tile_click` | home occasion card tapped | `occasion` (id), `query` |
+| `budget_tile_click` | home budget pill tapped | `budget`, `query` |
+| `brand_tile_click` | home brand wordmark tapped | `brand`, `source` (home) |
+
+Phase 3/4 will add: `search_suggest_select`, `quick_view_open`, `view_density_change`,
+`filter_sheet_open`, `checkout_step_view`, `checkout_step_complete`,
+`order_confirm_view`, `reorder_click`, `back_to_top` (brief §18).
+
 ## Assistant (J10) events
 
 Emitted by `app/app/ui/chat/useChat.js` (client) and

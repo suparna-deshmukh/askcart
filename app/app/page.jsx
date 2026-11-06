@@ -20,6 +20,10 @@ import { TabBar } from "./ui/shell/TabBar";
 import { Footer } from "./ui/shell/Footer";
 import { ToasterProvider, useToast } from "./ui/kit/Toaster";
 import { WishlistView } from "./ui/wishlist";
+import { ProductCard, VARIANT_PAREN } from "./ui/cards";
+import { HeroDemo, HomeSections, useTypewriter } from "./ui/home";
+import { I } from "./ui/kit/Icon";
+import { Button } from "./ui/kit/Button";
 
 // Hero "popular" chips - single source of truth in lib/sample_queries.js
 // (verified against the live search API; precomputed in the semantic
@@ -126,7 +130,6 @@ function recommendScore(r, persona) {
 
 // S7: fold variant families into one card and cap 2 cards per (brand, model)
 // in the ranked grid, so near-duplicate listings can't fill the top of the page.
-const VARIANT_PAREN = /\s*\([^()]+\)$/;
 function groupGrid(items) {
   const out = [];
   const famSeen = new Set();
@@ -143,36 +146,6 @@ function groupGrid(items) {
     out.push(r);
   }
   return out;
-}
-
-// 9.7 card v2: designed placeholder image, whole card opens the PDP,
-// single Add button (Buy now moved to the PDP), Best match badge.
-function ProductCard({ r, onAdd, onOpen, best, close, overBudget }) {
-  const isFam = !!r.family_id;
-  const title = isFam ? String(r.title).replace(VARIANT_PAREN, "") : r.title;
-  const from = isFam && r.family_min_price != null && r.family_min_price < r.price;
-  return (
-    <div className="card" role="link" tabIndex={0} onClick={() => onOpen(r)}
-         onKeyDown={(e) => e.key === "Enter" && onOpen(r)}>
-      <div className="imwell">
-        {best && <span className="badge-best">Best match</span>}
-        {close && <span className="badge-close">Close match</span>}
-        <Tile item={r} size={215} />
-      </div>
-      <div className="cat">{displayCat(r.category)}</div>
-      <div className="t">{title}</div>
-      {isFam && r.variant_summary && <div className="vline">{r.variant_summary}</div>}
-      {r.brand ? <span className="brandb">{r.brand}</span> : null}
-      <div className="prow"><span className="p">₹{r.price.toLocaleString("en-IN")}</span>
-        {from && <span className="onwards">from ₹{r.family_min_price.toLocaleString("en-IN")}</span>}</div>
-      <div className="rline">
-        <span className={"rpill " + (r.rating >= 4 ? "good" : r.rating >= 3 ? "mid" : "low")}>★ {r.rating}</span>
-        <span className="rc">{r.num_ratings.toLocaleString("en-IN")} ratings</span>
-      </div>
-      {overBudget && <div className="overbud">Slightly over your budget</div>}
-      <button className="card-add" onClick={(e) => { e.stopPropagation(); onAdd(r); }}>Add to cart</button>
-    </div>
-  );
 }
 
 // Gemini 4-point spark mark (the AI that plans the questions). Pure
@@ -282,6 +255,9 @@ function AskCartHome() {
   const [facets, setFacets] = useState(null);
   const [wish, setWish] = useState([]);
   const [wishHydrated, setWishHydrated] = useState(false);
+  const [recent, setRecent] = useState([]);
+  const [expando, setExpando] = useState(false);
+  const [searchFocus, setSearchFocus] = useState(false);
   const params = useSearchParams();
   if (params.get("kit") === "1") return <KitPage />;
   // shell: scroll shadow + tier-2 hide on scroll down
@@ -304,6 +280,20 @@ function AskCartHome() {
     try { const w = JSON.parse(localStorage.getItem("askcart_wishlist_v1") || "[]"); if (Array.isArray(w)) setWish(w.slice(0, 100)); } catch {}
     setWishHydrated(true);
   }, []);
+  // Phase 3: recently viewed (localStorage askcart_recent_v1, cap 12)
+  useEffect(() => {
+    try { const rv = JSON.parse(localStorage.getItem("askcart_recent_v1") || "[]"); if (Array.isArray(rv)) setRecent(rv.slice(0, 12)); } catch {}
+  }, []);
+  function touchRecent(item) {
+    const slim = { sku: item.sku, title: item.title, brand: item.brand, category: item.category,
+                   price: item.price, rating: item.rating, num_ratings: item.num_ratings,
+                   family_id: item.family_id, family_min_price: item.family_min_price, variant_summary: item.variant_summary };
+    setRecent((rv) => {
+      const next = [slim, ...(rv || []).filter((x) => x.sku !== slim.sku)].slice(0, 12);
+      try { localStorage.setItem("askcart_recent_v1", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }
   function toggleWish(item) {
     setWish((w) => {
       const has = w.includes(item.sku);
@@ -391,6 +381,14 @@ function AskCartHome() {
     track("region_set", { region: r.region });
   }
   const [s, setS] = useState(null); // active search state (see below)
+  const heroPh = useTypewriter(EXAMPLES, searchFocus || !!s);
+  const exRot = useMemo(() => { const r = new Date().getDate() % EXAMPLES.length; return EXAMPLES.slice(r).concat(EXAMPLES.slice(0, r)).slice(0, 6); }, []);
+  const h1txt = t(lang, "heroTitle");
+  const heroH1 = lang === "en" ? (() => {
+    const i = h1txt.indexOf("own words");
+    if (i < 0) return h1txt;
+    return (<>{h1txt.slice(0, i)}<em className="hero2-em">own words<svg className="hero2-squiggle" viewBox="0 0 120 8" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5.5C22 1.5 44 1.5 60 4.5 78 7.5 100 6 118 3" fill="none" stroke="var(--guide)" strokeWidth="3" strokeLinecap="round" /></svg></em>{h1txt.slice(i + 9)}</>);
+  })() : h1txt;
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState(null);
   // SSR-safe: server and first client render must agree. The old
@@ -1418,6 +1416,7 @@ function AskCartHome() {
   }
   function openPdp(r, from, position) {
     pushNav();
+    touchRecent(r);
     setPdp({ ...r, _from: from, _position: position });
     try { window.history.replaceState(null, "", `/?sku=${r.sku}`); } catch {}
   }
@@ -1488,45 +1487,65 @@ function AskCartHome() {
           params.get("onboard") === "1" && !onboarded ? <Onboarding onDone={onOnboarded} /> : (
             <>
               {!s && (
-                <div className="hero">
-                  <h1>{t(lang, "heroTitle")}</h1>
-                  <div className="sub">{t(lang, "heroSub")}</div>
-                  <div className="searchbar">
-                    <input value={input} onChange={(e) => setInput(e.target.value)}
-                           onKeyDown={(e) => e.key === "Enter" && startSearch(input, "input")}
-                           placeholder={t(lang, "searchPlaceholder")} />
-                    <button onClick={() => startSearch(input, "input")} disabled={busy}>{busy ? "…" : "Search"}</button>
-                  </div>
-                  {!stripDismissed && (
-                    <div className="strip">
-                      {stripOpen ? (
-                        <div className="strip-card">
-                          <div className="strip-row">
-                            <span className="strip-lbl">{t(lang, "stripLang")}</span>
-                            <button className={lang === "en" ? "seg on" : "seg"} onClick={() => setLang("en")}>English</button>
-                            <button className={lang === "hi" ? "seg on" : "seg"} onClick={() => setLang("hi")}>हिन्दी</button>
-                            <button className={lang === "hinglish" ? "seg on" : "seg"} onClick={() => setLang("hinglish")}>Hinglish</button>
-                            <span className="strip-sep" />
-                            <span className="strip-lbl">{t(lang, "stripPin")}</span>
-                            <input className="pin-in" value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                                   placeholder="110001" inputMode="numeric" aria-label="Delivery pincode" />
-                            <button className="strip-use" onClick={saveRegion} disabled={pin.length !== 6}>{t(lang, "use")}</button>
-                          </div>
-                          <div className="strip-hint">{t(lang, "pinHint")}</div>
-                          <button className="strip-skip" onClick={() => dismissStrip()}>{t(lang, "skip")} ✕</button>
-                        </div>
-                      ) : (
-                        <span className="strip-line" onClick={() => setStripOpen(true)} role="button" tabIndex={0}
-                              onKeyDown={(e) => e.key === "Enter" && setStripOpen(true)}>
-                          {t(lang, "strip")} <b>{t(lang, "setNow")} →</b>
-                        </span>
-                      )}
+                <div className="hero2">
+                  <div className="hero2-left">
+                    <div className="hero2-eyebrow"><I name="sparkle" size={13} /> {t(lang, "heroEyebrow")}</div>
+                    <h1 className="hero2-h1">{heroH1}</h1>
+                    <div className="hero2-sub">{t(lang, "heroSub")}</div>
+                    <div className="hero2-card">
+                      <I name="search" size={18} className="hero2-ic" />
+                      <input value={input}
+                             onChange={(e) => setInput(e.target.value)}
+                             onKeyDown={(e) => e.key === "Enter" && startSearch(input, "input")}
+                             onFocus={() => setSearchFocus(true)} onBlur={() => setSearchFocus(false)}
+                             placeholder={'"' + heroPh + '"'} aria-label="Search" />
+                      <button className="hero2-mic" aria-label="Voice search (coming soon)" title="Voice search — coming soon"><I name="mic" size={16} /></button>
+                      <Button size="lg" className="hero2-go" onClick={() => startSearch(input, "input")} disabled={busy}>{busy ? "…" : "Search"}</Button>
                     </div>
-                  )}
-                  <div className="ex">
-                    <span className="exl">{t(lang, "popular")}:</span>
-                    {EXAMPLES.map((e) => <span key={e} onClick={() => startSearch(e, "example")}>{e}</span>)}
+                    <div className="hero2-try">
+                      <span className="exl">{t(lang, "popular")}:</span>
+                      {(expando ? EXAMPLES : exRot).map((e) => (
+                        <span key={e} className="exchip" role="button" tabIndex={0}
+                              onClick={() => startSearch(e, "example")}
+                              onKeyDown={(ev) => ev.key === "Enter" && startSearch(e, "example")}>{e}</span>
+                      ))}
+                      <button className="hero2-more" onClick={() => setExpando(!expando)} aria-expanded={expando}>
+                        {expando ? t(lang, "showFewer") : t(lang, "moreIdeas")} <I name="chevron-down" size={13} className={expando ? "up" : ""} />
+                      </button>
+                    </div>
+                    <div className="hero2-trust">
+                      <span><I name="sparkle" size={15} /> {t(lang, "trust1")}</span>
+                      <span><I name="globe" size={15} /> {t(lang, "trust2")}</span>
+                      <span><I name="shield-check" size={15} /> {t(lang, "trust3")}</span>
+                    </div>
+                    {!stripDismissed && (
+                      <div className="strip">
+                        {stripOpen ? (
+                          <div className="strip-card">
+                            <div className="strip-row">
+                              <span className="strip-lbl">{t(lang, "stripLang")}</span>
+                              <button className={lang === "en" ? "seg on" : "seg"} onClick={() => setLang("en")}>English</button>
+                              <button className={lang === "hi" ? "seg on" : "seg"} onClick={() => setLang("hi")}>हिन्दी</button>
+                              <button className={lang === "hinglish" ? "seg on" : "seg"} onClick={() => setLang("hinglish")}>Hinglish</button>
+                              <span className="strip-sep" />
+                              <span className="strip-lbl">{t(lang, "stripPin")}</span>
+                              <input className="pin-in" value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                                     placeholder="110001" inputMode="numeric" aria-label="Delivery pincode" />
+                              <button className="strip-use" onClick={saveRegion} disabled={pin.length !== 6}>{t(lang, "use")}</button>
+                            </div>
+                            <div className="strip-hint">{t(lang, "pinHint")}</div>
+                            <button className="strip-skip" onClick={() => dismissStrip()}>{t(lang, "skip")} ✕</button>
+                          </div>
+                        ) : (
+                          <span className="strip-line" onClick={() => setStripOpen(true)} role="button" tabIndex={0}
+                                onKeyDown={(e) => e.key === "Enter" && setStripOpen(true)}>
+                            {t(lang, "strip")} <b>{t(lang, "setNow")} →</b>
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
+                  <div className="hero2-right"><HeroDemo /></div>
                 </div>
               )}
               {personaModal && !s && (
@@ -1746,49 +1765,11 @@ function AskCartHome() {
                 </>
               )}
 
-              {!s && preview && (
-                preview.rails ? (
-                  // G8: festival window -> time-aware budget rails replace
-                  // the static trending grid (occasion-awareness before
-                  // the first search).
-                  <div>
-                    <div className="sec-head">
-                      <h2>{preview.rails.festival} gift ideas</h2>
-                      <span className="count">
-                        {preview.rails.festival} is {preview.rails.days === 0 ? "today" :
-                          preview.rails.days < 0 ? `${Math.abs(preview.rails.days)} days ago` :
-                          `${preview.rails.days} day${preview.rails.days === 1 ? "" : "s"} away`} · best-rated per budget · {preview.catalogSize.toLocaleString("en-IN")} products loaded
-                      </span>
-                    </div>
-                    {preview.rails.bands.map((b) => (
-                      <div className="rail" key={b.label}>
-                        <div className="rail-head">
-                          <h3>{b.label}</h3>
-                          <span className="gc">{b.items.length} picks · festive goods & gifts</span>
-                        </div>
-                        <div className="rail-row">
-                          {b.items.map((r) => (
-                            <ProductCard key={r.sku} r={r} onAdd={(x) => addToCart(x, "preview")}
-                                         onOpen={(x) => openPdpSku(x.sku, preview.rails.bands.flatMap((z) => z.items), "preview")} />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div>
-                    <div className="sec-head">
-                      <h2>Trending across price bands</h2>
-                      <span className="count">{preview.catalogSize.toLocaleString("en-IN")} products loaded · best-rated per band</span>
-                    </div>
-                    <div className="grid">
-                      {preview.items.map((r) => (
-                        <ProductCard key={r.sku} r={r} onAdd={(x) => addToCart(x, "preview")}
-                                     onOpen={(x) => openPdpSku(x.sku, preview.items, "preview")} />
-                      ))}
-                    </div>
-                  </div>
-                )
+              {!s && (
+                <HomeSections lang={lang} preview={preview} facets={facets} recent={recent}
+                              onQuery={(q, src) => startSearch(q, src)}
+                              onAdd={(x) => addToCart(x, "preview")}
+                              onOpenSku={(sku, pool) => openPdpSku(sku, pool, "preview")} />
               )}
             </>
           )

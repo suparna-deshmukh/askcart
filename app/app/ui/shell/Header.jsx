@@ -35,6 +35,12 @@ export function Header({
   const cap = g && g.keys.length ? g.keys.length * g.rpd : null;
 
   const megaRef = useOutside(() => setMega(false));
+  // home "See all" -> open mega panel (Phase 3)
+  useEffect(() => {
+    const h = () => setMega(true);
+    window.addEventListener("askcart:open-mega", h);
+    return () => window.removeEventListener("askcart:open-mega", h);
+  }, []);
   const acctRef = useOutside(() => setAcct(false));
   const langRef = useOutside(() => setLangPop(false));
   const catLinks = (facets?.categories || []).slice(0, 6).map((c) => displayCat(c.name));
