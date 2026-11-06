@@ -13,6 +13,13 @@ import { ChatLauncher } from "./ui/chat/ChatLauncher";
 import { ChatPanel } from "./ui/chat/ChatPanel";
 import { SAMPLE_QUERIES } from "./lib/sample_queries";
 import { KitPage } from "./ui/kit/KitPage";
+import { Header } from "./ui/shell/Header";
+import { Announcement } from "./ui/shell/Announcement";
+import { NavDrawer } from "./ui/shell/NavDrawer";
+import { TabBar } from "./ui/shell/TabBar";
+import { Footer } from "./ui/shell/Footer";
+import { ToasterProvider, useToast } from "./ui/kit/Toaster";
+import { WishlistView } from "./ui/wishlist";
 
 // Hero "popular" chips - single source of truth in lib/sample_queries.js
 // (verified against the live search API; precomputed in the semantic
@@ -267,9 +274,48 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
 }
 
 function AskCartHome() {
+  const toast = useToast();
   const [input, setInput] = useState("");
+  const [scrolled, setScrolled] = useState(false);
+  const [tnavCollapsed, setTnavCollapsed] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+  const [facets, setFacets] = useState(null);
+  const [wish, setWish] = useState([]);
+  const [wishHydrated, setWishHydrated] = useState(false);
   const params = useSearchParams();
   if (params.get("kit") === "1") return <KitPage />;
+  // shell: scroll shadow + tier-2 hide on scroll down
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 8);
+      if (Math.abs(y - lastY) > 24) { setTnavCollapsed(y > lastY && y > 160); lastY = y; }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  // shell: catalogue facets (categories/brands) for nav + mega — one fetch
+  useEffect(() => {
+    fetch("/api/analytics/catalog").then((r) => r.json()).then(setFacets).catch(() => {});
+  }, []);
+  // shell: wishlist (localStorage, cap 100)
+  useEffect(() => {
+    try { const w = JSON.parse(localStorage.getItem("askcart_wishlist_v1") || "[]"); if (Array.isArray(w)) setWish(w.slice(0, 100)); } catch {}
+    setWishHydrated(true);
+  }, []);
+  function toggleWish(item) {
+    setWish((w) => {
+      const has = w.includes(item.sku);
+      const next = has ? w.filter((x) => x !== item.sku) : [item.sku, ...w].slice(0, 100);
+      try { localStorage.setItem("askcart_wishlist_v1", JSON.stringify(next)); } catch {}
+      track(has ? "wishlist_remove" : "wishlist_add", { sku: item.sku, wishlist_size: next.length });
+      if (!has) toast({ type: "success", text: "Saved to wishlist", sub: item.title, ms: 3500 });
+      else toast({ type: "info", text: "Removed from wishlist", sub: item.title, action: "Undo", onAction: () => toggleWish(item), ms: 5000 });
+      return next;
+    });
+  }
+  const wishCount = wish.length;
   const [tab, setTab] = useState(() => (params.get("tab") === "analytics" ? "analytics" : "search"));
   const [anview, setAnview] = useState(() => {
     const v = params.get("anview");
@@ -313,11 +359,8 @@ function AskCartHome() {
   }, []);
   const [stripOpen, setStripOpen] = useState(false);
   const [personaModal, setPersonaModal] = useState(false);
-  const [obToast, setObToast] = useState(null);
-  const [cartToast, setCartToast] = useState(null);
   // LLM routing status (top-bar pill + key-rotation toasts).
   const [aiStatus, setAiStatus] = useState(null); // {gemini, aiMaxPerSession}
-  const [aiToast, setAiToast] = useState(null);
   const lastAiViaRef = useRef(null);   // "gemini" | null
   const lastAiKeyRef = useRef(null);
   // Item B: true while the shown question came from the one-call journey
@@ -632,8 +675,8 @@ function AskCartHome() {
     }
     if (aiBudgetRef.current === 0 && !aiBudgetNotedRef.current) {
       aiBudgetNotedRef.current = true;
-      setAiToast("Quick mode: to keep responses fast, the remaining questions in this session come from the built-in rules.");
-      setTimeout(() => setAiToast(null), 6000);
+      toast({ type: "info", ms: 6000,
+        text: "Quick mode: to keep responses fast, the remaining questions in this session come from the built-in rules." });
     }
   }
   function aiRefineNotice(j) {
@@ -644,8 +687,8 @@ function AskCartHome() {
     if (ai.rotatedFrom != null) aiSwitchToast(ai.rotatedFrom, ai.keyIdx);
     if (aiBudgetRef.current === 0 && !aiBudgetNotedRef.current) {
       aiBudgetNotedRef.current = true;
-      setAiToast("Quick mode: to keep responses fast, the remaining questions in this session come from the built-in rules.");
-      setTimeout(() => setAiToast(null), 6000);
+      toast({ type: "info", ms: 6000,
+        text: "Quick mode: to keep responses fast, the remaining questions in this session come from the built-in rules." });
     }
   }
   async function askGuide(query, nResults, turn, slotsOverride) {
@@ -1263,15 +1306,13 @@ function AskCartHome() {
       track("recommendation_click", { sku: item.sku, query: jn.query, brand: item.brand || "", journey_id: jn.id });
     }
     setCart((c) => ({ ...c, [item.sku]: { item, qty: (c[item.sku] ? c[item.sku].qty : 0) + 1 } }));
-    // Visible confirmation: the count bump alone is too quiet.
-    setCartToast(lang === "hi" ? "कार्ट में जोड़ा गया ✓" : lang === "hinglish" ? "Cart mein add ho gaya ✓" : "Added to cart ✓");
+    // Visible confirmation: tile + name + price + View cart action + Undo (Toaster).
+    toast({ type: "success", ms: 6000, tile: <Tile item={item} size={36} />,
+      text: "Added to cart", sub: item.title + " · ₹" + item.price.toLocaleString("en-IN"),
+      action: "View cart",
+      onAction: () => { setCartOpen(true); track("cart_view", { item_count: Object.keys(cart).length + 1, source: "toast" }); } });
     offerSurvey(jn, "add_to_cart");
   }
-  useEffect(() => {
-    if (!cartToast) return;
-    const t2 = setTimeout(() => setCartToast(null), 1800);
-    return () => clearTimeout(t2);
-  }, [cartToast]);
   function buyNow(item) {
     pushNav();
     const jn = journeyRef.current;
@@ -1328,11 +1369,13 @@ function AskCartHome() {
     try { localStorage.setItem("askcart_onboarded", "1"); } catch {}
     // 2026-11-06: show the payoff of the answers, and wire them to behaviour.
     if (p) {
-      if (p.context === "Gifting") setObToast("Because you chose Gifting, we'll ask about the occasion first.");
-      else if (p.ageBand === "Under 25") setObToast("Noted - budget options will be one step lower for you.");
-      else if (p.ageBand === "40+") { setObToast("Larger text mode is on for you."); try { document.body.classList.add("largetext"); } catch {} }
-      else if (p.spendStyle) setObToast("Got it - we'll rank results around that bar.");
-      setTimeout(() => setObToast(null), 6000);
+      const payoff =
+        p.context === "Gifting" ? "Because you chose Gifting, we'll ask about the occasion first."
+        : p.ageBand === "Under 25" ? "Noted - budget options will be one step lower for you."
+        : p.ageBand === "40+" ? "Larger text mode is on for you."
+        : p.spendStyle ? "Got it - we'll rank results around that bar." : null;
+      if (p.ageBand === "40+") { try { document.body.classList.add("largetext"); } catch {} }
+      if (payoff) toast({ type: "info", text: payoff, ms: 6000 });
     }
   }
 
@@ -1413,38 +1456,34 @@ function AskCartHome() {
   return (
     <div className={"appshell" + (chatOpen ? " chat-open" : "")}>
       <div className="appshell-main">
-      <div className="topbar">
-        <div className="topbar-inner">
-          <button className="backbtn" onClick={goBack} disabled={!navStack.length} aria-label="Back" title="Back">←</button>
-          <div className="logo" onClick={() => { setNavStack([]); setTab("search"); window.scrollTo({ top: 0 }); }}>
-            <div className="logo-mark">A</div>
-            <div className="logo-word">Ask<span>Cart</span></div>
-            <span className="logo-tag">guided shopping · India</span>
-          </div>
-          <nav className="topnav">
-            <button className={tab === "search" ? "on" : ""} onClick={() => switchTab("search")}>Search</button>
-            <button className={tab === "orders" ? "on" : ""} onClick={() => switchTab("orders")}>Orders</button>
-          </nav>
-          <span className="aipill" title={aiPillTitle()}>{aiPillText()}</span>
-          <span className="topbar-spacer" />
-          <span className="langseg" role="group" aria-label="Language">
-            {[["en", "EN"], ["hi", "हिं"], ["hinglish", "Hinglish"]].map(([l, lb]) => (
-              <button key={l} className={lang === l ? "on" : ""} onClick={() => setLang(l)}>{lb}</button>
-            ))}
-          </span>
-          <button className={"anbtn" + (tab === "analytics" ? " on" : "")} onClick={() => switchTab("analytics")}>
-            <span className="anbtn-dot" /> Analytics
-          </button>
-          <button className={"cartbtn" + (cartOpen ? " on" : "")} onClick={() => { if (!cartOpen) pushNav(); setCartOpen(true); track("cart_view", { item_count: cartCount, total: Object.values(cart).reduce((a, e) => a + e.item.price * e.qty, 0) }); }}>
-            <span className="carticon">🛒</span><span className="cartlabel">Cart</span>
-            {cartCount > 0 && <span className="cartcount" key={cartCount}>{cartCount}</span>}
-          </button>
-        </div>
-      </div>
-      {obToast && <div className="obtoast" role="status">{obToast}</div>}
-      {aiToast && <div className="obtoast aitoast" role="status">{aiToast}</div>}
-      {cartToast && <div className="carttoast" role="status">{cartToast}</div>}
+      <Announcement festival={preview && preview.rails ? preview.rails.festival : null}
+                    days={preview && preview.rails ? preview.rails.days : null} />
+      <Header
+        lang={lang} setLang={setLang}
+        canBack={navStack.length > 0} onBack={goBack}
+        onLogo={() => { setNavStack([]); setTab("search"); window.scrollTo({ top: 0 }); }}
+        tab={tab} onTab={(t) => switchTab(t)} onInsights={() => switchTab("analytics")}
+        input={input} setInput={setInput}
+        onSearch={() => startSearch(input, "header")}
+        onSearchCleared={() => { if (s) resetToHero(); }}
+        cartCount={cartCount} wishCount={wishCount}
+        onCart={() => { if (!cartOpen) pushNav(); setCartOpen(true); track("cart_view", { item_count: cartCount, total: Object.values(cart).reduce((a, e) => a + e.item.price * e.qty, 0) }); }}
+        aiStatus={aiStatus} facets={facets} onQuery={(q, src) => startSearch(q, src)}
+        scrolled={scrolled} tnavCollapsed={tnavCollapsed && tab !== "analytics"}
+        onMenu={() => setNavOpen(true)}
+      />
+      {tab === "wishlist" && wishHydrated ? (
+        <WishlistView skus={wish}
+                      onRemove={(it) => toggleWish(it)}
+                      onAdd={(it) => addToCart(it, "wishlist")}
+                      onSearch={(q) => startSearch(q, "wishlist")} />
+      ) : tab === "orders" ? (
+        <OrdersView orders={orders} />
+      ) : tab === "analytics" ? (
+        <AnalyticsView anview={anview} setAnview={switchAnview} />
+      ) : (
       <div className="wrap">
+
         {tab === "search" ? (
           params.get("onboard") === "1" && !onboarded ? <Onboarding onDone={onOnboarded} /> : (
             <>
@@ -1753,19 +1792,22 @@ function AskCartHome() {
               )}
             </>
           )
-        ) : tab === "orders" ? (
-          <OrdersView orders={orders} />
-        ) : (
-          <AnalyticsView anview={anview} setAnview={switchAnview} />
-        )}
+        ) : null}
       </div>
-      <footer>
-        <div className="foot-inner">
-          <div className="foot-brand">Ask<span>Cart</span> · guided shopping search</div>
-          <div className="foot-col">Demo catalogue: 54,304 SKUs (≈25k US-sourced listings converted to INR + ≈29k India layer) with indicative prices and ratings — not a live marketplace. Checkout is simulated: no payments, addresses or real delivery.</div>
-          <div className="foot-note">Every interaction event is public in Analytics · AI answers only from catalogue fields · method & evidence: PROJECT.md</div>
-        </div>
-      </footer>
+      )}
+      <TabBar tab={tab}
+              onHome={() => { setNavStack([]); setTab("search"); window.scrollTo({ top: 0 }); }}
+              onCategories={() => setNavOpen(true)}
+              onTab={(t) => switchTab(t)}
+              cartCount={cartCount} wishCount={wishCount} />
+      <Footer catalogSize={preview ? preview.catalogSize : 54304}
+              onQuery={(q, src) => startSearch(q, src)}
+              onInsights={() => switchTab("analytics")} />
+      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)}
+                 lang={lang} setLang={setLang} facets={facets}
+                 onQuery={(q, src) => startSearch(q, src)}
+                 onTab={(t) => switchTab(t)}
+                 onMenuSearch={() => { /* mobile search overlay lives in Header */ }} />
       {tab === "search" && (
         <ChatLauncher
           nudge={chatNudge}
@@ -1812,7 +1854,9 @@ function AskCartHome() {
 export default function Home() {
   return (
     <Suspense fallback={null}>
-      <AskCartHome />
+      <ToasterProvider>
+        <AskCartHome />
+      </ToasterProvider>
     </Suspense>
   );
 }
