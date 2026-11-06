@@ -26,6 +26,7 @@ const ALLOWED = new Set([
   "search_suggest_select", "wishlist_add", "wishlist_remove",
   "view_density_change", "filter_sheet_open", "back_to_top", "quick_view_open", "pdp_ask",
   "checkout_step_view", "checkout_step_complete", "order_confirm_view", "reorder_click",
+  "save_for_later", "move_all_to_cart",
   "chat_open", "chat_close", "chat_nudge_shown", "chat_nudge_dismissed",
   "chat_nudge_accepted", "chat_user_message", "chat_intent",
   "chat_tool_call", "chat_response", "chat_fallback",

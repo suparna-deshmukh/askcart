@@ -1,9 +1,12 @@
 "use client";
-export function Input({ label, hint, error, id, className = "", ...rest }) {
+export function Input({ label, hint, error, id, className = "", prefix, ...rest }) {
   return (
     <div className={`kit-field ${className}`}>
       {label && <label htmlFor={id}>{label}</label>}
-      <input id={id} className={`kit-input${error ? " err" : ""}`} aria-invalid={!!error || undefined} aria-describedby={error && id ? id + "-err" : undefined} {...rest} />
+      <div className={"kit-inwrap" + (prefix ? " hasprefix" : "")}>
+        {prefix && <span className="kit-prefix" aria-hidden="true">{prefix}</span>}
+        <input id={id} className={`kit-input${error ? " err" : ""}`} aria-invalid={!!error || undefined} aria-describedby={error && id ? id + "-err" : undefined} {...rest} />
+      </div>
       {error ? <span className="kit-err" id={id && id + "-err"}>⚠ {error}</span> : hint ? <span className="kit-hint">{hint}</span> : null}
     </div>
   );

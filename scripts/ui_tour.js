@@ -103,10 +103,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const cartbtn = await page.$('[aria-label="Cart"]');
   if (must(cartbtn, "header cart button")) {
     await cartbtn.click();
-    must(await poll(async () => (await page.$$(".drawer .cart-row")).length >= 1, 5000), "cart drawer rows");
+    must(await poll(async () => (await page.$$(".cv2-row")).length >= 1, 5000), "cart drawer rows");
   }
   await shot("mvp_cart");
-  const closeX = await page.$(".drawer .x");
+  const closeX = await page.$(".cv2-x");
   if (closeX) { await closeX.click(); await sleep(400); }
 
   // 6. headphones (expect optional refinement question on top)
@@ -140,16 +140,36 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   }
   await shot("mvp_pdp");
   const pdpBuy = await page.$(".pdp-buy");
-  if (must(pdpBuy, "PDP buy now")) { await pdpBuy.click(); await sleep(900); }
-  must(!!(await page.$(".modal .drawer-foot .primary")), "checkout modal opens");
-  await shot("mvp_checkout_buy_now");
+  if (must(pdpBuy, "PDP buy now")) { await pdpBuy.click(); await sleep(1200); }
+  must(await poll(async () => page.$(".co-stepper"), 8000), "checkout page opens");
+  await shot("mvp_checkout_address");
 
-  // 8. place order
-  const place = await page.$(".modal .drawer-foot .primary");
-  if (must(place, "place order button")) { await place.click(); await sleep(1500); }
-  const placed = await page.evaluate(() => /order/i.test(document.body.textContent) && !document.querySelector(".modal .drawer-foot"));
-  must(placed, "order placed state");
+  // 8. checkout: address -> delivery -> payment -> review -> place
+  await page.type('[data-field="name"]', "Demo Shopper");
+  await page.type('[data-field="mobile"]', "9876543210");
+  const pinVal = await page.$eval('[data-field="pin"]', (e) => e.value).catch(() => "");
+  if (!pinVal) await page.type('[data-field="pin"]', "110001");
+  await page.type('[data-field="street"]', "1 Demo Street");
+  await page.type('[data-field="city"]', "Delhi");
+  await page.select('[data-field="state"]', "Delhi");
+  await sleep(300);
+  const addrBtn = await page.$('[data-step="address"]');
+  if (must(addrBtn, "deliver here")) { await addrBtn.click(); await sleep(800); }
+  const delivBtn = await page.$('[data-step="delivery"]');
+  if (must(delivBtn, "delivery continue")) { await delivBtn.click(); await sleep(800); }
+  const payBtn = await page.$('[data-step="payment"]');
+  if (must(payBtn, "payment continue")) { await payBtn.click(); await sleep(800); }
+  await shot("mvp_checkout_review");
+  const place = await page.$('[data-step="place"]');
+  if (must(place, "place order button")) { await place.click(); }
+  must(await poll(async () => page.$(".cf-check"), 12000), "confirmation page");
+  await sleep(1000);
   await shot("mvp_order_placed");
+
+  // 8b. orders tab: the new (simulated) order is listed
+  await page.goto("http://localhost:3000/?tab=orders&noob=1", { waitUntil: "networkidle0", timeout: 90000 });
+  must(await poll(async () => (await page.$$(".o2-card")).length >= 1, 10000), "orders list");
+  await shot("mvp_orders");
 
   // 9. analytics tabs
   for (const [view, name] of [

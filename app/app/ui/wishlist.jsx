@@ -9,8 +9,9 @@ import { Button } from "./kit/Button";
 import { I } from "./kit/Icon";
 import { displayCat } from "../lib/categories";
 import { track } from "../lib/track";
+import { t } from "../lib/i18n";
 
-export function WishlistView({ skus, onRemove, onAdd, onSearch }) {
+export function WishlistView({ lang, skus, onRemove, onAdd, onSearch }) {
   const [items, setItems] = useState(null);
   useEffect(() => {
     let stop = false;
@@ -25,7 +26,14 @@ export function WishlistView({ skus, onRemove, onAdd, onSearch }) {
   }, [skus.join(",")]);
   return (
     <div>
-      <h1 style={{ fontSize: 24, fontWeight: 700, margin: "4px 0 16px" }}>Wishlist <span style={{ color: "var(--text-3)", fontWeight: 500 }}>({skus.length})</span></h1>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 16, flexWrap: "wrap", margin: "4px 0 16px" }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Wishlist <span style={{ color: "var(--text-3)", fontWeight: 500 }}>({skus.length})</span></h1>
+        {items && items.length > 0 && (
+          <Button variant="secondary" onClick={() => { track("move_all_to_cart", { count: items.length }); items.forEach((it) => onAdd(it)); }}>
+            {t(lang || "en", "moveToCartAll")}
+          </Button>
+        )}
+      </div>
       {!items ? (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
           {[...Array(4)].map((_, i) => <div key={i} className="kit-skel kit-skel-card" style={{ height: 230 }} />)}

@@ -5,7 +5,8 @@ import { Suspense } from "react";
 import { track, getPersona, cohortOf, getSessionId } from "./lib/track";
 import { t } from "./lib/i18n";
 import { Onboarding, BUDGET_STYLE_MAX, SPEND_BIAS, SPEND_BRAND_AFFINITY } from "./ui/onboarding";
-import { CartDrawer, CheckoutModal, OrderToast } from "./ui/cart";
+import { CartDrawer } from "./ui/cart";
+import { CheckoutView, ConfirmationView } from "./ui/checkout";
 import { AnalyticsView } from "./ui/analytics";
 import { OrdersView } from "./ui/orders";
 import { PdpView, QuickView } from "./ui/pdp";
@@ -319,19 +320,20 @@ function AskCartHome() {
       return next;
     });
   }
-  function toggleWish(item) {
+  function toggleWish(item, silent) {
     setWish((w) => {
       const has = w.includes(item.sku);
       const next = has ? w.filter((x) => x !== item.sku) : [item.sku, ...w].slice(0, 100);
       try { localStorage.setItem("askcart_wishlist_v1", JSON.stringify(next)); } catch {}
       track(has ? "wishlist_remove" : "wishlist_add", { sku: item.sku, wishlist_size: next.length });
+      if (silent) return next;
       if (!has) toast({ type: "success", text: "Saved to wishlist", sub: item.title, ms: 3500 });
       else toast({ type: "info", text: "Removed from wishlist", sub: item.title, action: "Undo", onAction: () => toggleWish(item), ms: 5000 });
       return next;
     });
   }
   const wishCount = wish.length;
-  const [tab, setTab] = useState(() => (params.get("tab") === "analytics" ? "analytics" : "search"));
+  const [tab, setTab] = useState(() => { const v = params.get("tab"); return ["analytics", "orders", "wishlist"].includes(v) ? v : "search"; });
   const [anview, setAnview] = useState(() => {
     const v = params.get("anview");
     return v && ["overview", "search", "catalog", "journeys", "validation"].includes(v) ? v : "overview";
@@ -1402,43 +1404,91 @@ function AskCartHome() {
     track("buy_now", { sku: item.sku, price: item.price, category: item.category, brand: item.brand || "" });
     setCart({ [item.sku]: { item, qty: 1 } });
     track("checkout_start", { item_count: 1, total: item.price, source: "buy_now" });
-    setCheckoutOpen(true);
+    setPdp(null); // full-page checkout renders in the tab slot; PDP would win the branch
+    openCheckout("buy_now");
   }
-  const [orders, setOrders] = useState(() => {
+  // Orders hydrate after mount (SSR-safe, same pattern as cart): the seed list
+  // and any persisted orders are read client-side so server/client agree.
+  const [orders, setOrders] = useState(null);
+  const [ordersHydrated, setOrdersHydrated] = useState(false);
+  useEffect(() => {
+    let os = null;
     try {
       const v = JSON.parse(localStorage.getItem("askcart_orders_v1") || "null");
-      if (Array.isArray(v) && v.length) return v;
+      if (Array.isArray(v) && v.length) os = v;
     } catch {}
-    // Two clearly-labelled demo orders so the section has content on a fresh visit.
-    return [
-      { id: "ord_demo_a1b2", at: Date.now() - 6 * 86400000, demo: true, total: 2448, items: [
-        { title: "boAt Airdopes 141 TWS Earbuds", brand: "boAt", qty: 1, price: 1299 },
-        { title: "Fabindia Cotton Kurti (Maroon M)", brand: "Fabindia", qty: 1, price: 1149 } ] },
-      { id: "ord_demo_c3d4", at: Date.now() - 15 * 86400000, demo: true, total: 54989, items: [
-        { title: "Sony PlayStation 5 Console (Disc Edition)", brand: "Sony", qty: 1, price: 54989 } ] },
-    ];
-  });
-  function placeOrder(total) {
+    if (!os) {
+      os = [
+        { id: "ord_demo_a1b2", at: Date.now() - 6 * 86400000, demo: true, total: 2448, items: [
+          { title: "boAt Airdopes 141 TWS Earbuds", brand: "boAt", qty: 1, price: 1299 },
+          { title: "Fabindia Cotton Kurti (Maroon M)", brand: "Fabindia", qty: 1, price: 1149 } ] },
+        { id: "ord_demo_c3d4", at: Date.now() - 15 * 86400000, demo: true, total: 54989, items: [
+          { title: "Sony PlayStation 5 Console (Disc Edition)", brand: "Sony", qty: 1, price: 54989 } ] },
+      ];
+    }
+    setOrders(os);
+    setOrdersHydrated(true);
+  }, []);
+  function openCheckout(source) {
+    // Note: no cart-empty guard here — buyNow sets the cart in the same tick,
+    // so a closure read would be stale. Callers guarantee a non-empty cart.
     pushNav();
-    const items = Object.entries(cart);
+    setCartOpen(false);
+    setCheckoutOpen(true);
+    try { window.history.replaceState(null, "", "/?tab=checkout"); } catch {}
+    track("page_view", { screen: "checkout", source: source || "cart" });
+  }
+  function closeCheckout() {
+    if (navStack.length) goBack();
+    else {
+      setCheckoutOpen(false);
+      try { window.history.replaceState(null, "", "/"); } catch {}
+    }
+  }
+  function saveForLater(item) {
+    const e = cart[item.sku];
+    if (!e) return;
+    setCart((c) => { const n = { ...c }; delete n[item.sku]; return n; });
+    toggleWish(item, true);
+    track("save_for_later", { sku: item.sku, from: "cart" });
+  }
+  function restoreFromLater(item) {
+    toggleWish(item, true);
+    setCart((c) => (c[item.sku] ? c : { ...c, [item.sku]: { item, qty: 1 } }));
+  }
+  function openPdpFetch(sku) {
+    pushNav();
+    fetch("/api/catalog-preview?sku=" + encodeURIComponent(sku)).then((r) => r.json())
+      .then((j) => { if (j.item) { touchRecent(j.item); setPdp({ ...j.item, family: j.family || null, _from: "orders", _position: 0 }); try { window.history.replaceState(null, "", `/?sku=${sku}`); } catch {} } })
+      .catch(() => {});
+  }
+  // Phase 6: order placement from the stepped checkout. ctx = { addr, eta, payment, items, total, count }
+  function placeOrder(ctx) {
     const jn = journeyRef.current;
-    // Previous orders: persist this (simulated) order for the user.
     const rec = {
       id: "ord_" + Math.random().toString(36).slice(2, 8),
-      at: Date.now(), demo: false, total,
-      items: items.map(([sku, e]) => ({ sku, title: e.item.title, brand: e.item.brand || "", qty: e.qty, price: e.item.price })),
+      at: Date.now(), demo: false, total: ctx.total,
+      items: ctx.items.map((it) => ({ sku: it.sku, title: it.title, brand: it.brand || "", category: it.category || "", variant: it.variant || "", price: it.price, qty: it.qty })),
+      address: ctx.addr ? { city: ctx.addr.city || "", state: ctx.addr.state || "" } : null,
+      eta: { from: ctx.eta.from, to: ctx.eta.to },
     };
-    try { setOrders((os) => { const next = [rec, ...os].slice(0, 20); localStorage.setItem("askcart_orders_v1", JSON.stringify(next)); return next; }); } catch {}
+    try { setOrders((os) => { const next = [rec, ...(os || [])].slice(0, 20); localStorage.setItem("askcart_orders_v1", JSON.stringify(next)); return next; }); } catch {}
     if (jn) {
       jn.ordered = true;
       offerSurvey(jn, "order_complete");
       if (!jn.ended) endJourney(jn, { resolved: true, turns: s ? s.turn : 1, ordered: true });
     }
-    const id = "ord_" + Math.random().toString(36).slice(2, 8);
-    setOrder({ id, count: items.length, total });
+    track("order_complete", {
+      order_id: rec.id, item_count: ctx.count, total: ctx.total, source: "checkout",
+      region: region || null,
+      items: ctx.items.map((it) => ({ sku: it.sku, price: it.price * it.qty })),
+    });
+    setOrder({ id: rec.id, at: rec.at, count: ctx.count, total: ctx.total, items: ctx.items, addr: rec.address, eta: rec.eta, payment: ctx.payment });
     setCheckoutOpen(false);
     setCart({});
     setCartOpen(false);
+    setTab("confirmation");
+    try { window.history.replaceState(null, "", "/?tab=confirmation&order=" + rec.id); } catch {}
   }
 
   function onOnboarded(p) {
@@ -1601,13 +1651,23 @@ function AskCartHome() {
                  wished={wish.includes(pdp.sku)}
                  cart={cart}
                  onInc={(r) => incCart(r)} onDec={(r) => decCart(r)} />
+      ) : checkoutOpen && cartCount > 0 ? (
+        <CheckoutView lang={lang} cart={cart} pin={pin} region={region}
+                      onBack={closeCheckout} onEditCart={() => setCartOpen(true)} onPlaced={placeOrder} />
+      ) : tab === "confirmation" && order ? (
+        <ConfirmationView lang={lang} order={order}
+                          onTrack={() => switchTab("orders")}
+                          onContinue={() => { setTab("search"); setS(null); try { window.history.replaceState(null, "", "/"); } catch {} }} />
       ) : tab === "wishlist" && wishHydrated ? (
-        <WishlistView skus={wish}
+        <WishlistView lang={lang} skus={wish}
                       onRemove={(it) => toggleWish(it)}
                       onAdd={(it) => addToCart(it, "wishlist")}
                       onSearch={(q) => startSearch(q, "wishlist")} />
-      ) : tab === "orders" ? (
-        <OrdersView orders={orders} />
+      ) : tab === "orders" && ordersHydrated ? (
+        <OrdersView lang={lang} orders={orders}
+                    onBuyAgain={(it) => addToCart({ ...it, rating: it.rating || 0, num_ratings: it.num_ratings || 0, tags: [] }, "reorder")}
+                    onView={(sku) => openPdpFetch(sku)}
+                    onHome={() => { setTab("search"); setS(null); try { window.history.replaceState(null, "", "/"); } catch {} }} />
       ) : tab === "analytics" ? (
         <AnalyticsView anview={anview} setAnview={switchAnview} />
       ) : (
@@ -1982,10 +2042,13 @@ function AskCartHome() {
                    cart={cart}
                    onInc={(r) => incCart(r)} onDec={(r) => decCart(r)} />
       )}
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} setCart={setCart}
-                  onCheckout={(total) => { pushNav(); setCartOpen(false); setCheckoutOpen(true); }} />
-      <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} cart={cart} onPlaced={placeOrder} />
-      <OrderToast order={order} onClose={() => setOrder(null)} />
+      <CartDrawer lang={lang} open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} setCart={setCart}
+                  onCheckout={() => openCheckout("cart")}
+                  onWishSave={saveForLater} onWishUndo={restoreFromLater}
+                  onAdd={(it, from) => addToCart(it, from)}
+                  onSearch={(q) => startSearch(q, "cart_empty")}
+                  onHome={() => { setTab("search"); setS(null); try { window.history.replaceState(null, "", "/"); } catch {} }}
+                  similarPool={s ? s.results : (preview ? preview.items : [])} />
     </div>
   );
 }
