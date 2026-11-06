@@ -6,6 +6,7 @@ import { t } from "./lib/i18n";
 import { Onboarding, BUDGET_STYLE_MAX, SPEND_BIAS, SPEND_BRAND_AFFINITY } from "./ui/onboarding";
 import { CartDrawer, CheckoutModal, OrderToast } from "./ui/cart";
 import { AnalyticsView } from "./ui/analytics";
+import { OrdersView } from "./ui/orders";
 import { ProductDetail, Tile } from "./ui/pdp";
 import { ChatLauncher } from "./ui/chat/ChatLauncher";
 import { ChatPanel } from "./ui/chat/ChatPanel";
@@ -543,7 +544,7 @@ function AskCartHome() {
     setOrder(prev.order);
     setPdp(prev.pdp);
     if ("search" in prev) setS(prev.search);
-    try { window.history.replaceState(null, "", prev.tab === "analytics" ? "/?tab=analytics" : "/"); } catch {}
+    try { window.history.replaceState(null, "", prev.tab && prev.tab !== "search" ? "/?tab=" + prev.tab : "/"); } catch {}
     track("nav_back", { to: prev.tab, stack: navStack.length - 1 });
   }
 
@@ -1225,10 +1226,31 @@ function AskCartHome() {
     track("checkout_start", { item_count: 1, total: item.price, source: "buy_now" });
     setCheckoutOpen(true);
   }
+  const [orders, setOrders] = useState(() => {
+    try {
+      const v = JSON.parse(localStorage.getItem("askcart_orders_v1") || "null");
+      if (Array.isArray(v) && v.length) return v;
+    } catch {}
+    // Two clearly-labelled demo orders so the section has content on a fresh visit.
+    return [
+      { id: "ord_demo_a1b2", at: Date.now() - 6 * 86400000, demo: true, total: 2448, items: [
+        { title: "boAt Airdopes 141 TWS Earbuds", brand: "boAt", qty: 1, price: 1299 },
+        { title: "Fabindia Cotton Kurti (Maroon M)", brand: "Fabindia", qty: 1, price: 1149 } ] },
+      { id: "ord_demo_c3d4", at: Date.now() - 15 * 86400000, demo: true, total: 54989, items: [
+        { title: "Sony PlayStation 5 Console (Disc Edition)", brand: "Sony", qty: 1, price: 54989 } ] },
+    ];
+  });
   function placeOrder(total) {
     pushNav();
     const items = Object.entries(cart);
     const jn = journeyRef.current;
+    // Previous orders: persist this (simulated) order for the user.
+    const rec = {
+      id: "ord_" + Math.random().toString(36).slice(2, 8),
+      at: Date.now(), demo: false, total,
+      items: items.map(([sku, e]) => ({ sku, title: e.item.title, brand: e.item.brand || "", qty: e.qty, price: e.item.price })),
+    };
+    try { setOrders((os) => { const next = [rec, ...os].slice(0, 20); localStorage.setItem("askcart_orders_v1", JSON.stringify(next)); return next; }); } catch {}
     if (jn) {
       jn.ordered = true;
       offerSurvey(jn, "order_complete");
@@ -1343,6 +1365,7 @@ function AskCartHome() {
           </div>
           <nav className="topnav">
             <button className={tab === "search" ? "on" : ""} onClick={() => switchTab("search")}>Search</button>
+            <button className={tab === "orders" ? "on" : ""} onClick={() => switchTab("orders")}>Orders</button>
           </nav>
           <span className="aipill" title={aiPillTitle()}>{aiPillText()}</span>
           <span className="topbar-spacer" />
@@ -1672,6 +1695,8 @@ function AskCartHome() {
               )}
             </>
           )
+        ) : tab === "orders" ? (
+          <OrdersView orders={orders} />
         ) : (
           <AnalyticsView anview={anview} setAnview={switchAnview} />
         )}

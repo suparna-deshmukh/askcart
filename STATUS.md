@@ -1442,3 +1442,25 @@ BEFORE any run (2b81ab5), then ran it.
   0 grounding, 37/37 safe.
 - Local commit only, no GitHub/remote. The 3 real Gemini keys still need to
   be pasted into GEMINI_API_KEYS in .env.
+
+## 2026-11-06 — Item 9: previous orders section (per user, demo-labelled)
+- New Orders tab in the top nav (next to Search). `OrdersView` (app/ui/orders.jsx)
+  lists previous orders newest-first: order id, date, item rows (title · brand,
+  qty, line price), total, "Simulated delivery" status, honest note
+  "Simulated checkout - no real payment, address or delivery".
+- Orders persist per browser in localStorage `askcart_orders_v1` (cap 20),
+  written in placeOrder with full item details from the cart. Fresh visits
+  are seeded with TWO clearly-labelled Demo orders (boAt earbuds + Fabindia
+  kurti; Sony PS5) so the section has content - demo badge on both.
+- Back-button history: the nav-stack restore now handles any tab
+  (orders/analytics) via ?tab= URL rewrite.
+- Analytics: covered by existing events - order_complete (server rollup),
+  page_view {screen:"orders"} on tab open; per-user orders appear in the
+  admin tab (next item).
+- Verified end-to-end with puppeteer: 2 seeded demo orders -> search
+  "wireless headphones" -> add to cart -> checkout -> "Place prototype
+  order" -> new order ord_seqdp1 (₹5,289) leads the list above the demos.
+- Gates (all green): canaries 111+6 0-fail · contrast 16/16 · sync --check OK
+  · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0 76/76,
+  0 grounding, 37/37 safe.
+- Local commit only, no GitHub/remote.
