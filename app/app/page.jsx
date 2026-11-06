@@ -178,14 +178,18 @@ const WHY_COPY = {
 function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1 }) {
   const [whyOpen, setWhyOpen] = useState(false);
   const [typed, setTyped] = useState("");
+  const inputRef = useRef(null);
   const counts = Object.fromEntries((guide.optionCounts || []).map((c) => [c.label, c.count]));
-  // A typed-only "any" question always gets the full card: the compact
-  // strip has no typed input and would render an unanswerable question.
-  const refine = !!guide.refine && guide.type !== "any";
+  // Every question (strip or card) carries options PLUS a typed escape:
+  // the last chip ("Something else") focuses the input, so the shopper
+  // can always answer in their own words.
+  const refine = !!guide.refine;
   const submitTyped = () => { if (typed.trim()) { onTyped(typed); setTyped(""); } };
+  const focusTyped = () => { try { inputRef.current && inputRef.current.focus(); } catch {} };
   if (refine) {
-    // G11: resolved searches get a compact one-row strip, never a card
-    // pushing results down.
+    // G11: resolved searches get a compact strip, never a card pushing
+    // results down. Chips wrap (never cut off) and the typed row sits at
+    // the end as the "Next - type it yourself" option.
     return (
       <div className="qstrip" role="group" aria-label={t(lang, "qOptional")}>
         <span className="qstrip-lbl">{t(lang, "qOptional")}</span>
@@ -197,6 +201,15 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
               {c}{counts[c] != null && <span className="ccnt">{counts[c]}</span>}
             </button>
           ))}
+          {guide.options.length > 0 && (
+            <button className="qchip qchip-more" onClick={focusTyped}>{t(lang, "somethingElse")}</button>
+          )}
+        </div>
+        <div className="qstrip-typed">
+          <input ref={inputRef} value={typed} onChange={(e) => setTyped(e.target.value)}
+                 onKeyDown={(e) => e.key === "Enter" && submitTyped()}
+                 placeholder={t(lang, "orType")} aria-label="Type your answer" maxLength={80} />
+          <button onClick={submitTyped} disabled={busy || !typed.trim()}>{t(lang, "send")}</button>
         </div>
         {guide.reason && <span className="qstrip-why" title={guide.reason}>{guide.reason}</span>}
         <button className="qstrip-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
@@ -220,9 +233,12 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
             {c}{counts[c] != null && <span className="ccnt">{counts[c]}</span>}
           </button>
         ))}
+        {guide.options.length > 0 && (
+          <button className="qchip qchip-more" onClick={focusTyped}>{t(lang, "somethingElse")}</button>
+        )}
       </div>
       <div className="qcard-typed">
-        <input value={typed} onChange={(e) => setTyped(e.target.value)}
+        <input ref={inputRef} value={typed} onChange={(e) => setTyped(e.target.value)}
                onKeyDown={(e) => e.key === "Enter" && submitTyped()}
                placeholder={t(lang, "orType")} aria-label="Type your answer" maxLength={80} />
         <button onClick={submitTyped} disabled={busy || !typed.trim()}>{t(lang, "send")}</button>
@@ -659,6 +675,7 @@ function AskCartHome() {
     });
     const t0 = Date.now();
     let opts = {};
+    let extraQ = "";
     let trailLabel = chip; // O4: a default cap must show as a real chip, never silently
     if (guide.type === "budget") {
       const nums = (String(chip).match(/[\d,]+/g) || []).map((x) => parseInt(x.replace(/,/g, ""), 10)).filter((n) => n > 0);
@@ -690,9 +707,20 @@ function AskCartHome() {
     } else if (guide.type === "capacity") {
       opts = { capacity: /any/i.test(chip) ? null : chip };
     } else {
-      opts = { category: chip };
+      // Open-ended question ("any"/"ai" with set-drawn options): resolve
+      // the chip to a real facet when the data says so (brand, price
+      // band, category); otherwise refine the query text with the answer
+      // (usage/tag words re-rank on their tags).
+      const lowC = String(chip).toLowerCase();
+      const b = s.results.find((r) => r.brand && lowC.includes(r.brand.toLowerCase()));
+      const c = s.results.find((r) => r.category && lowC.includes(String(r.category).toLowerCase()));
+      const nums = (String(chip).match(/[\d,]+/g) || []).map((x) => parseInt(x.replace(/,/g, ""), 10)).filter((n) => n > 0);
+      if (b) opts = { brand: b.brand };
+      else if (/\u20b9/.test(chip) && nums.length) opts = { budget: Math.max(...nums) };
+      else if (c) opts = { category: c.category };
+      else extraQ = chip;
     }
-    let res = await doSearch(s.query, { relax: true, turn: turnNow, ...trailOpts(), ...opts });
+    let res = await doSearch(s.query + (extraQ ? " " + extraQ : ""), { relax: true, turn: turnNow, ...trailOpts(), ...opts });
     if (res.error) {
       setS((st) => st && { ...st, error: res.error });
       setBusy(false);
@@ -871,19 +899,41 @@ function AskCartHome() {
     setBusy(false);
   }
 
-  // G5: every question has an exit. Skipped types become ineligible.
-  function skipGuide() {
+  // G5/G5': every question has an exit, but skipping one question does
+  // NOT leave the loop - the next eligible question is asked on the same
+  // (narrowed) set. Skipped types stay ineligible for this journey; after
+  // 3 skips the journey ends (no interrogation).
+  async function skipGuide() {
     if (!s || !s.guide || busy) return;
     const g = s.guide;
+    setBusy(true);
     track("guide_skipped", {
       query: s.query, question_type: g.type, turn: s.turn, mode: g.mode || "policy",
     });
-    if (journeyRef.current) {
-      journeyRef.current.prevTypes = [...(journeyRef.current.prevTypes || []), g.type];
-      // Skipping is a destination decision: end the journey (browse on).
-      if (!journeyRef.current.ended) endJourney(journeyRef.current, { resolved: s.ok !== false, turns: s.turn });
-    }
+    const jn = journeyRef.current;
+    if (jn) jn.prevTypes = [...(jn.prevTypes || []), g.type];
     setS((st) => st && { ...st, guide: null });
+    const skips = jn ? (jn.skips = (jn.skips || 0) + 1) : 1;
+    const intentN = s.results.filter((r) => r.intent).length;
+    if (!plainMode && s.turn < 5 && skips < 3) {
+      const g2 = await askGuide(s.query, intentN, s.turn + 1);
+      if (g2.guide) {
+        if (jn) jn.prevTypes = [...(jn.prevTypes || []), g2.guide.type];
+        guideShownAtRef.current = Date.now();
+        track("guide_question_shown", {
+          query: s.query, question_type: g2.guide.type, turn: s.turn + 1,
+          options_count: g2.guide.options.length, mode: g2.mode, refine: true, after_skip: true,
+          reason: g2.decision && g2.decision.reason, planner: (g2.decision && g2.decision.planner) || null,
+          journey_id: jn ? jn.id : null,
+        });
+        setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true } });
+        setBusy(false);
+        return;
+      }
+      track("guide_no_question", { query: s.query, turn: s.turn + 1, reason: (g2.decision && g2.decision.reason) || "" });
+    }
+    if (jn && !jn.ended) endJourney(jn, { resolved: s.ok !== false, turns: s.turn });
+    setBusy(false);
   }
 
   // 7.3: remove a trail constraint chip -> re-run the search with the

@@ -263,7 +263,8 @@ const TEMPLATES = {
   for_whom: "Quick one - who's it for?",
   size: "Any size you need? (or I'll show all)",
   capacity: "What size / capacity do you need?",
-  any: "Anything else that would help me narrow it down?",
+  any: "Which of these fits best? (or type your own)",
+  ai: "Which of these fits best? (or type your own)",
 };
 
 // Shopper-facing display labels for the coarse department categories.
@@ -690,7 +691,10 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   // "two settled facets" stop ended chains after a single answer - the
   // exact behaviour the user reported ("after answering one question,
   // it is not asking me any other question").
-  if (nResults <= 6) {
+  // Only after at least one ANSWERED question: the first question is
+  // guaranteed on every search (product premise), even when the initial
+  // set is already small.
+  if (nResults <= 6 && prev.size >= 1) {
     return { ask: false, type: null, options: [], question: "",
              reason: "destination reached (" + nResults + " items - a pickable shortlist)",
              stats };
@@ -834,8 +838,39 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // one question, no matter how good the first match is. When no data
     // facet has >=2 live options, the question is "type it" - the typed
     // answer runs the normal refinement search (no chips, no quiz).
-    if (!prev.has("any")) return out("any", [], [],
-      "guaranteed question (typed last resort): no data facet with >=2 live options - open typed refinement");
+    if (!prev.has("any")) {
+      // 2026-11-06 (product requirement: EVERY question carries options):
+      // the last-resort question is drawn from what the narrowed set
+      // actually holds - usage tags, then brands, then real price bands
+      // (real counts from the set, never estimates) - and the typed
+      // "Something else" escape stays available.
+      const tagOpts = (stats.tagCounts || [])
+        .filter((o) => o.count >= 3 && !/^(gift|new|best|sale|offer|deal)$/i.test(o.name))
+        .slice(0, 3).map((o) => ({ label: o.name, count: o.count }));
+      const brandOpts = (stats.brands || []).filter((b) => b.count >= 2)
+        .slice(0, 3).map((b) => ({ label: b.name, count: b.count }));
+      const setOpts = tagOpts.length >= 2 ? tagOpts : brandOpts;
+      if (setOpts.length >= 2) {
+        return out("any", setOpts.map((o) => o.label), setOpts,
+          "open refinement: options drawn from the narrowed set (usage tags / brands), typed escape available");
+      }
+      const P = stats.priceP || {};
+      if (P.p25 > 0 && P.p75 > P.p25 && stats.items.length >= 5) {
+        const p25 = Math.round(P.p25).toLocaleString("en-IN");
+        const p75 = Math.round(P.p75).toLocaleString("en-IN");
+        const bandOpts = [
+          { label: `Under \u20b9${p25}`, count: stats.items.filter((h) => h.price < P.p25).length },
+          { label: `\u20b9${p25} \u2013 \u20b9${p75}`, count: stats.items.filter((h) => h.price >= P.p25 && h.price < P.p75).length },
+          { label: `Over \u20b9${p75}`, count: stats.items.filter((h) => h.price >= P.p75).length },
+        ].filter((o) => o.count > 0);
+        if (bandOpts.length >= 2) {
+          return out("any", bandOpts.map((o) => o.label), bandOpts,
+            "open refinement: price bands from the narrowed set's actual price spread, typed escape available");
+        }
+      }
+      return out("any", [], [],
+        "guaranteed question (typed last resort): no data facet with >=2 live options - open typed refinement");
+    }
     return null;
   };
 

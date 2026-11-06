@@ -1233,3 +1233,47 @@ BEFORE any run (2b81ab5), then ran it.
   suite ALL TESTS PASS, chat eval CHAT_LLM=0 76/76 / 0 / 37/37,
   ui tour 17 shots, contrast 16/16, sync OK.
 - Local commit only, no GitHub/remote; localhost :3000.
+
+## 2026-11-06 — Item A: every question has real options + typed escape; skip continues the loop
+- **User report (batch, "last time I'm telling you"):** (1) every question must
+  offer 3-4 good options based on the query/previous answers, with a "Next"
+  type-your-own escape at the end; (2) back button broken (searched, cleared
+  the box, could not return to the recommended-searches hero); (3) last strip
+  option cut off; (4) skip must NOT exit the question loop - skip one, ask the
+  next; (5) Gemini decides the next question and emits actionable filters;
+  (6) expand the catalogue by a huge margin; (7) first visit: 2-3 centered
+  questions -> user persona (incl. age). This entry = item 1 of the batch.
+- **Changes:**
+  - `page.jsx QuestionCard`: the compact strip now carries a typed row
+    (`.qstrip-typed` input + Send) and a dashed ghost "Something else..."
+    chip (`.qchip-more`) in BOTH strip and full card that focuses the typed
+    input; the strip is used for every refined question including `any`
+    (`refine = !!guide.refine`).
+  - `guide.js`: `TEMPLATES.any`/`ai` = "Which of these fits best? (or type
+    your own)"; the last-resort `any` question is now data-drawn from the
+    narrowed set (top-3 usage tags c>=3 -> brands c>=2 -> real price bands
+    from set quantiles, real counts) - no more static generic options;
+    destination stop fixed: `nResults<=6 && prev.size>=1` (the old stop
+    suppressed Q1 on small 6-intent sets - "boAt headphones under 3000"
+    returned results with NO question); `tagOpts` bug fixed (`stats.tagCounts`
+    is `[{name,count}]`, not pairs - was 500ing /api/guide).
+  - `skipGuide` now async: marks the type skipped, asks the NEXT question on
+    the same narrowed set (event `guide_question_shown {after_skip:true}`),
+    and only stops honestly when nothing grounded remains; 3-skip cap
+    (`jn.skips`).
+  - `applyAnswer`: open-ended chips (`any`/`ai`) resolve to brand /
+    price-band budget / category / else `extraQ` (query-text refinement with
+    the full trail re-search); TDZ bug on `let extraQ` declaration fixed.
+  - CSS: `.qstrip-chips` wraps (last option no longer cut off),
+    `.qstrip-typed`, `.qchip-more`.
+- **Verified live (puppeteer, :3000):** "boAt headphones under 3000"
+  (6 intent) -> guaranteed Q1 strip "Which of these fits best?" with real
+  data-drawn options boAt 62 / Apple 40 / Samsung 3 + "Something else..." +
+  typed row (screenshot /tmp/q1_any.png); skip -> honest stop (no other
+  grounded facet remains - correct, not a broken loop); "kurta under 2000"
+  full chain size -> for-whom -> brand -> typed, every question with
+  data-backed options, 360px no cut-off.
+- Gates green (all 6) after the change: canaries 111+6 0-fail, semantic
+  suite ALL TESTS PASS (no-op guarantee intact), chat eval CHAT_LLM=0
+  76/76 / 0 / 37/37, ui tour 17 shots, contrast 16/16, sync OK.
+- Local commit only, no GitHub/remote; localhost :3000.

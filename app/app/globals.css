@@ -428,7 +428,14 @@ button:focus-visible, input:focus-visible, [role="button"]:focus-visible, a:focu
 .qstrip-q { font-size: 13.5px; font-weight: 650; color: var(--guide-text); white-space: nowrap; }
 .qstrip-why { font-size: 10.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
 .qstrip-lbl { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--guide-text); white-space: nowrap; }
-.qstrip-chips { display: flex; gap: 7px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+.qstrip-chips { display: flex; gap: 7px; flex-wrap: wrap; flex: 1; }
+/* typed row at the end of the strip = the "Next, type it yourself" option */
+.qstrip-typed { display: flex; gap: 6px; flex: 1; min-width: 240px; align-items: center; }
+.qstrip-typed input { flex: 1; font-size: 13px; padding: 8px 12px; min-height: 38px; border: 1.5px solid var(--guide-border); border-radius: 10px; background: #fff; }
+.qstrip-typed input:focus { outline: none; border-color: var(--guide); box-shadow: 0 0 0 3px rgba(245, 158, 11, .15); }
+.qstrip-typed button { font-size: 12.5px; font-weight: 700; padding: 8px 13px; min-height: 38px; border-radius: 10px; background: var(--guide); border: none; color: #fff; cursor: pointer; }
+.qchip-more { border-style: dashed !important; color: var(--text-3) !important; background: transparent !important; }
+.qchip-more:hover { color: var(--guide-text) !important; }
 .qchip {
   font-size: 13px; font-weight: 600; padding: 8px 14px; min-height: 40px; border-radius: 999px; white-space: nowrap;
   background: #fff; border: 1.5px solid var(--border-strong); color: var(--text-2); cursor: pointer;
