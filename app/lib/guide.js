@@ -1068,6 +1068,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     reason,
     subType: chosen.subType || null,
     planner: plannerInfo && type === plannerInfo.type ? plannerInfo.via : null,
+    plannerAi: plannerInfo && type === plannerInfo.type ? { keyIdx: plannerInfo.keyIdx ?? null, rotatedFrom: plannerInfo.rotatedFrom ?? null } : null,
     stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue },
   };
 }

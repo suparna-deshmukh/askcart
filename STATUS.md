@@ -1397,3 +1397,48 @@ BEFORE any run (2b81ab5), then ran it.
   semantic suite ALL PASS (no-op guarantee on the 52,656 catalog) · ui tour
   17 shots · chat eval CHAT_LLM=0 76/76 intent, 0 grounding, 37/37 safe.
 - Local commit only, no GitHub/remote.
+
+## 2026-11-06 — Item 8: Gemini 3-key chain + usage routing + visible LLM status
+- User constraint: Gemini free tier = ~20 requests/day PER KEY, up to 3 keys
+  (to be supplied via `GEMINI_API_KEYS=k1,k2,k3` in .env; legacy GEMINI_API_KEY
+  is key 1). Minimize LLM calls; journey must be unchanged when limits hit.
+- New `app/lib/gemini_keys.js`: key chain with a PERSISTED local usage ledger
+  (`app/.gemini_usage.json`, gitignored; per key per day). Google has no
+  per-key usage endpoint for plain API keys (Cloud Quotas API needs project
+  IAM), so the ledger is the planner: every attempt increments the key's
+  count up-front; a key at GEMINI_RPD (20) is skipped without being called.
+  429/403 -> key exhausted for the day (persisted) + `ai_key_exhausted` event
+  + UI toast; 400 "API key not valid" -> key dropped for the day; 404/5xx/
+  timeout -> MODEL cooldown (sticky known-good model, chain
+  gemini-3.8-flash -> 3-flash-preview -> 3.5-flash), not key exhaustion.
+  One attempt per key (2.5 s), bounded worst case ~7.5 s; never throws.
+- Cost order is now QWEN-FIRST everywhere (`guide_planner.js`,
+  `guide_ai.js`): Qwen38-27B (LiteLLM proxy, no daily cap, warm 0.6-1.1 s)
+  answers; the Gemini 3-key chain engages only when Qwen fails or returns
+  unparseable JSON; then the deterministic policy. A heavy day across all
+  users spends ~0 Gemini RPD on the common path.
+- Call minimisation: 10-min state cache (repeats free), unambiguous-set skip
+  (<2 grounded types or n<=12 -> 0 calls), and a NEW per-session AI budget
+  (`AI_MAX_PER_SESSION=8`): after 8 AI decisions the client stops requesting
+  AI (one "Quick mode" toast) and the deterministic chain continues asking.
+  `/api/ai-status` (no LLM call) serves the pill.
+- Visible status (top bar, always): pill `AI · Qwen 38B` / `AI · Gemini key
+  2/3` / `AI · Rules (offline)` / `AI · Qwen 38B · ready`; hover shows per-key
+  usage (key1 3/20 · key2 20/20 (rpd) · key3 0/20) + remaining session
+  budget. Toast on rotation: "Gemini key 1 daily limit hit - switched to key
+  2. Guidance continues."
+- New analytics events (server-recorded): `ai_call` {kind: planner|refine,
+  via: qwen|gemini|rules, key_idx, ms, session_id, turn} and
+  `ai_key_exhausted` {key_idx, reason}. Both added to the event allowlist.
+- `docs/llm_routing.md`: the full flowchart, cost math, degradation matrix
+  (Qwen down / key 429 / all exhausted -> policy; journey never breaks).
+- Verified: /api/ai-status serves state; "shirt under 5000" planner turn =
+  Qwen, Gemini key usage stays 0/20; standalone chain test: pre-exhausted
+  key0 skipped without a call, key1 attempted (usage 0->1), model 404s cool
+  the model not the key, all-fail -> null -> deterministic. Pill + tooltip
+  verified in the top bar at 1440px.
+- Gates (all green): canaries 111+6 0-fail · contrast 16/16 · sync --check OK
+  · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0 76/76,
+  0 grounding, 37/37 safe.
+- Local commit only, no GitHub/remote. The 3 real Gemini keys still need to
+  be pasted into GEMINI_API_KEYS in .env.

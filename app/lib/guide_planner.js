@@ -7,7 +7,8 @@
 // otherwise the deterministic policy order is used ("policy").
 // 3 consecutive failures open a 5-minute breaker; a small in-memory cache
 // (10-min TTL) keyed on query|slots|prev|types keeps repeat turns free.
-import { chat, llmAvailable, env } from "./llm.js";
+import { chat, llmAvailable } from "./llm.js";
+import { geminiGenerate, geminiStatus } from "./gemini_keys.js";
 
 const G = globalThis;
 const cache = (G.__askcartPlannerCache ??= new Map());
@@ -73,34 +74,19 @@ export async function planQuestionType({ query, slots, prevTypes, types, setSumm
     }
   }
 
-  const gkey = env("GEMINI_API_KEY");
-  const gmodel = env("GEMINI_MODEL") || "gemini-3.8-flash";
-  if (gkey) {
-    try {
-      const ctrl = new AbortController();
-      const to = setTimeout(() => ctrl.abort(), 2500);
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${gmodel}:generateContent`,
-        {
-          method: "POST",
-          signal: ctrl.signal,
-          headers: { "Content-Type": "application/json", "x-goog-api-key": gkey },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: PLAN_SYSTEM }] },
-            contents: [{ role: "user", parts: [{ text: userMsg }] }],
-            generationConfig: { temperature: 0, maxOutputTokens: 60 },
-          }),
-        },
-      );
-      clearTimeout(to);
-      const j = await res.json();
-      const text = j?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      const type = extractType(text, types);
-      if (type) { record(key, type, "gemini"); return { type, via: "gemini" }; }
-      noteFail();
-    } catch {
-      noteFail();
+  // Gemini 3-key chain (20 RPD per key; local usage ledger + 429 rotation;
+  // see docs/llm_routing.md). One attempt per key, bounded latency.
+  try {
+    const g = await geminiGenerate({ system: PLAN_SYSTEM, user: userMsg, maxTokens: 60, timeoutMs: 2500 });
+    if (g) {
+      const type = extractType(g.text, types);
+      if (type) { record(key, type, "gemini"); return { type, via: "gemini", keyIdx: g.keyIdx, rotatedFrom: g.rotatedFrom ?? null }; }
     }
+    noteFail();
+  } catch {
+    noteFail();
   }
   return null;
 }
+
+export { geminiStatus };

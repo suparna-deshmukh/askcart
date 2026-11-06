@@ -16,13 +16,12 @@
 // per model, at most 2 attempts per call, 3 consecutive total failures
 // open a 5-minute breaker. 10-minute in-memory cache keyed on the
 // conversation state (repeat answers are free).
-import { chat, env, llmAvailable } from "./llm.js";
+import { chat, llmAvailable } from "./llm.js";
+import { geminiGenerate } from "./gemini_keys.js";
 
 const G = globalThis;
 const cache = (G.__askcartAiRefineCache ??= new Map());
 const breaker = (G.__askcartAiRefineBreaker ??= { fails: 0, openUntil: 0 });
-const sticky = (G.__askcartAiSticky ??= { model: null });
-const cooling = (G.__askcartAiCooling ??= new Map()); // model -> until(ms)
 
 const OCCASIONS = ["gift", "birthday", "wedding", "anniversary", "diwali",
                    "party", "christmas", "valentines", "graduation", "housewarming"];
@@ -142,47 +141,6 @@ function validateAi(obj, set, answered, askedTypes) {
   return out;
 }
 
-async function callGemini(model, system, userMsg) {
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 3000);
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      {
-        method: "POST",
-        signal: ctrl.signal,
-        headers: { "Content-Type": "application/json", "x-goog-api-key": env("GEMINI_API_KEY") },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: system }] },
-          contents: [{ role: "user", parts: [{ text: userMsg }] }],
-          generationConfig: { temperature: 0, maxOutputTokens: 512 },
-        }),
-      },
-    );
-    clearTimeout(to);
-    if (!res.ok) {
-      cooling.set(model, Date.now() + 300000); // 404/503: cool down, try next
-      return null;
-    }
-    const j = await res.json();
-    return j?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-  } catch {
-    clearTimeout(to);
-    cooling.set(model, Date.now() + 60000); // timeout/5xx: short cooldown
-    return null;
-  }
-}
-
-const isCooling = (m) => (cooling.get(m) || 0) > Date.now();
-function modelChain() {
-  const list = [];
-  if (sticky.model && !isCooling(sticky.model)) list.push(sticky.model);
-  for (const m of [env("GEMINI_MODEL"), "gemini-3-flash-preview", "gemini-3.5-flash"]) {
-    if (m && !list.includes(m) && !isCooling(m)) list.push(m);
-  }
-  return list.slice(0, 2); // at most 2 attempts: total latency bounded
-}
-
 // Returns { filters, question, via } or null (deterministic fallback).
 export async function aiRefine({ query, queryExt, slots, answerLabel, answerType, prevTypes, set }) {
   const answered = slots || {};
@@ -216,16 +174,11 @@ export async function aiRefine({ query, queryExt, slots, answerLabel, answerType
 
   let raw = null;
   let via = null;
-  for (const model of modelChain()) {
-    raw = await callGemini(model, AI_SYSTEM, userMsg);
-    if (raw) { sticky.model = model; via = "gemini"; break; }
-  }
-  let obj = raw ? extractJson(raw) : null;
-  if (!obj && llmAvailable()) {
-    // Qwen (LiteLLM proxy) second provider - used when Gemini is down OR
-    // returned truncated/unparseable JSON (3.x thinking can eat the budget).
-    // Same prompt, same schema, same validation - the page cannot tell
-    // which model answered.
+  let aiMeta = {};
+  // Cost order (docs/llm_routing.md): Qwen (LiteLLM proxy, no observed daily
+  // cap, warm ~0.6-1.1 s) FIRST; the Gemini 3-key chain (20 RPD per key) only
+  // when Qwen fails or returns unparseable JSON.
+  if (llmAvailable()) {
     try {
       const { text } = await chat(
         [{ role: "system", content: AI_SYSTEM }, { role: "user", content: userMsg }],
@@ -233,7 +186,18 @@ export async function aiRefine({ query, queryExt, slots, answerLabel, answerType
       );
       const o2 = text ? extractJson(text) : null;
       if (o2) { raw = text; via = "qwen"; obj = o2; }
-    } catch { /* keep gemini state; unparseable branch below */ }
+    } catch { /* fall through to Gemini chain */ }
+  }
+  let obj = obj || (raw ? extractJson(raw) : null);
+  if (!obj) {
+    try {
+      const g = await geminiGenerate({ system: AI_SYSTEM, user: userMsg, maxTokens: 512, timeoutMs: 2500 });
+      if (g) {
+        raw = g.text; via = "gemini";
+        aiMeta = { keyIdx: g.keyIdx, rotatedFrom: g.rotatedFrom ?? null, model: g.model };
+        obj = extractJson(raw);
+      }
+    } catch { /* deterministic fallback below */ }
   }
   try {
     // Debug trace (localhost): raw model output + validation result.
@@ -257,7 +221,7 @@ export async function aiRefine({ query, queryExt, slots, answerLabel, answerType
     // grounded but empty is a legitimate "nothing to do" - not a failure
   }
   if (cache.size > 500) cache.clear();
-  const val = { out: { ...out, via }, exp: Date.now() + 600000 };
+  const val = { out: { ...out, via, ai: aiMeta }, exp: Date.now() + 600000 };
   cache.set(key, val);
   breaker.fails = 0;
   return val.out;

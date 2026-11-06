@@ -3,6 +3,8 @@ import { loadCatalog } from "../../../lib/catalog";
 import { parseQuery } from "../../../lib/search";
 import { decideGuide } from "../../../lib/guide.js";
 import { chat, llmAvailable } from "../../../lib/llm";
+import { record } from "../../../lib/analyticsStore";
+import { geminiStatus } from "../../../lib/gemini_keys.js";
 import { t, budgetLabel, occasionLabel } from "../../../app/lib/i18n.js";
 
 // The policy engine decides WHAT to ask (type + data-driven options + reason);
@@ -16,6 +18,7 @@ const PHRASE_SYSTEM =
   'Output JSON only: {"question": string, "options": [strings]}';
 
 export async function POST(req) {
+  const t0g = Date.now();
   const body = await req.json().catch(() => ({}));
   const q = String(body.query || "");
   if (!q.trim()) return NextResponse.json({ guide: null, mode: "policy", error: "empty query" });
@@ -87,6 +90,21 @@ export async function POST(req) {
   if (decision.subType) guide.subType = decision.subType;
   if (optionCounts.length) guide.optionCounts = optionCounts;
   if (model) guide.model = model;
+  try {
+    const via = decision.planner || (mode === "llm" ? "qwen" : null);
+    if (via || body.planner === true) {
+      record("ai_call", {
+        kind: "planner", via: via || "rules",
+        key_idx: (decision.plannerAi && decision.plannerAi.keyIdx) ?? null,
+        ms: Date.now() - t0g,
+        session_id: String(body.session_id || "").slice(0, 40) || undefined,
+        turn,
+      });
+      if (decision.plannerAi && decision.plannerAi.rotatedFrom != null) {
+        record("ai_key_exhausted", { key_idx: decision.plannerAi.rotatedFrom, reason: "rpd_or_quota", kind: "planner" });
+      }
+    }
+  } catch { /* analytics must never break the guide */ }
   return NextResponse.json({
     guide,
     mode,
@@ -97,6 +115,8 @@ export async function POST(req) {
       rescue: decision.stats ? decision.stats.rescue : null,
       topCategory: decision.stats ? decision.stats.topCategory : null,
       planner: decision.planner || null,
+      plannerAi: decision.plannerAi || null,
+      gemini: geminiStatus(),
     },
   });
 }

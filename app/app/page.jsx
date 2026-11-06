@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { track, getPersona, cohortOf } from "./lib/track";
+import { track, getPersona, cohortOf, getSessionId } from "./lib/track";
 import { t } from "./lib/i18n";
 import { Onboarding, BUDGET_STYLE_MAX, SPEND_BIAS, SPEND_BRAND_AFFINITY } from "./ui/onboarding";
 import { CartDrawer, CheckoutModal, OrderToast } from "./ui/cart";
@@ -278,11 +278,25 @@ function AskCartHome() {
       if (rv && rv.region) setRegion(rv.region);
       setStripDismissed(localStorage.getItem("askcart_strip_dismissed") === "1");
     } catch {}
+    // LLM routing status for the top-bar pill (no LLM call made).
+    fetch("/api/ai-status").then((r) => r.json()).then((j) => {
+      if (j && j.ok) {
+        setAiStatus(j);
+        aiBudgetRef.current = Math.max(1, Number(j.aiMaxPerSession) || 8);
+      }
+    }).catch(() => {});
   }, []);
   const [stripOpen, setStripOpen] = useState(false);
   const [personaModal, setPersonaModal] = useState(false);
   const [obToast, setObToast] = useState(null);
   const [cartToast, setCartToast] = useState(null);
+  // LLM routing status (top-bar pill + key-rotation toasts).
+  const [aiStatus, setAiStatus] = useState(null); // {qwen, gemini, aiMaxPerSession}
+  const [aiToast, setAiToast] = useState(null);
+  const lastAiViaRef = useRef(null);   // "qwen" | "gemini"
+  const lastAiKeyRef = useRef(null);
+  const aiBudgetRef = useRef(8);       // AI decisions per session (cost cap)
+  const aiBudgetNotedRef = useRef(false);
   useEffect(() => { try { document.documentElement.lang = lang === "hi" ? "hi" : lang === "hinglish" ? "hi-Latn" : "en"; } catch {} }, [lang]);
   function setLang(l) {
     setLangState(l);
@@ -474,6 +488,30 @@ function AskCartHome() {
     track("hero_return", {});
   }
 
+  function aiPillText() {
+    const g = aiStatus && aiStatus.gemini;
+    if (lastAiViaRef.current === "gemini") {
+      const k = lastAiKeyRef.current;
+      return "AI · Gemini" + (k == null ? "" : " key " + (k + 1) + "/" + (g ? g.keys.length : 1));
+    }
+    if (lastAiViaRef.current === "qwen") return "AI · Qwen 38B";
+    const q = aiStatus && aiStatus.qwen;
+    if (q && q.available) return "AI · Qwen 38B · ready";
+    if (g && !g.allExhausted) return "AI · Gemini · ready";
+    return "AI · Rules (offline)";
+  }
+  function aiPillTitle() {
+    const g = aiStatus && aiStatus.gemini;
+    const q = aiStatus && aiStatus.qwen;
+    const bits = ["Qwen (" + ((q && q.model) || "qwen38-27b") + "): " + (q && q.available ? "available" : "offline")];
+    if (g) {
+      bits.push("Gemini keys (cap " + g.rpd + "/day): " +
+        g.keys.map((k) => "key" + (k.idx + 1) + " " + k.used + "/" + k.rpd + (k.exhausted ? " (" + k.reason + ")" : "")).join(", "));
+    }
+    bits.push("session AI budget: " + Math.max(0, aiBudgetRef.current) + " left");
+    return bits.join(" · ");
+  }
+
   function switchTab(next) {
     if (next === tab) return;
     pushNav();
@@ -544,6 +582,38 @@ function AskCartHome() {
     }
   }
 
+  function aiSwitchToast(from, to) {
+    setAiToast("Gemini key " + (from + 1) + " daily limit hit - switched to " +
+      (to == null ? "the built-in rules" : "key " + (to + 1)) + ". Guidance continues.");
+    setTimeout(() => setAiToast(null), 6000);
+  }
+  function aiNotice(decision) {
+    if (!decision) return;
+    if (decision.gemini) setAiStatus((st) => (st ? { ...st, gemini: decision.gemini } : st));
+    if (decision.planner) {
+      lastAiViaRef.current = decision.planner === "gemini" ? "gemini" : "qwen";
+      if (decision.planner === "gemini") lastAiKeyRef.current = (decision.plannerAi && decision.plannerAi.keyIdx) ?? null;
+      if (decision.plannerAi && decision.plannerAi.rotatedFrom != null) aiSwitchToast(decision.plannerAi.rotatedFrom, decision.plannerAi.keyIdx);
+    }
+    if (aiBudgetRef.current === 0 && !aiBudgetNotedRef.current) {
+      aiBudgetNotedRef.current = true;
+      setAiToast("Quick mode: to keep responses fast, the remaining questions in this session come from the built-in rules.");
+      setTimeout(() => setAiToast(null), 6000);
+    }
+  }
+  function aiRefineNotice(j) {
+    if (!j) return;
+    const ai = j.ai || {};
+    if (ai.gemini) setAiStatus((st) => (st ? { ...st, gemini: ai.gemini } : st));
+    if (j.via === "gemini") { lastAiViaRef.current = "gemini"; lastAiKeyRef.current = ai.keyIdx ?? null; }
+    else if (j.via === "qwen") lastAiViaRef.current = "qwen";
+    if (ai.rotatedFrom != null) aiSwitchToast(ai.rotatedFrom, ai.keyIdx);
+    if (aiBudgetRef.current === 0 && !aiBudgetNotedRef.current) {
+      aiBudgetNotedRef.current = true;
+      setAiToast("Quick mode: to keep responses fast, the remaining questions in this session come from the built-in rules.");
+      setTimeout(() => setAiToast(null), 6000);
+    }
+  }
   async function askGuide(query, nResults, turn, slotsOverride) {
     const jn = journeyRef.current;
     const prevTypes = jn ? jn.prevTypes || [] : [];
@@ -554,13 +624,18 @@ function AskCartHome() {
     // OLD set, which is why the chain stopped after a chip answer).
     const slots = slotsOverride || {};
     if (!slotsOverride && s) for (const t of s.trail.slice(1)) if (t && typeof t === "object" && t.opts) Object.assign(slots, t.opts);
+    const useAI = aiBudgetRef.current > 0;
+    if (useAI) aiBudgetRef.current -= 1;
     const r = await fetch("/api/guide", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, n_results: nResults, turn, prev_types: prevTypes,
-                             journey_id: jn ? jn.id : null, region, persona, lang, slots, planner: true }),
+                             journey_id: jn ? jn.id : null, region, persona, lang, slots,
+                             planner: useAI, session_id: getSessionId() }),
     });
-    return r.json();
+    const j = await r.json().catch(() => ({}));
+    aiNotice(j.decision);
+    return j;
   }
 
   function markResultsShown(query, results, turn, source) {
@@ -692,18 +767,21 @@ function AskCartHome() {
   // Gemini can never invent a brand/category/price/keyword; when it is
   // down or empty the page behaves exactly as v6 (deterministic policy).
   async function askAIRefine({ query, queryExt, slots, answer, answerType, prevTypes }) {
+    if (aiBudgetRef.current <= 0) return null; // quick mode: deterministic chain continues
+    aiBudgetRef.current -= 1;
     const ctrl = new AbortController();
     const to = setTimeout(() => ctrl.abort(), 5500);
     try {
       const r = await fetch("/api/ai-refine", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, query_ext: queryExt || "", slots, answer, answer_type: answerType, prev_types: prevTypes || [], lang }),
+        body: JSON.stringify({ query, query_ext: queryExt || "", slots, answer, answer_type: answerType, prev_types: prevTypes || [], lang, session_id: getSessionId() }),
         signal: ctrl.signal,
       });
       if (!r.ok) return null;
       const j = await r.json();
       if (!j || !j.ok) return null;
-      return { filters: j.filters || {}, question: j.question || null, via: j.via || null, ms: j.ms || null };
+      aiRefineNotice(j);
+      return { filters: j.filters || {}, question: j.question || null, via: j.via || null, ms: j.ms || null, ai: j.ai || {} };
     } catch {
       return null;
     } finally {
@@ -1266,6 +1344,7 @@ function AskCartHome() {
           <nav className="topnav">
             <button className={tab === "search" ? "on" : ""} onClick={() => switchTab("search")}>Search</button>
           </nav>
+          <span className="aipill" title={aiPillTitle()}>{aiPillText()}</span>
           <span className="topbar-spacer" />
           <span className="langseg" role="group" aria-label="Language">
             {[["en", "EN"], ["hi", "हिं"], ["hinglish", "Hinglish"]].map(([l, lb]) => (
@@ -1282,6 +1361,7 @@ function AskCartHome() {
         </div>
       </div>
       {obToast && <div className="obtoast" role="status">{obToast}</div>}
+      {aiToast && <div className="obtoast aitoast" role="status">{aiToast}</div>}
       {cartToast && <div className="carttoast" role="status">{cartToast}</div>}
       <div className="wrap">
         {tab === "search" ? (

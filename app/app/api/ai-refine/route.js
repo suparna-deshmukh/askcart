@@ -3,6 +3,8 @@ import { loadCatalog } from "../../../lib/catalog";
 import { searchStats } from "../../../lib/search";
 import { forWhomOptions, sizeOptions } from "../../../lib/guide.js";
 import { aiRefine } from "../../../lib/guide_ai.js";
+import { record } from "../../../lib/analyticsStore";
+import { geminiStatus } from "../../../lib/gemini_keys.js";
 
 // Item 6 (2026-11-06): after each guided answer the client posts
 // {query, query_ext, slots, answer:{label,opts}, answer_type, prev_types}.
@@ -146,5 +148,22 @@ export async function POST(req) {
     question: question ? { type: question.type, prompt: question.prompt, options: question.options } : null,
     set_n: preSet.n,
     ms: Date.now() - t0,
+    ai: {
+      via,
+      keyIdx: (out && out.ai && out.ai.keyIdx) ?? null,
+      rotatedFrom: (out && out.ai && out.ai.rotatedFrom) ?? null,
+      gemini: geminiStatus(),
+    },
   });
+  try {
+    record("ai_call", {
+      kind: "refine", via: via || "rules",
+      key_idx: (out && out.ai && out.ai.keyIdx) ?? null,
+      ms: Date.now() - t0,
+      session_id: String(body.session_id || "").slice(0, 40) || undefined,
+    });
+    if (out && out.ai && out.ai.rotatedFrom != null) {
+      record("ai_key_exhausted", { key_idx: out.ai.rotatedFrom, reason: "rpd_or_quota", kind: "refine" });
+    }
+  } catch { /* analytics must never break refine */ }
 }

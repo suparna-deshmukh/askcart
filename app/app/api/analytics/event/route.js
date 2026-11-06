@@ -28,6 +28,7 @@ const ALLOWED = new Set([
   "chat_question_shown", "chat_question_answered", "chat_card_click",
   "chat_add_to_cart", "chat_apply_to_results", "chat_feedback",
   "chat_error", "ui_error",
+  "ai_call", "ai_key_exhausted",
 ]);
 
 const MAX_BODY = 4096;
