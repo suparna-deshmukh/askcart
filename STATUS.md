@@ -1577,3 +1577,30 @@ the 4-question cap - keep asking until the shopper is left with ONE product
   OK · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0
   76/76, 0 grounding, 37/37 safe.
 - Local commit only, no GitHub/remote.
+
+## 2026-11-06 — Item C: question UI redesign (Gemini spark, unified card/strip, nothing clipped)
+
+User: "the question-asking UI is terrible… that typing interface… use some design
+sense… add a Gemini icon over there."
+
+- New `GeminiSpark` 4-point SVG mark (currentColor, guide palette - no new
+  colours) now leads the head row of BOTH question surfaces: the full card
+  (first/thin question) and the compact strip (post-resolution refinement).
+  "Marigold + spark = AskCart is asking" now reads identically in both states.
+- Card head row: spark + "Quick question" eyebrow + "Question N · N answered"
+  pill + why + Skip. Question line bumped 16->17px/700. Chips keep 44px
+  targets with live count badges; typed row is a real 44px input + Send
+  button (never clipped); "N answered" counter replaces the removed "/4".
+- Strip redesigned from the cramped single-line pill to the same design
+  language: head row (spark + "Optional refinement" + question + "Question N"
+  pill + Skip), wrapping chip row, real typed row, reason line below.
+  Chips wrap - the last-option-clipped-off complaint is structurally fixed.
+- Verified live (puppeteer): "saree under 2700" -> size question (S18/M14/
+  L16/XL23/XXL20/Any size 1023) renders clean; answer "S" -> trail chip
+  "S ✕" + "91 of 1023 left" echo + next question (brand: Azzam 6 / High Road
+  6 / Khaadi 6 / No preference 91); typed "for my sister" -> next question
+  continues the chain. No console errors (only favicon 404).
+- Gates (all green): canaries 111+6 0-fail · contrast 16/16 · sync --check
+  OK · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0
+  76/76, 0 grounding, 37/37 safe.
+- Local commit only, no GitHub/remote.

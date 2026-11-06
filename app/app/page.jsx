@@ -166,6 +166,16 @@ function ProductCard({ r, onAdd, onOpen, best, close, overBudget }) {
   );
 }
 
+// Gemini 4-point spark mark (the AI that plans the questions). Pure
+// decorative, guide-palette coloured via currentColor.
+function GeminiSpark({ size = 14 }) {
+  return (
+    <svg className="gemini-spark" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 2c.6 5.7 4.7 9.8 10.4 10.4C16.7 13 12.6 17.1 12 22.8 11.4 17.1 7.3 13 .9 12.4 6.6 11.8 10.7 7.7 12 2z" fill="currentColor" />
+    </svg>
+  );
+}
+
 // G6: "why are we asking?" — deterministic copy tied to the mined root
 // causes (no LLM). The numbers in the copy are the corpus shares.
 const WHY_COPY = {
@@ -189,13 +199,19 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
   const focusTyped = () => { try { inputRef.current && inputRef.current.focus(); } catch {} };
   if (refine) {
     // G11: resolved searches get a compact strip, never a card pushing
-    // results down. Chips wrap (never cut off) and the typed row sits at
-    // the end as the "Next - type it yourself" option.
+    // results down. 2026-11-06 redesign: the strip mirrors the card's
+    // head row (spark + eyebrow + skip) so "marigold + spark = AskCart is
+    // asking" reads the same in both states; chips wrap (never cut off)
+    // and the typed row sits at the end as the "Next - type it yourself"
+    // option.
     return (
       <div className="qstrip" role="group" aria-label={t(lang, "qOptional")}>
-        <span className="qstrip-lbl">{t(lang, "qOptional")}</span>
-        <span className="qstrip-prog">Question {progress}</span>
-        <span className="qstrip-q">{guide.question}</span>
+        <div className="qstrip-head">
+          <span className="qstrip-eyebrow"><GeminiSpark size={12} />{t(lang, "qOptional")}</span>
+          <span className="qstrip-q">{guide.question}</span>
+          <span className="qstrip-prog">Question {progress}</span>
+          <button className="qstrip-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
+        </div>
         <div className="qstrip-chips">
           {guide.options.map((c) => (
             <button key={c} className="qchip" onClick={() => onChip(c)} disabled={busy || counts[c] === 0}>
@@ -213,15 +229,15 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
           <button onClick={submitTyped} disabled={busy || !typed.trim()}>{t(lang, "send")}</button>
         </div>
         {guide.reason && <span className="qstrip-why" title={guide.reason}>{guide.reason}</span>}
-        <button className="qstrip-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
       </div>
     );
   }
+  const answered = Math.max(0, progress - 1);
   return (
     <div className="qcard">
       <div className="qe">
-        <span>{t(lang, "qEyebrow")}</span>
-        <span className="qprog">Question {progress}</span>
+        <span className="qcard-eyebrow"><GeminiSpark />{t(lang, "qEyebrow")}</span>
+        <span className="qprog">Question {progress}{answered > 0 ? ` · ${answered} answered` : ""}</span>
         <button className="qcard-why" onClick={() => setWhyOpen(!whyOpen)} aria-expanded={whyOpen}>ⓘ {t(lang, "whyAsk")}</button>
         <button className="qcard-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
       </div>

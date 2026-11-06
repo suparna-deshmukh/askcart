@@ -123,25 +123,28 @@ body.largetext { font-size: 16.5px; }
 .sec-head .count { font-size: 12.5px; color: var(--faint); font-weight: 500; }
 .sec-head .spacer { flex: 1; }
 
-/* ---------- Question card (on top of results) ---------- */
+/* ---------- Question card (on top of results) ----------
+   2026-11-06 redesign: head row = spark + eyebrow + progress + why + skip;
+   bigger question line; chips keep 44px targets; typed row never clipped.
+   Guide palette only (no new colours). */
 .qcard {
   background: var(--guide-bg);
   border: 1px solid var(--guide-border); border-left: 4px solid var(--guide);
   border-radius: 14px;
-  padding: 16px 20px 18px 18px; margin-bottom: 14px; animation: fadeup .15s ease-out;
+  padding: 14px 18px 16px; margin: 14px 0 16px; animation: fadeup .15s ease-out;
   position: relative;
+  box-shadow: var(--shadow-sm);
 }
-.qcard .qe { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--guide-text); margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.qcard .qe { margin-bottom: 4px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qcard-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--guide-text); }
+.qcard-eyebrow .gemini-spark, .qstrip-eyebrow .gemini-spark { flex: none; }
 .qprog, .qstrip-prog { font-size: 10.5px; font-weight: 800; letter-spacing: .04em; color: var(--guide-text); background: #fff; border: 1px solid var(--guide-border); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
-.qcard .qcard-why { font-size: 11px; font-weight: 700; color: var(--guide-text); text-transform: none; letter-spacing: 0; text-decoration: underline dotted; cursor: pointer; }
-.qcard .qcard-skip { margin-left: auto; font-size: 11.5px; font-weight: 600; color: var(--text-2); text-transform: none; letter-spacing: 0; background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 8px; min-height: 32px; }
+.qcard .qcard-why { font-size: 11.5px; font-weight: 700; color: var(--guide-text); text-decoration: underline dotted; cursor: pointer; background: none; border: none; padding: 4px 6px; border-radius: 8px; }
+.qcard .qcard-why:hover { background: rgba(0,0,0,.05); }
+.qcard .qcard-skip { margin-left: auto; font-size: 11.5px; font-weight: 600; color: var(--text-2); background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 8px; min-height: 32px; }
 .qcard .qcard-skip:hover { background: rgba(0,0,0,.05); color: var(--text); }
 .qcard .qcard-whybox { font-size: 12.5px; color: var(--guide-text); background: #fff; border: 1px dashed var(--guide-border); border-radius: 10px; padding: 9px 12px; margin-top: 8px; line-height: 1.5; }
-.qcard .qcard-typed { display: flex; gap: 8px; margin-top: 12px; }
-.qcard .qcard-typed input { flex: 1; font-size: 14px; padding: 11px 14px; min-height: 44px; border: 1.5px solid var(--guide-border); border-radius: 12px; background: #fff; }
-.qcard .qcard-typed input:focus { outline: none; border-color: var(--guide); box-shadow: 0 0 0 3px rgba(245, 158, 11, .15); }
-.qcard .qcard-typed button { font-size: 13.5px; font-weight: 700; padding: 11px 16px; min-height: 44px; border-radius: 12px; background: var(--guide); border: none; color: #fff; cursor: pointer; }
-.qcard .q { font-size: 16px; font-weight: 650; letter-spacing: -.01em; margin-top: 2px; }
+.qcard .q { font-size: 17px; font-weight: 700; letter-spacing: -.01em; margin-top: 10px; color: var(--text); line-height: 1.4; }
 .qcard .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .qcard .chips button {
   font-size: 14px; font-weight: 600; padding: 10px 18px; border-radius: 999px; min-height: 44px;
@@ -151,6 +154,11 @@ body.largetext { font-size: 16.5px; }
 .qcard .chips button:hover { border-color: var(--guide); color: var(--guide-text); background: #fffaf0; box-shadow: var(--shadow-sm); }
 .qcard .chips button .ccnt { font-size: 11.5px; font-weight: 600; color: var(--text-3); background: var(--surface-2); border-radius: 999px; padding: 1px 7px; }
 .qcard .chips button:disabled { opacity: .5; cursor: wait; }
+.qcard .qcard-typed { display: flex; gap: 8px; margin-top: 12px; }
+.qcard .qcard-typed input { flex: 1; font-size: 14px; padding: 11px 14px; min-height: 44px; border: 1.5px solid var(--guide-border); border-radius: 12px; background: #fff; }
+.qcard .qcard-typed input:focus { outline: none; border-color: var(--guide); box-shadow: 0 0 0 3px rgba(245, 158, 11, .15); }
+.qcard .qcard-typed button { font-size: 13.5px; font-weight: 700; padding: 11px 16px; min-height: 44px; border-radius: 12px; background: var(--guide); border: none; color: #fff; cursor: pointer; }
+.qcard .qcard-typed button:disabled { opacity: .5; cursor: not-allowed; }
 .trail { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 2px 14px; font-size: 12px; color: var(--sub); }
 .trail .step { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; }
 .trail .step b { color: var(--ink); font-weight: 650; }
@@ -476,32 +484,36 @@ button:focus-visible, input:focus-visible, [role="button"]:focus-visible, a:focu
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
-/* ---------- G11: compact refinement strip ---------- */
+/* ---------- G11: compact refinement strip ----------
+   2026-11-06 redesign: same design language as the card (head row with
+   spark + eyebrow, wrapping chips, real typed row) so nothing is clipped. */
 .qstrip {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;
-  background: var(--guide-bg); border: 1px solid var(--guide-border); border-radius: 999px;
-  padding: 8px 12px 8px 16px; min-height: 56px; animation: fadeup .15s ease-out;
+  background: var(--guide-bg); border: 1px solid var(--guide-border); border-left: 4px solid var(--guide);
+  border-radius: 12px; padding: 10px 14px 12px; margin-bottom: 14px; animation: fadeup .15s ease-out;
+  box-shadow: var(--shadow-sm);
 }
-.qstrip-q { font-size: 13.5px; font-weight: 650; color: var(--guide-text); white-space: nowrap; }
-.qstrip-why { font-size: 10.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
-.qstrip-lbl { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--guide-text); white-space: nowrap; }
-.qstrip-chips { display: flex; gap: 7px; flex-wrap: wrap; flex: 1; }
+.qstrip-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qstrip-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--guide-text); white-space: nowrap; }
+.qstrip-q { font-size: 14.5px; font-weight: 700; color: var(--guide-text); line-height: 1.35; }
+.qstrip-why { display: block; font-size: 11px; color: var(--text-3); margin-top: 8px; line-height: 1.45; }
+.qstrip-chips { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
 /* typed row at the end of the strip = the "Next, type it yourself" option */
-.qstrip-typed { display: flex; gap: 6px; flex: 1; min-width: 240px; align-items: center; }
-.qstrip-typed input { flex: 1; font-size: 13px; padding: 8px 12px; min-height: 38px; border: 1.5px solid var(--guide-border); border-radius: 10px; background: #fff; }
+.qstrip-typed { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+.qstrip-typed input { flex: 1; font-size: 13.5px; padding: 9px 13px; min-height: 42px; border: 1.5px solid var(--guide-border); border-radius: 10px; background: #fff; }
 .qstrip-typed input:focus { outline: none; border-color: var(--guide); box-shadow: 0 0 0 3px rgba(245, 158, 11, .15); }
-.qstrip-typed button { font-size: 12.5px; font-weight: 700; padding: 8px 13px; min-height: 38px; border-radius: 10px; background: var(--guide); border: none; color: #fff; cursor: pointer; }
+.qstrip-typed button { font-size: 13px; font-weight: 700; padding: 9px 14px; min-height: 42px; border-radius: 10px; background: var(--guide); border: none; color: #fff; cursor: pointer; }
+.qstrip-typed button:disabled { opacity: .5; cursor: not-allowed; }
 .qchip-more { border-style: dashed !important; color: var(--text-3) !important; background: transparent !important; }
 .qchip-more:hover { color: var(--guide-text) !important; }
 .qchip {
-  font-size: 13px; font-weight: 600; padding: 8px 14px; min-height: 40px; border-radius: 999px; white-space: nowrap;
+  font-size: 13px; font-weight: 600; padding: 8px 14px; min-height: 42px; border-radius: 999px; white-space: nowrap;
   background: #fff; border: 1.5px solid var(--border-strong); color: var(--text-2); cursor: pointer;
   display: inline-flex; align-items: center; gap: 7px; transition: all .12s;
 }
 .qchip:hover { border-color: var(--guide); color: var(--guide-text); }
 .qchip:disabled { opacity: .45; cursor: not-allowed; }
 .qchip .ccnt, .qstrip .ccnt { font-size: 10.5px; font-weight: 600; color: var(--text-3); background: var(--surface-2); border-radius: 999px; padding: 1px 6px; }
-.qstrip-skip { font-size: 11.5px; font-weight: 600; color: var(--text-3); background: none; border: none; cursor: pointer; white-space: nowrap; padding: 6px 8px; border-radius: 8px; }
+.qstrip-skip { margin-left: auto; font-size: 11.5px; font-weight: 600; color: var(--text-3); background: none; border: none; cursor: pointer; white-space: nowrap; padding: 6px 8px; border-radius: 8px; min-height: 32px; }
 .qstrip-skip:hover { color: var(--text); background: rgba(0,0,0,.04); }
 .meta.echo { color: var(--text-2); font-weight: 650; margin-top: -6px; margin-bottom: 10px; }
 
