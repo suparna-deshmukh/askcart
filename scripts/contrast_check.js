@@ -45,6 +45,10 @@ const PAIRS = [
   ["#FFFFFF", tok("brand-hover"), "white on brand-hover (button hover)", 4.5],
   [tok("text"), tok("brand-50"), "text on brand-50 (hover rows)", 4.5],
   [tok("text-3"), tok("surface-3"), "text-3 on surface-3 (muted fills, UI)", 3.0],
+  [tok("text-2"), tok("surface-3"), "text-2 on surface-3 (feed neutral chip, body)", 4.5],
+  [tok("text-3"), tok("surface-2"), "text-3 on surface-2 (sticky th, density off, body)", 4.5],
+  [tok("danger"), tok("surface"), "danger on surface (warn KPI value, body)", 4.5],
+  [tok("brand"), tok("brand-50"), "brand on brand-50 (conv chips, feed chip, body)", 4.5],
 ];
 let fail = 0;
 for (const [fg, bg, label, min] of PAIRS) {
