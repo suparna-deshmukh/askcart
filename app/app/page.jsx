@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { track, getPersona, cohortOf, getSessionId } from "./lib/track";
 import { t } from "./lib/i18n";
 import { Onboarding, BUDGET_STYLE_MAX, SPEND_BIAS, SPEND_BRAND_AFFINITY } from "./ui/onboarding";
@@ -11,6 +12,7 @@ import { ProductDetail, Tile } from "./ui/pdp";
 import { ChatLauncher } from "./ui/chat/ChatLauncher";
 import { ChatPanel } from "./ui/chat/ChatPanel";
 import { SAMPLE_QUERIES } from "./lib/sample_queries";
+import { KitPage } from "./ui/kit/KitPage";
 
 // Hero "popular" chips - single source of truth in lib/sample_queries.js
 // (verified against the live search API; precomputed in the semantic
@@ -267,6 +269,7 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
 function AskCartHome() {
   const [input, setInput] = useState("");
   const params = useSearchParams();
+  if (params.get("kit") === "1") return <KitPage />;
   const [tab, setTab] = useState(() => (params.get("tab") === "analytics" ? "analytics" : "search"));
   const [anview, setAnview] = useState(() => {
     const v = params.get("anview");
@@ -1807,5 +1810,9 @@ function AskCartHome() {
 }
 
 export default function Home() {
-  return <AskCartHome />;
+  return (
+    <Suspense fallback={null}>
+      <AskCartHome />
+    </Suspense>
+  );
 }

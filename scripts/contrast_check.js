@@ -38,6 +38,13 @@ const PAIRS = [
   [tok("brand"), tok("surface"), "brand on surface (active nav)", 3.0],
   [tok("live"), tok("bg"), "live dot on bg (UI, large)", 3.0],
   [tok("guide-text"), tok("surface"), "guide-text on surface (why box)", 4.5],
+  ["#FFFFFF", tok("ink-900"), "white on ink-900 (Buy now / toasts)", 4.5],
+  [tok("guide-on-dark"), tok("brand-900"), "guide-on-dark on brand-900 (announce bar, large)", 3.0],
+  ["#FFFFFF", tok("brand-900"), "white on brand-900 (footer headings)", 4.5],
+  [tok("on-dark-2"), tok("brand-900"), "on-dark-2 on brand-900 (footer body)", 4.5],
+  ["#FFFFFF", tok("brand-hover"), "white on brand-hover (button hover)", 4.5],
+  [tok("text"), tok("brand-50"), "text on brand-50 (hover rows)", 4.5],
+  [tok("text-3"), tok("surface-3"), "text-3 on surface-3 (muted fills, UI)", 3.0],
 ];
 let fail = 0;
 for (const [fg, bg, label, min] of PAIRS) {
