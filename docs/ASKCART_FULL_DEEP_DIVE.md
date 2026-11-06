@@ -20,7 +20,7 @@ engine decides** which question to ask, what the options are (computed from
 the live candidate set), and when to stop; the LLM (Qwen38-27B via a LiteLLM
 proxy) may only **phrase** the question (English) or **parse** a chat
 message, and every LLM output is validated with a template/rule fallback.
-The whole thing runs as a Next.js app over a 36,111-SKU **demo catalogue**
+The whole thing runs as a Next.js app over a 52,656-SKU **demo catalogue**
 (US-converted + synthetic India layer, labelled as demo everywhere), with a
 fully public, locally-stored analytics dashboard and a chat assistant.
 
@@ -115,11 +115,11 @@ one blocked item (need real people; the kit in
 
 ## 3. The catalogue (what the shop actually sells — demo)
 
-**36,111 SKUs** = 24,998 US-sourced Amazon listings converted at ₹83.5/$ +
+**52,656 SKUs** = 24,998 US-sourced Amazon listings converted at ₹83.5/$ +
 11,113 India-layer SKUs (`scripts/catalog_india.py`, ~1,900 base rows ×
 variant expansion, deterministic seed 42). Every SKU carries
 `origin: us_converted | india_layer` (T7), and the UI footer + PDP carry
-the standing disclaimer: *"Demo catalogue: 36,111 SKUs (≈25k US-sourced
+the standing disclaimer: *"Demo catalogue: 52,656 SKUs (≈25k US-sourced
 listings converted to INR + ≈11k India layer) with indicative prices and
 ratings — not a live marketplace."*
 
@@ -249,7 +249,7 @@ byte-identical responses (no-op guarantee test: 293/293, zero tolerance).
 - Model: **Xenova/multilingual-e5-small** (384-dim) run **locally in ONNX
   int8** — same model builds the index offline and embeds queries at runtime
   (0 API tokens).
-- Index: `app/data/catalog_emb.i8` (13.2 MB, 36,111 × 384 int8, L2-normalised
+- Index: `app/data/catalog_emb.i8` (~20.2 MB, 52,656 × 384 int8, L2-normalised
   float scales in `catalog_emb.scales.f32`), meta with catalog sha256 +
   SKU-order sha256; **integrity check on load** — any mismatch vs the live
   catalogue disables semantic (`index_mismatch`), never misaligned rows.
@@ -672,7 +672,7 @@ bands" grid is replaced by **"{Festival} gift ideas"**: 4 horizontal
 rails by budget (under ₹500 / ₹1,000 / ₹2,000 / ₹5,000), 8 cards each,
 80px-wide columns, each card = full ProductCard in a 235px rail
 column; header count line: "{Festival} is N days away · best-rated per
-budget · 36,111 products loaded".
+budget · 52,656 products loaded".
 
 ### 6.12 Motion & accessibility
 
@@ -1290,7 +1290,7 @@ than serving misaligned rows.
    simulated/corpus-grounded and labelled `synthetic`. All shopper
    evidence is self-graded or LLM-judged. The n=150 study was
    calibrated against the live app — a mechanics demonstration.
-2. **Demo catalogue.** 36,111 SKUs = 24,998 US Amazon listings
+2. **Demo catalogue.** 52,656 SKUs = 24,998 US Amazon listings
    converted at ₹83.5/$ + 11,113 India-layer; India-layer ratings are
    synthetically jittered (±0.1, ×0.75–1.25) and every such SKU
    carries `rating_basis:"synthetic"`, surfaced in the PDP ("Demo

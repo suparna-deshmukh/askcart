@@ -150,8 +150,12 @@ BRANDS = {
 BRANDS = {k: v for k, v in BRANDS.items() if v}
 from catalog_supplement import EXTRA_BRANDS, inject_supplement
 from catalog_india import ADD_BRANDS, india_frame
+from catalog_expand import EXPAND_BRANDS, expand_frame
 BRANDS.update(EXTRA_BRANDS)
 BRANDS.update(ADD_BRANDS)
+# NOTE: catalog_expand brands are NOT merged into BRANDS - registering
+# them would re-parse existing titles (e.g. 'Intex' in filter titles) and
+# shift their stable SKUs. EXP rows carry an expand_brand column instead.
 BRANDS = {k: v for k, v in BRANDS.items() if v}
 _BRAND_RE = re.compile(r"\b(" + "|".join(re.escape(b) for b in sorted(BRANDS, key=len, reverse=True)) + r")\b", re.I)
 # C2: brand extraction rules.
@@ -445,7 +449,13 @@ def main():
     sel = inject_anchors(sel, df, TARGET)
     sel = inject_supplement(sel, df, TARGET, band_id)
     india = india_frame(band_id)
-    sel = pd.concat([sel, india], ignore_index=True).drop_duplicates("parent_asin")
+    # v5 expansion layer: separate untrimmed frame; title collisions with
+    # the US pool / India layer / previous catalog are skipped (stable SKUs).
+    _known_titles = set(map(str, sel["title"])) | set(map(str, india["title"]))
+    if OUT_JSON.exists():
+        _known_titles |= {str(x["title"]) for x in json.loads(OUT_JSON.read_text())}
+    expand = expand_frame(_known_titles)
+    sel = pd.concat([sel, india, expand], ignore_index=True).drop_duplicates("parent_asin")
     # Data-quality: drop "fake flagship clone" phone listings - titles that
     # claim an unlocked S22/iPhone flagship with a sub-4GB RAM spec
     # ("S22 Ultra 2+16GB") do not exist as real Indian-market listings.
@@ -459,6 +469,9 @@ def main():
     items = []
     for i, r in enumerate(sel.itertuples()):
         brand_name, brand_type = brand_of(str(r.title))
+        _eb = getattr(r, "expand_brand", None)
+        if _eb is not None and pd.notna(_eb):
+            brand_name, brand_type = str(_eb), None
         item = {
             "sku": f"AC-{i+1:05d}",
             "title": str(r.title).strip()[:200],
@@ -470,7 +483,7 @@ def main():
             "tags": occasion_tags(str(r.main_category), str(r.title)),
         }
         # C1: origin of the SKU (T7: ~25k US-sourced converted + ~11k India layer)
-        item["origin"] = "india_layer" if str(getattr(r, "parent_asin", "")).startswith("IND-") else "us_converted"
+        item["origin"] = "india_layer" if str(getattr(r, "parent_asin", "")).startswith(("IND-", "EXP-")) else "us_converted"
         # C2: brand_type present only for retailers (e.g. Myntra private label)
         if brand_type:
             item["brand_type"] = brand_type
@@ -527,10 +540,18 @@ def main():
                 leftover[skey(x)] -= 1
                 fresh.append(x)
         fresh.sort(key=lambda x: (x["category"], x["title"], x.get("brand") or ""))
-        max_n = max((int(x["sku"].split("-")[1]) for x in kept if x["sku"].startswith("AC-")), default=0)
+        # Orphan carryover: previous-catalog items the current generator
+        # code no longer reproduces (upstream row edits). Keeping them is
+        # what makes "SKU identity must never shift" hold across ALL
+        # rebuilds, including ones where catalog_india.py rows changed.
+        kept_keys = {skey(x) for x in kept}
+        orphans = [x for x in prev_items if skey(x) not in kept_keys]
+        max_n = max((int(x["sku"].split("-")[1]) for x in kept + orphans if x["sku"].startswith("AC-")), default=0)
         for i, x in enumerate(fresh, 1):
             x["sku"] = "AC-%05d" % (max_n + i)
-        items = kept + fresh
+        items = kept + orphans + fresh
+        if orphans:
+            print(f"stable sku: carried over {len(orphans)} orphan items (previous catalog, no longer generated)")
         print("stable sku: kept %d (ids preserved), appended %d new" % (len(kept), len(fresh)))
     else:
         for i, x in enumerate(items, 1):

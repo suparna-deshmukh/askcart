@@ -1360,3 +1360,40 @@ BEFORE any run (2b81ab5), then ran it.
   semantic suite ALL TESTS PASS (no-op guarantee), ui tour 17 shots, chat eval CHAT_LLM=0
   76/76 / 0 / 37/37.
 - Local commit only, no GitHub/remote; localhost :3000.
+
+## 2026-11-06 — Item 7: catalogue expansion 36,111 → 52,656 SKUs (+16,545, +45.8%)
+- New `scripts/catalog_expand.py`: a 1,693-row expansion matrix (colour×size grids,
+  real INR price bands, family_id/variant for S7 grouping) covering the weak
+  categories (fashion depth, toys, baby, musical instruments, luggage, video
+  games, car care, home audio, collectibles, festival/mithai) with real brand
+  pools (Pepe Jeans 967, High Road 906, Nivaaya 906, Zariin 867, …) plus
+  documented house labels. The frame is UNTRIMMED - it never re-trims the
+  India layer, so no pre-existing SKU can be dropped.
+- `scripts/build_catalog.py`: expansion rows merged into the same stable-SKU
+  build; **orphan carryover** added (items from the previous catalog that the
+  current code no longer generates are kept, so SKU identity never shifts
+  across rebuilds); `origin="india_layer"` for IND-/EXP- parents.
+- Incident caught + fixed: the first build registered expansion brands in the
+  global BRANDS map, and `brand_of()` re-parsed existing US titles ("Intex" in
+  a Clorox filter, "Camp" in camping chairs, "ASUS", "Yamaha", "Omron"…) →
+  skey change → 464-505 old items dropped. Fix: expansion brands ride the
+  `expand_brand` column only, no global registration; 11 risky keys removed;
+  doubled console titles fixed ("Sony PlayStation 5 Console", "Microsoft Xbox
+  Wireless Controller", "Nintendo Switch Console"). Clean rebuild verified:
+  0 old items dropped, all SKUs unique.
+- Catalogue now: 52,656 = 24,998 us_converted + 27,658 india_layer
+  (11,113 IND + 16,545 EXP). `origin` field carried per SKU.
+- Semantic index rebuilt for the new catalog (Xenova/multilingual-e5-small
+  int8 ONNX, local, 0 API tokens, 518 s): `catalog_emb.i8` 20.2 MB, 232-entry
+  query cache, parity fixture regenerated. Dev server restarted to load it.
+- Docs: PROJECT.md synced (sync script + all stale 36,045/36,111 references
+  fixed in PROJECT.md, README, page footer, source_notes, semantic_fallback,
+  FULL_DEEP_DIVE; reviewer_pass.md left as a dated historical artifact).
+- Verified live: "playstation 5" → 12/12 on-intent (new SKUs lead);
+  "saree under 2700" + typed "for my sister" → Qwen for_whom:women chip +
+  brand question on the narrowed set; "samovar" → semantic below_threshold,
+  dead end preserved.
+- Gates (all green): canaries 111+6 0-fail · contrast 16/16 · sync --check OK ·
+  semantic suite ALL PASS (no-op guarantee on the 52,656 catalog) · ui tour
+  17 shots · chat eval CHAT_LLM=0 76/76 intent, 0 grounding, 37/37 safe.
+- Local commit only, no GitHub/remote.

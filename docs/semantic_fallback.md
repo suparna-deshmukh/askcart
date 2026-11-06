@@ -29,7 +29,7 @@ query -> parseQuery -> lexical search (v6, unchanged)
 - Prefixes (E5 instruction format): docs `passage: `, queries `query: `
   (config, not code).
 - Index (server-side only, `app/data/`, **never under `public/`**):
-  - `catalog_emb.i8` — 36,045 × 384 int8 (~13.8 MB)
+  - `catalog_emb.i8` — 52,656 × 384 int8 (~20.2 MB)
   - `catalog_emb.scales.f32` — per-row quantisation scales (~144 KB)
   - `catalog_emb.meta.json` — model, dim, n, catalogue sha256,
     **SKU-order sha256** (row i ↔ catalog[i])

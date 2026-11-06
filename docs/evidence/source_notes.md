@@ -72,7 +72,7 @@ pairs across Amazon, ecommerce, Etsy, OnlineShopping, Deals, Flipping,
 BuyItForLife, frugal. 429 backoff 15s->60s with 5 attempts, 6s between pairs.
 Usernames stripped; [deleted]/[removed] skipped.
 
-## Catalogue (36,045 products: 24,998 US base + 11,047 India layer)
+## Catalogue (52,656 products: 24,998 US base + 27,658 India layer, incl. the 2026-11-06 expansion matrix)
 milistu/AMAZON-Products-2023 (Hugging Face, 117,243 Amazon products with
 real prices + ratings). Band-aware stratified sample: category weights
 (gift/occasion-adjacent boosted) x price-band quotas (35% <=2k, 28% 2-5k,

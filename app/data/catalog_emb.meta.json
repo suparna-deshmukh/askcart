@@ -1,9 +1,9 @@
 {
   "model": "Xenova/multilingual-e5-small",
   "dim": 384,
-  "n": 36111,
-  "catalog_sha256": "855f00b515af874b22026141b2c0f465d8687f6306b53647b9fc3e678fb03703",
-  "sku_order_sha256": "e121b6479b7f4213ab09781cb2eca5ea608e7dd4891e93a96cdde710267a1f67",
+  "n": 52656,
+  "catalog_sha256": "91a772ee438c7cdd3fe34d7a4c6c2a3d926ec08d97a84b2bceda7f13c8608399",
+  "sku_order_sha256": "dc24c70eab2309e855afc3851735c51142659533b529851dcdf8139b413c0089",
   "doc_template_version": 1,
-  "built_at": "2026-11-04T15:24:48.500Z"
+  "built_at": "2026-11-06T05:02:49.467Z"
 }
