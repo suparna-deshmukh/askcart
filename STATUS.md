@@ -1539,3 +1539,41 @@ BEFORE any run (2b81ab5), then ran it.
   OK · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0
   76/76, 0 grounding, 37/37 safe.
 - Local commit only, no GitHub/remote.
+
+## 2026-11-06 — Item A: question-ladder guarantees (ask until 1 item, safe options, no bad questions)
+
+User batch follow-up: (a) never ask what the query already answers, (b) remove
+the 4-question cap - keep asking until the shopper is left with ONE product
+(or zero), (c) questions designed so 6-7 answers still leave >=1 product.
+
+- Destination stop (guide.js): was `nResults <= 6` "pickable shortlist" -> now
+  `nResults <= 1` (0 = "set exhausted, this path holds nothing"; 1 =
+  "destination reached (1 item left - your pick)"). Still only after >=1
+  answered question (first question guaranteed on every search).
+- Bad-question kill: the tier-7 last-resort price-BANDS source ("Under 909 /
+  909-1579") now only runs when `parsed.budgetMax === null` - a stated budget
+  ("wedding gift under 2000") can never be re-asked as sub-budget bands.
+  Live check: "wedding gift under 2000" now asks for_whom (Women 18 / Men 8 /
+  Kids 11 / Unisex 60), not bands.
+- Safe "Any category" option added to both category question sources
+  (grounded map + tier-2.5 fallback): count = full narrowed set; client
+  applyAnswer maps it to a no-filter (chain continues on the same set).
+  Every question type already carried an escape chip (Any size / No
+  preference / Not sure / Unisex) - with bands killed when priced, EVERY
+  question now has a live non-narrowing escape, which is the structural
+  guarantee that 6-7 answers cannot zero the chain; the ladder's halving-first
+  order makes "1 left" reachable in ~log2(n) steps.
+- Client caps removed (page.jsx): the four `turnNow < 5` gates and the skip
+  path's `s.turn < 5` are gone (server now decides the stop; `skips < 3`
+  kept as the anti-interrogation guard); `progress={Math.min(4, s.turn)}` ->
+  `s.turn`; the "Q/4" badges now read "Question N" (the "4 out of 4" the
+  user asked to remove is gone).
+- "gift for 5 year old" verified: no men/women for-whom question (age stated)
+  - asks product family with Any-category escape.
+- Chain-continuation verified live: "wedding gift under 2000" -> Women ->
+  next question (open refinement: wedding/party/anniversary tags) on the
+  narrowed set; n=1 -> destination stop, ask:false.
+- Gates (all green): canaries 111+6 0-fail · contrast 16/16 · sync --check
+  OK · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0
+  76/76, 0 grounding, 37/37 safe.
+- Local commit only, no GitHub/remote.

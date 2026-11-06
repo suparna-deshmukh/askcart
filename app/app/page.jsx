@@ -194,7 +194,7 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
     return (
       <div className="qstrip" role="group" aria-label={t(lang, "qOptional")}>
         <span className="qstrip-lbl">{t(lang, "qOptional")}</span>
-        <span className="qstrip-prog" title={"Question " + progress + " of 4"}>{progress}/4</span>
+        <span className="qstrip-prog">Question {progress}</span>
         <span className="qstrip-q">{guide.question}</span>
         <div className="qstrip-chips">
           {guide.options.map((c) => (
@@ -221,7 +221,7 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
     <div className="qcard">
       <div className="qe">
         <span>{t(lang, "qEyebrow")}</span>
-        <span className="qprog" title={"Question " + progress + " of 4"}>{progress}/4</span>
+        <span className="qprog">Question {progress}</span>
         <button className="qcard-why" onClick={() => setWhyOpen(!whyOpen)} aria-expanded={whyOpen}>ⓘ {t(lang, "whyAsk")}</button>
         <button className="qcard-skip" onClick={onSkip}>{t(lang, "skipQuestion")}</button>
       </div>
@@ -878,6 +878,18 @@ function AskCartHome() {
       opts = { size: /any/i.test(chip) ? null : String(chip).toLowerCase() };
     } else if (guide.type === "capacity") {
       opts = { capacity: /any/i.test(chip) ? null : chip };
+    } else if (guide.type === "category") {
+      // "Any category" is the safe option: apply nothing, keep the whole
+      // narrowed set (the chain continues on the same set).
+      if (/^any category$/i.test(chip)) {
+        opts = {};
+      } else {
+        const c = s.results.find((r) => r.category &&
+          (String(chip).toLowerCase().includes(String(r.category).toLowerCase()) ||
+           displayCat(r.category).toLowerCase() === String(chip).toLowerCase()));
+        if (c) opts = { category: c.category };
+        else extraQ = chip;
+      }
     } else {
       // Open-ended question ("any"/"ai" with set-drawn options): resolve
       // the chip to a real facet when the data says so (brand, price
@@ -945,9 +957,9 @@ function AskCartHome() {
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: finalResults.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
       // Keep guiding: a resolved result is a start, not the destination.
-      // Ask the next ladder question until the query is fully specified,
-      // the 4-follow-up cap is hit, or the shopper skips.
-      if (!plainMode && turnNow < 5) {
+      // Ask the next ladder question until 1 item remains (or 0), the
+      // ladder runs dry, or the shopper skips (2026-11-06: no turn cap).
+      if (!plainMode) {
         const g2 = aiGuideWrap(ai) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots));
         if (g2.guide) {
           pushPrevType(g2.guide);
@@ -966,11 +978,10 @@ function AskCartHome() {
       setBusy(false);
       return;
     }
-    // Keep guiding: if the results are still thin, the policy may have
-    // another question type left (up to 4 follow-ups / 5 turns per journey).
-    // We only stop when the shopper is at their destination (3 known facets),
-    // the shopper skips, or no eligible facet is left.
-    if (turnNow < 5) {
+    // Keep guiding: the policy keeps offering grounded questions on the
+    // narrowed set until 1 item remains (or 0), the ladder runs dry, or
+    // the shopper skips (2026-11-06: no turn cap).
+    if (!plainMode) {
       const g = aiGuideWrap(ai) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots));
       if (g.guide) {
         pushPrevType(g.guide);
@@ -1067,7 +1078,7 @@ function AskCartHome() {
       track("resolved", { query: s.query, turns: turnNow, n_results: intentN, journey_id: journeyRef.current.id });
       // Same keep-guiding rule as chip answers: the typed text narrows
       // the set, so the next question is built on the narrowed set.
-      if (!plainMode && turnNow < 5) {
+      if (!plainMode) {
         const g2 = aiGuideWrap(ai) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }));
         if (g2.guide) {
           pushPrevType(g2.guide);
@@ -1086,7 +1097,7 @@ function AskCartHome() {
       setBusy(false);
       return;
     }
-    if (turnNow < 5) {
+    if (!plainMode) {
       const g = aiGuideWrap(ai) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }));
       if (g.guide) {
         pushPrevType(g.guide);
@@ -1124,7 +1135,7 @@ function AskCartHome() {
     setS((st) => st && { ...st, guide: null });
     const skips = jn ? (jn.skips = (jn.skips || 0) + 1) : 1;
     const intentN = s.results.filter((r) => r.intent).length;
-    if (!plainMode && s.turn < 5 && skips < 3) {
+    if (!plainMode && skips < 3) {
       const g2 = await askGuide(s.query, intentN, s.turn + 1);
       if (g2.guide) {
         pushPrevType(g2.guide);
@@ -1504,7 +1515,7 @@ function AskCartHome() {
                 <QuestionCard guide={s.guide} lang={lang} busy={busy}
                               onChip={(c) => applyAnswer(c, s.guide)}
                               onTyped={(txt) => answerTyped(txt, s.guide)}
-                              onSkip={skipGuide} progress={Math.min(4, s.turn)} />
+                              onSkip={skipGuide} progress={s.turn} />
               )}
 
               {s && s.error && (

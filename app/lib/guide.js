@@ -685,18 +685,21 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     if (!eligible.includes("category")) eligible.push("category");
     order = ["category", ...eligible.filter((t) => t !== "category")];
   }
-  // Destination stop (2026-11-05, user requirement: keep asking after
-  // every answer, each question on the narrowed set). Stop only when the
-  // narrowed set is a pickable shortlist (<=6 items). The old P8
-  // "two settled facets" stop ended chains after a single answer - the
-  // exact behaviour the user reported ("after answering one question,
-  // it is not asking me any other question").
+  // Destination stop (2026-11-06, user requirement: keep asking until the
+  // shopper is left with exactly ONE product - or zero, if an answer path
+  // holds nothing). Every question carries a live "Any / No preference /
+  // Not sure" escape chip, and the ladder leads with the most decisive
+  // (halving) facets, so 6-7 answered questions can converge on a single
+  // item without dead-ending the chain. The old "<=6 pickable shortlist"
+  // stop ended chains far too early.
   // Only after at least one ANSWERED question: the first question is
   // guaranteed on every search (product premise), even when the initial
   // set is already small.
-  if (nResults <= 6 && prev.size >= 1) {
+  if (nResults <= 1 && prev.size >= 1) {
     return { ask: false, type: null, options: [], question: "",
-             reason: "destination reached (" + nResults + " items - a pickable shortlist)",
+             reason: nResults === 0
+               ? "set exhausted (0 items) - this answer path holds nothing"
+               : "destination reached (1 item left - your pick)",
              stats };
   }
 
@@ -761,6 +764,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
         dominantShare <= 0.5 && (stats.categories[1] || { count: 0 }).count / Math.max(1, stats.n) >= 0.15) {
       const names = rankCategoriesByIntent(stats.categories.slice(0, 4).map((c) => c.name), query);
       const cats = names.map((nm) => ({ label: displayCat(nm), count: (stats.categories.find((c) => c.name === nm) || { count: 0 }).count }));
+      cats.push({ label: "Any category", count: stats.n }); // safe option (never zeroes the chain)
       return out("category", cats.map((c) => c.label), cats,
         "guaranteed first question: subject-free query - candidate set splits across product families (relaxed data floor)");
     }
@@ -867,7 +871,12 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
           "open refinement: options drawn from the narrowed set (brands), typed escape available", "brands");
       }
       const P = stats.priceP || {};
-      if (P.p25 > 0 && P.p75 > P.p25 && stats.items.length >= 5 && !usedAny.has("bands")) {
+      // 2026-11-06: a stated budget already settled the price facet -
+      // sub-budget bands ("Under 909 / 909-1579" after "under 2000")
+      // read as a bad question, so the bands source only runs when the
+      // query states no budget.
+      if (P.p25 > 0 && P.p75 > P.p25 && stats.items.length >= 5 && !usedAny.has("bands") &&
+          parsed.budgetMax === null) {
         const p25 = Math.round(P.p25).toLocaleString("en-IN");
         const p75 = Math.round(P.p75).toLocaleString("en-IN");
         // Only "Under"/range bands: both map to an applicable budget cap.
@@ -981,6 +990,12 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // "AMAZON FASHION"); the raw names stay the filter values (CAT_ALIAS in
     // search.js maps the display label back on a chip tap).
     optionCounts = names.map((nm) => ({ label: displayCat(nm), count: catCount(nm) }));
+    // Safe option (2026-11-06): "Any category" keeps the whole narrowed
+    // set, so a category answer can never zero the chain - the next
+    // question runs on the same set. The grounded gate ignores
+    // Any/No-preference/Not-sure labels, so it never counts as a live
+    // data option.
+    if (stats.n > 0) optionCounts.push({ label: "Any category", count: stats.n });
     options = optionCounts.map((c) => c.label);
   } else if (type === "brand") {
     const brandFloor = Math.max(5, Math.round(0.05 * stats.n));
