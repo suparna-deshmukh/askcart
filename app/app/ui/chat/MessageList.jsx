@@ -3,8 +3,9 @@
 // the user has scrolled up, in which case a "New message" pill appears.
 import { useEffect, useRef, useState } from "react";
 import { Message } from "./Message";
+import { I } from "../kit/Icon";
 
-export function MessageList({ messages, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onRetry, onSendText, context }) {
+export function MessageList({ messages, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onRetry, onSendText, context, onWish, wished }) {
   const ref = useRef(null);
   const nearBottom = useRef(true);
   const [pill, setPill] = useState(false);
@@ -31,7 +32,8 @@ export function MessageList({ messages, busy, onChip, onAdd, onOpen, onFeedback,
       {messages.map((m) => (
         <Message key={m.id} m={m} latest={m.id === lastAsst?.id} busy={busy}
                  onChip={onChip} onAdd={onAdd} onOpen={onOpen}
-                 onFeedback={onFeedback} feedbackDone={feedbackDone} onRetry={onRetry} />
+                 onFeedback={onFeedback} feedbackDone={feedbackDone} onRetry={onRetry}
+                 onWish={onWish} wished={wished} />
       ))}
       {pill && (
         <button className="cht-newpill" onClick={() => { const el = ref.current; if (el) { el.scrollTop = el.scrollHeight; nearBottom.current = true; } setPill(false); }}>
@@ -42,20 +44,34 @@ export function MessageList({ messages, busy, onChip, onAdd, onOpen, onFeedback,
   );
 }
 
+const HERO_CARDS = [
+  { icon: "gift", text: "Gift under ₹2000" },
+  { icon: "party", text: "Diwali decorations" },
+  { icon: "smartphone", text: "Phone under ₹15k" },
+  { icon: "clock", text: "Wristwatch for dad under 5k" },
+];
+const PDP_CARDS = [
+  { icon: "gift", text: "Is this a good gift?" },
+  { icon: "star", text: "How is the rating?" },
+  { icon: "wallet", text: "Is the price fair?" },
+  { icon: "chat", text: "Compare with similar items" },
+];
+
 function EmptyState({ onSuggest, context }) {
   const isPdp = !!(context && context.sku);
-  const hero = ["Gift under ₹2000", "Diwali decorations", "Phone under ₹15k", "Wristwatch for dad under 5k"];
-  const pdp = ["Is this a good gift?", "How is the rating?", "Is the price fair?"];
-  const sugs = isPdp ? pdp : hero;
+  const cards = isPdp ? PDP_CARDS : HERO_CARDS;
   return (
     <div className="cht-empty">
+      <div className="cht-empty-spark" aria-hidden="true"><I name="sparkle" size={30} /></div>
       <div className="cht-empty-greet">
         Hi, I'm the AskCart assistant. I can search, compare, and explain products - answers come only from the demo catalogue.
       </div>
-      <div className="cht-empty-sug">Try one of these:</div>
-      <div className="cht-chips">
-        {sugs.map((s) => (
-          <button key={s} className="cht-chip" onClick={() => onSuggest && onSuggest(s)}>{s}</button>
+      <div className="cht-empty-cards">
+        {cards.map((c) => (
+          <button key={c.text} className="cht-empty-card" onClick={() => onSuggest && onSuggest(c.text)}>
+            <I name={c.icon} size={17} aria-hidden="true" />
+            <span>{c.text}</span>
+          </button>
         ))}
       </div>
       <div className="cht-empty-disc">AI assistant · demo catalogue · can be wrong</div>

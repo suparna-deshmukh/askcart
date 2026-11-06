@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Overlay } from "./kit/Overlay";
+import { I } from "./kit/Icon";
 import { track, setPersona } from "../lib/track";
 
 // O5: the 3-question persona now lives behind /?onboard=1 (it is not on the
@@ -9,25 +11,30 @@ import { track, setPersona } from "../lib/track";
 //  - context=Gifting -> occasion-first question ordering (guide.js)
 //  - userType=Student -> budget options one step lower (guide.js)
 //  - Senior -> larger text mode; all answers -> cohort segmentation
-// First-visit persona (2026-11-06): exactly 3 centered questions —
-// what you shop for, your age band, your default value bar. Every answer
-// has a visible payoff (spendStyle -> ranking + "flexible" defaults,
-// context=Gifting -> occasion-first questions, ageBand -> budget-step
-// calibration), and skip leaves the app fully usable with defaults.
+// Phase 7 (brief §12): Overlay modal (desktop) / bottom sheet (mobile),
+// 3-segment progress bar, Back, card options with per-option icons,
+// select -> 220ms auto-advance. Tracking + payload unchanged.
 const STEPS = [
-  { key: "context",
+  { key: "context", icon: "bag",
     label: "What are you mostly shopping for?",
     sub: "One tap — we calibrate the follow-up questions around it. You can always mix it later.",
-    opts: ["Myself", "Family & kids", "Gifting", "Home & appliances", "A mix of all"] },
-  { key: "ageBand",
+    opts: ["Myself", "Family & kids", "Gifting", "Home & appliances", "A mix of all"],
+    grid: true,
+    optIcons: { "Myself": "user", "Family & kids": "heart", "Gifting": "gift", "Home & appliances": "home", "A mix of all": "layers" } },
+  { key: "ageBand", icon: "cake",
     label: "How old are you?",
     sub: "Helps us match styles, sizes and question order. Never shown to anyone.",
-    opts: ["Under 25", "25\u201340", "40+"] },
-  { key: "spendStyle",
+    opts: ["Under 25", "25\u201340", "40+"],
+    grid: false,
+    optIcons: { "Under 25": "sparkle", "25\u201340": "user", "40+": "heart" } },
+  { key: "spendStyle", icon: "wallet",
     label: "How do you usually decide what's worth buying?",
     sub: "Your budget changes with the product — this tells us your default bar, not a cap.",
     opts: ["Best price — I compare a lot", "Good quality at a fair price",
-           "Brand matters most", "Premium, if it's worth it"] },
+           "Brand matters most", "Premium, if it's worth it"],
+    grid: false,
+    optIcons: { "Best price — I compare a lot": "wallet", "Good quality at a fair price": "badge-check",
+                "Brand matters most": "shield-check", "Premium, if it's worth it": "star" } },
 ];
 
 // spendStyle -> default budget cap used when the shopper picks
@@ -59,17 +66,28 @@ export const SPEND_BRAND_AFFINITY = {
 export function Onboarding({ onDone }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [sel, setSel] = useState(null);
   const [t0] = useState(() => Date.now());
+  const [mobile, setMobile] = useState(false);
   const s = STEPS[step];
 
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const f = () => setMobile(mq.matches);
+    f();
+    mq.addEventListener ? mq.addEventListener("change", f) : mq.addListener(f);
+    return () => mq.removeEventListener ? mq.removeEventListener("change", f) : mq.removeListener(f);
+  }, []);
+
   function pick(opt) {
-    const next = { ...answers, [s.key]: opt };
-    if (step + 1 < STEPS.length) {
-      setAnswers(next);
-      setStep(step + 1);
-    } else {
-      finish(next);
-    }
+    if (sel) return; // mid-advance
+    setSel(opt);
+    setTimeout(() => {
+      const next = { ...answers, [s.key]: opt };
+      setSel(null);
+      if (step + 1 < STEPS.length) { setAnswers(next); setStep(step + 1); }
+      else finish(next);
+    }, 220);
   }
 
   function finish(next) {
@@ -98,20 +116,38 @@ export function Onboarding({ onDone }) {
     onDone(null);
   }
 
+  function back() {
+    if (step > 0) setStep(step - 1); // answers kept
+  }
+
   return (
-    <div className="ob-wrap">
-      <div className="ob">
-        <div className="ob-head">
-          <span className="ob-step">Set up your shopping profile · {step + 1}/{STEPS.length}</span>
-          <button className="ob-skip" onClick={skip}>Skip for now</button>
+    <Overlay variant={mobile ? "sheet" : "modal"} label="Set up your shopping profile" onClose={skip} width={560}>
+      <div className="ob2">
+        <div className="ob2-top">
+          <button className="ob2-back" onClick={back} disabled={step === 0}>
+            <I name="arrow-left" size={14} /> Back
+          </button>
+          <span className="ob2-count">Question {step + 1} of {STEPS.length}</span>
+          <button className="ob2-skip" onClick={skip}>Skip for now</button>
         </div>
-        <div className="ob-q">{s.label}</div>
-        {s.sub && <div className="ob-sub">{s.sub}</div>}
-        <div className="ob-opts">
-          {s.opts.map((o) => <button key={o} onClick={() => pick(o)}>{o}</button>)}
+        <div className="ob2-progress" aria-hidden="true"><span style={{ width: ((step + 1) / STEPS.length * 100) + "%" }} /></div>
+        <div className="ob2-icon" aria-hidden="true"><I name={s.icon} size={24} /></div>
+        <h2 className="ob2-q">{s.label}</h2>
+        {s.sub && <p className="ob2-sub">{s.sub}</p>}
+        <div className={"ob-opts ob2-opts" + (s.grid ? " ob2-grid" : " ob2-rows")}>
+          {s.opts.map((o) => {
+            const span2 = s.grid && o === "A mix of all";
+            return (
+              <button key={o} className={"ob2-card" + (sel === o ? " sel" : "") + (span2 ? " span2" : "")}
+                      aria-pressed={sel === o} onClick={() => pick(o)}>
+                <span className="ob2-card-ic" aria-hidden="true"><I name={s.optIcons[o] || "check"} size={20} /></span>
+                <span className="ob2-card-t">{o}</span>
+                {sel === o && <I name="check" size={16} className="ob2-card-chk" aria-hidden="true" />}
+              </button>
+            );
+          })}
         </div>
-        <div className="ob-dots">{STEPS.map((_, i) => <span key={i} className={i <= step ? "on" : ""} />)}</div>
       </div>
-    </div>
+    </Overlay>
   );
 }

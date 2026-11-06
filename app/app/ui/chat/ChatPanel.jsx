@@ -4,12 +4,13 @@
 // composer on open and back to the launcher on close; Esc closes.
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "./useChat";
+import { I } from "../kit/Icon";
 import { MessageList } from "./MessageList";
 import { Composer } from "./Composer";
 import { track } from "../../lib/track";
 import "./chat.css";
 
-export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool, onPromptConsumed }) {
+export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool, onPromptConsumed, aiLive, onWish, wished }) {
   const chat = useChat({ context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool });
   const [mobile, setMobile] = useState(false);
   const composerRef = useRef(null);
@@ -86,14 +87,18 @@ export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, 
       aria-modal={mobile ? "true" : undefined}
       onKeyDown={onKey}
     >
+      <span className="cht-handle" aria-hidden="true" />
       <div className="cht-header">
-        <div className="cht-avatar" aria-hidden="true">A</div>
+        <div className="cht-avatar" aria-hidden="true"><I name="sparkle" size={16} /></div>
         <div className="cht-head-txt">
           <span className="cht-head-title">AskCart Assistant</span>
-          <span className="cht-head-sub">AI · demo catalogue</span>
+          <span className="cht-head-sub">
+            <span className={"cht-dot" + (aiLive ? " live" : " rules")} aria-hidden="true" />
+            {aiLive ? "AI · answers only from the demo catalogue" : "Rules mode · answers only from the demo catalogue"}
+          </span>
         </div>
-        <button className="cht-head-btn" onClick={() => { chat.clear(); }} title="Clear chat" aria-label="Clear chat">⋯</button>
-        <button className="cht-head-btn" onClick={onClose} aria-label="Close chat">✕</button>
+        <button className="cht-head-btn" onClick={() => { chat.clear(); }} title="Clear chat" aria-label="Clear chat"><I name="more-horizontal" size={18} /></button>
+        <button className="cht-head-btn" onClick={onClose} aria-label="Close chat"><I name="x" size={18} /></button>
       </div>
       <MessageList
         messages={chat.messages}
@@ -105,6 +110,8 @@ export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, 
         onFeedback={handleFeedback}
         feedbackDone={feedbackDone}
         onSendText={(t) => chat.sendText(t)}
+        onWish={onWish}
+        wished={wished}
       />
       <Composer busy={chat.busy} onSend={(t) => chat.sendText(t)} disabled={false} />
     </div>

@@ -1738,11 +1738,7 @@ function AskCartHome() {
                   <div className="hero2-right"><HeroDemo /></div>
                 </div>
               )}
-              {personaModal && !s && (
-                <div className="pm-overlay" role="dialog" aria-modal="true" aria-label="Set up your shopping profile">
-                  <Onboarding onDone={onOnboarded} />
-                </div>
-              )}
+              {personaModal && !s && <Onboarding onDone={onOnboarded} />}
               {s && (
                 <div className="hero" style={{ paddingBottom: 0 }}>
                   <div className="searchbar">
@@ -2031,6 +2027,9 @@ function AskCartHome() {
         onOpenCart={() => { setCartOpen(true); track("cart_view", { item_count: cartCount, source: "chat" }); }}
         onPromptConsumed={() => setChatPrompt(null)}
         itemPool={[...(s ? s.results : []), ...(pdp ? [pdp] : []), ...(preview ? preview.items : [])]}
+        aiLive={!!(aiStatus && aiStatus.gemini && !aiStatus.gemini.allExhausted)}
+        onWish={(it) => toggleWish(it)}
+        wished={wish}
       />
       {quick && (
         <QuickView lang={lang} item={quick}

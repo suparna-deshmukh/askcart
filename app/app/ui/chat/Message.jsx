@@ -5,6 +5,9 @@ import { QuickReplies } from "./QuickReplies";
 import { Feedback } from "./Feedback";
 
 function CompareTable({ rows }) {
+  // Data-derived marks only: lowest price and highest rating get a check.
+  const bestPrice = rows.length ? Math.min(...rows.map((r) => r.price)) : null;
+  const bestRating = rows.length ? Math.max(...rows.map((r) => r.rating)) : null;
   return (
     <div className="cht-compare">
       <table>
@@ -14,9 +17,9 @@ function CompareTable({ rows }) {
         <tbody>
           {rows.map((r) => (
             <tr key={r.sku}>
-              <td>{r.title}</td>
-              <td className="num">₹{r.price.toLocaleString("en-IN")}</td>
-              <td className="num">★ {r.rating} ({r.num_ratings})</td>
+              <td className="first">{r.title}</td>
+              <td className="num">{r.price === bestPrice && rows.length > 1 ? <span className="cht-best">✓ </span> : null}₹{r.price.toLocaleString("en-IN")}</td>
+              <td className="num">{r.rating === bestRating && rows.length > 1 ? <span className="cht-best">✓ </span> : null}★ {r.rating} ({r.num_ratings})</td>
               <td>{r.specs}</td>
             </tr>
           ))}
@@ -26,7 +29,7 @@ function CompareTable({ rows }) {
   );
 }
 
-export function Message({ m, latest, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone }) {
+export function Message({ m, latest, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onWish, wished }) {
   if (m.role === "user") {
     return <div className="cht-msg cht-msg-user">{m.text}</div>;
   }
@@ -62,7 +65,8 @@ export function Message({ m, latest, busy, onChip, onAdd, onOpen, onFeedback, fe
       {products.map((p, pi) => p.items.map((it, ii) => (
         <ProductMini key={it.sku + pi} item={it} pos={ii + 1}
                      onAdd={(x, pos) => { onAdd(x, pos); }}
-                     onOpen={(x, pos) => onOpen(x, pos)} />
+                     onOpen={(x, pos) => onOpen(x, pos)}
+                     onWish={onWish} wished={wished ? wished.includes(it.sku) : false} />
       )))}
       {compare && <CompareTable rows={compare.rows} />}
       <Feedback m={m} latest={latest} disabled={!interactive || !!feedbackDone[m.id]} onFeedback={onFeedback} />
