@@ -1604,3 +1604,56 @@ sense… add a Gemini icon over there."
   OK · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0
   76/76, 0 grounding, 37/37 safe.
 - Local commit only, no GitHub/remote.
+
+## 2026-11-06 — Item B: one-call journey planner + query KB (LLM calls/journey = 1)
+
+User: "the LLM should plan the whole question ladder in one call (at start or
+after the first answer), so calls drop to 1 and perceived latency is minimal;
+knowledge-base of query pieces -> facets; filters from Gemini on every answer
+stay."
+
+- NEW `app/lib/plan.js`: a single Gemini call (3 s timeout, 3-key chain, 3-fail
+  breaker) plans the WHOLE ladder - up to 7 question types in ask-order, each
+  with a <=12-word phrasing - from the live grounded type set. 10-min cache
+  keyed `query|parsed-slots|persona` (turn 2+ = cache read, 0 calls).
+  Validation: type must be in the grounded set; phrasing must be <=12 words
+  with no prices/URLs/digits (else template fallback for that entry); unknown
+  types dropped. Model down / keys exhausted -> null -> deterministic policy
+  order (v6 behaviour). Disagreements vs the policy order ->
+  `app/.plan_disagreements.jsonl` (free QA set).
+- NEW `scripts/build_query_kb.py` -> `app/data/query_kb.json`: 300 mined query
+  entries (hero chips + 111 canaries + eval v2 panel + semantic panel + old
+  n=150 + live analytics traffic) tagged with already-stated facets (budget
+  187, occasion 170, for_whom 81, spec 9, brand 5). Feeds the plan prompt as
+  few-shot "query -> already stated: ..." so the model never plans a question
+  the query already answers.
+- guide.js: the per-turn `planQuestionType` (guide_planner.js, deleted) is
+  replaced by `getLadderPlan`; planned types that are still grounded +
+  unasked LEAD the deterministic order; the plan's phrasing overrides the
+  template (English only - hi/hinglish stay on static tables) and sets
+  `decision.planPhrase`.
+- guide route: `planPhrase` -> `mode:"plan"` SKIPS the old per-question
+  phrasing LLM call. ai_call kind is now `plan` (+`cached` flag).
+- guide_ai.js + ai-refine route: refine accepts `question:false` - when the
+  plan owns the question sequence it returns FILTERS ONLY (maxTokens 512->160,
+  cheaper). The per-answer actionable Gemini filters the user asked for stay.
+  BUG FIX: the refine `ai_call` record sat AFTER the `return` (dead code) -
+  refine calls were never in the analytics ledger; moved before the return.
+- Client (page.jsx): `planPhraseRef` tracks whether the shown question is
+  plan-owned; refine calls go filters-only in that case; the plan's next
+  question (via /api/guide cache, 0 LLM calls) wins over refine's question;
+  the session AI budget refunds on cached plan reads (budget now tracks real
+  Gemini calls, not turns).
+- Net call math (chip-only 3-question journey): 1 plan + 3 filters-only
+  refine = 4 (was ~5-8). All-chip cached journey after the plan: 1 total.
+- Verified: unit tests with stubbed fetch (parse/validate, invalid-type drop,
+  price/URL phrasing rejection, cache = 1 fetch per journey; a cache-key bug
+  found+fixed during testing), live journey "saree under 2700" -> size ->
+  brand chain intact with the key exhausted (honest policy fallback, pill
+  "AI · Rules (offline) · 20/20 today"), no page errors.
+- docs/llm_routing.md (new budget math) + docs/event_schema.md (ai_call
+  fields) updated.
+- Gates (all green): canaries 111+6 0-fail · contrast 16/16 · sync --check
+  OK · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0
+  76/76, 0 grounding, 37/37 safe.
+- Local commit only, no GitHub/remote.

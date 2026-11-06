@@ -36,14 +36,31 @@ AI decision needed (question-type pick OR post-answer refine OR phrasing)
 
 ## Calls per journey (the budget math)
 
-Per search submit: **planner (1) + phrasing (1)** = up to 2 calls.
-Per follow-up answer: **refine (1)**. A 3-question journey ≈ **5 calls**.
-With 3 keys × 20 RPD = 60 calls/day across all users, ~12 heavy journeys
-exhaust the day - after that every decision comes from the deterministic
-policy (journey unchanged, sequencing less adaptive). Caching (10 min,
-same-state repeats free) and the session budget (8) extend the reach.
-The top-bar pill always shows which engine answered and each key's
-x/20 usage, so the budget is visible, not a surprise.
+**Item B (2026-11-06): one plan call owns the whole question sequence.**
+
+- **Journey start:** the `/api/guide` request triggers **one plan call**
+  (`app/lib/plan.js`). Gemini returns the entire follow-up ladder - up to 7
+  question types in ask-order, each with a <=12-word phrasing - in a single
+  call. It is cached 10 min keyed on `query|parsed-slots|persona`, so every
+  later turn in the same journey reads the cache (**0 calls**).
+- **No separate phrasing call:** the plan already phrased each question
+  (server-validated: <=12 words, no prices/URLs). `decision.planPhrase`
+  tells the guide route to skip its old per-question phrasing call
+  (`mode: "plan"`).
+- **Per follow-up answer:** one **refine** call, but now **filters-only**
+  (the journey plan owns the question sequence, so refine no longer
+  generates a question; `maxTokens` drops 512 -> 160). Every proposed
+  filter value is still validated against the live narrowed set.
+
+Net: a chip-only 3-question journey = **1 plan + 3 filters-only refine = 4
+calls** (was planner+phrasing per turn + refine per answer = ~5-8). A
+journey answered entirely from cached state after the plan = 1 call total.
+With 3 keys × 20 RPD = 60 calls/day across all users, that is ~15
+chip-journeys - after that every decision comes from the deterministic
+policy (journey unchanged, sequencing less adaptive). The session budget (8)
+and the 10-min plan cache extend the reach. The top-bar pill shows the
+running **x/60 today** total across all keys + all users, each key's x/20 on
+hover, so the budget is visible, not a surprise.
 
 ## Gemini key chain rules (`app/lib/gemini_keys.js`)
 
@@ -94,8 +111,11 @@ facets.
 
 ## Analytics
 
-- `ai_call` {kind: planner|refine, via: qwen|gemini|rules|cache, key_idx, ms,
-  session_id, turn} — every AI decision, server-recorded.
+- `ai_call` {kind: plan|refine, via: gemini|rules, key_idx, cached, ms,
+  session_id, turn} — every AI decision, server-recorded. `kind:"plan"` is
+  the one-call journey planner (fires once per journey; `cached:true` marks
+  the cache reads that cost zero LLM calls). `kind:"refine"` carries
+  `question: bool` (false = filters-only mode).
 - `ai_key_exhausted` {key_idx, reason: rpd|quota_or_auth|invalid_key, kind}.
 - Both feed the Analytics → Backend (Admin) sub-tab: engine mix per user,
   key-switch counts, AI vs rule question share.

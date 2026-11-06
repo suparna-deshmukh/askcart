@@ -45,7 +45,7 @@ All events carry (added client-side, `app/app/lib/track.js`):
 
 | Event | Emitted when | Key properties |
 |---|---|---|
-| `ai_call` | every AI decision (server-recorded on /api/guide and /api/ai-refine) | `kind` (planner/refine), `via` (llm=Qwen/gemini/rules/cache), `key_idx` (Gemini key 0-based, null when not Gemini), `ms`, `turn`, `session_id` |
+| `ai_call` | every AI decision (server-recorded on /api/guide and /api/ai-refine) | `kind` (plan/refine — `plan` is the one-call journey planner, fires once per journey; `cached:true` marks zero-LLM cache reads), `via` (gemini/rules), `key_idx` (Gemini key 0-based, null when not Gemini), `cached` (plan cache hit), `question` (refine: bool, false = filters-only), `ms`, `turn`, `session_id` |
 | `ai_key_exhausted` | a Gemini key hit its daily cap / quota / invalid-key and the chain rotated | `key_idx`, `reason` (rpd/quota_or_auth/invalid_key), `kind` (planner/refine) |
 
 Per-session rollups (searches, questions, answers, carts, orders, orderValue,

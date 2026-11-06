@@ -60,6 +60,12 @@ export async function POST(req) {
     question = t(lang, "q" + decision.type[0].toUpperCase() + decision.type.slice(1));
     options = options.map(translateOption);
     optionCounts = optionCounts.map((c) => ({ ...c, label: translateOption(c.label) }));
+  } else if (decision.planPhrase) {
+    // Item B: the one-call journey plan already phrased this question
+    // (server-validated: <=12 words, no prices/URLs) - no second LLM
+    // call. This is what makes a chip-only journey cost exactly one
+    // Gemini call.
+    mode = "plan";
   } else if (!geminiStatus().allExhausted && forceMode !== "fallback") {
     try {
       const userMsg =
@@ -92,8 +98,9 @@ export async function POST(req) {
     const via = decision.planner || (mode === "llm" ? "gemini" : null);
     if (via || body.planner === true) {
       record("ai_call", {
-        kind: "planner", via: via || "rules",
+        kind: "plan", via: via || "rules",
         key_idx: (decision.plannerAi && decision.plannerAi.keyIdx) ?? null,
+        cached: !!(decision.plannerAi && decision.plannerAi.cached),
         ms: Date.now() - t0g,
         session_id: String(body.session_id || "").slice(0, 40) || undefined,
         turn,
@@ -114,6 +121,7 @@ export async function POST(req) {
       topCategory: decision.stats ? decision.stats.topCategory : null,
       planner: decision.planner || null,
       plannerAi: decision.plannerAi || null,
+      planPhrase: decision.planPhrase || null,
       gemini: geminiStatus(),
     },
   });

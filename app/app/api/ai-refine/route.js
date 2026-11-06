@@ -119,6 +119,9 @@ export async function POST(req) {
     answerType: String(body.answer_type || "any").slice(0, 24),
     prevTypes: Array.isArray(body.prev_types) ? body.prev_types : [],
     set: preSet,
+    // Item B: when the journey plan owns the question sequence the client
+    // says so and refine returns FILTERS ONLY (cheaper call).
+    question: body.question !== false,
   });
 
   // When the AI also proposes filters, its question must be grounded on
@@ -141,6 +144,20 @@ export async function POST(req) {
     if (postSet.n <= 12) question = null;
   }
 
+  // (2026-11-06 fix) the record block used to sit AFTER the return -
+  // dead code - so refine calls were never in the analytics ledger.
+  try {
+    record("ai_call", {
+      kind: "refine", via: via || "rules",
+      question: body.question !== false,
+      key_idx: (out && out.ai && out.ai.keyIdx) ?? null,
+      ms: Date.now() - t0,
+      session_id: String(body.session_id || "").slice(0, 40) || undefined,
+    });
+    if (out && out.ai && out.ai.rotatedFrom != null) {
+      record("ai_key_exhausted", { key_idx: out.ai.rotatedFrom, reason: "rpd_or_quota", kind: "refine" });
+    }
+  } catch { /* analytics must never break refine */ }
   return NextResponse.json({
     ok: true,
     via,
@@ -155,15 +172,4 @@ export async function POST(req) {
       gemini: geminiStatus(),
     },
   });
-  try {
-    record("ai_call", {
-      kind: "refine", via: via || "rules",
-      key_idx: (out && out.ai && out.ai.keyIdx) ?? null,
-      ms: Date.now() - t0,
-      session_id: String(body.session_id || "").slice(0, 40) || undefined,
-    });
-    if (out && out.ai && out.ai.rotatedFrom != null) {
-      record("ai_key_exhausted", { key_idx: out.ai.rotatedFrom, reason: "rpd_or_quota", kind: "refine" });
-    }
-  } catch { /* analytics must never break refine */ }
 }

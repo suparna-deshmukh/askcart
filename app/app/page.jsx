@@ -295,13 +295,18 @@ function AskCartHome() {
       if (rv && rv.region) setRegion(rv.region);
       setStripDismissed(localStorage.getItem("askcart_strip_dismissed") === "1");
     } catch {}
-    // LLM routing status for the top-bar pill (no LLM call made).
-    fetch("/api/ai-status").then((r) => r.json()).then((j) => {
-      if (j && j.ok) {
-        setAiStatus(j);
-        aiBudgetRef.current = Math.max(1, Number(j.aiMaxPerSession) || 8);
-      }
-    }).catch(() => {});
+    // LLM routing status for the top-bar pill (no LLM call made - the
+    // ledger read is free, so poll every 30 s to keep the totals fresh).
+    const refreshAiStatus = () =>
+      fetch("/api/ai-status").then((r) => r.json()).then((j) => {
+        if (j && j.ok) {
+          setAiStatus(j);
+          aiBudgetRef.current = Math.max(1, Number(j.aiMaxPerSession) || 8);
+        }
+      }).catch(() => {});
+    refreshAiStatus();
+    const iv = setInterval(refreshAiStatus, 30000);
+    return () => clearInterval(iv);
   }, []);
   const [stripOpen, setStripOpen] = useState(false);
   const [personaModal, setPersonaModal] = useState(false);
@@ -312,6 +317,10 @@ function AskCartHome() {
   const [aiToast, setAiToast] = useState(null);
   const lastAiViaRef = useRef(null);   // "gemini" | null
   const lastAiKeyRef = useRef(null);
+  // Item B: true while the shown question came from the one-call journey
+  // plan - then ai-refine returns FILTERS ONLY and the plan (via /api/guide,
+  // cached server-side, zero extra LLM calls) owns the next question.
+  const planPhraseRef = useRef(false);
   const aiBudgetRef = useRef(8);       // AI decisions per session (cost cap)
   const aiBudgetNotedRef = useRef(false);
   useEffect(() => { try { document.documentElement.lang = lang === "hi" ? "hi" : lang === "hinglish" ? "hi-Latn" : "en"; } catch {} }, [lang]);
@@ -507,17 +516,25 @@ function AskCartHome() {
 
   function aiPillText() {
     const g = aiStatus && aiStatus.gemini;
+    // Total Gemini calls across ALL keys and ALL users (the usage ledger
+    // is shared per deployment) - user requirement 2026-11-06: the pill
+    // shows the running "x/60 today" total, not just readiness.
+    const used = g && g.keys.length ? g.keys.reduce((a, k) => a + (k.used || 0), 0) : null;
+    const cap = g && g.keys.length ? g.keys.length * g.rpd : null;
+    const usage = used != null ? " · " + used + "/" + cap + " today" : "";
     if (lastAiViaRef.current === "gemini") {
       const k = lastAiKeyRef.current;
-      return "AI · Gemini" + (k == null ? "" : " key " + (k + 1) + "/" + (g ? g.keys.length : 1));
+      return "AI · Gemini" + (k == null ? "" : " key " + (k + 1) + "/" + (g ? g.keys.length : 1)) + usage;
     }
-    if (g && !g.allExhausted) return "AI · Gemini · ready";
-    return "AI · Rules (offline)";
+    if (g && !g.allExhausted) return "AI · Gemini" + usage;
+    return "AI · Rules (offline)" + (used != null ? " · " + used + "/" + cap + " today" : "");
   }
   function aiPillTitle() {
     const g = aiStatus && aiStatus.gemini;
     const bits = [];
     if (g && g.keys.length) {
+      const used = g.keys.reduce((a, k) => a + (k.used || 0), 0);
+      bits.push("TOTAL " + used + "/" + (g.keys.length * g.rpd) + " Gemini calls today (all users)");
       bits.push("Gemini keys (cap " + g.rpd + "/day): " +
         g.keys.map((k) => "key" + (k.idx + 1) + " " + k.used + "/" + k.rpd + (k.exhausted ? " (" + k.reason + ")" : "")).join(", "));
     } else {
@@ -648,6 +665,11 @@ function AskCartHome() {
                              planner: useAI, session_id: getSessionId() }),
     });
     const j = await r.json().catch(() => ({}));
+    // Item B: a cached plan read made NO LLM call - give the budget unit
+    // back so the session budget tracks real Gemini calls, not turns.
+    if (useAI && j.decision && j.decision.plannerAi && j.decision.plannerAi.cached) {
+      aiBudgetRef.current += 1;
+    }
     aiNotice(j.decision);
     return j;
   }
@@ -678,6 +700,7 @@ function AskCartHome() {
     pushNav({ search: null });
     setS({ query, turn: 1, ok: null, results: [], total: null, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
     setInput("");
+    planPhraseRef.current = false;
     journeyRef.current = ensureJourney(query);
     track("search_start", { query, source, journey_id: journeyRef.current.id });
     const t0 = Date.now();
@@ -702,6 +725,7 @@ function AskCartHome() {
       // n_results = intent-hit count (same semantics as the study).
       const g = await askGuide(query, res.results.filter((r) => r.intent).length, 2);
       if (g.guide) {
+        planPhraseRef.current = !!(g.decision && g.decision.planPhrase);
         pushPrevType(g.guide);
         guideShownAtRef.current = Date.now();
         track("guide_question_shown", {
@@ -780,7 +804,7 @@ function AskCartHome() {
   // The server validates every value against the live narrowed set, so
   // Gemini can never invent a brand/category/price/keyword; when it is
   // down or empty the page behaves exactly as v6 (deterministic policy).
-  async function askAIRefine({ query, queryExt, slots, answer, answerType, prevTypes }) {
+  async function askAIRefine({ query, queryExt, slots, answer, answerType, prevTypes, question = true }) {
     if (aiBudgetRef.current <= 0) return null; // quick mode: deterministic chain continues
     aiBudgetRef.current -= 1;
     const ctrl = new AbortController();
@@ -788,7 +812,7 @@ function AskCartHome() {
     try {
       const r = await fetch("/api/ai-refine", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, query_ext: queryExt || "", slots, answer, answer_type: answerType, prev_types: prevTypes || [], lang, session_id: getSessionId() }),
+        body: JSON.stringify({ query, query_ext: queryExt || "", slots, answer, answer_type: answerType, prev_types: prevTypes || [], question, lang, session_id: getSessionId() }),
         signal: ctrl.signal,
       });
       if (!r.ok) return null;
@@ -926,7 +950,8 @@ function AskCartHome() {
     const aiPromise = !plainMode
       ? askAIRefine({ query: s.query, queryExt: extraQ, slots: { ...trailOpts(), ...(s.parsed && s.parsed.budgetMax ? { budget: s.parsed.budgetMax } : {}), ...(s.parsed && s.parsed.occasion ? { occasion: s.parsed.occasion } : {}) },
                       answer: { label: trailLabel, opts }, answerType: guide.type,
-                      prevTypes: journeyRef.current ? journeyRef.current.prevTypes || [] : [] })
+                      prevTypes: journeyRef.current ? journeyRef.current.prevTypes || [] : [],
+                      question: !planPhraseRef.current })
       : Promise.resolve(null);
     const optsClean = Object.fromEntries(Object.entries(opts).filter(([, v]) => v != null));
     let res = await doSearch(s.query + (extraQ ? " " + extraQ : ""), { relax: true, turn: turnNow, ...trailOpts(), ...optsClean });
@@ -976,8 +1001,9 @@ function AskCartHome() {
       // Ask the next ladder question until 1 item remains (or 0), the
       // ladder runs dry, or the shopper skips (2026-11-06: no turn cap).
       if (!plainMode) {
-        const g2 = aiGuideWrap(ai) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots));
+        const g2 = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots));
         if (g2.guide) {
+          planPhraseRef.current = !!(g2.decision && g2.decision.planPhrase);
           pushPrevType(g2.guide);
           guideShownAtRef.current = Date.now();
           track("guide_question_shown", {
@@ -998,8 +1024,9 @@ function AskCartHome() {
     // narrowed set until 1 item remains (or 0), the ladder runs dry, or
     // the shopper skips (2026-11-06: no turn cap).
     if (!plainMode) {
-      const g = aiGuideWrap(ai) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots));
+      const g = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots));
       if (g.guide) {
+        planPhraseRef.current = !!(g.decision && g.decision.planPhrase);
         pushPrevType(g.guide);
         guideShownAtRef.current = Date.now();
         track("guide_question_shown", {
@@ -1068,7 +1095,8 @@ function AskCartHome() {
     const aiPromise = !plainMode
       ? askAIRefine({ query: s.query, queryExt: txt, slots: { ...trailOpts(), ...(s.parsed && s.parsed.budgetMax ? { budget: s.parsed.budgetMax } : {}), ...(s.parsed && s.parsed.occasion ? { occasion: s.parsed.occasion } : {}) },
                       answer: { label: txt, opts: null }, answerType: guide.type,
-                      prevTypes: journeyRef.current ? journeyRef.current.prevTypes || [] : [] })
+                      prevTypes: journeyRef.current ? journeyRef.current.prevTypes || [] : [],
+                      question: !planPhraseRef.current })
       : Promise.resolve(null);
     let res = await doSearch(s.query + " " + txt, { relax: true, turn: turnNow, ...trailOpts() });
     const ai = await Promise.race([aiPromise, new Promise((r) => setTimeout(() => r(null), 5500))]);
@@ -1095,8 +1123,9 @@ function AskCartHome() {
       // Same keep-guiding rule as chip answers: the typed text narrows
       // the set, so the next question is built on the narrowed set.
       if (!plainMode) {
-        const g2 = aiGuideWrap(ai) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }));
+        const g2 = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }));
         if (g2.guide) {
+          planPhraseRef.current = !!(g2.decision && g2.decision.planPhrase);
           pushPrevType(g2.guide);
           guideShownAtRef.current = Date.now();
           track("guide_question_shown", {
@@ -1114,8 +1143,9 @@ function AskCartHome() {
       return;
     }
     if (!plainMode) {
-      const g = aiGuideWrap(ai) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }));
+      const g = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }));
       if (g.guide) {
+        planPhraseRef.current = !!(g.decision && g.decision.planPhrase);
         pushPrevType(g.guide);
         guideShownAtRef.current = Date.now();
         track("guide_question_shown", {
@@ -1154,6 +1184,7 @@ function AskCartHome() {
     if (!plainMode && skips < 3) {
       const g2 = await askGuide(s.query, intentN, s.turn + 1);
       if (g2.guide) {
+        planPhraseRef.current = !!(g2.decision && g2.decision.planPhrase);
         pushPrevType(g2.guide);
         guideShownAtRef.current = Date.now();
         track("guide_question_shown", {

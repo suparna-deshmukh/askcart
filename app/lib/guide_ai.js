@@ -29,17 +29,18 @@ const QTYPES = ["brand", "category", "budget", "occasion", "for_whom", "size", "
 const TYPE_SLOT = { brand: "brand", category: "category", for_whom: "forWhom",
                     size: "size", occasion: "occasion", budget: "budget" };
 
-const AI_SYSTEM =
+const AI_SYSTEM_BASE =
   "You are the refinement engine for AskCart, a guided e-commerce search for India. " +
   "You receive a query, the constraints already answered, the answer the shopper JUST gave, " +
-  "and a summary of the current result set. Output ONLY one JSON object, no prose:\n" +
-  '{"filters":{...},"question":{...}|null}\n' +
+  "and a summary of the current result set. Output ONLY one JSON object, no prose. " +
   '"filters" - at most 2 keys, only for constraints the NEW answer explicitly implies: ' +
   '"brand" (exactly as listed in set brands), "category" (exactly as listed in set categories), ' +
   '"for_whom" (men|women|kids; family words map: ammi/amma/mummy/sister/didi/nani/dadi/daughter/aunt -> women, papa/dad/brother/sasur/beta/son/uncle -> men, child/beti/young cousin -> kids), "size" (exactly as listed in set sizes), ' +
   '"occasion" (gift|birthday|wedding|anniversary|diwali|party|christmas|valentines|graduation|housewarming), ' +
   '"budget_max" (integer INR, not above set maxPrice), "keyword" (1-3 short words, every word present in the set titles or tags). ' +
-  'If the answer adds no new constraint, "filters" is {}.\n' +
+  'If the answer adds no new constraint, "filters" is {}.';
+const AI_SYSTEM_Q =
+  '\nOutput shape: {"filters":{...},"question":{...}|null}. ' +
   '"question" - almost always required: the single most useful NEXT question to cut the set roughly in half ' +
   '(choose the unasked facet whose options split the set most), or null ONLY when n<=12 or no unasked facet ' +
   'has at least 2 options in the set: ' +
@@ -50,6 +51,12 @@ const AI_SYSTEM =
   'kind "for_whom" labels are Men / Women / Kids. ' +
   "Never re-ask a facet already in 'Answered so far' or in 'Asked types'. " +
   "Never invent a value that is not in the set.";
+// Item B: when the journey plan owns the question sequence, refine returns
+// FILTERS ONLY (cheaper call, no duplicate question authority).
+const AI_SYSTEM_NOQ =
+  '\nOutput shape: {"filters":{...}} ONLY. The follow-up question sequence is ' +
+  'owned by the journey plan - do NOT output a question field. Never invent a value that is not in the set.';
+const systemPrompt = (questionMode) => AI_SYSTEM_BASE + (questionMode ? AI_SYSTEM_Q : AI_SYSTEM_NOQ);
 
 function extractJson(raw) {
   const m = String(raw || "").match(/\{[\s\S]*\}/);
@@ -141,7 +148,7 @@ function validateAi(obj, set, answered, askedTypes) {
 }
 
 // Returns { filters, question, via } or null (deterministic fallback).
-export async function aiRefine({ query, queryExt, slots, answerLabel, answerType, prevTypes, set }) {
+export async function aiRefine({ query, queryExt, slots, answerLabel, answerType, prevTypes, set, question = true }) {
   const answered = slots || {};
   const askedTypes = (prevTypes || []).map(String);
   const key = [query, queryExt || "", JSON.stringify(answered), answerLabel, answerType, askedTypes.join(",")].join("\u0001");
@@ -163,9 +170,11 @@ export async function aiRefine({ query, queryExt, slots, answerLabel, answerType
     `Just answered: "${answerLabel}" (to a ${answerType} question)\n` +
     (/[a-z]/.test(answerLabel) && /\b(mother|father|sister|brother|ammi|amma|mummy|papa|dad|dadi|nani|bhai|didi|cousin|friend|wife|husband|kids?|daughter|son)\b/i.test(answerLabel)
       ? "The answer names a person - you MUST set filters.for_whom (men|women|kids).\n" : "") +
-    `Unasked facets still available in this set: ${facetAvail.join(", ") || "none"}. ` +
-    `Allowed question types now: ${QTYPES.filter((t) => !askedTypes.includes(t) && !(TYPE_SLOT[t] && answered[TYPE_SLOT[t]] != null)).join(", ") || "none"}. ` +
-    `You may answer question:null ONLY if the allowed-types list is empty or n<=12.\n` +
+    (question
+      ? `Unasked facets still available in this set: ${facetAvail.join(", ") || "none"}. ` +
+        `Allowed question types now: ${QTYPES.filter((t) => !askedTypes.includes(t) && !(TYPE_SLOT[t] && answered[TYPE_SLOT[t]] != null)).join(", ") || "none"}. ` +
+        `You may answer question:null ONLY if the allowed-types list is empty or n<=12.\n`
+      : `Question planning: NOT needed - the journey plan owns the question sequence. Return filters only.\n`) +
     `Set: ${set.n} items | brands: ${fmtList(set.brands)} | categories: ${fmtList(set.categories)} | ` +
     `tags: ${fmtList(set.tags)} | sizes: ${(set.sizes || []).join(",")} | ` +
     `prices p25/p50/p75/max: ${set.p25}/${set.p50}/${set.p75}/${set.maxPrice}\n` +
@@ -177,7 +186,7 @@ export async function aiRefine({ query, queryExt, slots, answerLabel, answerType
   // Gemini 3-key chain (20 RPD per key) is the only LLM provider (Qwen
   // retired 2026-11-06 per user work order - docs/llm_routing.md).
   try {
-    const g = await geminiGenerate({ system: AI_SYSTEM, user: userMsg, maxTokens: 512, timeoutMs: 2500 });
+    const g = await geminiGenerate({ system: systemPrompt(question), user: userMsg, maxTokens: question ? 512 : 160, timeoutMs: 2500 });
     if (g) {
       raw = g.text; via = "gemini";
       aiMeta = { keyIdx: g.keyIdx, rotatedFrom: g.rotatedFrom ?? null, model: g.model };
@@ -202,6 +211,7 @@ export async function aiRefine({ query, queryExt, slots, answerLabel, answerType
     return null;
   }
   const out = validateAi(obj, set, answered, askedTypes);
+  if (!question) out.question = null; // the journey plan owns the question
   if (Object.keys(out.filters).length === 0 && !out.question) {
     // grounded but empty is a legitimate "nothing to do" - not a failure
   }

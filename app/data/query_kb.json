@@ -1,0 +1,1957 @@
+{
+  "count": 300,
+  "entries": [
+    {
+      "q": "1 litre water bottle",
+      "facets": [
+        "spec"
+      ]
+    },
+    {
+      "q": "1.5 ton ac under 45k",
+      "facets": [
+        "budget",
+        "spec"
+      ]
+    },
+    {
+      "q": "1.5 ton ac under 50k",
+      "facets": [
+        "budget",
+        "spec"
+      ]
+    },
+    {
+      "q": "128gb phone under 15k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "2 ton ac under 70k",
+      "facets": [
+        "budget",
+        "spec"
+      ]
+    },
+    {
+      "q": "43 inch tv under 35k",
+      "facets": [
+        "budget",
+        "spec"
+      ]
+    },
+    {
+      "q": "43 inch tv under 40k",
+      "facets": [
+        "budget",
+        "spec"
+      ]
+    },
+    {
+      "q": "5 star ac under 60k",
+      "facets": [
+        "budget",
+        "spec"
+      ]
+    },
+    {
+      "q": "5 year old girl dress under 500",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "55 inch tv under 50k",
+      "facets": [
+        "budget",
+        "spec"
+      ]
+    },
+    {
+      "q": "7 kg washing machine under 25k",
+      "facets": [
+        "budget",
+        "spec"
+      ]
+    },
+    {
+      "q": "7kg washing machine under 30k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "8gb ram laptop under 50k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "a good birthday present",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "a nice watch for my father",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "accha laptop under 50k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "accha phone 15k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "air fryer under 7k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "air fryr under 7k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "alphagal under 4k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "ammi ke liye gift",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "ammi ke liye saree",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "anniversary gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "anniversary gift for boyfriend",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "anniversary gift for couple",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "anniversary gift for husband",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "anniversary gift for mom and dad",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "anniversary gift for parents",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "anniversary gift for wife",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "anniversary gift ideas",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "anniversary gift ideas for husband",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "anniversary gifts for him",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "anniversary lip balm under 2500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "baby shower items",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "bachelor party gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "bag under 6k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "bartan set under 2k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "bassoon for the house under 500",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "bathrom under 4k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "bauble under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "bedsht queen under 2k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "beta ke liye toy",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "beti ke liye school bag",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "bhai ke liye gift",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "bhai ki wedding me dena hai",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "bhaiya ke liye watch",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "birthday candle under 1750",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for boyfriend",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for boys",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for girl best friend",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for girlfriend",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for girls",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for husband",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for men",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for sister",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for wife",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift for women",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift under 1500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday gift under 1k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday mixer under 2k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "birthday wall art under 2k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "blazer for wedding guest",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "bp monitor for papa",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "budget",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "budget headphones under 3000",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "budget_phone",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "camera for gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "cellphone under 10k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "chacha ke liye gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "chaddar for winter under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "chappal under 500",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "chappals for men",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "chappel for men",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "charger for gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "cheap gifts online india",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "cornu under 2000",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "cousin ki birthday gift",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "croso under 5k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "curtain below 500",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "curtain under 500",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "dabur honey under 400",
+      "facets": [
+        "brand",
+        "budget"
+      ]
+    },
+    {
+      "q": "dafengea under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "decorative lights under 2000",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "decorative lights under 5k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "diamand ring under 30k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "diamon ring under 20k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "diamond ring under 30k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "didi ki shaadi gift",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "didi ki shaadi ke liye kuch",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali cap under 500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali decorations",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali decorative lights under 3k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift ideas",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift ideas corporate",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift ideas for employees",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift ideas for employees under 1000",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift ideas for employees under 1500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift ideas for employees under 3000",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift ideas for employees under 500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift ideas for family",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift ideas for friends",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift ideas for husband",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift under 1k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali gift under 5k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali lights",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "diwali present under 1000",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "dost ke liye surprise",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "ear buds under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "emery under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "festival_gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "floral dress under 800",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "flzosper under 3k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "footwear for men",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "gaming mouse for shaadi",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "genuine fur coat under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "genuine fur coat under 5k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "ghadi for papa",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "ghadi under 1500",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "ghadi under 500",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift basket under 7500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift box for brother",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for 5 year old",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for a colleague retirement",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for a friend moving abroad",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for a teacher appreciation day",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for dost under 1k",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my best friend under 1k",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my best friend under 2k",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my best friend under 3k",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my best friend's gift under 1000",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my best friend's party under 1500",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my colleague under 5k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my husband under 1k",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my husband under 2k",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my husband's shaadi under 1500",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my mom under 1k",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my mom under 2k",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my mom under 5k",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my mom's gift under 800",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my mom's party under 1500",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my new neighbour under 500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my new neighbour's gift under 800",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my new neighbour's shaadi under 1500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for my sister under 2k",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for new home",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift for newlyweds",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift gift under 1000",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift gift under 2k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift gift under 5k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift heels under 500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift idea under 8k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift set",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift set under 1k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift shopping under 3k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift under 2000",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift under 2000 for boys",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift under 2000 for girls",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift under 2000 for marriage",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift under 2000 for men",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift under 2000 for sister",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift under 2000 for wedding",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift under 2000 for women",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift under 20000",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift under 20000 for men",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gift wall art under 250",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gifts for mother",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gifts for mother birthday",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gifts for mother in law",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gifts for mother in law birthday",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gifts for mother under 500",
+      "facets": [
+        "budget",
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "gifts for newlyweds home",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "gold bngle under 3k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "good cap under 4k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "good curtain under 3k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "good dumbbells under 2k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "good heels under 4k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "good yoga mat under 2k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "graduation present for my cousin",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "hawkins pressure cooker",
+      "facets": [
+        "brand"
+      ]
+    },
+    {
+      "q": "headphons under 2k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "headphons under 3000",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "heaphones under 3000",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "housewarming gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "housewarming gift baskets",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "housewarming gift ideas",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "housewarming gift ideas for family",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "housewarming gift shops near me",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "housewarming gifts",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "housewarming gifts for friends",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "housewarming gifts india",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "housewarming gifts under 500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "housewarming gifts under 5000",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "housewarming gifts under ₹1000",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "ipone 14",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "ipone 15",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "jbl speaker",
+      "facets": [
+        "brand"
+      ]
+    },
+    {
+      "q": "jooti for college under 800",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "jooti for men under 1k",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "juti for women",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "jutti for women under 800",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "ketones under 5k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "koi acha gift 2k",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "kuch gift dena hai",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "kurta for beta under 500",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "kurta for bhai",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "kurta for men under 1k",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "kurti for ammi",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "lamplust under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "laptop hp paviln",
+      "facets": [
+        "brand"
+      ]
+    },
+    {
+      "q": "laptop under 50k for college",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "laptop under 60k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "last minute birthday gift under 1500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "last minute birthday gift under 800",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "last minute diwali gift under 1000",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "last minute gift gift under 500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "lehenga for sangeet under 10k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "mangalsutra under 5k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "metalic under 5k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "miskeituo under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "mithai box for diwali",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "mithai gift under 500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "mobile under 5k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "mojari for men",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "mummy ke liye dupatta",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "mummy ke liye gift diwali",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "mummy ki birthday gift",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "myostorm under 2k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "new year gifts",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "nice party present under 1k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "nokia 105 phone",
+      "facets": [
+        "brand",
+        "budget"
+      ]
+    },
+    {
+      "q": "office birthday gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "office wale ke liye gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "organizer below 1000",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "papa ke liye wallet",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "papa ke liye watch",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "party charger under 2k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "party floral dress under 5k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "party gift under 1k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "party gift under 3k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "party gift under 800",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "party heels under 2k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "party present under 800",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "party router under 1500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "party shopping under 6k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "party things for friends",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "pashmina shawl under 3k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "perfume for men under 1500",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "perseus under 7k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "perum for men under 1500",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "phone under 15k for college",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "preimum under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "puffer jacket for women under 5k",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "rakhi gift for sister",
+      "facets": [
+        "for_whom",
+        "occasion"
+      ]
+    },
+    {
+      "q": "rasoi ke liye kuch under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "readymade under 1k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "real diamond stud earrings under 6k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "real diamond stud earrings under 8k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "rebem under 5k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "refregirator under 40k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "room decor under 1000",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "rotary phone under 500",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "roush under 4k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "saaree for shaadi",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "saaree under 3k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "sabse accha phone under 20k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "saree for ammi",
+      "facets": [
+        "for_whom"
+      ]
+    },
+    {
+      "q": "saree for behen under 3k",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "saree for birthday",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "saree for maa under 3k",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "saree for mummy under 3k",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "saree under 2k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "saree under 3k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "sari for shaadi",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "sari under 2k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "sasta headphone",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "sasta phone under 10k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "sasta phone under 15k",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "sasta smartwatch",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "serum under 2500",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "shaadi gift",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi gift basket",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi gift box",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi gift ideas",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi gift item",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi gift packing",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi gift under 1500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi gift under 2k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi gift under 5k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi gifting co uk",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi handbag under 5k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi ke liye kuch",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi present under 500",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi return gift ideas",
+      "facets": [
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi router under 8k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "shaadi shopping under 2k",
+      "facets": [
+        "budget",
+        "occasion"
+      ]
+    },
+    {
+      "q": "shirt for abba under 1k",
+      "facets": [
+        "budget",
+        "for_whom"
+      ]
+    },
+    {
+      "q": "shirt under 1250",
+      "facets": [
+        "budget"
+      ]
+    },
+    {
+      "q": "shoe for wedding guest",
+      "facets": [
+        "occasion"
+      ]
+    }
+  ]
+}

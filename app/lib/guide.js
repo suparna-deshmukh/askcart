@@ -1,4 +1,4 @@
-import { planQuestionType } from "./guide_planner.js";
+import { getLadderPlan, logPlanDisagreement } from "./plan.js";
 
 // Follow-up question policy for AskCart.
 //
@@ -1034,19 +1034,23 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     grounded.set(t, { options: [...options], optionCounts: [...optionCounts], reason });
   }
 
-  // Item D (2026-11-05): the AI planner picks the question TYPE among the
-  // grounded candidates (client opt-in via context.planner). The pick is
-  // validated against the grounded map - an unknown or ungrounded type
-  // falls through to the deterministic per-category order. The planner only
-  // sees the type list + a set summary: it never sees options, prices or
-  // SKUs, so it cannot influence WHAT the shopper is shown.
+  // Item B (2026-11-06): the ONE-call journey planner (app/lib/plan.js).
+  // A single Gemini call (cached 10 min per query|slots|persona) plans the
+  // WHOLE follow-up ladder: up to 7 question types in ask-order, each with
+  // a <=12-word phrasing. Later turns read the cached plan - zero extra
+  // calls. Every planned type is validated against the live grounded map:
+  // a planned type that is no longer grounded (or already asked) drops out
+  // and the deterministic per-category order continues. The plan can only
+  // ORDER and PHRASE - it never sees options, prices or SKUs, so it cannot
+  // influence WHAT the shopper is shown. Model down / keys exhausted ->
+  // null -> the policy order carries the journey (v6 behaviour).
   let plannerInfo = null;
-  if (context.planner && grounded.size >= 2) {
+  if (context.planner && grounded.size >= 1) {
     try {
-      plannerInfo = await planQuestionType({
+      plannerInfo = await getLadderPlan({
         query,
-        slots: context.slots || {},
-        prevTypes: [...prev],
+        parsed,
+        persona: context.persona || null,
         types: [...grounded.keys()],
         setSummary: `n=${stats.n}; top categories: ` +
           stats.categories.slice(0, 4).map((c) => `${c.name}:${c.count}`).join(", ") +
@@ -1054,14 +1058,24 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
       });
     } catch { plannerInfo = null; }
   }
+  // The plan reorders the ladder: still-grounded, unasked planned types
+  // lead (in plan order); the rest keep the deterministic per-category
+  // order.
+  const plannedOrder = (plannerInfo && plannerInfo.plan)
+    ? plannerInfo.plan.map((p) => p.type).filter((t) => grounded.has(t) && !prev.has(t))
+    : [];
+  const ordered = [...plannedOrder, ...order.filter((t) => !plannedOrder.includes(t))];
+  // Free QA set: where the AI plan disagrees with the deterministic order
+  // (logged once per journey, on the uncached plan).
+  if (plannerInfo && !plannerInfo.cached && plannerInfo.plan && plannerInfo.plan.length) {
+    logPlanDisagreement({
+      query, policyFirst: order[0] || null, planFirst: plannerInfo.plan[0].type,
+      types: [...grounded.keys()], via: plannerInfo.via, cached: plannerInfo.cached,
+    });
+  }
 
   let chosen = null;
-  if (plannerInfo && grounded.has(plannerInfo.type)) {
-    chosen = { type: plannerInfo.type, ...grounded.get(plannerInfo.type) };
-  }
-  if (!chosen) {
-    for (const t of order) if (grounded.has(t)) { chosen = { type: t, ...grounded.get(t) }; break; }
-  }
+  for (const t of ordered) if (grounded.has(t)) { chosen = { type: t, ...grounded.get(t) }; break; }
   if (!chosen) {
     const fb = firstQuestionFallback();
     if (fb) return fb;
@@ -1072,18 +1086,28 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   type = chosen.type;
   options = chosen.options;
   optionCounts = chosen.optionCounts;
-  reason = chosen.reason + (plannerInfo && type === plannerInfo.type ? ` [planner:${plannerInfo.via}]` : "");
+  const inPlan = plannedOrder.includes(type);
+  reason = chosen.reason + (inPlan ? ` [plan:${plannerInfo.via}]` : "");
+  // The plan's phrasing (validated: <=12 words, no prices/URLs/digits)
+  // replaces the template for English - and tells the guide route to SKIP
+  // its separate phrasing LLM call (that is how a chip-only journey costs
+  // exactly one Gemini call). Non-English uses the static tables instead.
+  const planEntry = (plannerInfo && plannerInfo.plan)
+    ? plannerInfo.plan.find((p) => p.type === type && p.question)
+    : null;
+  const usePlanPhrase = !!(inPlan && planEntry && (context.lang || "en") === "en");
 
   return {
     ask: true,
     type,
     options,
     optionCounts,
-    question: TEMPLATES[type],
+    question: usePlanPhrase ? planEntry.question : TEMPLATES[type],
     reason,
     subType: chosen.subType || null,
-    planner: plannerInfo && type === plannerInfo.type ? plannerInfo.via : null,
-    plannerAi: plannerInfo && type === plannerInfo.type ? { keyIdx: plannerInfo.keyIdx ?? null, rotatedFrom: plannerInfo.rotatedFrom ?? null } : null,
+    planner: inPlan ? plannerInfo.via : null,
+    plannerAi: inPlan ? { keyIdx: plannerInfo.keyIdx ?? null, rotatedFrom: plannerInfo.rotatedFrom ?? null, cached: !!plannerInfo.cached } : null,
+    planPhrase: usePlanPhrase || null,
     stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue },
   };
 }
