@@ -1,7 +1,7 @@
 "use client";
 // Product card (9.7 card v2) — shared by results, home rails, and chat.
 // Extracted verbatim from page.jsx so the home sections can reuse it.
-import { Tile } from "./pdp";
+import { Tile } from "./kit/Tile";
 import { displayCat } from "../lib/categories";
 import { I } from "./kit/Icon";
 import { QtyStepper } from "./kit/QtyStepper";

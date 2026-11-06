@@ -8,7 +8,8 @@ import { Onboarding, BUDGET_STYLE_MAX, SPEND_BIAS, SPEND_BRAND_AFFINITY } from "
 import { CartDrawer, CheckoutModal, OrderToast } from "./ui/cart";
 import { AnalyticsView } from "./ui/analytics";
 import { OrdersView } from "./ui/orders";
-import { ProductDetail, Tile } from "./ui/pdp";
+import { ProductDetail } from "./ui/pdp";
+import { Tile } from "./ui/kit/Tile";
 import { ChatLauncher } from "./ui/chat/ChatLauncher";
 import { ChatPanel } from "./ui/chat/ChatPanel";
 import { SAMPLE_QUERIES } from "./lib/sample_queries";
@@ -1341,7 +1342,7 @@ function AskCartHome() {
     }
     setCart((c) => ({ ...c, [item.sku]: { item, qty: (c[item.sku] ? c[item.sku].qty : 0) + 1 } }));
     // Visible confirmation: tile + name + price + View cart action + Undo (Toaster).
-    toast({ type: "success", ms: 6000, tile: <Tile item={item} size={36} />,
+    toast({ type: "success", ms: 6000, tile: <Tile item={item} size={36} showInfo={false} />,
       text: "Added to cart", sub: item.title + " · ₹" + item.price.toLocaleString("en-IN"),
       action: "View cart",
       onAction: () => { setCartOpen(true); track("cart_view", { item_count: Object.keys(cart).length + 1, source: "toast" }); } });

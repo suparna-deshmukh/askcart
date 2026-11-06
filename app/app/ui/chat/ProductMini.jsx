@@ -1,6 +1,6 @@
 "use client";
 // Compact product card for chat messages (72px tile, 2-line title, reasons).
-import { Tile } from "../pdp";
+import { Tile } from "../kit/Tile";
 
 export function ProductMini({ item, onAdd, onOpen, pos }) {
   const reasons = (item.reasons || []).slice(0, 3);
