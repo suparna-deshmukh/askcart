@@ -140,3 +140,27 @@ node --import ../eval/chat/register-shim.mjs ../eval/semantic/run.mjs
   the dev split only.
 - English/Hinglish coverage depends on the embedding model; romanised
   Hinglish is only partially handled.
+
+## Addendum — 2026-11-06 (catalogue expansion 36,111 → 52,656)
+
+The frozen 2026-11-04 panel and results remain the report of record. After
+the expansion the index was rebuilt with the same model and doc template
+(52,656 × 384 int8, parity fixture regenerated, no-op guarantee re-verified),
+and the panel's dead-end probes were re-checked against the new catalogue:
+
+- 9/10 dead-end probes still contain no matching product
+  (theremin, dinghy, slinky, didgeridoo, hoverboard, periscope, bobsled,
+  conga drum — "conga drum" only substring-matches *dryer* drum titles,
+  lexical intent stays 0 and the query still lands on the rescue question).
+- "ice skate" is now a near-miss instead of a hard zero: one lexical
+  near-title ("Figure Ice Skating Dress", scored on-intent by the lexical
+  scorer) plus one semantic neighbour (cos 0.847). This is the documented
+  "plausible-but-wrong neighbour" behaviour, not a true match (no title
+  contains "ice skate"). Arm-level null counts for the 2026-11-04 run would
+  shift by at most this one query; the dead-end false-resolve conclusion
+  (semantic contributes zero items to dead-ends, below threshold) is
+  unchanged and was re-verified live on all four probes above.
+- Non-dead-end panel kinds were not re-judged: lexical scoring, the gate
+  (intentN < 2), tau=0.845/margin=0.03 and the judge prompt are unchanged,
+  and the expansion only added SKUs. A full panel re-run remains the honest
+  way to refresh the headline numbers for the 52,656-SKU catalogue if needed.

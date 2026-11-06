@@ -1491,3 +1491,17 @@ BEFORE any run (2b81ab5), then ran it.
   · semantic suite ALL PASS · ui tour 17 shots · chat eval CHAT_LLM=0 76/76,
   0 grounding, 37/37 safe.
 - Local commit only, no GitHub/remote.
+
+## 2026-11-06 — Semantic eval re-check after the catalogue expansion
+- Re-verified the frozen 2026-11-04 panel against the new 52,656-SKU
+  catalogue: 9/10 dead-end probes still absent ("conga drum" is a substring
+  artifact - no conga product; "ice skate" became a documented near-miss:
+  1 lexical near-title + 1 semantic neighbour at cos 0.847, no true match).
+- Live behaviour confirmed on all 4 re-tested probes: dead ends still hit
+  the rescue path (semantic below_threshold, zero semantic items),
+  "ice skate" resolves via the lexical+semantic near-miss class the eval
+  already documents.
+- The 2026-11-04 A/B/C numbers stay the report of record; addendum written
+  in docs/semantic_fallback.md stating exactly what would shift (<=1 query
+  in the null counts) and that a full re-run is the way to refresh headline
+  numbers (est. ~50-100K tokens if requested).
