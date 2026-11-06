@@ -163,4 +163,4 @@ and the panel's dead-end probes were re-checked against the new catalogue:
 - Non-dead-end panel kinds were not re-judged: lexical scoring, the gate
   (intentN < 2), tau=0.845/margin=0.03 and the judge prompt are unchanged,
   and the expansion only added SKUs. A full panel re-run remains the honest
-  way to refresh the headline numbers for the 52,656-SKU catalogue if needed.
+  way to refresh the headline numbers for the 54,304-SKU catalogue (re-run after the 2026-11-06 depth expansion + index rebuild).

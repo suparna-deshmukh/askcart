@@ -453,6 +453,56 @@ for b in COLL_BRANDS:
     _fam(b, "Blue Pottery Vase", "Collectibles & Fine Art", 799, 6999, 4.4, 3400, ["8 inch", "10 inch", "12 inch"])
 
 
+# ================= DEPTH: question-ladder cells (Item E, 2026-11-06) =================
+# Design goal (user work order 2026-11-06): a 6-7 answer journey must still
+# leave >=1 product. The for_whom facet matches gender tokens in the title
+# (guide.js FOR_WHOM_WORDS), and the audit of the 52,656-SKU catalogue
+# showed the gendered cells of the flagship fashion families were thin
+# (saree Women: 22 items, 4 brands; t-shirt Women: 3 brands; jeans Women:
+# 2 brands; kids watch: 1 brand). These rows carry the gender token in the
+# model name so each (family x gender x size) cell has >=3 brands x
+# >=2 price points x >=4 colours, and the occasion-tag words (wedding /
+# gift) where the occasion question needs live options. Brands are all
+# already registered in EXPAND_BRANDS (no new global brand recognizers).
+KIDS_AGE = ["2-3Y", "4-5Y", "6-7Y", "8-9Y", "10-11Y"]
+KIDS_AGE4 = ["2-3Y", "4-5Y", "6-7Y", "8-9Y"]
+
+# --- women ethnic: the largest gap (no gender token in the titles) ---
+WOMEN_E2 = ["Zariin", "FabIndia", "Azzam", "Khaadi", "High Road",
+            "Nivaaya", "Lakshmi Weaves", "Sona Silks"]
+for b in WOMEN_E2:
+    _fam(b, "Cotton Saree for Women", "AMAZON FASHION", 799, 2499, 4.2, 11800, COLORS6)
+    _fam(b, "Georgette Saree for Women", "AMAZON FASHION", 1199, 3999, 4.3, 8400, COLORS6)
+    _fam(b, "Wedding Saree for Women", "AMAZON FASHION", 1999, 6999, 4.4, 5200, COLORS4)
+    _fam(b, "Kurti for Women", "AMAZON FASHION", 599, 1999, 4.2, 13400, _cart(COLORS4, SIZES4))
+    _fam(b, "Wedding Kurta Set for Women", "AMAZON FASHION", 1499, 4999, 4.3, 4800, _cart(COLORS3, SIZES4))
+    _fam(b, "Dress for Women", "AMAZON FASHION", 899, 2999, 4.2, 8600, _cart(COLORS4, SIZES4))
+    _fam(b, "Gift Saree with Blouse", "AMAZON FASHION", 999, 3499, 4.3, 7600, COLORS5)
+
+# --- women western: brand + size depth (t-shirt/jeans women cells) ---
+WOMEN_W2 = ["Roxy", "Jini", "Vero Moda", "Aurelia X", "Bella Moda",
+            "Style Kade", "Urban Tree", "Nivaaya"]
+for b in WOMEN_W2:
+    _fam(b, "T-Shirt for Women", "AMAZON FASHION", 399, 1299, 4.1, 15600, _cart(COLORS5, SIZES4))
+    _fam(b, "Pant for Women", "AMAZON FASHION", 699, 2299, 4.2, 11400, _cart(COLORS4, SIZES4))
+    _fam(b, "Jeans for Women", "AMAZON FASHION", 999, 3299, 4.2, 9800, _cart(COLORS3, ["26", "28", "30", "32"]))
+    _fam(b, "Palazzo for Women", "AMAZON FASHION", 499, 1599, 4.1, 12400, _cart(COLORS5, SIZES4))
+
+# --- kids: brand x age-band depth (the "gift for 5 year old" journeys) ---
+KIDS_F = ["Cute Twins", "Chhota Chotu", "Bella Baby", "Pepe Jeans", "Roxy", "Jini"]
+for b in KIDS_F:
+    _fam(b, "T-Shirt for Kids", "AMAZON FASHION", 299, 899, 4.2, 12800, _cart(COLORS5, KIDS_AGE))
+    _fam(b, "Shirt for Kids", "AMAZON FASHION", 399, 1099, 4.1, 9400, _cart(COLORS4, KIDS_AGE))
+    _fam(b, "Jeans for Kids", "AMAZON FASHION", 599, 1799, 4.2, 8600, _cart(COLORS3, KIDS_AGE))
+    _fam(b, "Dress for Kids", "AMAZON FASHION", 499, 1699, 4.2, 10400, _cart(COLORS5, KIDS_AGE4))
+    _fam(b, "T-Shirt and Pant Set for Kids", "AMAZON FASHION", 799, 2299, 4.2, 6400, _cart(COLORS3, KIDS_AGE))
+
+# --- kids watches: brand depth (was 1 brand) ---
+for b in ["Zeno", "Cute Twins"]:
+    _fam(b, "Digital Watch for Kids", "AMAZON FASHION", 699, 2499, 4.1, 8800, ["Blue", "Red", "Black", "Pink"])
+    _fam(b, "Smart Watch for Kids", "AMAZON FASHION", 1499, 4999, 4.2, 4200, ["Blue", "Black", "Pink"])
+
+
 def _brand_of_title(title):
     # longest leading-token match against the registered display names
     import re as _re

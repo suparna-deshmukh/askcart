@@ -12,7 +12,7 @@ Claimed study results (achieved, reproducible - see `docs/evidence/claim_provena
   root causes** (corpus totals in `data/pipeline_counts.json`)
 - **12 online-shopper interviews** ("shaadi gift under 2k" cohort);
   search-to-cart journey map; **3 of 5 drop-off points** prioritized and solved
-- Deployable on Vercel, **52,656-SKU catalogue** (24,998 real Amazon products
+- Deployable on Vercel, **54,304-SKU catalogue** (24,998 real Amazon products
   converted to INR + 11,047 India listing-matrix SKUs - real brands, real
   2026 INR MRPs, every occasion and economic stratum); guided budget/occasion
   follow-up: **null results 27.3% -> 8.0%, 78.7% of journeys resolved
@@ -58,7 +58,7 @@ zsh scripts/run_all.sh          # needs app dev server on :3000 (step 6)
 .venv/bin/python pipeline/run_pipeline.py   # 6-stage pipeline
 .venv/bin/python extractor/extract_llm.py   # Qwen-verified labels (empty if no LLM)
 .venv/bin/python pipeline/run_pipeline.py   # merge labels
-.venv/bin/python scripts/build_catalog.py   # 52,656 SKUs (US base + India layer + expansion matrix)
+.venv/bin/python scripts/build_catalog.py   # 54,304 SKUs (US base + India layer + expansion matrix)
 cd app && npm run dev                      # http://localhost:3000
 .venv/bin/python eval/run_eval.py              # deterministic guide (reproducible study)
 .venv/bin/python eval/run_eval.py --llm        # Qwen guide (stability check)
@@ -80,7 +80,7 @@ cd app && node --import ../eval/chat/register-shim.mjs \
   root-cause labels, and (c) generates the guided follow-up in the app.
   Every stage has a deterministic zero-LLM path, so the whole project runs
   with no model access at all.
-- **Catalogue**: 52,656 SKUs = 24,998 real Amazon products
+- **Catalogue**: 54,304 SKUs = 24,998 real Amazon products
   (milistu/AMAZON-Products-2023, Hugging Face) - band-aware stratified sample
   (depth in the <=2k/2-5k/5-10k gift-budget bands), USD->INR at 83.5
   (documented), real ratings, 2 fake "flagship clone" listings removed
