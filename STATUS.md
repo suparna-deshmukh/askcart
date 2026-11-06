@@ -1695,3 +1695,11 @@ the questions AND the product catalogue accordingly."
   contrast 16/16 · sync --check OK · semantic suite ALL PASS · ui tour 17
   shots · chat eval CHAT_LLM=0 76/76, 0 grounding, 37/37 safe.
 - Local commit only, no GitHub/remote.
+
+## 2026-11-06 — Item D (note): pill total Gemini calls
+- The top-bar pill now shows the running total across ALL keys and ALL users
+  ("AI · Gemini · 3/60 today"; when exhausted: "AI · Rules (offline) · 20/20
+  today") - the usage ledger is shared per deployment, so it is a true
+  all-users total. /api/ai-status is polled every 30 s (free local read, no
+  LLM call) so the total stays fresh. Hover title keeps the per-key detail
+  plus the total line. (Shipped inside the Item B commit, cc925b9.)
