@@ -11,7 +11,7 @@ export { VARIANT_PAREN };
 
 // 9.7 card v2: designed placeholder image, whole card opens the PDP,
 // single Add button (Buy now moved to the PDP), Best match badge.
-export function ProductCard({ r, onAdd, onOpen, best, close, overBudget, onWish, wished = false, cartQty = 0, onDec, onInc }) {
+export function ProductCard({ r, onAdd, onOpen, best, close, overBudget, onWish, wished = false, cartQty = 0, onDec, onInc, onQuick }) {
   const isFam = !!r.family_id;
   const title = isFam ? String(r.title).replace(VARIANT_PAREN, "") : r.title;
   const from = isFam && r.family_min_price != null && r.family_min_price < r.price;
@@ -34,6 +34,12 @@ export function ProductCard({ r, onAdd, onOpen, best, close, overBudget, onWish,
           <span className={"rpill " + (r.rating >= 4 ? "good" : r.rating >= 3 ? "mid" : "low")}>★ {r.rating}</span>
           <span className="rc">{r.num_ratings >= 1000 ? (r.num_ratings / 1000).toFixed(1) + "k" : r.num_ratings.toLocaleString("en-IN")}</span>
         </span>
+        {onQuick && (
+          <button className="card-quick" onClick={(e) => { e.stopPropagation(); onQuick(r); }}
+                  aria-label="Quick view">
+            <I name="eye" size={14} /> Quick view
+          </button>
+        )}
       </div>
       {r.brand ? <span className="brandb">{r.brand}</span> : null}
       <div className="t">{title}</div>

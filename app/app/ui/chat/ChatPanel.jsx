@@ -9,12 +9,25 @@ import { Composer } from "./Composer";
 import { track } from "../../lib/track";
 import "./chat.css";
 
-export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool }) {
+export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool, onPromptConsumed }) {
   const chat = useChat({ context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool });
   const [mobile, setMobile] = useState(false);
   const composerRef = useRef(null);
   const panelRef = useRef(null);
   const [feedbackDone, setFeedbackDone] = useState({});
+  const consumedPrompt = useRef(null);
+
+  // Phase 5: PDP "Ask AskCart" chips pre-send a prompt (one-shot, nonce-keyed).
+  useEffect(() => {
+    const p = context && context.prompt;
+    if (!p || p.nonce === consumedPrompt.current) return;
+    consumedPrompt.current = p.nonce;
+    const id = setTimeout(() => {
+      chat.sendText(p.text);
+      onPromptConsumed && onPromptConsumed();
+    }, 250);
+    return () => clearTimeout(id);
+  }, [context && context.prompt && context.prompt.nonce]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 640px)");

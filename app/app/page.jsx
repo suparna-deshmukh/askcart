@@ -8,7 +8,7 @@ import { Onboarding, BUDGET_STYLE_MAX, SPEND_BIAS, SPEND_BRAND_AFFINITY } from "
 import { CartDrawer, CheckoutModal, OrderToast } from "./ui/cart";
 import { AnalyticsView } from "./ui/analytics";
 import { OrdersView } from "./ui/orders";
-import { ProductDetail } from "./ui/pdp";
+import { PdpView, QuickView } from "./ui/pdp";
 import { Tile } from "./ui/kit/Tile";
 import { ChatLauncher } from "./ui/chat/ChatLauncher";
 import { ChatPanel } from "./ui/chat/ChatPanel";
@@ -405,6 +405,15 @@ function AskCartHome() {
     setStripOpen(false);
     track("region_set", { region: r.region });
   }
+  // Phase 5: PDP delivery check reuses the same coarse mapping (pincode never
+  // leaves the browser; analytics see only the region).
+  function savePincode(pincode) {
+    if (!/^\d{6}$/.test(pincode)) return;
+    const r = { pincode, region: pinRegion(pincode) };
+    try { localStorage.setItem("askcart_region", JSON.stringify(r)); } catch {}
+    setRegion(r.region);
+    track("region_set", { region: r.region });
+  }
   const [s, setS] = useState(null); // active search state (see below)
   const heroPh = useTypewriter(EXAMPLES, searchFocus || !!s);
   const exRot = useMemo(() => { const r = new Date().getDate() % EXAMPLES.length; return EXAMPLES.slice(r).concat(EXAMPLES.slice(0, r)).slice(0, 6); }, []);
@@ -432,6 +441,8 @@ function AskCartHome() {
   const [order, setOrder] = useState(null);
   // 7.1: product detail drawer (linkable via ?sku=)
   const [pdp, setPdp] = useState(null);
+  const scrollRef = useRef(0); // Phase 5: origin search scroll position, restored on PDP close
+  const [quick, setQuick] = useState(null); // Phase 5: quick view modal item
   const [moreN, setMoreN] = useState(24); // 7.3: "Show more" page size
   // P3-lite: Plain = the legacy keyword baseline (naive mode: no budget/
   // occasion understanding, no questions) kept only as a reviewer A/B
@@ -477,11 +488,20 @@ function AskCartHome() {
     const pool = [...(s ? s.results : []), ...(preview ? preview.items : [])];
     openPdpSku(sku, pool, "chat");
   }
+  // Phase 5: one-shot prompt from the PDP "Ask AskCart" section — ChatPanel
+  // consumes it (sends the message) and the page clears it.
+  const [chatPrompt, setChatPrompt] = useState(null);
+  function askFromPdp(prompt) {
+    setChatPrompt({ text: prompt, nonce: Date.now() });
+    setChatOpen(true);
+    track("pdp_ask", { source: "pdp_prompt_chip" });
+  }
   const chatContext = {
     sku: pdp ? pdp.sku : null,
     query: s ? s.query : null,
     region,
     source: pdp ? "pdp" : (chatNudge ? "null_escalation" : "hero"),
+    prompt: chatPrompt,
   };
 
   function switchPlainMode(on) {
@@ -644,6 +664,7 @@ function AskCartHome() {
     setOrder(prev.order);
     setPdp(prev.pdp);
     if ("search" in prev) setS(prev.search);
+    if (pdp && prev.search) requestAnimationFrame(() => window.scrollTo(0, scrollRef.current || 0));
     try { window.history.replaceState(null, "", prev.tab && prev.tab !== "search" ? "/?tab=" + prev.tab : "/"); } catch {}
     track("nav_back", { to: prev.tab, stack: navStack.length - 1 });
   }
@@ -1472,13 +1493,21 @@ function AskCartHome() {
     return (pool || []).filter((x) => x.sku !== item.sku && x.category === item.category &&
       Math.abs(x.price - item.price) <= Math.max(100, item.price * 0.4))
       .sort((a, b) => (b.rating - a.rating) || (b.num_ratings - a.num_ratings))
-      .slice(0, 4);
+      .slice(0, 12);
+  }
+  function moreFromBrandFor(item, pool) {
+    if (!item || !item.brand) return [];
+    return (pool || []).filter((x) => x.sku !== item.sku && x.brand === item.brand && x.category !== item.category)
+      .sort((a, b) => (b.rating - a.rating) || (b.num_ratings - a.num_ratings))
+      .slice(0, 12);
   }
   function openPdp(r, from, position) {
     pushNav();
     touchRecent(r);
+    scrollRef.current = window.scrollY;
     setPdp({ ...r, _from: from, _position: position });
     try { window.history.replaceState(null, "", `/?sku=${r.sku}`); } catch {}
+    requestAnimationFrame(() => window.scrollTo(0, 0));
   }
   function openPdpSku(sku, pool, from) {
     const r = (pool || []).find((x) => x.sku === sku);
@@ -1521,6 +1550,7 @@ function AskCartHome() {
     cartQty: r && cart[r.sku] ? cart[r.sku].qty : 0,
     onDec: (x) => decCart(x),
     onInc: (x) => incCart(x),
+    onQuick: (x) => { setQuick(x); track("quick_view_open", { sku: x.sku, from }); },
   });
   // S6: relaxed (slightly-over-budget) results are labelled, never silent.
   const overBudget = (r) => !!(s && s.parsed && s.parsed.budgetMax &&
@@ -1528,10 +1558,11 @@ function AskCartHome() {
   function closePdp() {
     setPdp(null);
     try { window.history.replaceState(null, "", "/"); } catch {}
+    requestAnimationFrame(() => window.scrollTo(0, scrollRef.current || 0));
   }
 
   return (
-    <div className={"appshell" + (chatOpen ? " chat-open" : "")}>
+    <div className={"appshell" + (chatOpen ? " chat-open" : "") + (pdp ? " pdp-open" : "")}>
       <div className="appshell-main">
       <Announcement festival={preview && preview.rails ? preview.rails.festival : null}
                     days={preview && preview.rails ? preview.rails.days : null} />
@@ -1549,7 +1580,28 @@ function AskCartHome() {
         scrolled={scrolled} tnavCollapsed={tnavCollapsed && tab !== "analytics"}
         onMenu={() => setNavOpen(true)}
       />
-      {tab === "wishlist" && wishHydrated ? (
+      {pdp ? (
+        <PdpView lang={lang} item={pdp}
+                 onBack={closePdp}
+                 onAdd={(r) => addToCart(r, "pdp")}
+                 onBuy={(r) => buyNow({ ...r, _from: "pdp" })}
+                 onGoCart={() => { setCartOpen(true); track("cart_view", { item_count: cartCount, source: "pdp" }); }}
+                 similar={similarFor(pdp, s ? s.results : (preview ? preview.items : []))}
+                 moreFromBrand={moreFromBrandFor(pdp, s ? s.results : (preview ? preview.items : []))}
+                 recent={recent}
+                 parsed={s ? s.parsed : null}
+                 region={region}
+                 onPincode={savePincode}
+                 onSearchBrand={(b) => startSearch(b, "pdp_crumb")}
+                 onSearchCat={(c) => startSearch(c, "pdp_crumb")}
+                 onHome={() => { setNavStack([]); setTab("search"); window.scrollTo({ top: 0 }); }}
+                 onAsk={askFromPdp}
+                 cardProps={cardProps}
+                 onWish={(r) => toggleWish(r)}
+                 wished={wish.includes(pdp.sku)}
+                 cart={cart}
+                 onInc={(r) => incCart(r)} onDec={(r) => decCart(r)} />
+      ) : tab === "wishlist" && wishHydrated ? (
         <WishlistView skus={wish}
                       onRemove={(it) => toggleWish(it)}
                       onAdd={(it) => addToCart(it, "wishlist")}
@@ -1917,15 +1969,19 @@ function AskCartHome() {
         onAddToCart={(sku) => chatAddToCart(sku)}
         onOpenPdp={(sku) => { setChatOpen(false); chatOpenPdp(sku); }}
         onOpenCart={() => { setCartOpen(true); track("cart_view", { item_count: cartCount, source: "chat" }); }}
+        onPromptConsumed={() => setChatPrompt(null)}
         itemPool={[...(s ? s.results : []), ...(pdp ? [pdp] : []), ...(preview ? preview.items : [])]}
       />
-      <ProductDetail item={pdp} onClose={closePdp}
-                     onAdd={(r) => addToCart(r, "pdp")}
-                     onBuy={(r) => buyNow({ ...r, _from: "pdp" })}
-                     similar={pdp ? similarFor(pdp, s ? s.results : (preview ? preview.items : [])) : []}
-                     parsed={s ? s.parsed : null}
-                     region={region}
-                     onOpenSku={(x) => openPdpSku(x.sku, s ? s.results : (preview ? preview.items : []), "pdp")} />
+      {quick && (
+        <QuickView lang={lang} item={quick}
+                   onClose={() => setQuick(null)}
+                   onFull={() => { const q = quick; setQuick(null); openPdp(q, "quickview", 0); }}
+                   onAdd={(r) => addToCart(r, "quickview")}
+                   onWish={(r) => toggleWish(r)}
+                   wished={wish.includes(quick.sku)}
+                   cart={cart}
+                   onInc={(r) => incCart(r)} onDec={(r) => decCart(r)} />
+      )}
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} setCart={setCart}
                   onCheckout={(total) => { pushNav(); setCartOpen(false); setCheckoutOpen(true); }} />
       <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} cart={cart} onPlaced={placeOrder} />
