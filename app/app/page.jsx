@@ -605,36 +605,6 @@ function AskCartHome() {
     track("hero_return", {});
   }
 
-  function aiPillText() {
-    const g = aiStatus && aiStatus.gemini;
-    // Total Gemini calls across ALL keys and ALL users (the usage ledger
-    // is shared per deployment) - user requirement 2026-11-06: the pill
-    // shows the running "x/60 today" total, not just readiness.
-    const used = g && g.keys.length ? g.keys.reduce((a, k) => a + (k.used || 0), 0) : null;
-    const cap = g && g.keys.length ? g.keys.length * g.rpd : null;
-    const usage = used != null ? " · " + used + "/" + cap + " today" : "";
-    if (lastAiViaRef.current === "gemini") {
-      const k = lastAiKeyRef.current;
-      return "AI · Gemini" + (k == null ? "" : " key " + (k + 1) + "/" + (g ? g.keys.length : 1)) + usage;
-    }
-    if (g && !g.allExhausted) return "AI · Gemini" + usage;
-    return "AI · Rules (offline)" + (used != null ? " · " + used + "/" + cap + " today" : "");
-  }
-  function aiPillTitle() {
-    const g = aiStatus && aiStatus.gemini;
-    const bits = [];
-    if (g && g.keys.length) {
-      const used = g.keys.reduce((a, k) => a + (k.used || 0), 0);
-      bits.push("TOTAL " + used + "/" + (g.keys.length * g.rpd) + " Gemini calls today (all users)");
-      bits.push("Gemini keys (cap " + g.rpd + "/day): " +
-        g.keys.map((k) => "key" + (k.idx + 1) + " " + k.used + "/" + k.rpd + (k.exhausted ? " (" + k.reason + ")" : "")).join(", "));
-    } else {
-      bits.push("Gemini: no keys configured (rule-based questions only)");
-    }
-    bits.push("session AI budget: " + Math.max(0, aiBudgetRef.current) + " left");
-    return bits.join(" · ");
-  }
-
   function switchTab(next) {
     if (next === tab) return;
     pushNav();
@@ -707,9 +677,9 @@ function AskCartHome() {
   }
 
   function aiSwitchToast(from, to) {
-    setAiToast("Gemini key " + (from + 1) + " daily limit hit - switched to " +
-      (to == null ? "the built-in rules" : "key " + (to + 1)) + ". Guidance continues.");
-    setTimeout(() => setAiToast(null), 6000);
+    toast({ type: "info", ms: 6000,
+      text: "Gemini key " + (from + 1) + " daily limit hit - switched to " +
+        (to == null ? "the built-in rules" : "key " + (to + 1)) + ". Guidance continues." });
   }
   function aiNotice(decision) {
     if (!decision) return;
@@ -2005,6 +1975,7 @@ function AskCartHome() {
                  lang={lang} setLang={setLang} facets={facets}
                  onQuery={(q, src) => startSearch(q, src)}
                  onTab={(t) => switchTab(t)}
+                 onInsights={() => switchTab("analytics")}
                  onMenuSearch={() => { /* mobile search overlay lives in Header */ }} />
       {tab === "search" && (
         <ChatLauncher

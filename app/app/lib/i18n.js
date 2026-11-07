@@ -360,6 +360,11 @@ const STRINGS = {
     trust4: 'Simulated checkout, nothing charged',
     announce1: 'Not sure what to buy? Describe it, we ask one smart question.',
     announce3: 'Demo store · checkout is simulated, nothing is charged',
+    shAnalytics: 'Analytics',
+    shAiKeyActive: 'Gemini key {k} · {used}/{cap} today',
+    shAiRules: 'AI · Rules (keys exhausted)',
+    shAiActive: 'active',
+
 
   },
   hi: {
@@ -719,6 +724,11 @@ const STRINGS = {
     trust4: 'सिमुलेटेड चेकआउट, कोई शुल्क नहीं',
     announce1: 'पक्का नहीं? बताइए, हम एक सही सवाल पूछते हैं।',
     announce3: 'डेमो स्टोर · चेकआउट सिमुलेटेड है, कोई शुल्क नहीं',
+    shAnalytics: 'इनसाइट्स',
+    shAiKeyActive: 'Gemini की {k} · {used}/{cap} आज',
+    shAiRules: 'AI · नियम (की खतम)',
+    shAiActive: 'सक्रिय',
+
 
   },
   hinglish: {
@@ -1079,6 +1089,11 @@ const STRINGS = {
     trust4: 'Simulated checkout, koi charge nahi',
     announce1: 'Kya lena hai pata nahi? Bataiye, hum ek sahi sawaal puchhenge.',
     announce3: 'Demo store · checkout simulated hai, koi charge nahi',
+    shAnalytics: 'Analytics',
+    shAiKeyActive: 'Gemini key {k} · {used}/{cap} aaj',
+    shAiRules: 'AI · Rules (keys khatam)',
+    shAiActive: 'active',
+
 
   },
 };

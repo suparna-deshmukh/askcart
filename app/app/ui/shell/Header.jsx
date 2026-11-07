@@ -76,10 +76,28 @@ export function Header({
     onQuery(s.text, "suggest");
   };
   const [langPop, setLangPop] = useState(false);
+  const [aiPop, setAiPop] = useState(false);
   const [mSearch, setMSearch] = useState(false);
   const g = aiStatus && aiStatus.gemini;
   const used = g && g.keys.length ? g.keys.reduce((a, k) => a + (k.used || 0), 0) : null;
   const cap = g && g.keys.length ? g.keys.length * g.rpd : null;
+  const activeKey = g && g.activeIdx != null ? g.keys[g.activeIdx] : null;
+  const aiChipLabel = activeKey
+    ? t(lang, "shAiKeyActive", { k: activeKey.idx + 1, used: activeKey.used, cap: activeKey.rpd })
+    : t(lang, "shAiRules");
+  const aiRows = () => (
+    <div className="acct-ai">
+      <div className="acct-ai-t"><I name="sparkle" size={13} /> {t(lang, "shAiStatus")}</div>
+      <div>{g ? t(lang, "shAiTotal", { used, cap }) : t(lang, "shAiNoKeys")}</div>
+      {g?.keys?.map((k) => (
+        <div key={k.idx} className={"ai-k" + (k.idx === g.activeIdx ? " on" : "")}>
+          {t(lang, "shAiKey", { idx: k.idx + 1, used: k.used, cap: k.rpd })}
+          {k.exhausted ? ` (${k.reason})` : k.idx === g.activeIdx ? ` · ${t(lang, "shAiActive")}` : ""}
+        </div>
+      ))}
+      <div>{t(lang, "shAiSession", { n: Math.max(0, aiStatus?.aiMaxPerSession || 0) })}</div>
+    </div>
+  );
 
   const megaRef = useOutside(() => setMega(false));
   // home "See all" -> open mega panel (Phase 3)
@@ -89,6 +107,7 @@ export function Header({
     return () => window.removeEventListener("askcart:open-mega", h);
   }, []);
   const acctRef = useOutside(() => setAcct(false));
+  const aiRef = useOutside(() => setAiPop(false));
   const langRef = useOutside(() => setLangPop(false));
   const catLinks = (facets?.categories || []).slice(0, 6).map((c) => displayCat(c.name));
 
@@ -144,13 +163,23 @@ export function Header({
           <button className="iconbtn m-search" aria-label="Search" onClick={() => setMSearch(true)}><I name="search" size={22} /></button>
           <button className="iconbtn m-menu" aria-label="Menu" onClick={onMenu}><I name="menu" size={22} /></button>
           <div className="tbar-right">
+            {g && (
+              <div className="tlang" ref={aiRef}>
+                <button className={"aichip" + (g.allExhausted ? " off" : "")} title={aiChipLabel} aria-label={aiChipLabel} aria-expanded={aiPop} onClick={() => setAiPop(!aiPop)}>
+                  <span className="aichip-dot" aria-hidden="true" />
+                  <span className="aichip-t">{aiChipLabel}</span>
+                </button>
+                {aiPop && <div className="pop aipop">{aiRows()}</div>}
+              </div>
+            )}
             <div className="tlang" ref={langRef}>
-              <button className="iconbtn" aria-label={t(lang, "shLang")} aria-expanded={langPop} onClick={() => setLangPop(!langPop)}>
-                <I name="globe" size={20} />
+              <button className="titem" aria-label={t(lang, "shLang")} title={t(lang, "shLang")} aria-expanded={langPop} onClick={() => setLangPop(!langPop)}>
+                <span className="icon-wrap"><I name="globe" size={22} /></span>
+                <span className="titem-lbl">{t(lang, "shLang")}</span>
               </button>
               {langPop && (
                 <div className="pop langpop" role="radiogroup" aria-label={t(lang, "shLang")}>
-                  {[["en", "English"], ["hi", "हिंदी"], ["hinglish", "Hinglish"]].map(([l, lb]) => (
+                  {[["en", "English"], ["hi", "भींदी"], ["hinglish", "Hinglish"]].map(([l, lb]) => (
                     <button key={l} role="radio" aria-checked={lang === l} className={lang === l ? "on" : ""}
                             onClick={() => { setLang(l); setLangPop(false); }}>
                       {lb}{lang === l && <I name="check" size={15} />}
@@ -159,13 +188,27 @@ export function Header({
                 </div>
               )}
             </div>
-            <span className="tbar-labels"><span>{t(lang, "navWishlist")}</span><span>{t(lang, "navOrders")}</span><span>{t(lang, "navCart")}</span><span>{t(lang, "navAccount")}</span></span>
-            <IconButton name="heart" label="Wishlist" badge={wishCount} onClick={() => onTab("wishlist")} />
-            <IconButton name="package" label="Orders" onClick={() => onTab("orders")} />
-            <IconButton name="bag" label="Cart" badge={cartCount} onClick={onCart} className="cart-bounce-host" />
+            <button className="titem" aria-label="Wishlist" title={t(lang, "navWishlist")} onClick={() => onTab("wishlist")}>
+              <span className="icon-wrap"><I name="heart" size={22} />{wishCount > 0 && <span className="icbadge">{wishCount > 99 ? "99+" : wishCount}</span>}</span>
+              <span className="titem-lbl">{t(lang, "navWishlist")}</span>
+            </button>
+            <button className="titem" aria-label="Orders" title={t(lang, "navOrders")} onClick={() => onTab("orders")}>
+              <span className="icon-wrap"><I name="package" size={22} /></span>
+              <span className="titem-lbl">{t(lang, "navOrders")}</span>
+            </button>
+            <button className="titem cart-bounce-host" aria-label="Cart" title={t(lang, "navCart")} onClick={onCart}>
+              <span className="icon-wrap"><I name="bag" size={22} />{cartCount > 0 && <span className="icbadge">{cartCount > 99 ? "99+" : cartCount}</span>}</span>
+              <span className="titem-lbl">{t(lang, "navCart")}</span>
+            </button>
+            <button className={"tana" + (tab === "analytics" ? " on" : "")} aria-label={t(lang, "shAnalytics")} title={t(lang, "shAnalytics")} onClick={onInsights}>
+              <I name="bar-chart" size={17} />
+              <span className="tana-txt">{t(lang, "shAnalytics")}</span>
+              <span className="tana-dot" aria-hidden="true" />
+            </button>
             <div className="tacct" ref={acctRef}>
-              <button className="iconbtn" aria-label="Account" aria-expanded={acct} onClick={() => setAcct(!acct)}>
-                <I name="user" size={20} />
+              <button className="titem" aria-label="Account" title={t(lang, "navAccount")} aria-expanded={acct} onClick={() => setAcct(!acct)}>
+                <span className="icon-wrap"><I name="user" size={22} /></span>
+                <span className="titem-lbl">{t(lang, "navAccount")}</span>
               </button>
               {acct && (
                 <div className="pop acctpop">
@@ -175,14 +218,7 @@ export function Header({
                   <button onClick={() => { setLang(lang === "en" ? "hi" : "en"); setAcct(false); }}><I name="globe" size={16} /> {t(lang, "shLang")}</button>
                   <button onClick={() => { setAcct(false); window.location.href = "/?onboard=1"; }}><I name="user" size={16} /> {t(lang, "shRestart")}</button>
                   <div className="acct-sep" />
-                  <div className="acct-tools">{t(lang, "shTools")}</div>
-                  <button onClick={() => { onInsights(); setAcct(false); }}><I name="bar-chart" size={16} /> {t(lang, "shInsights")}</button>
-                  <div className="acct-ai">
-                    <div className="acct-ai-t"><I name="sparkle" size={13} /> {t(lang, "shAiStatus")}</div>
-                    <div>{g ? t(lang, "shAiTotal", { used, cap }) : t(lang, "shAiNoKeys")}</div>
-                    {g?.keys?.map((k) => <div key={k.idx} className="ai-k">{t(lang, "shAiKey", { idx: k.idx + 1, used: k.used, cap: k.rpd })}{k.exhausted ? ` (${k.reason})` : ""}</div>)}
-                    <div>{t(lang, "shAiSession", { n: Math.max(0, aiStatus?.aiMaxPerSession || 0) })}</div>
-                  </div>
+                  {aiRows()}
                 </div>
               )}
             </div>

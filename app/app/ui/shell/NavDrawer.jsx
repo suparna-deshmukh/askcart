@@ -23,12 +23,17 @@ function Acc({ title, children, defaultOpen = false }) {
   );
 }
 
-export function NavDrawer({ open, onClose, lang, setLang, facets, onQuery, onTab, onMenuSearch }) {
+export function NavDrawer({ open, onClose, lang, setLang, facets, onQuery, onTab, onMenuSearch, onInsights }) {
   if (!open) return null;
   const cats = (facets?.categories || []).slice(0, 12);
   return (
     <Overlay variant="left" label={t(lang, "shMenu")} onClose={onClose} width={360}>
       <div className="nd">
+        <button className="tana nd-tana" aria-label={t(lang, "shAnalytics")} onClick={() => { onInsights && onInsights(); onClose(); }}>
+          <I name="bar-chart" size={17} />
+          <span className="tana-txt">{t(lang, "shAnalytics")}</span>
+          <span className="tana-dot" aria-hidden="true" />
+        </button>
         <div className="nd-head">
           <div className="nd-hello">{t(lang, "shHello")}</div>
           <button className="iconbtn sm" aria-label="Close menu" onClick={onClose}><I name="x" size={20} /></button>
