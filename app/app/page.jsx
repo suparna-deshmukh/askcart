@@ -870,12 +870,17 @@ function AskCartHome() {
     jn.prevTypes = [...(jn.prevTypes || []), guide.type === "any" && guide.subType ? "any:" + guide.subType : guide.type];
   }
 
-  // Item 6 (Gemini ai-refine): after EVERY answer, /api/ai-refine returns
-  // validated, actionable output - filters to merge into the re-search and
-  // the next question (type + prompt + grounded options with counts).
-  // The server validates every value against the live narrowed set, so
-  // Gemini can never invent a brand/category/price/keyword; when it is
-  // down or empty the page behaves exactly as v6 (deterministic policy).
+  // Item 6 (Gemini ai-refine): /api/ai-refine returns validated,
+  // actionable output - filters to merge into the re-search and the next
+  // question (type + prompt + grounded options with counts). The server
+  // validates every value against the live narrowed set, so Gemini can
+  // never invent a brand/category/price/keyword; when it is down or
+  // empty the page behaves exactly as v6 (deterministic policy).
+  // 2026-11-08 (rules-first, Gemini budget 20/key/day): the refine call
+  // fires only where the deterministic chain has a gap - a chip that
+  // resolved to a structured slot while the journey plan owns the
+  // question sequence is fully rule-covered and costs ZERO Gemini calls.
+  // Free-text answers and unplanned journeys still get the AI pass.
   async function askAIRefine({ query, queryExt, slots, answer, answerType, prevTypes, question = true }) {
     if (aiBudgetRef.current <= 0) return null; // quick mode: deterministic chain continues
     aiBudgetRef.current -= 1;
@@ -1016,10 +1021,14 @@ function AskCartHome() {
       else if (c) opts = { category: c.category };
       else extraQ = chip;
     }
-    // Item 6: the AI refine (Gemini, Qwen fallback) runs IN FLIGHT while
-    // the deterministic re-search executes; the page waits at most ~4.5s
-    // for it, so a down provider never stalls the grid (v6 latency).
-    const aiPromise = !plainMode
+    // Item 6: the AI refine (Gemini) runs IN FLIGHT while the
+    // deterministic re-search executes; the page waits at most ~4.5s for
+    // it, so a down provider never stalls the grid (v6 latency).
+    // Rules-first gate: plan active + chip resolved to a structured slot
+    // (brand/category/budget/occasion/forWhom/size/capacity) -> the
+    // deterministic chain already applies everything, skip the call.
+    const ruleCovered = planPhraseRef.current && Object.keys(opts).length > 0;
+    const aiPromise = !plainMode && !ruleCovered
       ? askAIRefine({ query: s.query, queryExt: extraQ, slots: { ...trailOpts(), ...(s.parsed && s.parsed.budgetMax ? { budget: s.parsed.budgetMax } : {}), ...(s.parsed && s.parsed.occasion ? { occasion: s.parsed.occasion } : {}) },
                       answer: { label: trailLabel, opts }, answerType: guide.type,
                       prevTypes: journeyRef.current ? journeyRef.current.prevTypes || [] : [],

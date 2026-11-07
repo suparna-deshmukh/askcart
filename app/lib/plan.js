@@ -2,7 +2,7 @@
 //
 // A single Gemini call at journey start plans the WHOLE follow-up ladder:
 // up to 7 question types, in ask-order, each with a <=12-word phrasing.
-// The plan is cached 10 minutes keyed on query|parsed-slots|persona, so a
+// The plan is cached 24 hours keyed on query|parsed-slots|persona, so a
 // chip-only journey costs exactly ONE LLM call; later turns read the
 // cached plan (zero calls). decideGuide validates every plan entry
 // against the live grounded set - the model can only ORDER and PHRASE,
@@ -18,7 +18,7 @@ import { geminiGenerate, geminiStatus } from "./gemini_keys.js";
 const G = globalThis;
 const cache = (G.__askcartPlanCache ??= new Map());
 const breaker = (G.__askcartPlanBreaker ??= { fails: 0, openUntil: 0 });
-const PLAN_TTL = 600000; // 10 min
+const PLAN_TTL = 24 * 60 * 60 * 1000; // 24 h (2026-11-08: a chip journey re-visited the same day costs zero extra planner calls)
 const MAX_PLAN = 7;
 
 const TYPE_HINT = {

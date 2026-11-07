@@ -216,7 +216,7 @@ export async function aiRefine({ query, queryExt, slots, answerLabel, answerType
     // grounded but empty is a legitimate "nothing to do" - not a failure
   }
   if (cache.size > 500) cache.clear();
-  const val = { out: { ...out, via, ai: aiMeta }, exp: Date.now() + 600000 };
+  const val = { out: { ...out, via, ai: aiMeta }, exp: Date.now() + 24 * 60 * 60 * 1000 }; // 24 h (2026-11-08: minimizes repeat refine calls)
   cache.set(key, val);
   breaker.fails = 0;
   return val.out;
