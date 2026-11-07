@@ -342,6 +342,11 @@ function AskCartHome() {
   // synced after mount (prevents hydration mismatches on the hero strip).
   const [onboarded, setOnboarded] = useState(true);
   const [persona, setPersonaState] = useState(null);
+  // Section 3 (2026-11-08): boot splash until localStorage is synced (no
+  // home flash on first visit) + full-screen onboarding gate.
+  const [boot, setBoot] = useState(true);
+  const [onboardNeeded, setOnboardNeeded] = useState(false);
+  const [profile, setProfileState] = useState(null); // askcart_profile_v1 (name never leaves the browser)
   // O1/O2: language + pincode strip (non-blocking), persona v3 learning later.
   const [lang, setLangState] = useState("en");
   const [pin, setPin] = useState("");
@@ -350,17 +355,21 @@ function AskCartHome() {
   useEffect(() => {
     try {
       const noob = new URLSearchParams(window.location.search).get("noob") === "1";
-      if (!noob && localStorage.getItem("askcart_onboarded") !== "1") {
+      const forced = new URLSearchParams(window.location.search).get("onboard") === "1";
+      // Section 3: first visit (no askcart_onboarded) or /?onboard=1 forces
+      // the full-screen onboarding; ?noob=1 bypasses it.
+      if (!noob && (localStorage.getItem("askcart_onboarded") !== "1" || forced)) {
         setOnboarded(false);
-        // 2026-11-06: first visit -> centered 3-question persona modal
-        setPersonaModal(true);
+        setOnboardNeeded(true);
       }
       const l = localStorage.getItem("askcart_lang");
       if (["en", "hi", "hinglish"].includes(l)) setLangState(l);
       const rv = JSON.parse(localStorage.getItem("askcart_region") || "null");
       if (rv && rv.region) setRegion(rv.region);
       setStripDismissed(localStorage.getItem("askcart_strip_dismissed") === "1");
-    } catch {}
+      try { setProfileState(JSON.parse(localStorage.getItem("askcart_profile_v1") || "null")); } catch {}
+      setBoot(false);
+    } catch { setBoot(false); }
     // LLM routing status for the top-bar pill (no LLM call made - the
     // ledger read is free, so poll every 30 s to keep the totals fresh).
     const refreshAiStatus = () =>
@@ -375,7 +384,6 @@ function AskCartHome() {
     return () => clearInterval(iv);
   }, []);
   const [stripOpen, setStripOpen] = useState(false);
-  const [personaModal, setPersonaModal] = useState(false);
   // LLM routing status (top-bar pill + key-rotation toasts).
   const [aiStatus, setAiStatus] = useState(null); // {gemini, aiMaxPerSession}
   const lastAiViaRef = useRef(null);   // "gemini" | null
@@ -1470,10 +1478,13 @@ function AskCartHome() {
     try { window.history.replaceState(null, "", "/?tab=confirmation&order=" + rec.id); } catch {}
   }
 
-  function onOnboarded(p) {
+  function onOnboarded(res) {
+    const p = res && res.persona ? res.persona : null;
+    const prof = res && res.profile ? res.profile : null;
     setOnboarded(true);
-    setPersonaModal(false);
+    setOnboardNeeded(false);
     setPersonaState(p);
+    setProfileState(prof);
     try { localStorage.setItem("askcart_onboarded", "1"); } catch {}
     // 2026-11-06: show the payoff of the answers, and wire them to behaviour.
     if (p) {
@@ -1590,6 +1601,12 @@ function AskCartHome() {
     requestAnimationFrame(() => window.scrollTo(0, scrollRef.current || 0));
   }
 
+  if (boot) return <div className="splash"><span className="splash-mark">A</span></div>;
+  if (onboardNeeded) return (
+    <Onboarding onDone={onOnboarded} lang={lang} setLang={setLang}
+                onTryAssistant={() => { setTab("search"); setChatOpen(true); }}
+                forced={typeof window !== "undefined" && new URLSearchParams(window.location.search).get("onboard") === "1"} />
+  );
   return (
     <div className={"appshell" + (chatOpen ? " chat-open" : "") + (pdp ? " pdp-open" : "")}>
       <div className="appshell-main">
@@ -1653,7 +1670,7 @@ function AskCartHome() {
       <div className="wrap">
 
         {tab === "search" ? (
-          params.get("onboard") === "1" && !onboarded ? <Onboarding onDone={onOnboarded} lang={lang} /> : (
+          (
             <>
               {!s && (
                 <div className="hero2">
@@ -1717,7 +1734,6 @@ function AskCartHome() {
                   <div className="hero2-right"><HeroDemo /></div>
                 </div>
               )}
-              {personaModal && !s && <Onboarding onDone={onOnboarded} lang={lang} />}
               {s && (
                 <div className="hero" style={{ paddingBottom: 0 }}>
                   <div className="searchbar">

@@ -42,18 +42,31 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     return b ? b.textContent.trim() : "";
   });
 
-  // 1. O5: onboarding panel (behind /?onboard=1) - 3 answers + payoff toast
+  // 1. Section 3: full-screen first-visit onboarding (behind /?onboard=1)
+  //    name -> context -> interests -> spendStyle -> ageBand -> start
   await page.goto("http://localhost:3000/?onboard=1", { waitUntil: "networkidle0", timeout: 90000 });
-  await sleep(1500);
+  await sleep(1800);
+  must(await page.$(".ob3"), "full-screen onboarding shown");
   await shot("mvp_onboarding_panel");
-  for (const idx of [1, 1, 0]) {
-    const opts = await page.$$(".ob-opts button");
-    if (!opts.length) break;
-    await opts[idx].click();
-    await sleep(450);
-  }
-  await sleep(1000);
+  const obBtn = async (sel) => { const el = await page.$(sel); must(!!el, sel); await el.click(); };
+  await obBtn(".ob3-name-cta .ob3-linkbtn");   // name: continue as guest
+  await sleep(550);
+  let ob3opts = await page.$$(".ob3-opts button");   // context
+  must(ob3opts.length >= 4, "context options"); await ob3opts[1].click(); await sleep(550);
+  ob3opts = await page.$$(".ob3-opts button");        // interests
+  must(ob3opts.length >= 7, "interest options"); await ob3opts[1].click(); await sleep(300);
+  await obBtn(".ob3-name-cta .ob3-primary");          // interests: continue
+  await sleep(550);
+  ob3opts = await page.$$(".ob3-opts button");        // spendStyle
+  must(ob3opts.length >= 4, "spendStyle options"); await ob3opts[0].click(); await sleep(550);
+  ob3opts = await page.$$(".ob3-opts button");        // ageBand
+  must(ob3opts.length >= 3, "ageBand options"); await ob3opts[1].click(); await sleep(800);
+  must(await page.$(".ob3-done-wrap"), "completion screen");
+  await shot("mvp_onboarding_done");
+  await obBtn(".ob3-done-btns .ob3-primary");         // start shopping
+  await sleep(1200);
   await shot("mvp_onboarding_toast");
+  must(await page.$(".hero2"), "home after onboarding");
 
   // 2. O1/O2: hero-first home with the non-blocking persona strip
   await page.goto("http://localhost:3000/", { waitUntil: "networkidle0", timeout: 90000 });
