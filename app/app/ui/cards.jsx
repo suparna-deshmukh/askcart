@@ -11,7 +11,7 @@ export { VARIANT_PAREN };
 
 // 9.7 card v2: designed placeholder image, whole card opens the PDP,
 // single Add button (Buy now moved to the PDP), Best match badge.
-export function ProductCard({ r, onAdd, onOpen, best, close, overBudget, onWish, wished = false, cartQty = 0, onDec, onInc, onQuick, onAsk }) {
+export function ProductCard({ r, onAdd, onBuy, onOpen, best, close, overBudget, onWish, wished = false, cartQty = 0, onDec, onInc, onQuick, onAsk }) {
   const isFam = !!r.family_id;
   const title = isFam ? String(r.title).replace(VARIANT_PAREN, "") : r.title;
   const from = isFam && r.family_min_price != null && r.family_min_price < r.price;
@@ -59,7 +59,10 @@ export function ProductCard({ r, onAdd, onOpen, best, close, overBudget, onWish,
           <QtyStepper qty={cartQty} onDec={() => onDec && onDec(r)} onInc={() => onInc && onInc(r)} />
         </div>
       ) : (
-        <button className="card-add" onClick={(e) => { e.stopPropagation(); onAdd(r); }}>Add to cart</button>
+        <div className="card-actions" onClick={(e) => e.stopPropagation()}>
+          <button className="card-add" onClick={(e) => { e.stopPropagation(); onAdd(r); }}>Add to cart</button>
+          {onBuy && <button className="card-buy" onClick={(e) => { e.stopPropagation(); onBuy(r); }}>Buy now</button>}
+        </div>
       )}
     </div>
   );

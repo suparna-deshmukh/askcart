@@ -527,6 +527,7 @@ function AskCartHome() {
   }, []);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [buyNowItem, setBuyNowItem] = useState(null); // S6: Buy Now orders check out ONE item without touching the cart
   const [order, setOrder] = useState(null);
   // 7.1: product detail drawer (linkable via ?sku=)
   const [pdp, setPdp] = useState(null);
@@ -1629,9 +1630,10 @@ function AskCartHome() {
     }
     track("buy_now", { sku: item.sku, price: item.price, category: item.category, brand: item.brand || "" });
     track("buy_now_click", { sku: item.sku, source: source || "pdp" });
-    setCart({ [item.sku]: { item, qty: 1 } });
+    // S6: check out ONLY this item (qty 1); the existing cart is left untouched.
+    setBuyNowItem({ ...item, qty: 1 });
     track("checkout_start", { item_count: 1, total: item.price, source: "buy_now" });
-    setPdp(null); // full-page checkout renders in the tab slot; PDP would win the branch
+    if (pdp) setPdp(null); // full-page checkout renders in the tab slot; PDP would win the branch
     openCheckout("buy_now");
   }
   // Orders hydrate after mount (SSR-safe, same pattern as cart): the seed list
@@ -1666,6 +1668,7 @@ function AskCartHome() {
     track("page_view", { screen: "checkout", source: source || "cart" });
   }
   function closeCheckout() {
+    setBuyNowItem(null);
     if (navStack.length) goBack();
     else {
       setCheckoutOpen(false);
@@ -1692,6 +1695,7 @@ function AskCartHome() {
   // Phase 6: order placement from the stepped checkout. ctx = { addr, eta, payment, items, total, count }
   function placeOrder(ctx) {
     const jn = journeyRef.current;
+    const isBuyNow = !!buyNowItem;
     const rec = {
       id: "ord_" + Math.random().toString(36).slice(2, 8),
       at: Date.now(), demo: false, total: ctx.total,
@@ -1712,7 +1716,8 @@ function AskCartHome() {
     });
     setOrder({ id: rec.id, at: rec.at, count: ctx.count, total: ctx.total, items: ctx.items, addr: rec.address, eta: rec.eta, payment: ctx.payment });
     setCheckoutOpen(false);
-    setCart({});
+    setBuyNowItem(null);
+    if (!isBuyNow) setCart({}); // Buy Now never touches the existing cart
     setCartOpen(false);
     setTab("confirmation");
     try { window.history.replaceState(null, "", "/?tab=confirmation&order=" + rec.id); } catch {}
@@ -1836,6 +1841,7 @@ function AskCartHome() {
 
   const cardProps = (from, r) => ({
     onAdd: (x) => addToCart(x, from),
+    onBuy: (x) => buyNow(x, from === "rail" ? "rail" : "card"),
     onOpen: (x) => openPdp(x, from, 0),
     onAsk: chatOff ? null : (x) => { setChatAskSku(x.sku); openChat("card", null); },
     onWish: (x) => toggleWish(x),
@@ -1868,7 +1874,7 @@ function AskCartHome() {
       <Header
         lang={lang} setLang={setLang}
         canBack={navStack.length > 0} onBack={goBack}
-        onLogo={() => { setNavStack([]); setTab("search"); window.scrollTo({ top: 0 }); }}
+        onLogo={() => { setNavStack([]); if (s) resetToHero(); else if (tab !== "search") setTab("search"); window.scrollTo({ top: 0 }); }}
         tab={tab} onTab={(t) => switchTab(t)} onInsights={() => switchTab("analytics")}
         input={input} setInput={setInput}
         onSearch={() => startSearch(input, "header")}
@@ -1902,8 +1908,8 @@ function AskCartHome() {
                  wished={wish.includes(pdp.sku)}
                  cart={cart}
                  onInc={(r) => incCart(r)} onDec={(r) => decCart(r)} />
-      ) : checkoutOpen && cartCount > 0 ? (
-        <CheckoutView lang={lang} cart={cart} pin={pin} region={region}
+      ) : checkoutOpen && (cartCount > 0 || buyNowItem) ? (
+        <CheckoutView lang={lang} cart={cart} buyNow={buyNowItem} pin={pin} region={region}
                       onBack={closeCheckout} onEditCart={() => setCartOpen(true)} onPlaced={placeOrder} />
       ) : tab === "confirmation" && order ? (
         <ConfirmationView lang={lang} order={order} chatOff={chatOff}
@@ -1914,6 +1920,7 @@ function AskCartHome() {
         <WishlistView lang={lang} skus={wish}
                       onRemove={(it) => toggleWish(it)}
                       onAdd={(it) => addToCart(it, "wishlist")}
+                      onBuy={(it) => buyNow(it, "wishlist")}
                       onSearch={(q) => startSearch(q, "wishlist")} />
       ) : tab === "orders" && ordersHydrated ? (
         <OrdersView lang={lang} orders={orders}
@@ -1978,14 +1985,6 @@ function AskCartHome() {
                     {!chatOff && (
                       <div className="hero2-askstrip" role="region" aria-label={t(lang, "askStripLbl")}>
                         <span className="hero2-askline"><I name="sparkle" size={13} /> {t(lang, "askValueLine")}</span>
-                        {(chatContTopic
-                          ? [{ id: "cont", label: t(lang, "continueChat", { topic: chatContTopic }), seed: null }]
-                          : heroAskChips).map((c) => (
-                          <button key={c.id} className="askrow-chip"
-                                  onClick={() => openChat("hero_chip", c.seed || null)}>
-                            <I name="sparkle" size={12} /> {c.label}
-                          </button>
-                        ))}
                       </div>
                     )}
                     <div className="hero2-try">
@@ -2200,6 +2199,7 @@ function AskCartHome() {
                                   </div>
                                   <div className="pickcard-actions">
                                     <Button onClick={() => addToCart(layout.filtered[0], "pick")}>{t(lang, "addToCart")}</Button>
+                                    <Button variant="ink" onClick={() => buyNow(layout.filtered[0], "pick")}>{t(lang, "buyNow")}</Button>
                                     <Button variant="secondary" onClick={() => openPdp(layout.filtered[0], "pick", 0)}>{t(lang, "viewDetails")}</Button>
                                   </div>
                                 </div>
@@ -2382,6 +2382,7 @@ function AskCartHome() {
                    onClose={() => setQuick(null)}
                    onFull={() => { const q = quick; setQuick(null); openPdp(q, "quickview", 0); }}
                    onAdd={(r) => addToCart(r, "quickview")}
+                   onBuy={(r) => buyNow(r, "card")}
                    onWish={(r) => toggleWish(r)}
                    wished={wish.includes(quick.sku)}
                    cart={cart}

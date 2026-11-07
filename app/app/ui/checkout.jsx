@@ -27,9 +27,10 @@ function etaRange(now = Date.now()) {
 
 const EMPTY_ADDR = { name: "", mobile: "", pin: "", street: "", landmark: "", city: "", state: "", type: "home" };
 
-export function CheckoutView({ lang, cart, pin, region, onBack, onEditCart, onPlaced }) {
+export function CheckoutView({ lang, cart, buyNow = null, pin, region, onBack, onEditCart, onPlaced }) {
   const L = (k) => t(lang, k);
-  const items = Object.entries(cart).map(([sku, e]) => ({ sku, ...e.item, qty: e.qty }));
+  // S6: Buy Now checks out exactly one item; the cart list is not the order.
+  const items = buyNow ? [{ ...buyNow, qty: 1 }] : Object.entries(cart).map(([sku, e]) => ({ sku, ...e.item, qty: e.qty }));
   const total = items.reduce((a, it) => a + it.price * it.qty, 0);
   const count = items.reduce((a, it) => a + it.qty, 0);
 
@@ -103,7 +104,7 @@ export function CheckoutView({ lang, cart, pin, region, onBack, onEditCart, onPl
 
   return (
     <div className="wrap co">
-      <button className="co-back" onClick={onBack}><I name="arrow-left" size={16} /> {L("coBackToCart")}</button>
+      <button className="co-back" onClick={onBack}><I name="arrow-left" size={16} /> {buyNow ? L("back") : L("coBackToCart")}</button>
 
       <div className="co-stepper" aria-label="Checkout steps">
         {steps.map((k, i) => {
@@ -261,7 +262,7 @@ export function CheckoutView({ lang, cart, pin, region, onBack, onEditCart, onPl
               <div><span>{L("cartTaxes")}</span><span>{L("cartTaxesIncl")}</span></div>
             </div>
             <div className="co-sum-total"><span>{L("total")}</span><b>₹{total.toLocaleString("en-IN")}</b></div>
-            <button className="co-sum-edit" onClick={onEditCart}>{L("coEditCart")}</button>
+            {!buyNow && <button className="co-sum-edit" onClick={onEditCart}>{L("coEditCart")}</button>}
             <div className="co-simlock"><I name="shield-check" size={14} /> {L("cartSimNote")}</div>
           </div>
         </aside>

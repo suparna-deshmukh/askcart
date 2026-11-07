@@ -420,7 +420,7 @@ export function PdpView({ lang, item, onBack, onAdd, onBuy, onGoCart, similar, m
 }
 
 // Quick view: 720px modal from the card hover bar (desktop only).
-export function QuickView({ lang, item, onClose, onFull, onAdd, onWish, wished, cart, onInc, onDec }) {
+export function QuickView({ lang, item, onClose, onFull, onAdd, onBuy, onWish, wished, cart, onInc, onDec }) {
   const [sel, setSel] = useState(item);
   const family = useFamily(item);
   const varList = useMemo(() => {
@@ -461,6 +461,7 @@ export function QuickView({ lang, item, onClose, onFull, onAdd, onWish, wished, 
               {cartQty > 0
                 ? <div className="pdpv-qty"><QtyStepper qty={cartQty} onDec={onDec} onInc={onInc} /></div>
                 : <Button iconLeft={<I name="bag" size={16} />} onClick={() => onAdd(cur)}>{t(lang, "addToCart")}</Button>}
+              {onBuy && <Button variant="ink" onClick={() => onBuy(cur)}>{t(lang, "buyNow")}</Button>}
               <Button variant="secondary" onClick={onFull}>{t(lang, "viewDetails")}</Button>
               <IconButton name="heart" label={wished ? t(lang, "wishRemove") : t(lang, "wishAdd")}
                           className={"qv-heart" + (wished ? " on" : "")}

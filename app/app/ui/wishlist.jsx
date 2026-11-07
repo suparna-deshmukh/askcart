@@ -11,7 +11,7 @@ import { displayCat } from "../lib/categories";
 import { track } from "../lib/track";
 import { t } from "../lib/i18n";
 
-export function WishlistView({ lang, skus, onRemove, onAdd, onSearch }) {
+export function WishlistView({ lang, skus, onRemove, onAdd, onBuy, onSearch }) {
   const [items, setItems] = useState(null);
   useEffect(() => {
     let stop = false;
@@ -61,9 +61,12 @@ export function WishlistView({ lang, skus, onRemove, onAdd, onSearch }) {
                 <Price value={it.price} size="md" />
                 <Rating rating={it.rating} count={it.num_ratings} compact />
               </div>
-              <button className="card-add" style={{ marginTop: 10 }} onClick={(e) => { e.stopPropagation(); onAdd(it); }}>
-                Move to cart
-              </button>
+              <div className="wl-actions" onClick={(e) => e.stopPropagation()}>
+                <button className="card-add" style={{ marginTop: 0 }} onClick={(e) => { e.stopPropagation(); onAdd(it); }}>
+                  Move to cart
+                </button>
+                {onBuy && <button className="card-buy" style={{ marginTop: 0 }} onClick={(e) => { e.stopPropagation(); onBuy(it); }}>Buy now</button>}
+              </div>
             </div>
           ))}
         </div>
