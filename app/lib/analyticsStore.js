@@ -27,6 +27,123 @@ function file(env) {
   return path.join(process.cwd(), env === "sim" ? ".analytics-state.sim.json" : ".analytics-state.json");
 }
 
+// Section 2 (2026-11-08): slim append-only JSONL event log powering the
+// Overview range windows (Last hour / Last 24h). One compact line per
+// event (~120 B); rotated to the last 7 days past 1.5 MB so the file
+// stays bounded. The state snapshot stays the all-time source of truth;
+// the log is best-effort (a failed append never breaks recording).
+const LOG_MAX_BYTES = 1.5 * 1024 * 1024;
+const LOG_KEEP_MS = 7 * 86400000;
+function logFile(env) {
+  return path.join(process.cwd(), env === "sim" ? ".analytics-events.sim.jsonl" : ".analytics-events.jsonl");
+}
+function logLine(type, p) {
+  const o = { t: Date.now(), type };
+  if (p.session_id) o.s = String(p.session_id).slice(0, 40);
+  if (p.query) o.q = String(p.query).slice(0, 60);
+  if (p.category) o.c = String(p.category).slice(0, 40);
+  if (p.brand) o.b = String(p.brand).slice(0, 40);
+  if (p.sku) o.k = String(p.sku).slice(0, 40);
+  if (p.total !== undefined) o.v = Number(p.total) || 0;
+  if (p.source) o.src = String(p.source).slice(0, 24);
+  if (p.n_results !== undefined) o.n = Number(p.n_results) || 0;
+  if (p.turn) o.tr = Number(p.turn) || 0;
+  return JSON.stringify(o);
+}
+function appendLog(type, p, env) {
+  try {
+    const f = logFile(env);
+    fs.appendFileSync(f, logLine(type, p) + "\n");
+    if (fs.statSync(f).size > LOG_MAX_BYTES) {
+      const cutoff = Date.now() - LOG_KEEP_MS;
+      const keep = fs.readFileSync(f, "utf8").split("\n").filter((ln) => {
+        if (!ln) return false;
+        try { return JSON.parse(ln).t >= cutoff; } catch { return false; }
+      });
+      fs.writeFileSync(f + ".tmp", keep.join("\n") + (keep.length ? "\n" : ""));
+      fs.renameSync(f + ".tmp", f);
+    }
+  } catch { /* best effort */ }
+}
+const logCache = (globalThis.__askcartLogCache ??= new Map()); // env -> {mtime, lines}
+function readLog(env) {
+  try {
+    const f = logFile(env);
+    const m = fs.statSync(f).mtimeMs;
+    const hit = logCache.get(env);
+    if (hit && hit.mtime === m) return hit.lines;
+    const lines = fs.readFileSync(f, "utf8").split("\n").filter(Boolean)
+      .map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+    if (logCache.size > 8) logCache.clear();
+    logCache.set(env, { mtime: m, lines });
+    return lines;
+  } catch { return []; }
+}
+
+// Aggregate one [from, to] window from the JSONL log. Pure function of
+// the log: counts per type, unique sessions, order value, top lists,
+// per-bucket activity, and the assistant-adoption session predicates.
+export function windowStats(fromMs, toMs, env = null) {
+  const lines = readLog(env).filter((l) => l.t >= fromMs && l.t <= toMs);
+  const types = {};
+  const sessions = new Set();
+  const qMap = new Map(), cMap = new Map(), kMap = new Map(), srcMap = new Map();
+  const chatSids = new Set(), msgSids = new Set(), journeySids = new Set(),
+        cartSids = new Set(), orderSids = new Set();
+  let orderValue = 0, orderCount = 0, searches = 0;
+  for (const l of lines) {
+    types[l.type] = (types[l.type] || 0) + 1;
+    if (l.s) {
+      sessions.add(l.s);
+      if (l.type === "chat_open") chatSids.add(l.s);
+      if (l.type === "chat_user_message") msgSids.add(l.s);
+      if (l.type === "journey_end") journeySids.add(l.s);
+      if (l.type === "chat_add_to_cart") cartSids.add(l.s);
+      if (l.type === "order_complete") orderSids.add(l.s);
+    }
+    if (l.type === "search_results") searches += 1;
+    if (l.type === "order_complete") { orderCount += 1; orderValue += l.v || 0; }
+    if (l.q) qMap.set(l.q, (qMap.get(l.q) || 0) + 1);
+    if (l.c) cMap.set(l.c, (cMap.get(l.c) || 0) + 1);
+    if (l.k) kMap.set(l.k, (kMap.get(l.k) || 0) + 1);
+    if (l.src) srcMap.set(l.src, (srcMap.get(l.src) || 0) + 1);
+  }
+  const span = Math.max(1, toMs - fromMs);
+  const buckets = span <= 3600000 ? 60 : span <= 86400000 ? 24 : 28;
+  const size = span / buckets;
+  const activity = Array.from({ length: buckets }, () => 0);
+  for (const l of lines) {
+    const i = Math.max(0, Math.min(buckets - 1, Math.floor((l.t - fromMs) / size)));
+    activity[i] += 1;
+  }
+  const top = (m, n) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([name, count]) => ({ name, count }));
+  const journeysWithChat = [...msgSids].filter((s) => journeySids.has(s)).length;
+  return {
+    spanMs: span,
+    events: lines.length,
+    types,
+    sessions: sessions.size,
+    searches,
+    productViews: (types.product_view || 0) + (types.product_impression || 0),
+    cartAdds: types.add_to_cart || 0,
+    buyNow: (types.buy_now || 0) + (types.buy_now_click || 0),
+    checkouts: types.checkout_start || 0,
+    orders: orderCount,
+    orderValue,
+    chatOpens: types.chat_open || 0,
+    chatMsgs: types.chat_user_message || 0,
+    chatAdds: types.chat_add_to_cart || 0,
+    chatOpenRate: sessions.size ? +((100 * chatSids.size) / sessions.size).toFixed(1) : null,
+    journeysWithChatPct: journeySids.size ? +((100 * journeysWithChat) / journeySids.size).toFixed(1) : null,
+    chatAssistedOrders: [...cartSids].filter((s) => orderSids.has(s)).length,
+    chatSources: top(srcMap, 12),
+    topQueries: top(qMap, 10),
+    topCats: top(cMap, 10),
+    topSkus: top(kMap, 10),
+    activity,
+  };
+}
+
 function fresh() {
   return {
     startedAt: Date.now(),
@@ -54,6 +171,11 @@ function fresh() {
     journeys: { t1: 0, t2: 0, t3: 0, t4: 0, unresolved: 0 },
     // G12: outcome micro-survey rollup (all-time, survives the 500-event ring)
     outcome: { yes: 0, no: 0, reasons: {} },
+    // Section 2 (2026-11-08): per-SKU engagement, onboarding interests,
+    // chat entry-point sources (range-window + Overview dashboard inputs)
+    products: {},
+    interests: {},
+    chatSources: {},
   };
 }
 
@@ -72,7 +194,7 @@ function touchSession(st, sid, first = {}) {
   const now = Date.now();
   const sj = st.sessions[id] || { journeys: 0, firstAt: now, lastAt: now, searches: 0,
     questions: 0, answers: 0, skips: 0, views: 0, carts: 0, checkouts: 0,
-    orders: 0, orderValue: 0, persona: null,
+    orders: 0, orderValue: 0, persona: null, buyNow: 0, interests: null,
     ai: { qwen: 0, gemini: 0, rules: 0, switches: 0 },
     chat: { opens: 0, msgs: 0, adds: 0 } };
   if (!sj.firstAt) sj.firstAt = now;
@@ -154,6 +276,7 @@ export function record(type, payload = {}, env = null) {
   st.counts[type] = (st.counts[type] || 0) + 1;
 
   const p = payload || {};
+  appendLog(type, p, env); // Section 2: range-window log (best effort)
   const T = st.totals;
   const qk = String(p.query || "").slice(0, 80);
   const sj = p.session_id ? touchSession(st, p.session_id) : null;
@@ -172,6 +295,7 @@ export function record(type, payload = {}, env = null) {
       break;
     case "onboarding_complete":
       if (sj && p.forWhom) sj.persona = String(p.forWhom) + (p.shopStyle ? "|" + p.shopStyle : "");
+      if (sj && Array.isArray(p.interests)) sj.interests = p.interests.map(String).slice(0, 8);
       break;
     case "add_to_cart":
       if (sj) sj.carts += 1;
@@ -197,6 +321,7 @@ export function record(type, payload = {}, env = null) {
       break;
     case "chat_open":
       if (sj) sj.chat.opens += 1;
+      if (p.source) bump(st.chatSources, String("src:" + p.source).slice(0, 60), { searches: 1 });
       break;
     case "chat_user_message":
       if (sj) sj.chat.msgs += 1;
@@ -274,6 +399,15 @@ export function record(type, payload = {}, env = null) {
       if (qk) bump(st.queries, qk, { views: 1 });
       if (p.category) bump(st.cats, String(p.category).slice(0, 60), { views: 1 });
       if (p.brand) bump(st.brands, String(p.brand).slice(0, 40), { views: 1 });
+      if (p.sku) {
+        const pr = bump(st.products, String(p.sku).slice(0, 40), { views: 1 });
+        if (!pr.title) {
+          pr.title = String(p.title || "").slice(0, 60) || null;
+          pr.category = String(p.category || "").slice(0, 40) || null;
+          pr.brand = String(p.brand || "").slice(0, 40) || null;
+          pr.price = Number.isFinite(Number(p.price)) ? Number(p.price) : null;
+        }
+      }
       break;
     case "add_to_cart":
       T.cartAdds++;
@@ -282,7 +416,10 @@ export function record(type, payload = {}, env = null) {
       if (p.brand) bump(st.brands, String(p.brand).slice(0, 40), { carts: 1 });
       break;
     case "cart_view": T.cartViews++; break;
-    case "buy_now": T.buyNow++; break;
+    case "buy_now": case "buy_now_click":
+      T.buyNow++;
+      if (sj) sj.buyNow += 1;
+      break;
     case "checkout_start": T.checkouts++; break;
     case "order_complete": {
       T.orders++;
@@ -299,6 +436,9 @@ export function record(type, payload = {}, env = null) {
       T.onboardingDone++;
       for (const f of ["userType", "spendStyle", "context"]) {
         if (p[f]) bump(st.onboarding, String(f + ":" + p[f]).slice(0, 80), { searches: 1 });
+      }
+      if (Array.isArray(p.interests)) {
+        for (const i of p.interests.slice(0, 8)) bump(st.interests, String("interests:" + i).slice(0, 80), { searches: 1 });
       }
       break;
     case "onboarding_skipped": T.onboardingSkipped++; break;
@@ -324,6 +464,7 @@ export function record(type, payload = {}, env = null) {
   }
 
   capMap(st.queries); capMap(st.guide); capMap(st.cats); capMap(st.brands); capMap(st.cohorts); capMap(st.filters); capMap(st.sessions);
+  capMap(st.products); capMap(st.interests); capMap(st.chatSources);
   persist(st, env);
   return ev;
 }
@@ -394,6 +535,13 @@ export function snapshot(env = null) {
     guide: guideRows,
     categoryEngagement: top(st.cats, 12, "views").map((r) => ({ name: r.name, views: r.views || 0, carts: r.carts || 0, orders: 0 })),
     brandEngagement: top(st.brands, 10, "views").map((r) => ({ name: r.name, views: r.views || 0, carts: r.carts || 0, recClicks: r.recClicks || 0 })),
+    topProducts: top(st.products, 8, "views").map((r) => ({
+      sku: r.name, title: r.title || r.name, category: r.category || "", brand: r.brand || "",
+      price: r.price != null ? r.price : null, views: r.views || 0, carts: r.carts || 0,
+      cartRate: r.views ? +((100 * (r.carts || 0)) / r.views).toFixed(1) : 0,
+    })),
+    interests: topByPrefix(st.interests, "interests", 8),
+    chatSources: topByPrefix(st.chatSources, "src", 12),
     filterUsage: top(st.filters, 14, "searches").map((r) => {
       const i = r.name.indexOf(":");
       return { type: r.name.slice(0, i), value: r.name.slice(i + 1), applies: r.searches || 0 };
@@ -419,6 +567,7 @@ export function snapshot(env = null) {
         answerRate: sj.questions ? +((100 * sj.answers) / sj.questions).toFixed(0) : null,
         views: sj.views || 0, carts: sj.carts || 0, checkouts: sj.checkouts || 0,
         orders: sj.orders || 0, orderValue: sj.orderValue || 0,
+        buyNow: sj.buyNow || 0, interests: sj.interests || null,
         ai: sj.ai || { qwen: 0, gemini: 0, rules: 0, switches: 0 },
         chat: sj.chat || { opens: 0, msgs: 0, adds: 0 },
       }))

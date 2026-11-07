@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { I } from "./kit/Icon";
 import { Select } from "./kit/Input";
+import { EVENTS, eventFamily, eventLabel } from "../../lib/event_registry";
 
 function ago(ts) {
   const s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
@@ -58,15 +59,14 @@ function agoShort(ts) {
 // Feed chip family (brief §14): search = brand, cart = success,
 // guide = marigold, error = danger, everything else neutral.
 function fam(type) {
-  if (/error/.test(type)) return "error";
-  if (/^search|suggest|zero_result|resolved|unresolved|journey_end/.test(type)) return "search";
-  if (/cart|order|buy_now|checkout|wishlist|reorder|save_for_later|move_all|recommendation/.test(type)) return "cart";
-  if (/guide_|filter_|constraint_|variant_select|quick_view|pdp_ask|chat_question/.test(type)) return "guide";
-  return "neutral";
+  // Single classification point = the event registry (update-prompt s2:
+  // every schema event is counted/displayed; family drives chip colour).
+  return eventFamily(type);
 }
 
 function Sparkline({ points }) {
   if (!points || points.length < 2) return null;
+  if (points.some((p) => !Number.isFinite(p))) return null;
   const w = 80, h = 24, pad = 2;
   const max = Math.max(...points, 1);
   const step = (w - pad * 2) / (points.length - 1);
@@ -104,15 +104,7 @@ function BarRow({ label, count, max, extra }) {
   );
 }
 
-function Funnel({ funnel }) {
-  const stages = [
-    ["Searches", funnel.searches],
-    ["On-intent results (≥2)", funnel.searches_with_results],
-    ["Viewed products", funnel.products_viewed],
-    ["Added to cart", funnel.add_to_cart],
-    ["Started checkout", funnel.checkouts],
-    ["Orders placed", funnel.orders],
-  ];
+function Funnel({ stages }) {
   const max = Math.max(...stages.map(([, v]) => v), 1);
   const conv = (a, b) => (b && b > 0 ? Math.round((100 * a) / b) + "%" : "–");
   return (
@@ -162,90 +154,354 @@ function LoadingPanel() {
   );
 }
 
+const RANGES = [["live", "Live"], ["1h", "Last hour"], ["24h", "Last 24h"], ["all", "All time"]];
+
+function Delta({ cur, prev }) {
+  if (prev == null || prev === 0 || cur == null) return <span className="an-delta an-delta-na">vs prev window: –</span>;
+  const d = ((cur - prev) / prev) * 100;
+  const up = d >= 0;
+  return <span className={"an-delta " + (up ? "up" : "down")}>{up ? "+" : "−"}{Math.abs(d).toFixed(0)}% vs prev window</span>;
+}
+
+// Section 2 (2026-11-08): Overview is the normal-activity dashboard a
+// reviewer sees first: range toggle (Live / Last hour / Last 24h / All
+// time) applied to the whole panel, 8 KPI cards with sparkline + change
+// vs the previous equal window, activity per minute, the 7-stage
+// conversion funnel, the assistant-adoption panel, shopper personas,
+// compact Top queries / Top products / Top categories, Recent orders and
+// the live event stream. Every metric lives in EXACTLY ONE tab: the
+// detailed tables that used to sit in Search & Guide / Catalogue /
+// Journeys were moved here (or, for search-quality stats, the other way
+// around) so nothing is shown twice.
 function OverviewPanel({ sum }) {
-  const t = sum.totals, f = sum.funnel;
-  const obTotal = t.onboardingDone + t.onboardingSkipped;
+  const [range, setRange] = useState("live");
+  const [rsum, setRsum] = useState(null);
+  useEffect(() => {
+    if (range === "live") { setRsum(null); return; }
+    let stop = false;
+    const pull = () => fetch("/api/analytics/summary?range=" + range)
+      .then((r) => r.json()).then((j) => {
+        const okShape = range === "all" ? !!(j && j.snapshot) : !!(j && j.current);
+        if (!stop && okShape) setRsum(j);
+      }).catch(() => {});
+    pull();
+    const id = setInterval(pull, 10000);
+    return () => { stop = true; clearInterval(id); };
+  }, [range]);
+
+  const win = (range === "1h" || range === "24h") && rsum && rsum.current ? rsum : null;
+  const allw = range === "all" && rsum && rsum.snapshot ? rsum : null;
+  const t = sum.totals, counts = sum.counts || {};
+  const obDone = t.onboardingDone || 0;
+
+  // KPI rows: [label, current, previous|undefined, spark, note]
+  let kpis, spark, ordersNote;
+  if (win) {
+    const c = win.current, pv = win.previous;
+    ordersNote = "₹" + Math.round(c.orderValue).toLocaleString("en-IN") + " revenue";
+    kpis = [
+      ["Sessions", c.sessions, pv.sessions],
+      ["Searches", c.searches, pv.searches],
+      ["Product views", c.productViews, pv.productViews],
+      ["Add to cart", c.cartAdds, pv.cartAdds],
+      ["Buy Now clicks", c.buyNow, pv.buyNow],
+      ["Orders", c.orders, pv.orders],
+      ["Chat opens", c.chatOpens, pv.chatOpens],
+      ["Chat messages", c.chatMsgs, pv.chatMsgs],
+    ];
+    spark = c.activity;
+  } else {
+    const src = allw ? allw.snapshot : sum;
+    const cts = allw ? allw.snapshot.counts : counts;
+    const s = allw ? allw.snapshot.sessions : sum.sessions;
+    const tt = allw ? allw.snapshot.totals : t;
+    ordersNote = "₹" + Math.round(tt.orderValue).toLocaleString("en-IN") + " total value";
+    kpis = [
+      ["Sessions", s.active, null],
+      ["Searches", tt.searches, null],
+      ["Product views", tt.productsViewed, null],
+      ["Add to cart", tt.cartAdds, null],
+      ["Buy Now clicks", tt.buyNow, null],
+      ["Orders", tt.orders, null],
+      ["Chat opens", cts.chat_open || 0, null],
+      ["Chat messages", cts.chat_user_message || 0, null],
+    ];
+    spark = allw ? allw.current.activity : (sum.activity || []).map((m) => m.n);
+  }
+
+  // Funnel stages: Visit -> Onboarded -> Search -> Product view -> Add to
+  // cart -> Checkout started -> Order
+  let funnel;
+  if (win) {
+    const c = win.current, ty = c.types;
+    funnel = [
+      ["Visit (sessions)", c.sessions],
+      ["Onboarded", ty.onboarding_complete || 0],
+      ["Search", c.searches],
+      ["Product view", c.productViews],
+      ["Add to cart", c.cartAdds],
+      ["Checkout started", c.checkouts],
+      ["Order", c.orders],
+    ];
+  } else {
+    const tt = allw ? allw.snapshot.totals : t;
+    const s = allw ? allw.snapshot.sessions : sum.sessions;
+    funnel = [
+      ["Visit (sessions)", s.active],
+      ["Onboarded", tt.onboardingDone || 0],
+      ["Search", tt.searches],
+      ["Product view", tt.productsViewed],
+      ["Add to cart", tt.cartAdds],
+      ["Checkout started", tt.checkouts],
+      ["Order", tt.orders],
+    ];
+  }
+
+  // Assistant adoption (new panel)
+  let adoption;
+  if (win) {
+    const c = win.current;
+    adoption = { openRate: c.chatOpenRate, journeyPct: c.journeysWithChatPct, adds: c.chatAdds,
+                 assistedOrders: c.chatAssistedOrders, sources: c.chatSources, basis: "window" };
+  } else {
+    const us = sum.userSessions || [];
+    const total = us.length;
+    const withChat = us.filter((u) => u.chat.opens > 0).length;
+    const withSearch = us.filter((u) => u.searches > 0).length;
+    const withChatMsgs = us.filter((u) => u.chat.msgs > 0 && u.searches > 0).length;
+    const adds = us.reduce((a, u) => a + (u.chat.adds || 0), 0);
+    const assisted = us.filter((u) => u.chat.adds > 0 && u.orders > 0).reduce((a, u) => a + u.orders, 0);
+    adoption = { openRate: total ? +((100 * withChat) / total).toFixed(1) : null,
+                 journeyPct: withSearch ? +((100 * withChatMsgs) / withSearch).toFixed(1) : null,
+                 adds, assistedOrders: assisted, sources: sum.chatSources || [], basis: total ? "last " + total + " sessions" : "no sessions yet" };
+  }
+
+  // Shopper personas (moved from Journeys: persona mix + conversion by
+  // persona + top interests all live here now)
+  const ob = sum.onboarding || { userType: [], spendStyle: [], context: [] };
+  const interests = sum.interests || [];
+  const cohorts = sum.cohorts || [];
+  const topQueries = (sum.topQueries || []).slice(0, 8);
+  const topProducts = sum.topProducts || [];
+  const topCats = sum.categoryEngagement || [];
+  const maxCatEng = Math.max(...topCats.map((c) => c.views + c.carts), 1);
+  const orders = (sum.orders || []).slice(0, 5);
+
+  const ctsForEvents = win ? win.current.types : counts;
+
   return (
     <div>
+      <div className="an-rangewrap">
+        <span className="an-rangelab">Range</span>
+        <span className="an-range" role="group" aria-label="Overview range">
+          {RANGES.map(([id, label]) => (
+            <button key={id} className={range === id ? "on" : ""} onClick={() => setRange(id)}>{label}</button>
+          ))}
+        </span>
+        <span className="meta an-range-note">{win ? "window " + new Date(win.window[0]).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) + " – now · Δ vs previous " + (range === "1h" ? "hour" : "day") : range === "all" ? "true all-time totals · top lists from the 7-day log" : "live · all-time rollups"}</span>
+      </div>
       <div className="statgrid">
-        <Stat k="Searches" v={t.searches.toLocaleString("en-IN")}
-              spark={sum.activity && sum.activity.length >= 2 ? sum.activity.map((m) => m.n) : null} />
-        <Stat k="Failed-search rate" v={sum.nullRate == null ? "–" : sum.nullRate + "%"} warn={sum.nullRate > 15} note="<2 on-intent results / search (study's null defn)" />
-        <Stat k="Search success" v={sum.resolutionRate == null ? "–" : sum.resolutionRate + "%"} note="searches surfacing ≥2 on-intent results" />
-        <Stat k="Products viewed" v={t.productsViewed.toLocaleString("en-IN")} />
-        <Stat k="Cart adds" v={t.cartAdds.toLocaleString("en-IN")} note={t.productsViewed ? Math.round(100 * t.cartAdds / t.productsViewed) + "% of views" : undefined} />
-        <Stat k="Orders (prototype)" v={t.orders.toLocaleString("en-IN")} note={"₹" + t.orderValue.toLocaleString("en-IN") + " total value"} />
-        <Stat k="Onboarding completed" v={obTotal ? Math.round(100 * t.onboardingDone / obTotal) + "%" : "–"} note={t.onboardingDone + " done · " + t.onboardingSkipped + " skipped"} />
-        <Stat k="Buy-now clicks" v={t.buyNow.toLocaleString("en-IN")} note={t.checkouts + " checkouts (cart " + (t.checkouts - t.buyNow >= 0 ? t.checkouts - t.buyNow : 0) + ")"} />
-        <Stat k="Filter applies" v={t.filterApplies.toLocaleString("en-IN")} note="mid-search refinements" />
-        <Stat k="Recommendation clicks" v={t.recommendationClicks.toLocaleString("en-IN")} note="adds from top picks" />
-        <Stat k="Journeys" v={(t.journeysTotal || 0).toLocaleString("en-IN")} note={sum.sessions ? sum.sessions.multiJourney + " multi-search sessions" : undefined} />
-        <Stat k="Avg journey time" v={fmtMs(sum.journeyMsAvg)} note="search → resolution" />
-        <Stat k="Avg order value" v={sum.aov ? "₹" + sum.aov.toLocaleString("en-IN") : "–"} note={t.orderValue ? "₹" + t.orderValue.toLocaleString("en-IN") + " total" : "prototype orders"} />
-        <Stat k="Cart → checkout" v={sum.cartToCheckoutPct == null ? "–" : sum.cartToCheckoutPct + "%"} note={t.cartViews + " cart views"} />
-        <Stat k="Guide questions" v={sum.guideTotals ? sum.guideTotals.asked : 0}
-            note={sum.guideTotals ? sum.guideTotals.rescues + " rescue · " + sum.guideTotals.refines + " refine" : undefined} />
-        <Stat k="Avg answer time" v={sum.ttfcAvgMs == null ? "–" : (sum.ttfcAvgMs / 1000).toFixed(1) + "s"} note="time to tap a chip" />
+        {kpis.map(([label, v, prev]) => (
+          <div className="stat" key={label}>
+            <div className="k">{label}</div>
+            <div className="v">{Number(v).toLocaleString("en-IN")}{spark && spark.length >= 2 ? <Sparkline points={spark} /> : null}</div>
+            {win ? <Delta cur={v} prev={prev} /> : <div className="kn an-delta-na">{range === "all" ? "since launch" : "live rollup"}</div>}
+            {label === "Orders" ? <div className="kn">{ordersNote}</div> : null}
+          </div>
+        ))}
       </div>
       <div className="dim">
-        <h3>Activity · events per minute (live)</h3>
-        {sum.activity && sum.activity.length ? (
+        <h3>Activity per {range === "1h" ? "minute" : "bucket"} ({win ? (range === "1h" ? "last hour" : "last 24 h") : range === "all" ? "last 7 days" : "live, last 10 min"})</h3>
+        {spark && spark.length ? (
           <div className="act-chart">
-            {sum.activity.map((m) => {
-              const maxAct = Math.max(...sum.activity.map((x) => x.n), 1);
+            {spark.map((n, i) => {
+              const maxAct = Math.max(...spark, 1);
               return (
-                <div key={m.label} className="act-col" title={m.n + " events"}>
-                  <span className="act-n">{m.n || ""}</span>
-                  <div className="act-bar" style={{ height: Math.max(3, Math.round((m.n / maxAct) * 64)) + "px" }} />
-                  <span className="act-l">{m.label}</span>
+                <div key={i} className="act-col" title={n + " events"}>
+                  <span className="act-n">{n || ""}</span>
+                  <div className="act-bar" style={{ height: Math.max(3, Math.round((n / maxAct) * 64)) + "px" }} />
+                  <span className="act-l">{i === spark.length - 1 ? "now" : ""}</span>
                 </div>
               );
             })}
           </div>
         ) : <div className="feedempty">No activity yet.</div>}
       </div>
-      <Funnel funnel={f} />
+      <Funnel stages={funnel} />
       <div className="dim">
-        <h3>Shopper profiles · what onboarding tells us (persona v2)</h3>
-        {sum.onboarding && (sum.onboarding.userType.length || sum.onboarding.spendStyle.length || sum.onboarding.context.length) ? (
-          <div className="obgrid">
-            {[["User type", sum.onboarding.userType], ["How they judge value", sum.onboarding.spendStyle], ["Shopping for", sum.onboarding.context]].map(([title, rows]) => (
-              <div key={title}>
-                <h4>{title}</h4>
-                {rows.length ? rows.map(r =>
-                  <BarRow key={r.name} label={r.name} count={r.count} max={Math.max(...rows.map(x => x.count), 1)} />)
-                : <div className="feedempty">No answers yet.</div>}
-              </div>
-            ))}
-          </div>
-        ) : <div className="feedempty">No onboarding answers yet — complete the 3-question profile on the Search tab.</div>}
+        <h3>Assistant adoption · how shoppers use the chat ({adoption.basis})</h3>
+        <div className="statgrid" style={{ marginBottom: 14 }}>
+          <Stat k="Chat open rate" v={adoption.openRate == null ? "–" : adoption.openRate + "%"} note="share of sessions that opened the assistant" />
+          <Stat k="Journeys with a chat message" v={adoption.journeyPct == null ? "–" : adoption.journeyPct + "%"} note="sessions with ≥1 assistant message that also searched" />
+          <Stat k="Chat-assisted cart adds" v={adoption.adds.toLocaleString("en-IN")} note="adds executed from the chat" />
+          <Stat k="Chat-assisted orders" v={adoption.assistedOrders.toLocaleString("en-IN")} note="orders from sessions with a chat add" />
+        </div>
+        <h4>Entry points (chat_open source)</h4>
+        {adoption.sources.length ? adoption.sources.map((r) =>
+          <BarRow key={r.name} label={r.name} count={r.count} max={Math.max(...adoption.sources.map((x) => x.count), 1)} />)
+        : <div className="feedempty">No chat opens yet — the entry-point mix appears as shoppers open the assistant (pill, header, hero, results, PDP, cart, onboarding, nudge…).</div>}
       </div>
-      <Feed events={sum.recent} />
-    </div>
-  );
-}
-function SearchGuidePanel({ sum }) {
-  return (
-    <div>
       <div className="dim">
-        <h3>Top queries · what people search, and how it goes</h3>
-        <div className="an-tablewrap">
-          {sum.topQueries.length ? (
+        <h3>Shopper personas · who is shopping, and who converts</h3>
+        <div className="obgrid">
+          <div>
+            <h4>Persona mix (onboarding)</h4>
+            {ob.userType.length ? ob.userType.map((r) =>
+              <BarRow key={"u" + r.name} label={r.name} count={r.count} max={Math.max(...ob.userType.map((x) => x.count), 1)} />)
+            : <div className="feedempty">No onboarding answers yet.</div>}
+          </div>
+          <div>
+            <h4>How they judge value</h4>
+            {ob.spendStyle.length ? ob.spendStyle.map((r) =>
+              <BarRow key={"s" + r.name} label={r.name} count={r.count} max={Math.max(...ob.spendStyle.map((x) => x.count), 1)} />)
+            : <div className="feedempty">No answers yet.</div>}
+          </div>
+          <div>
+            <h4>Shopping for</h4>
+            {ob.context.length ? ob.context.map((r) =>
+              <BarRow key={"c" + r.name} label={r.name} count={r.count} max={Math.max(...ob.context.map((x) => x.count), 1)} />)
+            : <div className="feedempty">No answers yet.</div>}
+          </div>
+        </div>
+        {interests.length ? (
+          <div style={{ marginTop: 12 }}>
+            <h4>Top interests (onboarding · feeds “Picked for you” and starters)</h4>
+            {interests.map((r) =>
+              <BarRow key={"i" + r.name} label={r.name} count={r.count} max={Math.max(...interests.map((x) => x.count), 1)} />)}
+          </div>
+        ) : null}
+        <div className="an-tablewrap" style={{ marginTop: 12 }}>
+          {cohorts.length ? (
           <table className="tbl">
-            <thead><tr><th>Query</th><th className="num">Searches</th><th className="num">Nulls</th><th className="num">Resolved</th><th className="num">Avg turns</th><th className="num">Views</th><th className="num">Cart</th><th className="num">Cart %</th><th className="num">Orders</th></tr></thead>
+            <thead><tr><th>Persona cohort (shopping-for × style)</th><th className="num">Journeys</th><th className="num">Resolved</th><th className="num">Cart adds</th><th className="num">Orders</th><th className="num">Order rate</th><th className="num">Avg time</th></tr></thead>
             <tbody>
-              {sum.topQueries.map((r) => (
-                <tr key={r.query}>
-                  <td className="q">{r.query}</td><td className="num">{r.searches}</td><td className={"num" + (r.nulls ? " bad" : "")}>{r.nulls}</td>
-                  <td className="num">{r.resolved}</td><td className="num">{r.avgTurns ?? "–"}</td><td className="num">{r.views}</td><td className="num">{r.carts}</td>
-                  <td className="num">{r.cartRate}%</td><td className="num">{r.orders}</td>
+              {cohorts.map((c) => (
+                <tr key={c.name}>
+                  <td className="q">{c.name.replace("|", " × ")}</td><td className="num">{c.searches}</td><td className="num">{c.resolved}</td>
+                  <td className="num">{c.carts}</td><td className="num">{c.orders}</td>
+                  <td className="num">{c.searches ? Math.round(100 * c.orders / c.searches) + "%" : "–"}</td>
+                  <td className="num">{c.avgMs ? fmtMs(c.avgMs) : "–"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        ) : <div className="feedempty">No searches yet.</div>}
+        ) : <div className="feedempty">No persona cohorts yet — complete onboarding, then search.</div>}
         </div>
       </div>
+      <div className="an-ov-grid">
+        <div className="dim">
+          <h3>Top queries</h3>
+          <div className="an-tablewrap">
+            {topQueries.length ? (
+            <table className="tbl">
+              <thead><tr><th>Query</th><th className="num">Searches</th><th className="num">Nulls</th><th className="num">Resolved</th><th className="num">Cart %</th><th className="num">Orders</th></tr></thead>
+              <tbody>
+                {topQueries.map((r) => (
+                  <tr key={r.query}>
+                    <td className="q">{r.query}</td><td className="num">{r.searches}</td><td className={"num" + (r.nulls ? " bad" : "")}>{r.nulls}</td>
+                    <td className="num">{r.resolved}</td><td className="num">{r.cartRate}%</td><td className="num">{r.orders}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : <div className="feedempty">No searches yet.</div>}
+          </div>
+        </div>
+        <div className="dim">
+          <h3>Top products (live engagement)</h3>
+          <div className="an-tablewrap">
+            {topProducts.length ? (
+            <table className="tbl">
+              <thead><tr><th>Product</th><th className="num">Views</th><th className="num">Cart</th><th className="num">View→cart</th></tr></thead>
+              <tbody>
+                {topProducts.map((r) => (
+                  <tr key={r.sku}>
+                    <td className="q" title={r.sku}>{r.title || r.sku}{r.brand ? <span className="meta"> · {r.brand}</span> : null}</td>
+                    <td className="num">{r.views}</td><td className="num">{r.carts}</td><td className="num">{r.cartRate}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : <div className="feedempty">No product views yet.</div>}
+          </div>
+        </div>
+      </div>
+      <div className="dim">
+        <h3>Top categories · what shoppers actually browse & cart</h3>
+        {topCats.length ? topCats.map((c) =>
+          <BarRow key={c.name} label={c.name} count={c.views + c.carts} max={maxCatEng} extra={c.views + " views · " + c.carts + " carts"} />)
+        : <div className="feedempty">No engagement yet — browse some products.</div>}
+      </div>
+      <div className="an-ov-grid">
+        <div className="dim">
+          <h3>Recent orders</h3>
+          <div className="an-tablewrap">
+            {orders.length ? (
+            <table className="tbl">
+              <thead><tr><th>Order</th><th className="num">Items</th><th className="num">Total</th><th>Source</th><th>When</th></tr></thead>
+              <tbody>
+                {orders.map((o) => (
+                  <tr key={o.id + o.at}>
+                    <td className="q">{o.id}</td><td className="num">{o.items}</td>
+                    <td className="num">₹{o.total.toLocaleString("en-IN")}</td>
+                    <td>{o.source}</td><td>{ago(o.at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : <div className="feedempty">No orders yet — add something to cart and place a prototype order.</div>}
+          </div>
+        </div>
+        <div className="dim">
+          <h3>Live event stream · last {sum.recent.length} of every interaction</h3>
+          <div className="feed">
+            {sum.recent.length ? sum.recent.map((ev, i) => (
+              <div className="feedrow" key={(ev.at || 0) + "-" + i}>
+                <span className={"ft fam-" + fam(ev.type)}>{ev.type}</span>
+                <span className="fp">{evText(ev) || "—"}</span>
+                <span className="fa">{ago(ev.at)}</span>
+              </div>
+            )) : <div className="feedempty"><span className="live-dot" /> No interactions yet — run a search on the Search tab and watch this tick in real time.</div>}
+          </div>
+        </div>
+      </div>
+      <div className="dim">
+        <h3>Event types · every schema event, counted ({Object.keys(EVENTS).length}) · {win ? "in window" : "all-time"}</h3>
+        <div className="an-tablewrap">
+          <table className="tbl">
+            <thead><tr><th>Event</th><th>Label</th><th>Family</th><th className="num">Count</th></tr></thead>
+            <tbody>
+              {Object.entries(EVENTS).map(([name, meta]) => (
+                <tr key={name}>
+                  <td className="q">{name}</td><td>{eventLabel(name)}</td>
+                  <td><span className={"ft fam-" + meta.family}>{meta.family}</span></td>
+                  <td className="num">{ctsForEvents[name] || 0}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="meta">Coverage is enforced by <code>scripts/check-analytics-coverage.mjs</code>: any event in <code>docs/event_schema.md</code> without a registry row fails CI.</div>
+      </div>
+    </div>
+  );
+}
+function SearchGuidePanel({ sum }) {
+  const t = sum.totals;
+  return (
+    <div>
+      <div className="statgrid">
+        <Stat k="Searches" v={t.searches.toLocaleString("en-IN")} note="all-time" />
+        <Stat k="Failed-search (null) rate" v={sum.nullRate == null ? "–" : sum.nullRate + "%"} warn={sum.nullRate > 15} note="<2 on-intent results / search (the study’s null definition)" />
+        <Stat k="Search success" v={sum.resolutionRate == null ? "–" : sum.resolutionRate + "%"} note="searches surfacing ≥2 on-intent results" />
+        <Stat k="Filter applies" v={t.filterApplies.toLocaleString("en-IN")} note="mid-search refinements" />
+        <Stat k="Recommendation clicks" v={t.recommendationClicks.toLocaleString("en-IN")} note="actions on persona top picks" />
+        <Stat k="Avg journey time" v={fmtMs(sum.journeyMsAvg)} note="search → resolution" />
+        <Stat k="Avg answer time (TTFC)" v={sum.ttfcAvgMs == null ? "–" : (sum.ttfcAvgMs / 1000).toFixed(1) + "s"} note="time to tap a chip" />
+        <Stat k="Cart → checkout" v={sum.cartToCheckoutPct == null ? "–" : sum.cartToCheckoutPct + "%"} note={t.cartViews + " cart views"} />
+      </div>
+      <div className="dim">
+        <h3>Guide behaviour · where follow-up questions fire</h3>      </div>
       <div className="dim">
         <h3>Guide behaviour · where follow-up questions fire</h3>
         {sum.guideTotals ? (
@@ -274,12 +530,6 @@ function SearchGuidePanel({ sum }) {
         ) : <div className="feedempty">No filters used yet — run a search, then try a brand, price, rating or category filter.</div>}
         </div>
       </div>
-      <div className="dim">
-        <h3>Journey resolution by turns</h3>
-        {Object.entries(sum.journeys).map(([k, v]) => (
-          <BarRow key={k} label={k === "t1" ? "Resolved turn 1" : k === "t2" ? "Resolved turn 2" : k === "t3" ? "Resolved turn 3" : k === "t4" ? "Resolved turn 4" : "Unresolved"} count={v} max={Math.max(...Object.values(sum.journeys), 1)} />
-        ))}
-      </div>
     </div>
   );
 }
@@ -289,7 +539,6 @@ function CatalogPanel({ cat, sum }) {
   const maxCat = Math.max(...cat.categories.map(c => c.count), 1);
   const maxBand = Math.max(...cat.priceBands.map(c => c.count), 1);
   const maxRat = Math.max(...cat.ratingBuckets.map(c => c.count), 1);
-  const maxEng = Math.max(...sum.categoryEngagement.map(c => c.views + c.carts), 1);
   const maxBrand = Math.max(...sum.brandEngagement.map(b => b.views + b.carts), 1);
   const pct = (x) => (x * 100).toFixed(1) + "%";
   return (
@@ -357,12 +606,6 @@ function CatalogPanel({ cat, sum }) {
         </div>
       </div>
       <div className="dim">
-        <h3>Category engagement · what shoppers actually browse & cart</h3>
-        {sum.categoryEngagement.length ? sum.categoryEngagement.map(c =>
-          <BarRow key={c.name} label={c.name} count={c.views + c.carts} max={maxEng} extra={c.views + " views · " + c.carts + " carts"} />)
-        : <div className="feedempty">No engagement yet — browse some products.</div>}
-      </div>
-      <div className="dim">
         <h3>Brand engagement · brands shoppers engage with</h3>
         {sum.brandEngagement.length ? sum.brandEngagement.map(b =>
           <BarRow key={b.name} label={b.name} count={b.views + b.carts} max={maxBrand} extra={b.views + " views · " + b.carts + " carts"} />)
@@ -382,26 +625,6 @@ function JourneysPanel({ sum }) {
         <Stat k="Unresolved journeys" v={sum.journeys.unresolved.toLocaleString("en-IN")} warn={sum.journeys.unresolved > 5} />
       </div>
       <div className="dim">
-        <h3>Persona cohorts · who converts (from onboarding)</h3>
-        <div className="an-tablewrap">
-          {sum.cohorts.length ? (
-          <table className="tbl">
-            <thead><tr><th>Cohort (shopping-for × style)</th><th className="num">Journeys</th><th className="num">Resolved</th><th className="num">Cart adds</th><th className="num">Orders</th><th className="num">Order rate</th><th className="num">Avg time</th></tr></thead>
-            <tbody>
-              {sum.cohorts.map((c) => (
-                <tr key={c.name}>
-                  <td className="q">{c.name.replace("|", " × ")}</td><td className="num">{c.searches}</td><td className="num">{c.resolved}</td>
-                  <td className="num">{c.carts}</td><td className="num">{c.orders}</td>
-                  <td className="num">{c.searches ? Math.round(100 * c.orders / c.searches) + "%" : "–"}</td>
-                  <td className="num">{c.avgMs ? fmtMs(c.avgMs) : "–"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : <div className="feedempty">No journeys recorded yet.</div>}
-        </div>
-      </div>
-      <div className="dim">
         <h3>Recent orders (prototype)</h3>
         <div className="an-tablewrap">
           {sum.orders.length ? (
@@ -419,6 +642,19 @@ function JourneysPanel({ sum }) {
           </table>
         ) : <div className="feedempty">No orders yet — add something to cart and place a prototype order.</div>}
         </div>
+      </div>
+      <div className="dim">
+        <h3>Journey resolution · how fast guided journeys close</h3>
+        <div className="statgrid" style={{ marginBottom: 14 }}>
+          <Stat k="Journeys total" v={(sum.totals.journeysTotal || 0).toLocaleString("en-IN")} />
+          <Stat k="Resolved" v={(sum.journeys.t1 + sum.journeys.t2 + sum.journeys.t3 + sum.journeys.t4).toLocaleString("en-IN")} note={sum.journeyResolution.pct == null ? "all journeys" : sum.journeyResolution.pct + "% of journeys"} />
+          <Stat k="Resolved ≤ 2 turns" v={sum.journeyResolution.byTurn2Pct == null ? "–" : sum.journeyResolution.byTurn2Pct + "%"} note="the guide keeps asking for the rest" />
+          <Stat k="Multi-journey sessions" v={(sum.sessions.multiJourney || 0).toLocaleString("en-IN")} note={sum.sessions.journeysPerSession == null ? "" : sum.sessions.journeysPerSession + " journeys/session"} />
+        </div>
+        {Object.entries(sum.journeys).map(([k, v]) => (
+          <BarRow key={k} label={k === "t1" ? "Resolved turn 1" : k === "t2" ? "Resolved turn 2" : k === "t3" ? "Resolved turn 3" : k === "t4" ? "Resolved turn 4+" : "Unresolved"} count={v} max={Math.max(...Object.values(sum.journeys), 1)} />
+        ))}
+        <div className="meta">Persona cohorts, recent orders and the top lists live on the Overview tab — each metric has exactly one home.</div>
       </div>
     </div>
   );
@@ -591,8 +827,9 @@ function BackendPanel({ sum }) {
       {filtered.length ? (
         <table className="tbl an-admin-table">
           <thead><tr>
-            <th>User</th><th>Persona</th><th>Active</th><th className="num">Searches</th>
-            <th className="num">Questions</th><th className="num">Answer rate</th><th className="num">Carts</th><th className="num">Orders</th>
+            <th>User</th><th>Persona</th><th>Interests</th><th>Active</th><th className="num">Searches</th>
+            <th className="num">Questions</th><th className="num">Answer rate</th><th className="num">Chat msgs</th><th className="num">Buy Now</th>
+            <th className="num">Carts</th><th className="num">Orders</th>
             <th className="num">Value</th><th>AI mix (Q/G/R)</th><th>Funnel</th>
           </tr></thead>
           <tbody>
@@ -600,10 +837,13 @@ function BackendPanel({ sum }) {
               <tr key={u.sid}>
                 <td className="q">{u.sid.slice(0, 12)}…</td>
                 <td>{u.persona || "–"}</td>
+                <td>{Array.isArray(u.interests) && u.interests.length ? u.interests.join(", ") : "–"}</td>
                 <td>{agoShort(u.lastAt)}</td>
                 <td className="num">{u.searches}</td>
                 <td className="num">{u.questions}</td>
                 <td className="num">{u.answerRate == null ? "–" : u.answerRate + "%"}</td>
+                <td className="num">{u.chat.msgs || 0}</td>
+                <td className="num">{u.buyNow || 0}</td>
                 <td className="num">{u.carts}</td>
                 <td className="num">{u.orders}</td>
                 <td className="num">{u.orderValue ? "₹" + u.orderValue.toLocaleString("en-IN") : "–"}</td>
@@ -615,7 +855,7 @@ function BackendPanel({ sum }) {
         </table>
       ) : <div className="feedempty">No users match these filters yet.</div>}
       </div>
-      <div className="meta">Admin view of the same shared store the shopper dashboards read: one row per session (browser), funnel columns per user, AI-engine mix from ai_call events, Gemini key switches from ai_key_exhausted. Simulated traffic is tagged env=sim and kept in a separate store.</div>
+      <div className="meta">The single per-user view (one row per session/browser — no other tab shows per-user data): persona + interests from onboarding, chat usage, Buy Now clicks, AI-engine mix from ai_call events, Gemini key switches from ai_key_exhausted. Session ids only — names never leave the browser. Simulated traffic is tagged env=sim and kept in a separate store.</div>
     </div>
   );
 }

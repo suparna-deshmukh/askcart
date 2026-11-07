@@ -115,3 +115,78 @@ The large-scale simulation harness (`eval/simulate.py`) posts events with
 `env: "sim"` into an isolated store (`.analytics-state.sim.json`, exposed at
 `/api/analytics/summary?env=sim`) so synthetic volume never pollutes the
 shared public dashboard; logs land in `logs/sim_*.jsonl`.
+
+## Shell & onboarding (auxiliary events)
+
+| Event | Emitted when | Key properties |
+|---|---|---|
+| `language_change` | shopper switches EN / हिं / Hinglish | `lang` |
+| `region_set` | pincode captured in the strip (coarse region only — the pincode itself never leaves the browser) | `region` (coarse) |
+| `onboarding_strip_dismissed` | first-visit strip collapsed | — |
+| `onboarding_start` | full-screen first-visit onboarding shown (update-prompt §3) | `forced` (bool, `/?onboard=1`) |
+| `onboarding_step` | step answered or skipped | `step` (name/context/interests/spendStyle/ageBand), `ms` |
+| `show_more` | "Show more" expanded on a shelf / suggestion list | `surface` |
+| `demand_signal` | a search (page or chat) dead-ends with no question left | `query` |
+| `ui_error` | client error boundary fired | `message` (sanitised) |
+| `outcome_feedback` | post-order micro-survey answered | `value` (yes/no), `reason`, `journey_id` |
+
+## PDP & results UI (revamp Phases 4-5)
+
+| Event | Emitted when | Key properties |
+|---|---|---|
+| `product_view` | PDP opened (B4 rename of the impression on open) | `sku`, `title`, `category`, `brand`, `price`, `query`, `turn` |
+| `product_open` | PDP deep-link or card open | `sku`, `source` (card/deeplink/similar/recent) |
+| `pdp_close` | PDP closed (dwell reported) | `sku`, `dwell_ms` |
+| `variant_select` | size / colour variant picked on the PDP | `sku`, `variant`, `price` |
+| `pdp_ask` | "Ask AskCart about this product" opened the chat with the SKU | `sku`, `prompt` |
+| `quick_view_open` | quick-view overlay opened from a card | `sku`, `position` |
+| `view_density_change` | grid density toggled | `density` |
+| `filter_sheet_open` | mobile filter / sort sheet opened | `sheet` (filter/sort) |
+| `constraint_removed` | a removable trail chip removed | `query`, `label`, `turn` |
+| `guide_typed_answer` | typed (non-chip) guide answer | `query`, `question_type`, `text` (redacted to 80 chars), `resolved_to_chip`, `turn` |
+| `guide_skipped` | "Skip this question" tapped (max 3 keeps the loop) | `query`, `question_type`, `turn` |
+| `search_suggest_select` | autosuggest row picked | `query`, `source` (input/hero) |
+| `suggest_select` | legacy suggest selection (pre-rename alias) | `query` |
+| `back_to_top` | back-to-top FAB tapped | — |
+
+## Cart, checkout & orders (revamp Phases 6 + update-prompt §7)
+
+| Event | Emitted when | Key properties |
+|---|---|---|
+| `save_for_later` | cart item moved to wishlist | `sku`, `wishlist_size` |
+| `move_all_to_cart` | wishlist "Move all to cart" | `count` |
+| `buy_now_click` | Buy Now tapped anywhere (cards, rails, PDP, chat, pick) — replaces legacy `buy_now` for new surfaces | `sku`, `source` (card/pdp/chat/pick/rail) |
+| `checkout_step_view` | checkout accordion step opened | `step` (details/payment/review), `source` (cart/buy_now) |
+| `checkout_step_complete` | checkout step primary button tapped | `step` |
+| `demo_order_shortcut` | "Place demo order now" quick link used | `from_step` |
+| `order_confirm_view` | confirmation page rendered | `order_id` |
+| `reorder_click` | "Buy again" on an order row | `order_id`, `sku` |
+
+## Assistant adoption & agentic chat (update-prompt §5)
+
+All rule-based / template-driven surfaces make **zero LLM calls** before the
+shopper sends a message. Message text and the shopper's name are never sent;
+`source`/`trigger`/`surface` enums are closed sets.
+
+| Event | Emitted when | Key properties |
+|---|---|---|
+| `search_to_ask_switch` | conversational search input routed to the assistant (L4) | `how` (row/shift_enter/toggle) |
+| `chat_prompt_shown` | proactive peek-bubble prompt shown (L6) | `trigger` (home_idle/weak_search/skips/filter_fiddly/pdp_compare/pdp_dwell/cart_stall) |
+| `chat_prompt_click` | prompt button tapped | `trigger` |
+| `chat_prompt_dismiss` | prompt ✕ tapped | `trigger` |
+| `chat_peek_shown` | 5 s reply-peek bubble shown while the panel is closed (L7) | — |
+| `chat_seeded_action` | a zero-typing chip auto-sent a seeded message (L3) | `surface` (results/pdp/cart/confirmation/hero/card) |
+| `chat_action_executed` | an agentic `actions[]` entry executed via `performAction()` | `type` (search/apply_filters/open_product/add_to_cart/buy_now/remove_from_cart/add_to_wishlist/open_cart/compare), `ok` |
+| `chat_open` | panel opened (all entry points) | `source` (pill/header/hero/results/pdp/cart/onboarding/nudge/suggest/ask_tab), `has_context` |
+
+| `chat_tool_call` | server-side note of a chat NLU tool execution, relayed with the reply | `intent`, `ms` |
+
+## Range windows (update-prompt §2)
+
+`/api/analytics/summary?range=1h|24h|all` returns time-windowed aggregates
+from a slim append-only JSONL event log (`.analytics-events.jsonl`, one
+compact line per event, rotated to 7 days past 1.5 MB). `range=live`
+(default) keeps the all-time snapshot contract. KPI deltas compare the
+window against the previous equal window. The log stores session id,
+persona id, interests and coarse region only — never name, address, phone
+or pincode.
