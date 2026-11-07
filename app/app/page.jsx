@@ -14,6 +14,7 @@ import { Tile } from "./ui/kit/Tile";
 import { ChatLauncher } from "./ui/chat/ChatLauncher";
 import { ChatPanel } from "./ui/chat/ChatPanel";
 import { SAMPLE_QUERIES } from "./lib/sample_queries";
+import { INTEREST_MATCH, INTEREST_QUERIES, customInterestTokens, interestScore, interestQueries } from "../lib/persona";
 import { KitPage } from "./ui/kit/KitPage";
 import { Header } from "./ui/shell/Header";
 import { Announcement } from "./ui/shell/Announcement";
@@ -118,7 +119,7 @@ function applyFilters(items, f, bands) {
 
 // Documented in docs/followup_algorithm.md — persona-aware re-rank on top of
 // the search score: price fit vs spend style, brand affinity, quality, trust.
-function recommendScore(r, persona) {
+function recommendScore(r, persona, interestCtx) {
   let base = r.score || 3;
   const style = persona && persona.spendStyle;
   const cap = style ? BUDGET_STYLE_MAX[style] : null;
@@ -131,6 +132,7 @@ function recommendScore(r, persona) {
   base += affinity * (r.brand ? 0.6 : 0.15);
   base += (r.rating || 0) * 0.1;
   base += Math.log10((r.num_ratings || 0) + 1) * 0.1;
+  if (interestCtx) base += interestScore(r, interestCtx.interests, interestCtx.tokens).score * 0.9;
   return base;
 }
 
@@ -347,6 +349,14 @@ function AskCartHome() {
   const [boot, setBoot] = useState(true);
   const [onboardNeeded, setOnboardNeeded] = useState(false);
   const [profile, setProfileState] = useState(null); // askcart_profile_v1 (name never leaves the browser)
+  // Section 4: interest context for the recommendation boost — standard
+  // interests plus tokens from any free-text custom interest (rule-based).
+  const interestCtx = useMemo(() => {
+    const list = (persona && Array.isArray(persona.interests)) ? persona.interests : [];
+    const interests = list.filter((x) => INTEREST_MATCH[x]);
+    const tokens = [...new Set(list.filter((x) => !INTEREST_MATCH[x]).flatMap((x) => customInterestTokens(x)))];
+    return { interests, tokens };
+  }, [persona]);
   // O1/O2: language + pincode strip (non-blocking), persona v3 learning later.
   const [lang, setLangState] = useState("en");
   const [pin, setPin] = useState("");
@@ -368,6 +378,7 @@ function AskCartHome() {
       if (rv && rv.region) setRegion(rv.region);
       setStripDismissed(localStorage.getItem("askcart_strip_dismissed") === "1");
       try { setProfileState(JSON.parse(localStorage.getItem("askcart_profile_v1") || "null")); } catch {}
+      try { setPersonaState(JSON.parse(localStorage.getItem("askcart_persona") || "null")); } catch {}
       setBoot(false);
     } catch { setBoot(false); }
     // LLM routing status for the top-bar pill (no LLM call made - the
@@ -426,7 +437,35 @@ function AskCartHome() {
   }
   const [s, setS] = useState(null); // active search state (see below)
   const heroPh = useTypewriter(EXAMPLES, searchFocus || !!s);
-  const exRot = useMemo(() => { const r = new Date().getDate() % EXAMPLES.length; return EXAMPLES.slice(r).concat(EXAMPLES.slice(0, r)).slice(0, 6); }, []);
+  const exRot = useMemo(() => {
+    const r = new Date().getDate() % EXAMPLES.length;
+    const rotated = EXAMPLES.slice(r).concat(EXAMPLES.slice(0, r));
+    const iq = interestQueries(interestCtx.interests, interestCtx.tokens).slice(0, 2);
+    return [...iq, ...rotated.filter((q) => !iq.includes(q))].slice(0, 6);
+  }, [interestCtx]);
+  // Section 4: "Picked for you" rail — top items in the chosen interests,
+  // ranked by recommendScore with the interest boost. Two search calls,
+  // fired once per (persona, home, no active search).
+  const [picked, setPicked] = useState(null);
+  useEffect(() => {
+    if (boot || tab !== "search" || s || !interestCtx.interests.length) return;
+    const std = interestCtx.interests.slice(0, 2);
+    let alive = true;
+    Promise.all(std.map((it) =>
+      fetch("/api/search", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: INTEREST_QUERIES[it], limit: 24 }) })
+        .then((r) => r.json()).catch(() => null)
+    )).then((resps) => {
+      if (!alive) return;
+      const seen = new Set();
+      const items = resps.filter(Boolean).flatMap((j) => (j && Array.isArray(j.results) ? j.results : []))
+        .filter((r) => { if (!r || !r.sku || seen.has(r.sku)) return false; seen.add(r.sku); return true; });
+      if (!items.length) return;
+      items.sort((a, b) => recommendScore(b, persona, interestCtx) - recommendScore(a, persona, interestCtx));
+      setPicked({ items: items.slice(0, 10), interests: std });
+    });
+    return () => { alive = false; };
+  }, [boot, tab, s, interestCtx, persona]);
   const h1txt = t(lang, "heroTitle");
   const heroH1 = lang === "en" ? (() => {
     const i = h1txt.indexOf("own words");
@@ -1517,7 +1556,7 @@ function AskCartHome() {
       return { filtered, single: true, grid, best: new Set(grid.slice(0, 3).map((r) => r.sku)),
                rec: [], groups: [], more: [] };
     }
-    const rec = [...filtered].sort((a, b) => recommendScore(b, persona) - recommendScore(a, persona)).slice(0, 3);
+    const rec = [...filtered].sort((a, b) => recommendScore(b, persona, interestCtx) - recommendScore(a, persona, interestCtx)).slice(0, 3);
     const recSet = new Set(rec.map((r) => r.sku));
     const rest = filtered.filter((r) => !recSet.has(r.sku));
     const topCats = [...catCount.entries()].sort((a, b) => b[1] - a[1])
@@ -1981,7 +2020,10 @@ function AskCartHome() {
                 <HomeSections lang={lang} preview={preview} facets={facets} recent={recent}
                               onQuery={(q, src) => startSearch(q, src)}
                               onAdd={(x) => addToCart(x, "preview")}
-                              onOpenSku={(sku, pool) => openPdpSku(sku, pool, "preview")} />
+                              onOpenSku={(sku, pool) => openPdpSku(sku, pool, "preview")}
+                              profileName={profile && profile.name ? profile.name : ""}
+                              interestCtx={interestCtx}
+                              picked={picked} />
               )}
             </>
           )
@@ -2024,6 +2066,8 @@ function AskCartHome() {
       <ChatPanel
         open={chatOpen}
         onClose={() => setChatOpen(false)}
+        persona={persona}
+        profileName={profile && profile.name ? profile.name : ""}
         context={chatContext}
         onApplySearch={(q, opts, meta) => chatApplySearch(q, opts, meta)}
         onAddToCart={(sku) => chatAddToCart(sku)}

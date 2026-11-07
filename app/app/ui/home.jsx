@@ -11,6 +11,7 @@ import { Glyph, glyphFor } from "./kit/Glyphs";
 import { Tile, catTheme } from "./kit/Tile";
 import { Badge } from "./kit/Badge";
 import { ProductCard } from "./cards";
+import { catsInterestScore } from "../../lib/persona";
 
 // Typewriter placeholder (brief §6.1). SSR-safe: server + first paint show
 // the first full query; the type/erase loop starts after mount. Paused
@@ -99,6 +100,12 @@ const HOW_STEPS = [
   { tKey: "step3", sKey: "step3Sub" },
 ];
 const TRUST_BULLETS = ["trustB1", "trustB2", "trustB3", "trustB4"];
+const INTEREST_TK = {
+  Fashion: "obIntFashion", Electronics: "obIntElectronics", "Home and kitchen": "obIntHome",
+  Beauty: "obIntBeauty", "Toys and baby": "obIntToys", Sports: "obIntSports",
+  "Watches and jewellery": "obIntWatches",
+};
+
 
 function CatTile({ c, onClick }) {
   const th = catTheme(c.name, c.name);
@@ -114,8 +121,12 @@ function CatTile({ c, onClick }) {
   );
 }
 
-export function HomeSections({ lang, preview, facets, recent, onQuery, onAdd, onOpenSku }) {
-  const cats = (facets && facets.categories ? facets.categories : []).slice(0, 8);
+export function HomeSections({ lang, preview, facets, recent, onQuery, onAdd, onOpenSku, profileName, interestCtx, picked }) {
+  const ic = interestCtx || { interests: [], tokens: [] };
+  // Section 4: categories ordered interest-first (stable; equal scores keep
+  // the original SKU-count order). Custom-interest tokens rank below standard.
+  const cats = [...(facets && facets.categories ? facets.categories : []).slice(0, 8)]
+    .sort((a, b) => catsInterestScore(b.name, ic.interests, ic.tokens) - catsInterestScore(a.name, ic.interests, ic.tokens));
   const brands = (facets && facets.brands && facets.brands.top ? facets.brands.top : []).slice(0, 12);
   const rail = preview && preview.rails;
   const festId = rail ? FESTIVAL_ALIAS[String(rail.festival).toLowerCase()] : null;
@@ -128,8 +139,26 @@ export function HomeSections({ lang, preview, facets, recent, onQuery, onAdd, on
   const goBud = (b) => { track("budget_tile_click", { budget: b.label, query: b.q }); onQuery(b.q, "budget"); };
   const goBrand = (b) => { track("brand_tile_click", { brand: b.name, source: "home" }); onQuery(b.name, "brand"); };
 
+  const intLabel = (x) => (INTEREST_TK[x] ? t(lang, INTEREST_TK[x]) : x);
+
   return (
     <>
+      {picked && picked.items && picked.items.length > 0 && (
+        <div>
+          <div className="sec-head">
+            <h2>{t(lang, "pickedForYou", { name: profileName ? ", " + profileName : "" })}</h2>
+            <span className="count">
+              {t(lang, "pickedReason", { list: (picked.interests || []).map(intLabel).filter(Boolean).join(", ") })}
+            </span>
+          </div>
+          <div className="grid">
+            {picked.items.map((r) => (
+              <ProductCard key={r.sku} r={r} onAdd={(x) => onAdd(x)}
+                           onOpen={(x) => onOpenSku(x.sku, picked.items)} />
+            ))}
+          </div>
+        </div>
+      )}
       {cats.length > 0 && (
         <div>
           <div className="sec-head">

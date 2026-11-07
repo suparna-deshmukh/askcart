@@ -585,8 +585,8 @@ body.largetext { font-size: 16.5px; }
 /* --- Tooltip --- */
 .kit-tip { position: relative; display: inline-flex; cursor: default; }
 .kit-tip:focus-visible { outline: none; box-shadow: var(--ring); border-radius: 4px; }
-.kit-tip .kit-tip-pop { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--ink-900); color: #fff; font-size: 12.5px; line-height: 16px; font-weight: 500; padding: 7px 10px; border-radius: 8px; max-width: 240px; width: max-content; z-index: 300; box-shadow: var(--shadow-md); opacity: 0; pointer-events: none; transition: opacity var(--t-micro); }
-.kit-tip:hover .kit-tip-pop, .kit-tip:focus-within .kit-tip-pop { opacity: 1; }
+.kit-tip .kit-tip-pop { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--ink-900); color: #fff; font-size: 12.5px; line-height: 16px; font-weight: 500; padding: 7px 10px; border-radius: 8px; max-width: 240px; width: max-content; z-index: 300; box-shadow: var(--shadow-md); opacity: 0; pointer-events: none; display: none; }
+.kit-tip:hover .kit-tip-pop, .kit-tip:focus-within .kit-tip-pop { display: block; opacity: 1; }
 
 /* --- Skeleton --- */
 .kit-skel { position: relative; overflow: hidden; background: var(--surface-2); border-radius: var(--r-sm); }

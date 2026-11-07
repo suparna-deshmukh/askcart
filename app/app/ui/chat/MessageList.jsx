@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { Message } from "./Message";
 import { I } from "../kit/Icon";
 import { t } from "../../lib/i18n";
+import { BUDGET_STYLE_MAX } from "../onboarding";
+import { starterPrompts } from "../../../lib/persona";
 
-export function MessageList({ lang, messages, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onRetry, onSendText, context, onWish, wished }) {
+export function MessageList({ lang, messages, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onRetry, onSendText, context, onWish, wished, persona, profileName }) {
   const ref = useRef(null);
   const nearBottom = useRef(true);
   const [pill, setPill] = useState(false);
@@ -28,7 +30,8 @@ export function MessageList({ lang, messages, busy, onChip, onAdd, onOpen, onFee
   return (
     <div className="cht-body" ref={ref} onScroll={onScroll} role="log" aria-live="polite" aria-label={t(lang, "chtAriaMsgs")}>
       {messages.length === 0 && (
-        <EmptyState lang={lang} onSuggest={(send) => onSendText && onSendText(send)} context={context} />
+        <EmptyState lang={lang} onSuggest={(send) => onSendText && onSendText(send)} context={context}
+                   persona={persona} profileName={profileName} />
       )}
       {messages.map((m) => (
         <Message lang={lang} key={m.id} m={m} latest={m.id === lastAsst?.id} busy={busy}
@@ -53,6 +56,12 @@ const HERO_CARDS = [
   { icon: "smartphone", tk: "chtCardPhone", send: "Phone under ₹15k" },
   { icon: "clock", tk: "chtCardWatch", send: "Wristwatch for dad under 5k" },
 ];
+const STARTER_ICON = { chtSt1: "star", chtSt2: "layers", chtSt3a: "gift", chtSt3b: "badge-check", chtSt4: "sparkle", chtCardWatch: "clock" };
+const INTEREST_TK = {
+  Fashion: "obIntFashion", Electronics: "obIntElectronics", "Home and kitchen": "obIntHome",
+  Beauty: "obIntBeauty", "Toys and baby": "obIntToys", Sports: "obIntSports",
+  "Watches and jewellery": "obIntWatches",
+};
 const PDP_CARDS = [
   { icon: "gift", tk: "askGift", send: "Is this a good gift?" },
   { icon: "star", tk: "chtQRating", send: "How is the rating?" },
@@ -60,20 +69,34 @@ const PDP_CARDS = [
   { icon: "chat", tk: "chtQCompare", send: "Compare with similar items" },
 ];
 
-function EmptyState({ lang, onSuggest, context }) {
+function EmptyState({ lang, onSuggest, context, persona, profileName }) {
   const isPdp = !!(context && context.sku);
-  const cards = isPdp ? PDP_CARDS : HERO_CARDS;
+  // Section 4: persona + interests generate the 4 starter cards (rule-based,
+  // zero LLM). Canonical English send text; labels translated. Falls back to
+  // the default cards when there is no persona or no interest.
+  let cards = null;
+  if (!isPdp && persona) {
+    const cap = BUDGET_STYLE_MAX[persona.spendStyle];
+    const sp = starterPrompts(persona, cap == null ? 5000 : cap);
+    if (sp) cards = sp.map((q) => ({
+      icon: STARTER_ICON[q.label] || "sparkle",
+      tk: q.label,
+      send: q.send,
+      vars: { x: q.vars && q.vars.x ? (INTEREST_TK[q.vars.x] ? t(lang, INTEREST_TK[q.vars.x]) : q.vars.x) : "", cap: q.vars ? q.vars.cap : "" },
+    }));
+  }
+  if (!cards) cards = isPdp ? PDP_CARDS : HERO_CARDS;
   return (
     <div className="cht-empty">
       <div className="cht-empty-spark" aria-hidden="true"><I name="sparkle" size={30} /></div>
       <div className="cht-empty-greet">
-        {t(lang, "chtGreet")}
+        {t(lang, "chtGreet", { name: profileName ? ", " + profileName : "" })}
       </div>
       <div className="cht-empty-cards">
         {cards.map((c) => (
-          <button key={c.tk} className="cht-empty-card" onClick={() => onSuggest && onSuggest(c.send)}>
+          <button key={c.tk + "::" + c.send} className="cht-empty-card" onClick={() => onSuggest && onSuggest(c.send)}>
             <I name={c.icon} size={17} aria-hidden="true" />
-            <span>{t(lang, c.tk)}</span>
+            <span>{c.vars ? t(lang, c.tk, c.vars) : t(lang, c.tk)}</span>
           </button>
         ))}
       </div>

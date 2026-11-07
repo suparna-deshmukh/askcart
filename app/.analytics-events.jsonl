@@ -708,3 +708,351 @@
 {"t":1794088704906,"type":"guide_question_shown","s":"s_5ylugnzjmw6y2ufk","q":"headphones","tr":2}
 {"t":1794088705598,"type":"ai_call","s":"s_5ylugnzjmw6y2ufk"}
 {"t":1794088705938,"type":"ai_call","s":"s_5ylugnzjmw6y2ufk","tr":3}
+{"t":1794089384118,"type":"session_start","s":"s_br3ha5a4mw6yhvxx"}
+{"t":1794089384119,"type":"onboarding_start","s":"s_br3ha5a4mw6yhvxx"}
+{"t":1794089384754,"type":"onboarding_step","s":"s_br3ha5a4mw6yhvxx"}
+{"t":1794089384763,"type":"onboarding_step","s":"s_br3ha5a4mw6yhvxx"}
+{"t":1794089385002,"type":"onboarding_step","s":"s_br3ha5a4mw6yhvxx"}
+{"t":1794089385006,"type":"onboarding_step","s":"s_br3ha5a4mw6yhvxx"}
+{"t":1794089385020,"type":"onboarding_step","s":"s_br3ha5a4mw6yhvxx"}
+{"t":1794089385027,"type":"onboarding_step","s":"s_br3ha5a4mw6yhvxx"}
+{"t":1794089425430,"type":"session_start","s":"s_fdvqrfg6mw6yisbf"}
+{"t":1794089425468,"type":"onboarding_start","s":"s_fdvqrfg6mw6yisbf"}
+{"t":1794089445181,"type":"session_start","s":"s_iqjktnvpmw6yj7k1"}
+{"t":1794089445214,"type":"onboarding_start","s":"s_iqjktnvpmw6yj7k1"}
+{"t":1794089445795,"type":"onboarding_step","s":"s_iqjktnvpmw6yj7k1"}
+{"t":1794089458068,"type":"session_start","s":"s_b6phntz5mw6yjhh8"}
+{"t":1794089458071,"type":"onboarding_start","s":"s_b6phntz5mw6yjhh8"}
+{"t":1794089458649,"type":"onboarding_step","s":"s_b6phntz5mw6yjhh8"}
+{"t":1794089458657,"type":"onboarding_step","s":"s_b6phntz5mw6yjhh8"}
+{"t":1794089458906,"type":"onboarding_step","s":"s_b6phntz5mw6yjhh8"}
+{"t":1794089458911,"type":"onboarding_step","s":"s_b6phntz5mw6yjhh8"}
+{"t":1794089458933,"type":"onboarding_step","s":"s_b6phntz5mw6yjhh8"}
+{"t":1794089458939,"type":"onboarding_step","s":"s_b6phntz5mw6yjhh8"}
+{"t":1794089515427,"type":"session_start","s":"s_tq32potfmw6ykprj"}
+{"t":1794089515461,"type":"onboarding_start","s":"s_tq32potfmw6ykprj"}
+{"t":1794089516052,"type":"onboarding_step","s":"s_tq32potfmw6ykprj"}
+{"t":1794089546371,"type":"session_start","s":"s_0m8l070wmw6yldn4"}
+{"t":1794089546403,"type":"onboarding_start","s":"s_0m8l070wmw6yldn4"}
+{"t":1794089546979,"type":"onboarding_step","s":"s_0m8l070wmw6yldn4"}
+{"t":1794089571211,"type":"session_start","s":"s_20gb6au3mw6ylws3"}
+{"t":1794089571215,"type":"onboarding_start","s":"s_20gb6au3mw6ylws3"}
+{"t":1794089571793,"type":"onboarding_step","s":"s_20gb6au3mw6ylws3"}
+{"t":1794089571802,"type":"onboarding_step","s":"s_20gb6au3mw6ylws3"}
+{"t":1794089613432,"type":"session_start","s":"s_yox398qsmw6ymta4"}
+{"t":1794089613436,"type":"onboarding_start","s":"s_yox398qsmw6ymta4"}
+{"t":1794089613993,"type":"onboarding_step","s":"s_yox398qsmw6ymta4"}
+{"t":1794089614000,"type":"onboarding_step","s":"s_yox398qsmw6ymta4"}
+{"t":1794089614240,"type":"onboarding_step","s":"s_yox398qsmw6ymta4"}
+{"t":1794089614243,"type":"onboarding_step","s":"s_yox398qsmw6ymta4"}
+{"t":1794089614256,"type":"onboarding_step","s":"s_yox398qsmw6ymta4"}
+{"t":1794089614261,"type":"onboarding_step","s":"s_yox398qsmw6ymta4"}
+{"t":1794089671141,"type":"session_start","s":"s_dhespv6hmw6yo1wr"}
+{"t":1794089671173,"type":"onboarding_start","s":"s_dhespv6hmw6yo1wr"}
+{"t":1794089671765,"type":"onboarding_step","s":"s_dhespv6hmw6yo1wr"}
+{"t":1794089672176,"type":"onboarding_step","s":"s_dhespv6hmw6yo1wr"}
+{"t":1794089672784,"type":"onboarding_step","s":"s_dhespv6hmw6yo1wr"}
+{"t":1794089672786,"type":"onboarding_step","s":"s_dhespv6hmw6yo1wr"}
+{"t":1794089673104,"type":"onboarding_step","s":"s_dhespv6hmw6yo1wr"}
+{"t":1794089673720,"type":"onboarding_step","s":"s_dhespv6hmw6yo1wr"}
+{"t":1794089683155,"type":"session_start","s":"s_1g0bjfuemw6yob5w"}
+{"t":1794089683158,"type":"onboarding_start","s":"s_1g0bjfuemw6yob5w"}
+{"t":1794089683738,"type":"onboarding_step","s":"s_1g0bjfuemw6yob5w"}
+{"t":1794089683746,"type":"onboarding_step","s":"s_1g0bjfuemw6yob5w"}
+{"t":1794089683989,"type":"onboarding_step","s":"s_1g0bjfuemw6yob5w"}
+{"t":1794089683992,"type":"onboarding_step","s":"s_1g0bjfuemw6yob5w"}
+{"t":1794089684005,"type":"onboarding_step","s":"s_1g0bjfuemw6yob5w"}
+{"t":1794089684010,"type":"onboarding_step","s":"s_1g0bjfuemw6yob5w"}
+{"t":1794089684246,"type":"onboarding_step","s":"s_1g0bjfuemw6yob5w"}
+{"t":1794089684469,"type":"onboarding_complete","s":"s_1g0bjfuemw6yob5w"}
+{"t":1794089713163,"type":"session_start","s":"s_l0s1ecejmw6yoy9o"}
+{"t":1794089713166,"type":"onboarding_start","s":"s_l0s1ecejmw6yoy9o"}
+{"t":1794089713733,"type":"onboarding_step","s":"s_l0s1ecejmw6yoy9o"}
+{"t":1794089713742,"type":"onboarding_step","s":"s_l0s1ecejmw6yoy9o"}
+{"t":1794089713980,"type":"onboarding_step","s":"s_l0s1ecejmw6yoy9o"}
+{"t":1794089713983,"type":"onboarding_step","s":"s_l0s1ecejmw6yoy9o"}
+{"t":1794089713998,"type":"onboarding_step","s":"s_l0s1ecejmw6yoy9o"}
+{"t":1794089714003,"type":"onboarding_step","s":"s_l0s1ecejmw6yoy9o"}
+{"t":1794089714233,"type":"onboarding_step","s":"s_l0s1ecejmw6yoy9o"}
+{"t":1794089714456,"type":"onboarding_complete","s":"s_l0s1ecejmw6yoy9o"}
+{"t":1794089748684,"type":"session_start","s":"s_vfowo72umw6yppps"}
+{"t":1794089765460,"type":"session_start","s":"s_fhyb9qv8mw6yq2o3"}
+{"t":1794089765463,"type":"onboarding_start","s":"s_fhyb9qv8mw6yq2o3"}
+{"t":1794089766051,"type":"onboarding_step","s":"s_fhyb9qv8mw6yq2o3"}
+{"t":1794089766060,"type":"onboarding_step","s":"s_fhyb9qv8mw6yq2o3"}
+{"t":1794089766299,"type":"onboarding_step","s":"s_fhyb9qv8mw6yq2o3"}
+{"t":1794089766304,"type":"onboarding_step","s":"s_fhyb9qv8mw6yq2o3"}
+{"t":1794089766317,"type":"onboarding_step","s":"s_fhyb9qv8mw6yq2o3"}
+{"t":1794089766321,"type":"onboarding_step","s":"s_fhyb9qv8mw6yq2o3"}
+{"t":1794089766561,"type":"onboarding_step","s":"s_fhyb9qv8mw6yq2o3"}
+{"t":1794089766784,"type":"onboarding_complete","s":"s_fhyb9qv8mw6yq2o3"}
+{"t":1794089778891,"type":"session_start","s":"s_k9679vuhmw6yqd0o"}
+{"t":1794089826480,"type":"session_start","s":"s_yggo4cvimw6yrdpm"}
+{"t":1794089826486,"type":"onboarding_start","s":"s_yggo4cvimw6yrdpm"}
+{"t":1794089827065,"type":"onboarding_step","s":"s_yggo4cvimw6yrdpm"}
+{"t":1794089827074,"type":"onboarding_step","s":"s_yggo4cvimw6yrdpm"}
+{"t":1794089827318,"type":"onboarding_step","s":"s_yggo4cvimw6yrdpm"}
+{"t":1794089827321,"type":"onboarding_step","s":"s_yggo4cvimw6yrdpm"}
+{"t":1794089827332,"type":"onboarding_step","s":"s_yggo4cvimw6yrdpm"}
+{"t":1794089827337,"type":"onboarding_step","s":"s_yggo4cvimw6yrdpm"}
+{"t":1794089827574,"type":"onboarding_step","s":"s_yggo4cvimw6yrdpm"}
+{"t":1794089827798,"type":"onboarding_complete","s":"s_yggo4cvimw6yrdpm"}
+{"t":1794089841819,"type":"session_start","s":"s_bncvaqkmmw6yrplx"}
+{"t":1794089841851,"type":"onboarding_start","s":"s_bncvaqkmmw6yrplx"}
+{"t":1794089842428,"type":"onboarding_step","s":"s_bncvaqkmmw6yrplx"}
+{"t":1794089842844,"type":"onboarding_step","s":"s_bncvaqkmmw6yrplx"}
+{"t":1794089843451,"type":"onboarding_step","s":"s_bncvaqkmmw6yrplx"}
+{"t":1794089843658,"type":"onboarding_step","s":"s_bncvaqkmmw6yrplx"}
+{"t":1794089843887,"type":"onboarding_step","s":"s_bncvaqkmmw6yrplx"}
+{"t":1794089844513,"type":"onboarding_step","s":"s_bncvaqkmmw6yrplx"}
+{"t":1794089845124,"type":"onboarding_step","s":"s_bncvaqkmmw6yrplx"}
+{"t":1794089845351,"type":"onboarding_complete","s":"s_bncvaqkmmw6yrplx"}
+{"t":1794089869771,"type":"session_start","s":"s_xtk7vuilmw6ysb5b"}
+{"t":1794089889143,"type":"session_start","s":"s_c7k2teyxmw6ysq3j"}
+{"t":1794089889147,"type":"onboarding_start","s":"s_c7k2teyxmw6ysq3j"}
+{"t":1794089889729,"type":"onboarding_step","s":"s_c7k2teyxmw6ysq3j"}
+{"t":1794089889737,"type":"onboarding_step","s":"s_c7k2teyxmw6ysq3j"}
+{"t":1794089889981,"type":"onboarding_step","s":"s_c7k2teyxmw6ysq3j"}
+{"t":1794089889984,"type":"onboarding_step","s":"s_c7k2teyxmw6ysq3j"}
+{"t":1794089889995,"type":"onboarding_step","s":"s_c7k2teyxmw6ysq3j"}
+{"t":1794089890001,"type":"onboarding_step","s":"s_c7k2teyxmw6ysq3j"}
+{"t":1794089890238,"type":"onboarding_step","s":"s_c7k2teyxmw6ysq3j"}
+{"t":1794089890464,"type":"onboarding_complete","s":"s_c7k2teyxmw6ysq3j"}
+{"t":1794089912966,"type":"session_start","s":"s_3a6apimgmw6yt8h3"}
+{"t":1794089938705,"type":"session_start","s":"s_fmlu5vb2mw6ytsc1"}
+{"t":1794089999358,"type":"session_start","s":"s_omd4d9vdmw6yv34z"}
+{"t":1794089999389,"type":"onboarding_start","s":"s_omd4d9vdmw6yv34z"}
+{"t":1794089999975,"type":"onboarding_step","s":"s_omd4d9vdmw6yv34z"}
+{"t":1794089999984,"type":"onboarding_step","s":"s_omd4d9vdmw6yv34z"}
+{"t":1794090000221,"type":"onboarding_step","s":"s_omd4d9vdmw6yv34z"}
+{"t":1794090000225,"type":"onboarding_step","s":"s_omd4d9vdmw6yv34z"}
+{"t":1794090000240,"type":"onboarding_step","s":"s_omd4d9vdmw6yv34z"}
+{"t":1794090000244,"type":"onboarding_step","s":"s_omd4d9vdmw6yv34z"}
+{"t":1794090000473,"type":"onboarding_step","s":"s_omd4d9vdmw6yv34z"}
+{"t":1794090000696,"type":"onboarding_complete","s":"s_omd4d9vdmw6yv34z"}
+{"t":1794090029358,"type":"session_start","s":"s_hycgmkbymw6yvq9m"}
+{"t":1794090029373,"type":"onboarding_start","s":"s_hycgmkbymw6yvq9m"}
+{"t":1794090029953,"type":"onboarding_step","s":"s_hycgmkbymw6yvq9m"}
+{"t":1794090030365,"type":"onboarding_step","s":"s_hycgmkbymw6yvq9m"}
+{"t":1794090030971,"type":"onboarding_step","s":"s_hycgmkbymw6yvq9m"}
+{"t":1794090031185,"type":"onboarding_step","s":"s_hycgmkbymw6yvq9m"}
+{"t":1794090031411,"type":"onboarding_step","s":"s_hycgmkbymw6yvq9m"}
+{"t":1794090032034,"type":"onboarding_step","s":"s_hycgmkbymw6yvq9m"}
+{"t":1794090032639,"type":"onboarding_step","s":"s_hycgmkbymw6yvq9m"}
+{"t":1794090032870,"type":"onboarding_complete","s":"s_hycgmkbymw6yvq9m"}
+{"t":1794090064925,"type":"session_start","s":"s_178z927omw6ywhqd"}
+{"t":1794090099284,"type":"session_start","s":"s_sonl3jtcmw6yx893"}
+{"t":1794090099288,"type":"onboarding_start","s":"s_sonl3jtcmw6yx893"}
+{"t":1794090099867,"type":"onboarding_step","s":"s_sonl3jtcmw6yx893"}
+{"t":1794090100281,"type":"onboarding_step","s":"s_sonl3jtcmw6yx893"}
+{"t":1794090100890,"type":"onboarding_step","s":"s_sonl3jtcmw6yx893"}
+{"t":1794090101100,"type":"onboarding_step","s":"s_sonl3jtcmw6yx893"}
+{"t":1794090101327,"type":"onboarding_step","s":"s_sonl3jtcmw6yx893"}
+{"t":1794090101949,"type":"onboarding_step","s":"s_sonl3jtcmw6yx893"}
+{"t":1794090102563,"type":"onboarding_step","s":"s_sonl3jtcmw6yx893"}
+{"t":1794090102787,"type":"onboarding_complete","s":"s_sonl3jtcmw6yx893"}
+{"t":1794090142885,"type":"session_start","s":"s_jv77y10ymw6yy5u8"}
+{"t":1794090142888,"type":"onboarding_start","s":"s_jv77y10ymw6yy5u8"}
+{"t":1794090143473,"type":"onboarding_step","s":"s_jv77y10ymw6yy5u8"}
+{"t":1794090143481,"type":"onboarding_step","s":"s_jv77y10ymw6yy5u8"}
+{"t":1794090143720,"type":"onboarding_step","s":"s_jv77y10ymw6yy5u8"}
+{"t":1794090143724,"type":"onboarding_step","s":"s_jv77y10ymw6yy5u8"}
+{"t":1794090143739,"type":"onboarding_step","s":"s_jv77y10ymw6yy5u8"}
+{"t":1794090143743,"type":"onboarding_step","s":"s_jv77y10ymw6yy5u8"}
+{"t":1794090143982,"type":"onboarding_step","s":"s_jv77y10ymw6yy5u8"}
+{"t":1794090144210,"type":"onboarding_complete","s":"s_jv77y10ymw6yy5u8"}
+{"t":1794090166052,"type":"session_start","s":"s_yyswdclbmw6yyno7"}
+{"t":1794090166053,"type":"onboarding_start","s":"s_yyswdclbmw6yyno7"}
+{"t":1794090166661,"type":"onboarding_step","s":"s_yyswdclbmw6yyno7"}
+{"t":1794090166667,"type":"onboarding_step","s":"s_yyswdclbmw6yyno7"}
+{"t":1794090166910,"type":"onboarding_step","s":"s_yyswdclbmw6yyno7"}
+{"t":1794090166913,"type":"onboarding_step","s":"s_yyswdclbmw6yyno7"}
+{"t":1794090166927,"type":"onboarding_step","s":"s_yyswdclbmw6yyno7"}
+{"t":1794090166932,"type":"onboarding_step","s":"s_yyswdclbmw6yyno7"}
+{"t":1794090167170,"type":"onboarding_step","s":"s_yyswdclbmw6yyno7"}
+{"t":1794090167392,"type":"onboarding_complete","s":"s_yyswdclbmw6yyno7"}
+{"t":1794090237664,"type":"session_start","s":"s_2vmde57vmw6z070b"}
+{"t":1794090237668,"type":"onboarding_start","s":"s_2vmde57vmw6z070b"}
+{"t":1794090240218,"type":"onboarding_skipped","s":"s_2vmde57vmw6z070b"}
+{"t":1794090240785,"type":"onboarding_step","s":"s_2vmde57vmw6z070b"}
+{"t":1794090241350,"type":"onboarding_step","s":"s_2vmde57vmw6z070b"}
+{"t":1794090241687,"type":"onboarding_step","s":"s_2vmde57vmw6z070b"}
+{"t":1794090242271,"type":"onboarding_step","s":"s_2vmde57vmw6z070b"}
+{"t":1794090242856,"type":"onboarding_step","s":"s_2vmde57vmw6z070b"}
+{"t":1794090243078,"type":"onboarding_complete","s":"s_2vmde57vmw6z070b"}
+{"t":1794090248819,"type":"language_change","s":"s_2vmde57vmw6z070b"}
+{"t":1794090249574,"type":"region_set","s":"s_2vmde57vmw6z070b"}
+{"t":1794090250575,"type":"add_to_cart","s":"s_2vmde57vmw6z070b","c":"Home Audio & Theater","b":"Micromax","k":"AC-51887"}
+{"t":1794090251706,"type":"search_start","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","src":"deep_link"}
+{"t":1794090251720,"type":"search_results","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","n":48,"tr":1}
+{"t":1794090251727,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"FabIndia","k":"AC-53200","src":"results","tr":1}
+{"t":1794090251727,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"FabIndia","k":"AC-53201","src":"results","tr":1}
+{"t":1794090251727,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Sona Silks","k":"AC-54014","src":"results","tr":1}
+{"t":1794090251728,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-53494","src":"results","tr":1}
+{"t":1794090251728,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-53692","src":"results","tr":1}
+{"t":1794090251733,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-53493","src":"results","tr":1}
+{"t":1794090251737,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-53265","src":"results","tr":1}
+{"t":1794090251738,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-53266","src":"results","tr":1}
+{"t":1794090251738,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Lakshmi Weaves","k":"AC-53558","src":"results","tr":1}
+{"t":1794090251738,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-53691","src":"results","tr":1}
+{"t":1794090251738,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-52776","src":"results","tr":1}
+{"t":1794090251742,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-54283","src":"results","tr":1}
+{"t":1794090251747,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Lakshmi Weaves","k":"AC-53559","src":"results","tr":1}
+{"t":1794090251747,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Sona Silks","k":"AC-54015","src":"results","tr":1}
+{"t":1794090251747,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-52775","src":"results","tr":1}
+{"t":1794090251747,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-54284","src":"results","tr":1}
+{"t":1794090251748,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-02919","src":"results","tr":1}
+{"t":1794090251752,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Handmade","k":"AC-07610","src":"results","tr":1}
+{"t":1794090251756,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03216","src":"results","tr":1}
+{"t":1794090251756,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03697","src":"results","tr":1}
+{"t":1794090251756,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-04012","src":"results","tr":1}
+{"t":1794090251756,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-04344","src":"results","tr":1}
+{"t":1794090251756,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03687","src":"results","tr":1}
+{"t":1794090251764,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-01612","src":"results","tr":1}
+{"t":1794090251768,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-00304","src":"results","tr":1}
+{"t":1794090251769,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Camera & Photo","k":"AC-08249","src":"results","tr":1}
+{"t":1794090251769,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Handmade","k":"AC-07723","src":"results","tr":1}
+{"t":1794090251769,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-01367","src":"results","tr":1}
+{"t":1794090251769,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Office Products","k":"AC-06757","src":"results","tr":1}
+{"t":1794090251773,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-01763","src":"results","tr":1}
+{"t":1794090251777,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Office Products","k":"AC-06758","src":"results","tr":1}
+{"t":1794090251777,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Handmade","k":"AC-07652","src":"results","tr":1}
+{"t":1794090251777,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-04018","src":"results","tr":1}
+{"t":1794090251777,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-04281","src":"results","tr":1}
+{"t":1794090251777,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-02247","src":"results","tr":1}
+{"t":1794090251781,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03032","src":"results","tr":1}
+{"t":1794090251785,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-02565","src":"results","tr":1}
+{"t":1794090251786,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Office Products","k":"AC-06773","src":"results","tr":1}
+{"t":1794090251786,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03632","src":"results","tr":1}
+{"t":1794090251786,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Office Products","k":"AC-06640","src":"results","tr":1}
+{"t":1794090251786,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03495","src":"results","tr":1}
+{"t":1794090251794,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-02079","src":"results","tr":1}
+{"t":1794090251798,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Tools & Home Improvement","k":"AC-07157","src":"results","tr":1}
+{"t":1794090251798,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-04059","src":"results","tr":1}
+{"t":1794090251799,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-00946","src":"results","tr":1}
+{"t":1794090251799,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03976","src":"results","tr":1}
+{"t":1794090251799,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Health & Personal Care","k":"AC-06313","src":"results","tr":1}
+{"t":1794090251802,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"Toys & Games","k":"AC-07480","src":"results","tr":1}
+{"t":1794090251804,"type":"resolved","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","n":48}
+{"t":1794090251813,"type":"ai_call","s":"s_2vmde57vmw6z070b","tr":2}
+{"t":1794090251817,"type":"guide_question_shown","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","tr":2}
+{"t":1794090252504,"type":"add_to_cart","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"FabIndia","k":"AC-53200"}
+{"t":1794090252507,"type":"recommendation_click","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","b":"FabIndia","k":"AC-53200"}
+{"t":1794090253272,"type":"filter_applied","s":"s_2vmde57vmw6z070b","q":"shaadi gift under 2k","tr":1}
+{"t":1794090254315,"type":"cart_view","s":"s_2vmde57vmw6z070b","v":4798}
+{"t":1794090255464,"type":"search_start","s":"s_2vmde57vmw6z070b","q":"headphones","src":"deep_link"}
+{"t":1794090255469,"type":"search_results","s":"s_2vmde57vmw6z070b","q":"headphones","n":48,"tr":1}
+{"t":1794090255473,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Sanwa","k":"AC-51897","src":"results","tr":1}
+{"t":1794090255473,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Zebronics","k":"AC-51917","src":"results","tr":1}
+{"t":1794090255473,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"boAt","k":"AC-51928","src":"results","tr":1}
+{"t":1794090255474,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Micromax","k":"AC-51887","src":"results","tr":1}
+{"t":1794090255474,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Sanwa","k":"AC-51898","src":"results","tr":1}
+{"t":1794090255478,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-33031","src":"results","tr":1}
+{"t":1794090255483,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Sony","k":"AC-51907","src":"results","tr":1}
+{"t":1794090255483,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Zebronics","k":"AC-51918","src":"results","tr":1}
+{"t":1794090255483,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"JBL","k":"AC-51878","src":"results","tr":1}
+{"t":1794090255483,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"JBL","k":"AC-51877","src":"results","tr":1}
+{"t":1794090255484,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"iBall","k":"AC-51937","src":"results","tr":1}
+{"t":1794090255490,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"boAt","k":"AC-51927","src":"results","tr":1}
+{"t":1794090255494,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Micromax","k":"AC-51888","src":"results","tr":1}
+{"t":1794090255494,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-33032","src":"results","tr":1}
+{"t":1794090255495,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"iBall","k":"AC-51938","src":"results","tr":1}
+{"t":1794090255495,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Sony","k":"AC-51908","src":"results","tr":1}
+{"t":1794090255495,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24870","src":"results","tr":1}
+{"t":1794090255499,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24871","src":"results","tr":1}
+{"t":1794090255503,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-24876","src":"results","tr":1}
+{"t":1794090255503,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sennheiser","k":"AC-24883","src":"results","tr":1}
+{"t":1794090255504,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","k":"AC-12748","src":"results","tr":1}
+{"t":1794090255504,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","k":"AC-18512","src":"results","tr":1}
+{"t":1794090255504,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-23860","src":"results","tr":1}
+{"t":1794090255508,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24868","src":"results","tr":1}
+{"t":1794090255513,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-24875","src":"results","tr":1}
+{"t":1794090255513,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Anker","k":"AC-24885","src":"results","tr":1}
+{"t":1794090255513,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33133","src":"results","tr":1}
+{"t":1794090255513,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33132","src":"results","tr":1}
+{"t":1794090255513,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-12600","src":"results","tr":1}
+{"t":1794090255517,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-12607","src":"results","tr":1}
+{"t":1794090255522,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24867","src":"results","tr":1}
+{"t":1794090255522,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24869","src":"results","tr":1}
+{"t":1794090255522,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-24873","src":"results","tr":1}
+{"t":1794090255522,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-24874","src":"results","tr":1}
+{"t":1794090255522,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Philips","k":"AC-21897","src":"results","tr":1}
+{"t":1794090255526,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-24872","src":"results","tr":1}
+{"t":1794090255531,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-24880","src":"results","tr":1}
+{"t":1794090255531,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-24881","src":"results","tr":1}
+{"t":1794090255531,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-24878","src":"results","tr":1}
+{"t":1794090255531,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-24879","src":"results","tr":1}
+{"t":1794090255532,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-24882","src":"results","tr":1}
+{"t":1794090255536,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-12533","src":"results","tr":1}
+{"t":1794090255540,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04449","src":"results","tr":1}
+{"t":1794090255540,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-05078","src":"results","tr":1}
+{"t":1794090255540,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04745","src":"results","tr":1}
+{"t":1794090255540,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04925","src":"results","tr":1}
+{"t":1794090255540,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Audio-Technica","k":"AC-24884","src":"results","tr":1}
+{"t":1794090255551,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","k":"AC-12695","src":"results","tr":1}
+{"t":1794090255553,"type":"resolved","s":"s_2vmde57vmw6z070b","q":"headphones","n":48}
+{"t":1794090260216,"type":"ai_call","s":"s_2vmde57vmw6z070b","tr":2}
+{"t":1794090260221,"type":"guide_question_shown","s":"s_2vmde57vmw6z070b","q":"headphones","tr":2}
+{"t":1794090261619,"type":"ai_call","s":"s_2vmde57vmw6z070b"}
+{"t":1794090261629,"type":"search_results","s":"s_2vmde57vmw6z070b","q":"headphones","n":48,"tr":2}
+{"t":1794090261639,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-12501","src":"results","tr":2}
+{"t":1794090261639,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-12677","src":"results","tr":2}
+{"t":1794090261640,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-21925","src":"results","tr":2}
+{"t":1794090261640,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-18480","src":"results","tr":2}
+{"t":1794090261646,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Camera & Photo","b":"Sony","k":"AC-24526","src":"results","tr":2}
+{"t":1794090261650,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Sony","k":"AC-24860","src":"results","tr":2}
+{"t":1794090261655,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-23765","src":"results","tr":2}
+{"t":1794090261655,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Camera & Photo","b":"Sony","k":"AC-24910","src":"results","tr":2}
+{"t":1794090261655,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-23827","src":"results","tr":2}
+{"t":1794090261656,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Camera & Photo","b":"Sony","k":"AC-24520","src":"results","tr":2}
+{"t":1794090261660,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Camera & Photo","b":"Sony","k":"AC-24532","src":"results","tr":2}
+{"t":1794090261663,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Camera & Photo","b":"Sony","k":"AC-24909","src":"results","tr":2}
+{"t":1794090261667,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33122","src":"results","tr":2}
+{"t":1794090261667,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33131","src":"results","tr":2}
+{"t":1794090261667,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Video Games","b":"Sony","k":"AC-52648","src":"results","tr":2}
+{"t":1794090261668,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33123","src":"results","tr":2}
+{"t":1794090261672,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33130","src":"results","tr":2}
+{"t":1794090261675,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Video Games","b":"Sony","k":"AC-52647","src":"results","tr":2}
+{"t":1794090261679,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Sony","k":"AC-24858","src":"results","tr":2}
+{"t":1794090261679,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Sony","k":"AC-24859","src":"results","tr":2}
+{"t":1794090261679,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24895","src":"results","tr":2}
+{"t":1794090261679,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33127","src":"results","tr":2}
+{"t":1794090262062,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Video Games","b":"Sony","k":"AC-52636","src":"results","tr":2}
+{"t":1794090262067,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33125","src":"results","tr":2}
+{"t":1794090262071,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33126","src":"results","tr":2}
+{"t":1794090262071,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33124","src":"results","tr":2}
+{"t":1794090262071,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Automotive","b":"Sony","k":"AC-34645","src":"results","tr":2}
+{"t":1794090262071,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Sony","k":"AC-51909","src":"results","tr":2}
+{"t":1794090262074,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Video Games","b":"Sony","k":"AC-52637","src":"results","tr":2}
+{"t":1794090262076,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Video Games","b":"Sony","k":"AC-52638","src":"results","tr":2}
+{"t":1794090262086,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Sony","k":"AC-24857","src":"results","tr":2}
+{"t":1794090262086,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24894","src":"results","tr":2}
+{"t":1794090262089,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33129","src":"results","tr":2}
+{"t":1794090262090,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-50675","src":"results","tr":2}
+{"t":1794090262093,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Video Games","b":"Sony","k":"AC-52644","src":"results","tr":2}
+{"t":1794090262147,"type":"ai_call","s":"s_2vmde57vmw6z070b","tr":3}
+{"t":1794090262152,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-50676","src":"results","tr":2}
+{"t":1794090262156,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Video Games","b":"Sony","k":"AC-52640","src":"results","tr":2}
+{"t":1794090262156,"type":"product_impression","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Video Games","b":"Sony","k":"AC-52641","src":"results","tr":2}
+{"t":1794090262156,"type":"resolved","s":"s_2vmde57vmw6z070b","q":"headphones","n":14}
+{"t":1794090262158,"type":"guide_question_shown","s":"s_2vmde57vmw6z070b","q":"headphones","tr":3}
+{"t":1794090262955,"type":"add_to_cart","s":"s_2vmde57vmw6z070b","q":"headphones","c":"Home Audio & Theater","b":"Sony","k":"AC-51907"}
+{"t":1794090262957,"type":"recommendation_click","s":"s_2vmde57vmw6z070b","q":"headphones","b":"Sony","k":"AC-51907"}
+{"t":1794090263964,"type":"product_open","s":"s_2vmde57vmw6z070b","k":"AC-51907"}
+{"t":1794090263964,"type":"pdp_close","s":"s_2vmde57vmw6z070b","k":"AC-51907"}
+{"t":1794090263965,"type":"product_open","s":"s_2vmde57vmw6z070b","k":"AC-51907"}
+{"t":1794090264182,"type":"buy_now","s":"s_2vmde57vmw6z070b","c":"Home Audio & Theater","b":"Sony","k":"AC-51907"}
+{"t":1794090264185,"type":"checkout_start","s":"s_2vmde57vmw6z070b","v":2989,"src":"buy_now"}
+{"t":1794090264187,"type":"page_view","s":"s_2vmde57vmw6z070b","src":"buy_now"}
+{"t":1794090264192,"type":"pdp_close","s":"s_2vmde57vmw6z070b","k":"AC-51907"}
+{"t":1794090264194,"type":"checkout_step_view","s":"s_2vmde57vmw6z070b","v":2989}
+{"t":1794090266007,"type":"checkout_step_complete","s":"s_2vmde57vmw6z070b"}
+{"t":1794090266012,"type":"checkout_step_view","s":"s_2vmde57vmw6z070b","v":2989}
+{"t":1794090266816,"type":"checkout_step_complete","s":"s_2vmde57vmw6z070b"}
+{"t":1794090266826,"type":"checkout_step_view","s":"s_2vmde57vmw6z070b","v":2989}
+{"t":1794090267643,"type":"checkout_step_complete","s":"s_2vmde57vmw6z070b"}
+{"t":1794090267654,"type":"checkout_step_view","s":"s_2vmde57vmw6z070b","v":2989}
+{"t":1794090269443,"type":"journey_end","s":"s_2vmde57vmw6z070b","q":"headphones"}
+{"t":1794090269448,"type":"order_complete","s":"s_2vmde57vmw6z070b","v":2989,"src":"checkout"}
+{"t":1794090269456,"type":"order_confirm_view","s":"s_2vmde57vmw6z070b","v":2989}
+{"t":1794090269458,"type":"order_confirm_view","s":"s_2vmde57vmw6z070b","v":2989}

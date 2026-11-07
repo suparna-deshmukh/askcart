@@ -147,10 +147,14 @@ export function Onboarding({ onDone, lang, setLang, onTryAssistant, forced }) {
 
   function toggleInterest(opt) {
     recordStep(s.key, false);
-    const cur = answers.interests || [];
-    if (cur.includes(opt)) { setAnswers({ ...answers, interests: cur.filter((x) => x !== opt) }); return; }
-    if (cur.length >= 3) return; // cap; the row stays selectable-looking but inert
-    setAnswers({ ...answers, interests: [...cur, opt] });
+    // Functional update: two fast clicks in the same task must not drop the
+    // first selection (stale-closure loss).
+    setAnswers((prev) => {
+      const cur = prev.interests || [];
+      if (cur.includes(opt)) return { ...prev, interests: cur.filter((x) => x !== opt) };
+      if (cur.length >= 3) return prev; // cap; the row stays selectable-looking but inert
+      return { ...prev, interests: [...cur, opt] };
+    });
   }
 
   function addCustom() {

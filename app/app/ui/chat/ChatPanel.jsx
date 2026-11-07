@@ -11,7 +11,7 @@ import { track } from "../../lib/track";
 import { t } from "../../lib/i18n";
 import "./chat.css";
 
-export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool, onPromptConsumed, aiLive, onWish, wished, lang }) {
+export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool, onPromptConsumed, aiLive, onWish, wished, lang, persona, profileName }) {
   const chat = useChat({ context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool });
   const [mobile, setMobile] = useState(false);
   const composerRef = useRef(null);
@@ -48,6 +48,21 @@ export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, 
     }, 120);
     return () => clearTimeout(t);
   }, [open]);
+
+  // Esc closes the panel even when focus has not reached the composer yet
+  // (the 120 ms focus race left Esc inert on body). While a kit Overlay is
+  // open (cart drawer, quick view, checkout sheets) its own Esc handler
+  // wins; we defer to it.
+  useEffect(() => {
+    if (!open) return;
+    const h = (e) => {
+      if (e.key !== "Escape") return;
+      if (document.querySelector(".kit-overlay")) return;
+      onClose();
+    };
+    document.addEventListener("keydown", h);
+    return () => document.removeEventListener("keydown", h);
+  }, [open, onClose]);
 
   function onKey(e) {
     if (e.key === "Escape") onClose();
@@ -106,6 +121,8 @@ export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, 
         messages={chat.messages}
         busy={chat.busy}
         context={context}
+        persona={persona}
+        profileName={profileName}
         onChip={(id, label) => chat.sendChip(id, label)}
         onAdd={handleAdd}
         onOpen={handleOpen}
