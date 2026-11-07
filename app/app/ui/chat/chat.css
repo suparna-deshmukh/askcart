@@ -1,7 +1,7 @@
 /* AskCart assistant panel - uses design tokens only (no new colours). */
 .cht-fab {
   position: fixed; right: 24px; bottom: 24px; z-index: 80;
-  width: 60px; height: 60px; border-radius: 50%;
+  width: 64px; height: 64px; border-radius: 50%;
   background: var(--brand-grad); color: var(--on-brand); border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   box-shadow: var(--shadow-lg);
@@ -246,3 +246,54 @@
 @media (prefers-reduced-motion: reduce) {
   .cht-panel, .cht-msg, .cht-typing i { animation: none; }
 }
+
+/* ---------- Section 5: launcher pill, unread badge, capability card, action chips ---------- */
+.cht-pill {
+  position: fixed; right: 100px; bottom: 28px; z-index: 80;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px; min-width: 132px; max-width: 230px; height: 56px; padding: 0 18px;
+  background: var(--brand-grad); color: var(--on-brand); border-radius: 999px;
+  box-shadow: var(--shadow-lg); pointer-events: none; overflow: hidden;
+}
+.cht-pill-t { font-size: 15px; font-weight: 700; line-height: 19px; white-space: nowrap; }
+.cht-pill-s { font-size: 11.5px; font-weight: 500; line-height: 14px; opacity: .85; white-space: nowrap; }
+.cht-pill::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .28) 50%, transparent 70%);
+  transform: translateX(-110%); opacity: 0;
+}
+.cht-pill.shimmer::after { animation: cht-shimmer 1.4s var(--ease-io); }
+@keyframes cht-shimmer { 0% { transform: translateX(-110%); opacity: 1; } 100% { transform: translateX(110%); opacity: 0; } }
+.cht-unread {
+  position: absolute; top: 2px; right: -2px; min-width: 20px; height: 20px;
+  border-radius: 999px; background: var(--danger); color: var(--on-brand);
+  font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+  padding: 0 5px; border: 2px solid var(--surface); font-variant-numeric: tabular-nums;
+}
+.cht-caps {
+  background: var(--brand-50); border: 1px solid var(--brand-100);
+  border-radius: 14px; padding: 12px 14px; margin-bottom: 12px;
+}
+.cht-caps-t { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 750; color: var(--brand-900); margin-bottom: 8px; }
+.cht-caps-row { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-2); padding: 3.5px 0; }
+.cht-caps-row svg { color: var(--brand); flex: none; }
+.cht-caps-line { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--brand-100); font-size: 12px; line-height: 16px; color: var(--text-3); }
+.cht-msg-action {
+  max-width: 100%; width: fit-content; margin: 2px 0 12px; padding: 7px 12px;
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  background: var(--success-bg); border: 1px solid var(--success-border); box-shadow: none;
+  border-radius: 999px; font-size: 12.5px; line-height: 16px; font-weight: 650;
+}
+.cht-msg-action svg { color: var(--success); flex: none; }
+.cht-action-t { color: var(--success); }
+.cht-action-link {
+  border: none; background: none; cursor: pointer; padding: 2px 6px; border-radius: 7px;
+  font-size: 12.5px; font-weight: 700; color: var(--brand); text-decoration: underline; font-family: inherit;
+}
+.cht-action-link:hover { background: var(--brand-tint); }
+.cht-btn-ink { background: var(--ink-900); color: var(--on-brand); border-color: var(--ink-900); }
+.cht-btn-ink:hover { background: var(--brand-900); }
+@media (max-width: 767px) {
+  .cht-pill { right: 90px; bottom: calc(56px + 20px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) { .cht-pill.shimmer::after { animation: none; display: none; } }

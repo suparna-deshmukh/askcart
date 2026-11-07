@@ -128,7 +128,11 @@ export function PdpView({ lang, item, onBack, onAdd, onBuy, onGoCart, similar, m
     const onKey = (e) => {
       const tag = (e.target && e.target.tagName) || "";
       if (tag === "INPUT" || tag === "TEXTAREA") return;
-      if (e.key === "Escape") liveRef.current.onBack();
+      if (e.key === "Escape") {
+        // one layer per Esc: a chat panel or kit overlay on top closes first
+        if (document.querySelector(".cht-panel") || document.querySelector(".kit-overlay")) return;
+        liveRef.current.onBack();
+      }
       if (e.key === "ArrowLeft") moveVar(-1);
       if (e.key === "ArrowRight") moveVar(1);
     };
@@ -388,6 +392,7 @@ export function PdpView({ lang, item, onBack, onAdd, onBuy, onGoCart, similar, m
           <button className="pdpv-askchip" onClick={() => onAsk(t(lang, "askGift"))}>{t(lang, "askGift")}</button>
           <button className="pdpv-askchip" onClick={() => onAsk(t(lang, "askRating"))}>{t(lang, "askRating")}</button>
           <button className="pdpv-askchip" onClick={() => onAsk(t(lang, "askPrice"))}>{t(lang, "askPrice")}</button>
+          <button className="pdpv-askchip" onClick={() => onAsk(t(lang, "chtQCompare"))}>{t(lang, "chtQCompare")}</button>
         </div>
       </section>
 

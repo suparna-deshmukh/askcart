@@ -8,7 +8,7 @@ import { t } from "../../lib/i18n";
 import { BUDGET_STYLE_MAX } from "../onboarding";
 import { starterPrompts } from "../../../lib/persona";
 
-export function MessageList({ lang, messages, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onRetry, onSendText, context, onWish, wished, persona, profileName }) {
+export function MessageList({ lang, messages, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onRetry, onSendText, context, onWish, wished, persona, profileName, onActionUndo, onOpenCart, onBuyNow }) {
   const ref = useRef(null);
   const nearBottom = useRef(true);
   const [pill, setPill] = useState(false);
@@ -37,7 +37,8 @@ export function MessageList({ lang, messages, busy, onChip, onAdd, onOpen, onFee
         <Message lang={lang} key={m.id} m={m} latest={m.id === lastAsst?.id} busy={busy}
                  onChip={onChip} onAdd={onAdd} onOpen={onOpen}
                  onFeedback={onFeedback} feedbackDone={feedbackDone} onRetry={onRetry}
-                 onWish={onWish} wished={wished} />
+                 onWish={onWish} wished={wished}
+                 onActionUndo={onActionUndo} onOpenCart={onOpenCart} onBuyNow={onBuyNow} />
       ))}
       {pill && (
         <button className="cht-newpill" onClick={() => { const el = ref.current; if (el) { el.scrollTop = el.scrollHeight; nearBottom.current = true; } setPill(false); }}>

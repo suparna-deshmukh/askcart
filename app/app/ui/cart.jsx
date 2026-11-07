@@ -25,7 +25,7 @@ function similarTwo(first, pool, inCart) {
     .slice(0, 2);
 }
 
-export function CartDrawer({ lang, open, onClose, cart, setCart, onCheckout, onWishSave, onWishUndo, onAdd, onSearch, onHome, similarPool }) {
+export function CartDrawer({ lang, open, onClose, cart, setCart, onCheckout, onWishSave, onWishUndo, onAdd, onSearch, onHome, similarPool, onAskHelp }) {
   const toast = useToast();
   const L = (k) => t(lang, k);
   const items = Object.entries(cart).map(([sku, e]) => ({ sku, ...e.item, qty: e.qty }));
@@ -69,6 +69,9 @@ export function CartDrawer({ lang, open, onClose, cart, setCart, onCheckout, onW
           <h3>{L("navCart")} {count > 0 && <span className="cv2-count">{count}</span>}</h3>
           <IconButton name="x" size={40} label={L("close")} className="cv2-x" onClick={onClose} />
         </div>
+        {items.length > 0 && onAskHelp && (
+          <button className="cv2-askchip" onClick={onAskHelp}><I name="sparkle" size={13} /> {L("askCartHelp")}</button>
+        )}
 
         {items.length === 0 ? (
           <div className="cv2-empty">

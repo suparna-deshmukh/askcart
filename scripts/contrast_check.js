@@ -49,6 +49,11 @@ const PAIRS = [
   [tok("text-3"), tok("surface-2"), "text-3 on surface-2 (sticky th, density off, body)", 4.5],
   [tok("danger"), tok("surface"), "danger on surface (warn KPI value, body)", 4.5],
   [tok("brand"), tok("brand-50"), "brand on brand-50 (conv chips, feed chip, body)", 4.5],
+  [tok("brand-900"), tok("brand-50"), "brand-900 on brand-50 (ask row lead, caps title, pinned suggest)", 4.5],
+  [tok("text-2"), tok("brand-50"), "text-2 on brand-50 (caps rows, ask strip line)", 4.5],
+  [tok("text-3"), tok("brand-50"), "text-3 on brand-50 (caps note, suggest hint)", 4.5],
+  ["#FFFFFF", "#312E81", "white on brand-grad dark stop (pill/FAB)", 4.5],
+  [tok("brand"), tok("success-bg"), "brand on success-bg (action chip links)", 4.5],
 ];
 let fail = 0;
 for (const [fg, bg, label, min] of PAIRS) {

@@ -5,7 +5,7 @@ import { Tile } from "../kit/Tile";
 import { I } from "../kit/Icon";
 import { t } from "../../lib/i18n";
 
-export function ProductMini({ lang, item, onAdd, onOpen, onWish, wished, pos }) {
+export function ProductMini({ lang, item, onAdd, onBuyNow, onOpen, onWish, wished, pos }) {
   const reasons = (item.reasons || []).slice(0, 3);
   return (
     <div className="cht-prod">
@@ -28,7 +28,10 @@ export function ProductMini({ lang, item, onAdd, onOpen, onWish, wished, pos }) 
           </div>
         )}
         <div className="cht-prod-btns">
-          <button className="cht-btn cht-btn-primary" onClick={() => onAdd(item, pos)}>{t(lang, "chtAdd")}</button>
+          <button className="cht-btn cht-btn-primary" onClick={() => onAdd(item, pos)}>{t(lang, "addToCart")}</button>
+          {onBuyNow && (
+            <button className="cht-btn cht-btn-ink" onClick={() => onBuyNow(item, pos)}>{t(lang, "buyNow")}</button>
+          )}
           <button className="cht-btn cht-btn-ghost" onClick={() => onOpen(item, pos)}>{t(lang, "chtDetails")}</button>
         </div>
       </div>

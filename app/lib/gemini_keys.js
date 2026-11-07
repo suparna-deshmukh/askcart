@@ -25,7 +25,13 @@ const FILE = path.join(process.cwd(), ".gemini_usage.json");
 const RPD = Math.max(1, parseInt(env("GEMINI_RPD") || "20", 10));
 const state = (G.__askcartGeminiState ??= { day: null, keys: [] });
 
-function today() { return new Date().toISOString().slice(0, 10); }
+// The Gemini free tier resets at MIDNIGHT PACIFIC TIME - key the ledger on
+// the Pacific calendar date so budgets roll over exactly when the quota does
+// (a UTC key rolls up to ~1.5h early; local/IST is up to 16.5h off).
+function today() {
+  try { return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(new Date()); }
+  catch { return new Date().toISOString().slice(0, 10); }
+}
 function rawKeys() {
   const list = (env("GEMINI_API_KEYS") || "").split(",").map((s) => s.trim()).filter(Boolean);
   if (!list.length && env("GEMINI_API_KEY")) list.push(env("GEMINI_API_KEY"));

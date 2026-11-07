@@ -1499,4 +1499,85 @@ html[lang="hi"] .titem-lbl { line-height: 1.4; }
   .ob3-check-ring, .ob3-check-mark { animation: none; stroke-dashoffset: 0; }
 }
 
+/* ---------- Section 5: assistant surfaces (L1/L4/L6/L7) ---------- */
+.tassistant {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 40px; padding: 0 14px; border-radius: 999px; border: none;
+  background: var(--brand-tint); color: var(--brand);
+  font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; flex: none;
+  align-self: center; white-space: nowrap; transition: background-color var(--t-base);
+}
+.tassistant:hover { background: var(--brand-100); }
+.tassistant:focus-visible { outline: none; box-shadow: var(--ring); }
+.tassistant svg { flex: none; }
+@container main (max-width: 1099px) { .tassistant-txt { display: none; } .tassistant { padding: 0 10px; } }
 
+.suggest-row.askrow-pin { background: var(--brand-50); border-top: 1px solid var(--brand-100); border-bottom: 1px solid var(--brand-100); color: var(--brand-900); font-weight: 700; }
+.suggest-row.askrow-pin:hover { background: var(--brand-tint); }
+.suggest-row.askrow-pin .suggest-ic { color: var(--brand); }
+.suggest-hint { padding: 4px 12px 6px; font-size: 11px; color: var(--text-3); }
+
+@media (max-width: 767px) {
+  .tabbar .tb-ask { justify-content: flex-start; padding-top: 0; border-top-color: transparent; }
+  .tabbar .tb-ask-circle {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--brand-grad); color: var(--on-brand);
+    display: grid; place-items: center;
+    border: 4px solid var(--surface); box-shadow: var(--shadow-md);
+    margin-top: -30px; position: relative; z-index: 1;
+    transition: transform var(--t-base);
+  }
+  .tabbar .tb-ask:hover .tb-ask-circle { transform: translateY(-2px); }
+  .tabbar .tb-ask span:last-child { font-size: 10.5px; margin-top: 1px; }
+  .tabbar .tb-ask-off { visibility: hidden; }
+}
+
+.hero2-mode { display: inline-flex; gap: 3px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px; margin-bottom: 10px; }
+.hero2-mode .seg { border: none; background: transparent; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--text-3); padding: 6px 16px; border-radius: 999px; transition: background-color var(--t-base), color var(--t-base); }
+.hero2-mode .seg.on { background: var(--surface); color: var(--brand); box-shadow: var(--shadow-xs); }
+.hero2-mode .seg:focus-visible { outline: none; box-shadow: var(--ring); }
+.hero2-askhint { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; max-width: 640px; padding: 7px 12px; background: var(--brand-50); border: 1px solid var(--brand-100); border-radius: 10px; font-size: 12.5px; font-weight: 600; color: var(--brand-900); }
+.hero2-askhint svg { color: var(--brand); flex: none; }
+.hero2-hintkeys { margin-left: auto; font-size: 11px; font-weight: 600; color: var(--text-3); white-space: nowrap; }
+.hero2-askstrip { margin-top: 16px; }
+.hero2-askline { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 650; color: var(--text-2); margin-bottom: 9px; }
+.hero2-askline svg { color: var(--brand); }
+
+.askrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 14px 0; padding: 12px 14px; background: var(--brand-50); border: 1px solid var(--brand-100); border-radius: var(--r-md); }
+.askrow-l { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 700; color: var(--brand-900); margin-right: 4px; }
+.askrow-l svg { color: var(--brand); }
+.askrow-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--brand-100); background: var(--surface); color: var(--brand); font-family: inherit; font-size: 13px; font-weight: 650; cursor: pointer; transition: background-color var(--t-base); white-space: nowrap; }
+.askrow-chip:hover { background: var(--brand-tint); }
+.askrow-chip:focus-visible { outline: none; box-shadow: var(--ring); }
+
+.peek { position: fixed; right: 24px; bottom: 96px; z-index: 79; display: flex; align-items: center; gap: 8px; max-width: 320px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 14px; box-shadow: var(--shadow-md); font-family: inherit; }
+.peek-t { font-size: 13px; line-height: 18px; color: var(--text); }
+.peek-btn { border: none; background: var(--brand); color: var(--on-brand); font-family: inherit; font-size: 12.5px; font-weight: 700; padding: 8px 14px; border-radius: 999px; cursor: pointer; flex: none; }
+.peek-btn:hover { background: var(--brand-hover); }
+.peek-x { border: none; background: none; color: var(--text-3); cursor: pointer; padding: 4px; border-radius: 7px; flex: none; display: grid; place-items: center; }
+.peek-x:hover { color: var(--text); background: var(--surface-2); }
+.peek-reply { cursor: pointer; }
+.peek-reply:hover { border-color: var(--brand); }
+@media (max-width: 767px) { .peek { right: 16px; bottom: calc(56px + 16px + 68px + env(safe-area-inset-bottom, 0px)); } }
+
+.card-ask { position: absolute; top: 8px; right: 8px; z-index: 3; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--brand); box-shadow: var(--shadow-xs); cursor: pointer; opacity: 0; transform: translateY(-2px); transition: opacity var(--t-base), transform var(--t-base), background-color var(--t-base); }
+.card:hover .card-ask, .card-ask:focus-visible { opacity: 1; transform: none; }
+.card-ask:hover { background: var(--brand-tint); }
+.card-ask:focus-visible { outline: none; box-shadow: var(--ring); }
+@media (hover: none) { .card-ask { opacity: 1; transform: none; } }
+
+.cv2-askchip { display: inline-flex; align-items: center; gap: 6px; margin: 10px 16px 0; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--brand-100); background: var(--brand-50); color: var(--brand); font-family: inherit; font-size: 12.5px; font-weight: 650; cursor: pointer; }
+.cv2-askchip:hover { background: var(--brand-tint); }
+.cv2-askchip svg { flex: none; }
+
+.cf-ask { margin-top: 18px; display: flex; justify-content: center; }
+.cf-askchip { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--brand-100); background: var(--brand-50); color: var(--brand); font-family: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+.cf-askchip:hover { background: var(--brand-tint); }
+
+@media (max-width: 640px) {
+  .hero2-card { flex-wrap: wrap; height: auto; padding: 10px; gap: 8px; }
+  .hero2-ic { display: none; }
+  .hero2-card input { flex: 1 1 100%; }
+  .hero2-mic { display: none; }
+  .hero2-go, .hero2-askgo { flex: 1 1 0; }
+}

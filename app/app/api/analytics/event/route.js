@@ -40,7 +40,10 @@ const ALLOWED = new Set([
 ]);
 
 const MAX_BODY = 4096;
-const RATE_PER_MIN = 120;
+// A single tester can legitimately emit >120 events/min (onboarding + a
+// full purchase pass); 300 keeps real sessions clean while still capping
+// abuse. The allowlist + 4 KB body cap are the real guards.
+const RATE_PER_MIN = 300;
 
 // per-IP sliding window (in-memory; fine for prototype scale)
 const hits = new Map();

@@ -169,9 +169,21 @@ export function classify(state, text, langHint = null) {
     return { ...base, intent: "faq", kind: "tracking" };
   }
 
-  // 2) cart_help
-  if (/\b(add (it|this|that|them|the (first|second|third|next)|to cart|in cart|into cart)|put (it|this|that) (in|into) (my )?cart|open (the )?cart|show (my )?cart|my cart|checkout|proceed to (pay|checkout)|where (do|can|should) i pay|pay (online|for this|for it))\b/i.test(s)) {
-    return { ...base, intent: "cart_help", kind: /\bopen|show|my cart|checkout\b/i.test(s) && !/\badd\b/i.test(s) ? "open" : "add" };
+  // 1c) "narrow this down" on an existing result set: re-run the search so
+  // the policy engine can ask its refinement question (L3 seeded chip).
+  if (/\b(narrow (this|that|it|down|the results|the list|the picks)|tighten (this|it|the results))\b/i.test(s) && state.last) {
+    return { ...base, intent: "refine", kind: "narrow" };
+  }
+
+  // 2) cart_help — kinds: open (cart/checkout), add, buy (buy now), save
+  // (wishlist), remove, open_product ("open/show the second one").
+  if (/\b(add (it|this|that|them|the (first|second|third|next)|to cart|in cart|into cart)|put (it|this|that) (in|into) (my )?cart|open (the )?cart|show (my )?cart|my cart|checkout|proceed to (pay|checkout)|where (do|can|should) i pay|pay (online|for this|for it)|buy (now|this|that|it|the (first|second|third)( one)?)|abhi kharid\w*|save (it|this|that|the (first|second|third)( one)?) (for later|in (my )?wishlist|to wishlist)?|add (it|this|that|the (first|second|third) (one )?) to wishlist|keep (it|this|that|the (first|second|third) (one )?) for later|remove (it|this|that|the (first|second|third)) (from (my )?cart)?|delete (it|this) (from (my )?cart)?|open the (first|second|third)|show (me )?the (first|second|third)|tell me about the (first|second|third))\b/i.test(s)) {
+    const k = /\bbuy (now|this|that|it|the (first|second|third)( one)?)\b|abhi kharid\b/i.test(s) ? "buy"
+      : /\b(remove|delete)\b/i.test(s) ? "remove"
+      : /\b(save|wishlist|for later)\b/i.test(s) ? "save"
+      : /\bopen|show|tell me about\b/i.test(s) && /\b(first|second|third)\b/i.test(s) && !/\b(cart|checkout)\b/i.test(s) ? "open_product"
+      : /\bopen|show|my cart|checkout\b/i.test(s) && !/\badd\b/i.test(s) ? "open" : "add";
+    return { ...base, intent: "cart_help", kind: k };
   }
 
   // 2b) external-data asks ("global pricing", "global reviews") are shopping-

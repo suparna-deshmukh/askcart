@@ -389,6 +389,17 @@ export async function handleTurn(state, input, ctx) {
   }
   state.turns += 1;
 
+  // 5C: prime the chat's result set from the page's current search so
+  // "compare the top 3" / "why did you pick #1" work without a re-search.
+  // Only SKUs are accepted; items are re-resolved against the catalog.
+  if (!state.last && Array.isArray(ctx.context.skus) && ctx.context.skus.length) {
+    const items = ctx.context.skus.map((k) => catalog.find((x) => x.sku === k)).filter(Boolean);
+    if (items.length) {
+      state.last = { all: items, parsed: parseQuery(ctx.context.query || ""), relaxed: false, intentN: items.length, shown: 3 };
+      if (ctx.context.query) state.q = ctx.context.query;
+    }
+  }
+
   // ---- chips -------------------------------------------------------------
   if (input.type === "chip") {
     const r = await handleChip(state, input.chip_id, ctx, events, ui_actions);
@@ -539,19 +550,52 @@ export async function handleTurn(state, input, ctx) {
     }
 
     case "cart_help": {
-      const sku = nlu.kind === "add" ? resolveCartSku(state, ctx, nlu.refs) : null;
+      // 5C agentic actions: every sku resolves against state.last (the
+      // current catalogue results) - actions may only reference SKUs from
+      // the catalogue. buy_now adds first, then opens checkout for that
+      // item only (the order still needs an explicit "Place order").
+      const needsSku = ["add", "buy", "save", "remove", "open_product"].includes(nlu.kind);
+      const sku = needsSku ? resolveCartSku(state, ctx, nlu.refs) : null;
+      if (needsSku && !sku) {
+        act = "ask_question";
+        text = T_(lang, "ask_which");
+        chips = whichChips(state);
+        return finish();
+      }
+      const setItemFacts = (sk) => {
+        const item = catalog.find((x) => x.sku === sk);
+        if (item) facts = { items: [item], skus: [sk], slots: state.slots };
+      };
       if (nlu.kind === "add" && sku) {
         act = "confirm_ui_action";
         text = T_(lang, "cart_added");
         ui_actions.push({ action: "add_to_cart", sku });
         chips = [{ id: "cart:open", label: "Open cart" }, { id: "cart:keep", label: "Keep shopping" }];
-        const item = catalog.find((x) => x.sku === sku);
-        if (item) facts = { items: [item], skus: [sku], slots: state.slots };
-      } else if (nlu.kind === "add") {
-        act = "ask_question";
-        text = T_(lang, "ask_which");
-        chips = whichChips(state);
-        return finish();
+        setItemFacts(sku);
+      } else if (nlu.kind === "buy" && sku) {
+        act = "confirm_ui_action";
+        text = T_(lang, "buy_now");
+        ui_actions.push({ action: "add_to_cart", sku }, { action: "buy_now", sku });
+        chips = [{ id: "cart:open", label: "Open cart" }, { id: "cart:keep", label: "Keep shopping" }];
+        setItemFacts(sku);
+      } else if (nlu.kind === "save" && sku) {
+        act = "confirm_ui_action";
+        text = T_(lang, "saved_wish");
+        ui_actions.push({ action: "add_to_wishlist", sku });
+        setItemFacts(sku);
+        chips = [{ id: "cart:open", label: "Open cart" }, { id: "cart:keep", label: "Keep shopping" }];
+      } else if (nlu.kind === "remove" && sku) {
+        act = "confirm_ui_action";
+        text = T_(lang, "removed_cart");
+        ui_actions.push({ action: "remove_from_cart", sku });
+        setItemFacts(sku);
+        chips = [{ id: "cart:open", label: "Open cart" }, { id: "cart:keep", label: "Keep shopping" }];
+      } else if (nlu.kind === "open_product" && sku) {
+        act = "confirm_ui_action";
+        text = T_(lang, "open_product");
+        ui_actions.push({ action: "open_product", sku });
+        setItemFacts(sku);
+        chips = [{ id: "cart:add:" + sku, label: "Add this to cart" }];
       } else {
         act = "confirm_ui_action";
         text = T_(lang, "cart_deflect");
@@ -649,7 +693,7 @@ export async function handleTurn(state, input, ctx) {
         act = "answer_product";
         text = T_(lang, "p_quality", { rating: item.rating, n: (item.num_ratings || 0).toLocaleString("en-IN") });
       }
-      chips = [{ id: "cart:add:" + item.sku, label: "Add this to cart" }, { id: "explain", label: "Why this matched" }];
+      chips = [{ id: "cart:add:" + item.sku, label: "Add this to cart" }, { id: "cart:buy:" + item.sku, label: "Buy this now" }, { id: "explain", label: "Why this matched" }];
       return finish();
     }
 
@@ -714,7 +758,7 @@ async function productTurn(state, nlu, ctx, events, ui_actions) {
         return {
           act: "show_results", text: T_(lang, "show_more").replace("a few more", "the one you pointed at"),
           components: [{ kind: "products", items: [cardItem(item, tagReasons(item))] }],
-          chips: [{ id: "cart:add:" + item.sku, label: "Add this to cart" }, { id: "more", label: "More" }],
+          chips: [{ id: "cart:add:" + item.sku, label: "Add this to cart" }, { id: "cart:buy:" + item.sku, label: "Buy this now" }, { id: "more", label: "More" }],
           n: 1, intentN: 1, facts: { items: [item], skus: [item.sku], slots: state.slots },
         };
       }
@@ -731,6 +775,8 @@ async function productTurn(state, nlu, ctx, events, ui_actions) {
       events.push({ type: "chat_apply_to_results", payload: { query: state.q, slots_changed: 1 } });
     } else if (nlu.kind === "different") {
       return showMore(state, events);
+    } else if (nlu.kind === "narrow") {
+      query = state.q;
     } else if (nlu.productTokens && (!state.q || !state.last)) {
       // "sasta phone" with no prior search: treat as a fresh search
       nlu = { ...nlu, intent: "search", kind: "new", query: nlu.query || state.q };
@@ -936,6 +982,16 @@ async function handleChip(state, chipId, ctx, events, ui_actions) {
   if (head === "cart") {
     if (val === "open") return { act: "confirm_ui_action", text: T_(lang, "cart_opened"), components: [], chips: [], n: 0, intentN: 0, ui_open: true, facts: {} };
     return null; // "keep shopping" -> no reply
+  }
+  if (head === "cart" && val.startsWith("buy:")) {
+    const sku = val.slice(4);
+    const item = catalog.find((x) => x.sku === sku);
+    if (item) {
+      ui_actions.push({ action: "add_to_cart", sku }, { action: "buy_now", sku });
+      return { act: "confirm_ui_action", text: T_(lang, "buy_now"), components: [],
+               chips: [{ id: "cart:open", label: "Open cart" }, { id: "cart:keep", label: "Keep shopping" }],
+               n: 0, intentN: 0, facts: { items: [item], skus: [sku], slots: state.slots } };
+    }
   }
   if (head === "cart_add" || (head === "cart" && val.startsWith("add:"))) {
     const sku = val.startsWith("add:") ? val.slice(4) : val;

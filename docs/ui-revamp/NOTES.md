@@ -51,3 +51,18 @@ Baseline gates (Phase 0, 2026-11-06): canaries 111+6 (0 failures) · contrast 16
 
 - Phase 8 (2026-11-06): Insights restyle — rail/pills, banner, live pill, density toggle, sparklines, conv chips, sticky tables w/ kit Select filters, family-chip feed, skeletons. Assumptions: analytics (reviewer surface) stays English-only for this pass; live-dot recoloured --success for the contrast gate; new localStorage key askcart_an_density.
 - Phase 9 (2026-11-06): polish + QA. Assumptions: aria-labels stay stable English (tour + SR consistency; visible text translated); announcement bar <b> emphasis dropped (plain i18n strings); "Everyday" mega-menu occasion label left untranslated (catalogue-data style); Hindi i18n values composed from existing in-file strings (fresh Devanagari literals were found corrupted in transit — all new hi values verified against in-file sources); back-to-top FAB gated to the search results view (showTop && s); onboarding payoff toast conditions still compare canonical English values (data contract).
+
+## Update prompt log (2026-11-08)
+
+- Section 1 (header v2: rebuilt right cluster, container-query label hiding, loud Analytics pill, Gemini key chip), 2 (analytics Overview dashboard, coverage script, event registry), 3 (full-screen onboarding), 4 (persona.js drives recommendations + insights): committed as `d00c09d`, `fc75da0`, `15d0584`, `d26debc`, with `1691ea1` (perf: 24h plan/refine TTL, rules-first refine gate) between 1 and 2.
+- Section 5 (chat adoption L1–L7 + agentic chat), 2026-11-08. Assumptions (conservative, per §0.4):
+  - **No SSE**: `/api/chat` stays plain JSON (fast, deterministic, no new deps). "Non-blocking" is met by the client message queue, lifted chat state (replies land while the panel is closed -> pill unread badge + 5 s peek bubble), and a page that never locks.
+  - **Buy phrasing**: "buy the cheapest X" runs the search first (conservative); direct buy works for "buy this/that/it/now" and ordinals ("buy the first one") — the NLU buy regex was extended for ordinals.
+  - **Hero input** has no suggest dropdown; conversational input gets the Search|Ask toggle + Shift+Enter + hint line. The pinned "Ask AskCart:" row lives in the header/refine-bar dropdown, which now also opens when normal suggestions are empty (a conversational query matches none).
+  - **pdp_3 / pdp_dwell** seed compare/ask prompts from the current context (primed top-3 of the active search), not a cross-search basket of viewed PDPs.
+  - **`chat_open` was never tracked** before this pass (the analytics KPI read 0); every entry point now funnels through `openChat(source)`.
+  - **Button labels** stay "Add to cart" / "Buy now" (existing site-wide i18n) rather than re-capitalising every surface; chat cards previously said "Add" and now match the rest of the site.
+  - **Esc layering**: one layer per Esc — chat panel (topmost) closes first, then the PDP; kit overlays still win (existing deferral).
+  - **Gemini ledger day key** is now the Pacific calendar date (`America/Los_Angeles` via `Intl en-CA`) — the free tier resets at midnight PT; the previous UTC key rolled up to ~1.5 h early.
+  - **Capability card** stays visible while the thread is empty on first open and is marked seen after the first message (earlier code hid it on the first frame).
+  - **Analytics event rate limit** raised 120 -> 300/min/IP: one tester's full pass legitimately emits >120 events/min (onboarding + purchase flow). The allowlist + 4 KB body cap remain the real guards.

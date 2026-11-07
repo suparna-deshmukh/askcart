@@ -10,6 +10,7 @@ import { track } from "../../lib/track";
 import { SAMPLE_QUERIES } from "../../lib/sample_queries";
 import { MegaMenu } from "./MegaMenu";
 import { t } from "../../lib/i18n";
+import { looksConversational } from "../../../lib/ask";
 
 function useOutside(close) {
   const ref = useRef(null);
@@ -27,7 +28,7 @@ function useOutside(close) {
 export function Header({
   lang, setLang, canBack, onBack, onLogo, tab, onTab, onInsights,
   input, setInput, onSearch, onSearchCleared,
-  cartCount, wishCount, onCart, aiStatus, facets, onQuery, scrolled, tnavCollapsed, onMenu,
+  cartCount, wishCount, onCart, aiStatus, facets, onQuery, scrolled, tnavCollapsed, onMenu, onAsk,
 }) {
   const [mega, setMega] = useState(false);
   const [acct, setAcct] = useState(false);
@@ -133,12 +134,28 @@ export function Header({
                      if (e.key === "ArrowDown") { e.preventDefault(); setSugIdx((i) => Math.min(i + 1, sugList.length - 1)); }
                      else if (e.key === "ArrowUp") { e.preventDefault(); setSugIdx((i) => Math.max(i - 1, -1)); }
                      else if (e.key === "Escape") { setSugOpen(false); setSugIdx(-1); }
+                     else if (e.key === "Enter" && e.shiftKey && onAsk && input.trim()) {
+                       e.preventDefault();
+                       track("search_to_ask_switch", { how: "shift-enter" });
+                       onAsk(input.trim(), "shift-enter");
+                     }
                      else if (e.key === "Enter") { if (sugIdx >= 0 && sugList[sugIdx]) pickSug(sugList[sugIdx]); else onSearch(); }
                    }}
                    placeholder={tab === "search" ? t(lang, "refinePlaceholder") : t(lang, "shSearchAll")} />
             <button className="tsearch-mic" aria-label="Voice search (coming soon)" title="Voice search — coming soon"><I name="mic" size={17} /></button>
-            {sugOpen && sugList.length > 0 && (
+            {sugOpen && (sugList.length > 0 || (onAsk && looksConversational(input))) && (
               <div className="suggest" role="listbox" aria-label={t(lang, "shSuggest")}>
+                {onAsk && looksConversational(input) && (
+                  <div className="suggest-sec">
+                    <button className="suggest-row askrow-pin"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => { setSugOpen(false); setSugIdx(-1); track("search_to_ask_switch", { how: "row" }); onAsk(input.trim(), "row"); }}>
+                      <I name="sparkle" size={14} className="suggest-ic" />
+                      <span>{t(lang, "askAskRow", { q: input.trim().slice(0, 40) })}</span>
+                    </button>
+                    <div className="suggest-hint">↵ {t(lang, "heroSearchLbl")} · ⇧↵ {t(lang, "heroAskLbl")}</div>
+                  </div>
+                )}
                 {sugList.map((s, i) => (
                   <div key={s.sec + s.text} className="suggest-sec">
                     {i === 0 || sugList[i - 1].sec !== s.sec ? <div className="suggest-seclbl">{t(lang, { Recent: "shRecent", Try: "shTrySec", Categories: "shCatSec", Brands: "shBrandSec", Budget: "shBudgetSec" }[s.sec] || "shTrySec")}</div> : null}
@@ -200,6 +217,12 @@ export function Header({
               <span className="icon-wrap"><I name="bag" size={22} />{cartCount > 0 && <span className="icbadge">{cartCount > 99 ? "99+" : cartCount}</span>}</span>
               <span className="titem-lbl">{t(lang, "navCart")}</span>
             </button>
+            {onAsk && (
+              <button className="tassistant" aria-label={t(lang, "shAssistant")} title={t(lang, "shAssistant")} onClick={() => onAsk("header")}>
+                <I name="sparkle" size={16} aria-hidden="true" />
+                <span className="tassistant-txt">{t(lang, "shAssistant")}</span>
+              </button>
+            )}
             <button className={"tana" + (tab === "analytics" ? " on" : "")} aria-label={t(lang, "shAnalytics")} title={t(lang, "shAnalytics")} onClick={onInsights}>
               <I name="bar-chart" size={17} />
               <span className="tana-txt">{t(lang, "shAnalytics")}</span>

@@ -278,7 +278,7 @@ const CONFETTI = Array.from({ length: 24 }, (_, i) => ({
   rot: ((i * 47) % 360),
 }));
 
-export function ConfirmationView({ lang, order, onTrack, onContinue }) {
+export function ConfirmationView({ lang, order, onTrack, onContinue, onAsk }) {
   const L = (k) => t(lang, k);
   useEffect(() => {
     if (order) track("order_confirm_view", { order_id: order.id, item_count: order.count, total: order.total });
@@ -333,6 +333,9 @@ export function ConfirmationView({ lang, order, onTrack, onContinue }) {
         <Button size="lg" onClick={onTrack}>{L("trackOrder")}</Button>
         <Button size="lg" variant="secondary" onClick={onContinue}>{L("continueShopping")}</Button>
       </div>
+      {onAsk && (
+        <div className="cf-ask"><button className="cf-askchip" onClick={onAsk}><I name="sparkle" size={13} /> {L("askDelivery")}</button></div>
+      )}
     </div>
   );
 }

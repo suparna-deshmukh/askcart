@@ -14,7 +14,7 @@ import { Tile } from "./ui/kit/Tile";
 import { ChatLauncher } from "./ui/chat/ChatLauncher";
 import { ChatPanel } from "./ui/chat/ChatPanel";
 import { SAMPLE_QUERIES } from "./lib/sample_queries";
-import { INTEREST_MATCH, INTEREST_QUERIES, customInterestTokens, interestScore, interestQueries } from "../lib/persona";
+import { INTEREST_MATCH, INTEREST_QUERIES, customInterestTokens, interestScore, interestQueries, starterPrompts } from "../lib/persona";
 import { KitPage } from "./ui/kit/KitPage";
 import { Header } from "./ui/shell/Header";
 import { Announcement } from "./ui/shell/Announcement";
@@ -22,6 +22,8 @@ import { NavDrawer } from "./ui/shell/NavDrawer";
 import { TabBar } from "./ui/shell/TabBar";
 import { Footer } from "./ui/shell/Footer";
 import { ToasterProvider, useToast } from "./ui/kit/Toaster";
+import { useChat } from "./ui/chat/useChat";
+import { looksConversational } from "../lib/ask";
 import { WishlistView } from "./ui/wishlist";
 import { ProductCard, VARIANT_PAREN } from "./ui/cards";
 import { HeroDemo, HomeSections, useTypewriter } from "./ui/home";
@@ -33,6 +35,34 @@ import { Button } from "./ui/kit/Button";
 // (verified against the live search API; precomputed in the semantic
 // query-emb cache; clicks tracked with source:"example" -> Analytics).
 const EXAMPLES = SAMPLE_QUERIES;
+
+// L3: "Ask the assistant" row under the result summary (all rule-based).
+const ASK_ROW_CHIPS = [
+  { id: "narrow", t: "askNarrow" },
+  { id: "compare", t: "askCompare" },
+  { id: "persona", t: "askPersona" },
+  { id: "explain", t: "askExplain" },
+];
+function askRowSeed(id, persona, s) {
+  if (id === "narrow") return "Narrow this down for me";
+  if (id === "compare") return "Compare the top 3";
+  if (id === "explain") return "Why did you pick the first one?";
+  const ctx = (persona && persona.context) || "";
+  if (ctx === "Gifting") return "gift under 5000";
+  if (ctx === "Family and kids") return "gift for kids under 3000";
+  if (ctx === "Home and appliances") return "home appliance under 5000";
+  return "gift under 2000";
+}
+// L7: "Continue your chat" topic from the last assistant message.
+function lastChatTopic(messages) {
+  const m = [...(messages || [])].reverse().find((x) => x.role === "assistant" && x.kind === "text");
+  if (!m) return null;
+  const q = (m.components || []).find((c) => c.kind === "question");
+  if (q && q.text) return String(q.text).slice(0, 44);
+  const p = (m.components || []).find((c) => c.kind === "products");
+  if (p && p.items && p.items[0] && p.items[0].title) return String(p.items[0].title).slice(0, 44);
+  return null;
+}
 
 const SORTS = [
   { id: "relevance", label: "Relevance" },
@@ -446,7 +476,17 @@ function AskCartHome() {
   // Section 4: "Picked for you" rail — top items in the chosen interests,
   // ranked by recommendScore with the interest boost. Two search calls,
   // fired once per (persona, home, no active search).
+  // L2: persona-based example-ask chips (rule-based starterPrompts sends).
+  const heroAskChips = useMemo(() => {
+    const cap = persona && BUDGET_STYLE_MAX[persona.spendStyle];
+    const sp = starterPrompts(persona, cap == null ? 5000 : cap);
+    if (!sp) return [];
+    return sp.slice(0, 3).map((q, i) => ({ id: "hc" + i, label: t(lang, q.label, { x: q.vars && q.vars.x ? (q.vars.x === "Electronics" ? t(lang, "obIntElectronics") : q.vars.x) : "", cap: q.vars && q.vars.cap ? q.vars.cap : "" }), seed: q.send }));
+  }, [persona, lang]);
   const [picked, setPicked] = useState(null);
+  const skipCountRef = useRef(0);
+  const filterCountRef = useRef(0);
+  const pdpSeenRef = useRef(new Set());
   useEffect(() => {
     if (boot || tab !== "search" || s || !interestCtx.interests.length) return;
     const std = interestCtx.interests.slice(0, 2);
@@ -499,8 +539,23 @@ function AskCartHome() {
   // offers - a guided-search product must not make the shopper pick the
   // mode (product requirement 2026-11-05).
   const [plainMode, setPlainMode] = useState(() => params.get("mode") === "plain");
-  const [chatOpen, setChatOpen] = useState(false);
+  // Reviewer A/B baseline: ?chat=off hides every assistant surface.
+  const chatOff = params.get("chat") === "off";
+  // L4: hero Search|Ask toggle (remembers the last choice).
+  const [searchMode, setSearchModeState] = useState(() => {
+    try { return localStorage.getItem("askcart_searchmode") === "ask" ? "ask" : "search"; } catch { return "search"; }
+  });
+  function setSearchMode(m) {
+    setSearchModeState(m);
+    try { localStorage.setItem("askcart_searchmode", m); } catch {}
+    if (m === "ask") track("search_to_ask_switch", { how: "toggle" });
+  }
+  const [chatOpen, setChatOpenState] = useState(false);
   const [chatNudge, setChatNudge] = useState(false);
+  const [chatUnread, setChatUnread] = useState(0);
+  const [peek, setPeek] = useState(null); // L7 reply peek bubble
+  const peekTimer = useRef(null);
+  const [chatAskSku, setChatAskSku] = useState(null);
   // Chat-shared session: a search the assistant applies re-runs the SAME
   // guided engine with the assistant's slots; the page never asks its own
   // question on top (the chat is the question UI). Trail chips stay removable.
@@ -537,6 +592,35 @@ function AskCartHome() {
     const pool = [...(s ? s.results : []), ...(preview ? preview.items : [])];
     openPdpSku(sku, pool, "chat");
   }
+  // 5C: chat actions resolve SKUs from the same pool the page uses, then call
+  // the identical page handlers (no duplicate logic).
+  function chatPool() {
+    return [...(s ? s.results : []), ...(pdp ? [pdp] : []), ...(preview ? preview.items : [])];
+  }
+  function buyNowSku(sku) {
+    const item = chatPool().find((x) => x.sku === sku);
+    if (item) buyNow(item, "chat");
+  }
+  function removeFromCartSku(sku) {
+    const entry = cart[sku];
+    if (!entry) return;
+    const item = entry.item;
+    setCart((c) => { const n = { ...c }; delete n[sku]; return n; });
+    toast({ type: "info", text: t(lang, "removedFromCart"), action: t(lang, "undo"), onAction: () => addToCart(item, "undo") });
+  }
+  function wishSku(sku) {
+    const item = chatPool().find((x) => x.sku === sku);
+    if (item) toggleWish(item);
+  }
+  function actionUndo(action, sku) {
+    if (action === "add_to_cart") removeFromCartSku(sku);
+    else if (action === "remove_from_cart") buyNowSkuReadd(sku);
+    else if (action === "add_to_wishlist") wishSku(sku);
+  }
+  function buyNowSkuReadd(sku) {
+    const item = chatPool().find((x) => x.sku === sku);
+    if (item) addToCart(item, "undo");
+  }
   // Phase 5: one-shot prompt from the PDP "Ask AskCart" section — ChatPanel
   // consumes it (sends the message) and the page clears it.
   const [chatPrompt, setChatPrompt] = useState(null);
@@ -546,12 +630,120 @@ function AskCartHome() {
     track("pdp_ask", { source: "pdp_prompt_chip" });
   }
   const chatContext = {
-    sku: pdp ? pdp.sku : null,
+    sku: pdp ? pdp.sku : (chatAskSku || null),
     query: s ? s.query : null,
     region,
     source: pdp ? "pdp" : (chatNudge ? "null_escalation" : "hero"),
     prompt: chatPrompt,
+    skus: s && s.results ? s.results.slice(0, 3).map((r) => r.sku) : null,
   };
+  // 5C: chat state lifted to the page so replies land (and badge the pill)
+  // even when the panel is closed; the page never locks while a reply runs.
+  const chat = useChat({
+    open: chatOpen,
+    context: chatContext,
+    onApplySearch: chatApplySearch,
+    onAddToCart: (sku) => chatAddToCart(sku),
+    onOpenPdp: chatOpenPdp,
+    onOpenCart: () => { setCartOpen(true); track("cart_view", { item_count: cartCount, source: "chat" }); },
+    onBuyNow: buyNowSku,
+    onRemoveFromCart: removeFromCartSku,
+    onWishSku: wishSku,
+    onClosedReply: (asst) => {
+      setChatUnread((n) => n + 1);
+      const first = String(asst.text || "").split(/\n/)[0].slice(0, 90);
+      setPeek({ text: first, key: asst.id });
+      track("chat_peek_shown", {});
+      clearTimeout(peekTimer.current);
+      peekTimer.current = setTimeout(() => setPeek(null), 5000);
+    },
+    onActionExecuted: (a) => {
+      const labels = {
+        apply_search: "askActSearch", add_to_cart: "askActAdd", buy_now: "askActBuy",
+        open_product: "askActOpen", open_cart: "askActCart", remove_from_cart: "askActRemove",
+        add_to_wishlist: "askActWish",
+      };
+      chat.pushLocal({
+        id: "act_" + Date.now().toString(36) + "_" + a.action,
+        role: "system", kind: "action",
+        text: t(lang, labels[a.action] || "askActSearch"),
+        action: a.action, sku: a.sku || null,
+      });
+    },
+  });
+  const chatContTopic = useMemo(() => lastChatTopic(chat.messages), [chat.messages]);
+  function setChatOpen(v) {
+    setChatOpenState(v);
+    if (v) { setChatUnread(0); setPeek(null); }
+  }
+  function openChat(source, seed = null) {
+    if (chatOff) return;
+    if (seed) {
+      setChatPrompt({ text: seed, nonce: Date.now() });
+      track("chat_seeded_action", { source, surface: source });
+    }
+    chat.open(source);
+    setChatOpen(true);
+  }
+
+  // ---- L6: proactive peek prompts (rule-based, capped, polite) ----
+  const [prompt, setPrompt] = useState(null);
+  const promptStats = useRef({ last: 0, shown: 0, dismissed: 0, suppressed: {} });
+  function typingActive() {
+    let a = null;
+    try { a = document.activeElement; } catch {}
+    return searchFocus || !!(a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA"));
+  }
+  function maybePrompt(trigger, text, action) {
+    const st = promptStats.current;
+    if (chatOff || chatOpen || !onboarded || checkoutOpen || boot || prompt) return;
+    if (st.suppressed[trigger] || st.dismissed >= 2 || st.shown >= 3) return;
+    if (Date.now() - st.last < 90000 || typingActive()) return;
+    st.last = Date.now(); st.shown += 1;
+    setPrompt({ trigger, text, action });
+    track("chat_prompt_shown", { trigger });
+  }
+  function promptClick() {
+    const p = prompt;
+    if (!p) return;
+    setPrompt(null);
+    track("chat_prompt_click", { trigger: p.trigger });
+    p.action();
+  }
+  function promptDismiss() {
+    const p = prompt;
+    if (!p) return;
+    setPrompt(null);
+    const st = promptStats.current;
+    st.suppressed[p.trigger] = true;
+    st.dismissed += 1;
+    track("chat_prompt_dismiss", { trigger: p.trigger });
+  }
+  useEffect(() => {
+    if (chatOff || tab !== "search" || s || !onboarded || chatOpen) return;
+    const tm = setTimeout(() => maybePrompt("home_idle", t(lang, "askHomeIdle"), () => openChat("prompt_idle", null)), 8000);
+    return () => clearTimeout(tm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatOff, tab, s, onboarded, chatOpen]);
+  useEffect(() => {
+    if (s && s.ok === false) {
+      maybePrompt("weak_search", t(lang, "askWeak"), () => openChat("prompt_weak", s.query));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s && s.ok === false, s && s.query]);
+  // L6: PDP dwell 20 s - one gentle prompt, seeded with the first PDP ask chip.
+  useEffect(() => {
+    if (chatOff || !pdp || chatOpen || checkoutOpen || !onboarded || boot) return;
+    const tm = setTimeout(() => maybePrompt("pdp_dwell", t(lang, "askPdpDwell"), () => openChat("prompt_pdp_dwell", t(lang, "askGift"))), 20000);
+    return () => clearTimeout(tm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatOff, pdp, chatOpen, checkoutOpen, onboarded]);
+  useEffect(() => {
+    if (!prompt) return;
+    const h = (e) => { if (e.key === "Escape") promptDismiss(); };
+    document.addEventListener("keydown", h);
+    return () => document.removeEventListener("keydown", h);
+  });
 
   function switchPlainMode(on) {
     if (on === plainMode) return;
@@ -1308,6 +1500,10 @@ function AskCartHome() {
     pushPrevType({ type: g.type, subType: g.subType });
     setS((st) => st && { ...st, guide: null });
     const skips = jn ? (jn.skips = (jn.skips || 0) + 1) : 1;
+    skipCountRef.current += 1;
+    if (skipCountRef.current >= 2) {
+      maybePrompt("skips_2", t(lang, "askPickForMe"), () => openChat("prompt_skips", s.query));
+    }
     const intentN = s.results.filter((r) => r.intent).length;
     if (!plainMode && skips < 3) {
       const g2 = await askGuide(s.query, intentN, s.turn + 1);
@@ -1355,6 +1551,10 @@ function AskCartHome() {
   }
 
   function setFilter(type, value) {
+    filterCountRef.current += 1;
+    if (filterCountRef.current >= 3 && s) {
+      maybePrompt("filters_3", t(lang, "askFilters3"), () => openChat("prompt_filters", s.query));
+    }
     if (!s || busy) return;
     const jn = journeyRef.current;
     const nBefore = applyFilters(s.results, s.filters).length;
@@ -1420,7 +1620,7 @@ function AskCartHome() {
       return { ...c, [item.sku]: { ...e, qty: e.qty - 1 } };
     });
   }
-  function buyNow(item) {
+  function buyNow(item, source) {
     pushNav();
     const jn = journeyRef.current;
     if (jn) jn.added = true;
@@ -1428,6 +1628,7 @@ function AskCartHome() {
       track("recommendation_click", { sku: item.sku, query: jn.query, brand: item.brand || "", journey_id: jn.id });
     }
     track("buy_now", { sku: item.sku, price: item.price, category: item.category, brand: item.brand || "" });
+    track("buy_now_click", { sku: item.sku, source: source || "pdp" });
     setCart({ [item.sku]: { item, qty: 1 } });
     track("checkout_start", { item_count: 1, total: item.price, source: "buy_now" });
     setPdp(null); // full-page checkout renders in the tab slot; PDP would win the branch
@@ -1583,6 +1784,11 @@ function AskCartHome() {
   function openPdp(r, from, position) {
     pushNav();
     touchRecent(r);
+    filterCountRef.current = 0; // a product click resets the filter-fiddling counter
+    pdpSeenRef.current.add(r.sku);
+    if (pdpSeenRef.current.size >= 3 && cartCount === 0) {
+      maybePrompt("pdp_3", t(lang, "askCompare3"), () => openChat("prompt_compare3", "Compare the top 3"));
+    }
     scrollRef.current = window.scrollY;
     setPdp({ ...r, _from: from, _position: position });
     try { window.history.replaceState(null, "", `/?sku=${r.sku}`); } catch {}
@@ -1592,6 +1798,13 @@ function AskCartHome() {
     const r = (pool || []).find((x) => x.sku === sku);
     if (r) openPdp(r, from, 0);
   }
+  // L6: cart has items but no checkout for 30 s (re-arms on cart change).
+  useEffect(() => {
+    if (chatOff || cartCount === 0 || checkoutOpen || !onboarded || chatOpen) return;
+    const tm = setTimeout(() => maybePrompt("cart_30s", t(lang, "askCartHelp"), () => openChat("prompt_cart", "Anything I should add or swap?")), 30000);
+    return () => clearTimeout(tm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartCount, checkoutOpen, chatOpen, chatOff]);
 
   const brandOpts = useMemo(() => {
     if (!s || !s.results.length) return [];
@@ -1624,6 +1837,7 @@ function AskCartHome() {
   const cardProps = (from, r) => ({
     onAdd: (x) => addToCart(x, from),
     onOpen: (x) => openPdp(x, from, 0),
+    onAsk: chatOff ? null : (x) => { setChatAskSku(x.sku); openChat("card", null); },
     onWish: (x) => toggleWish(x),
     wished: r ? wish.includes(r.sku) : false,
     cartQty: r && cart[r.sku] ? cart[r.sku].qty : 0,
@@ -1643,7 +1857,7 @@ function AskCartHome() {
   if (boot) return <div className="splash"><span className="splash-mark">A</span></div>;
   if (onboardNeeded) return (
     <Onboarding onDone={onOnboarded} lang={lang} setLang={setLang}
-                onTryAssistant={() => { setTab("search"); setChatOpen(true); }}
+                onTryAssistant={() => { setTab("search"); openChat("onboarding", heroAskChips[0] ? heroAskChips[0].seed : null); }}
                 forced={typeof window !== "undefined" && new URLSearchParams(window.location.search).get("onboard") === "1"} />
   );
   return (
@@ -1664,12 +1878,14 @@ function AskCartHome() {
         aiStatus={aiStatus} facets={facets} onQuery={(q, src) => startSearch(q, src)}
         scrolled={scrolled} tnavCollapsed={tnavCollapsed && tab !== "analytics"}
         onMenu={() => setNavOpen(true)}
+        onAsk={chatOff ? null : (x, how) => openChat("header", how ? x : null)}
       />
       {pdp ? (
         <PdpView lang={lang} item={pdp}
                  onBack={closePdp}
                  onAdd={(r) => addToCart(r, "pdp")}
-                 onBuy={(r) => buyNow({ ...r, _from: "pdp" })}
+                 onBuy={(r) => buyNow({ ...r, _from: "pdp" }, "pdp")}
+                 chatOff={chatOff}
                  onGoCart={() => { setCartOpen(true); track("cart_view", { item_count: cartCount, source: "pdp" }); }}
                  similar={similarFor(pdp, s ? s.results : (preview ? preview.items : []))}
                  moreFromBrand={moreFromBrandFor(pdp, s ? s.results : (preview ? preview.items : []))}
@@ -1690,8 +1906,9 @@ function AskCartHome() {
         <CheckoutView lang={lang} cart={cart} pin={pin} region={region}
                       onBack={closeCheckout} onEditCart={() => setCartOpen(true)} onPlaced={placeOrder} />
       ) : tab === "confirmation" && order ? (
-        <ConfirmationView lang={lang} order={order}
+        <ConfirmationView lang={lang} order={order} chatOff={chatOff}
                           onTrack={() => switchTab("orders")}
+                          onAsk={chatOff ? null : () => openChat("confirmation", "Ask about delivery or returns (demo)")}
                           onContinue={() => { setTab("search"); setS(null); try { window.history.replaceState(null, "", "/"); } catch {} }} />
       ) : tab === "wishlist" && wishHydrated ? (
         <WishlistView lang={lang} skus={wish}
@@ -1717,16 +1934,60 @@ function AskCartHome() {
                     <div className="hero2-eyebrow"><I name="sparkle" size={13} /> {t(lang, "heroEyebrow")}</div>
                     <h1 className="hero2-h1">{heroH1}</h1>
                     <div className="hero2-sub">{t(lang, "heroSub")}</div>
+                    {!chatOff && (
+                      <div className="hero2-mode" role="group" aria-label={t(lang, "heroModeLbl")}>
+                        <button className={searchMode === "search" ? "seg on" : "seg"} onClick={() => setSearchMode("search")}>{t(lang, "heroSearchLbl")}</button>
+                        <button className={searchMode === "ask" ? "seg on" : "seg"} onClick={() => setSearchMode("ask")}>{t(lang, "heroAskLbl")}</button>
+                      </div>
+                    )}
                     <div className="hero2-card">
-                      <I name="search" size={18} className="hero2-ic" />
+                      <I name={searchMode === "ask" ? "sparkle" : "search"} size={18} className="hero2-ic" />
                       <input value={input}
                              onChange={(e) => setInput(e.target.value)}
-                             onKeyDown={(e) => e.key === "Enter" && startSearch(input, "input")}
+                             onKeyDown={(e) => {
+                               if (e.key !== "Enter") return;
+                               if (e.shiftKey && input.trim() && !chatOff) {
+                                 e.preventDefault();
+                                 track("search_to_ask_switch", { how: "shift-enter" });
+                                 openChat("hero_ask", input.trim());
+                               } else if (e.key === "Enter" && searchMode === "ask" && !chatOff && input.trim()) {
+                                 track("search_to_ask_switch", { how: "toggle" });
+                                 openChat("hero_ask", input.trim());
+                               } else {
+                                 startSearch(input, "input");
+                               }
+                             }}
                              onFocus={() => setSearchFocus(true)} onBlur={() => setSearchFocus(false)}
-                             placeholder={'"' + heroPh + '"'} aria-label="Search" />
+                             placeholder={searchMode === "ask" ? '"' + t(lang, "askPlaceholder") + '"' : ('"' + heroPh + '"')}
+                             aria-label={searchMode === "ask" ? t(lang, "shAskAria") : "Search"} />
                       <button className="hero2-mic" aria-label="Voice search (coming soon)" title="Voice search — coming soon"><I name="mic" size={16} /></button>
-                      <Button size="lg" className="hero2-go" onClick={() => startSearch(input, "input")} disabled={busy}>{busy ? "…" : "Search"}</Button>
+                      <Button size="lg" className="hero2-go" onClick={() => startSearch(input, "input")} disabled={busy}>{busy ? "…" : t(lang, "heroSearchLbl")}</Button>
+                      {!chatOff && (
+                        <Button size="lg" variant="secondary" className="hero2-askgo"
+                                onClick={() => openChat("hero_ask", input.trim() || null)}>
+                          <I name="sparkle" size={15} /> {t(lang, "heroAskBtn")}
+                        </Button>
+                      )}
                     </div>
+                    {looksConversational(input) && !chatOff && searchMode === "search" && (
+                      <div className="hero2-askhint" role="status">
+                        <I name="sparkle" size={12} /> {t(lang, "askAskRow", { q: input.trim().slice(0, 40) })}
+                        <span className="hero2-hintkeys">↵ {t(lang, "heroSearchLbl")} · ⇧↵ {t(lang, "heroAskLbl")}</span>
+                      </div>
+                    )}
+                    {!chatOff && (
+                      <div className="hero2-askstrip" role="region" aria-label={t(lang, "askStripLbl")}>
+                        <span className="hero2-askline"><I name="sparkle" size={13} /> {t(lang, "askValueLine")}</span>
+                        {(chatContTopic
+                          ? [{ id: "cont", label: t(lang, "continueChat", { topic: chatContTopic }), seed: null }]
+                          : heroAskChips).map((c) => (
+                          <button key={c.id} className="askrow-chip"
+                                  onClick={() => openChat("hero_chip", c.seed || null)}>
+                            <I name="sparkle" size={12} /> {c.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <div className="hero2-try">
                       <span className="exl">{t(lang, "popular")}:</span>
                       {(expando ? EXAMPLES : exRot).map((e) => (
@@ -1907,6 +2168,17 @@ function AskCartHome() {
                         </div>
                       ) : (
                         <>
+                          {!chatOff && (
+                            <div className="askrow" role="region" aria-label={t(lang, "askRowLabel")}>
+                              <span className="askrow-l"><I name="sparkle" size={14} /> {t(lang, "askRowLead")}</span>
+                              {ASK_ROW_CHIPS.map((c) => (
+                                <button key={c.id} className="askrow-chip"
+                                        onClick={() => openChat("results", askRowSeed(c.id, persona, s))}>
+                                  {t(lang, c.t, { p: persona && persona.context ? persona.context : "" })}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                           {s.results.length === 1 && s.turn > 1 && (
                             <div className="pickcard" role="region" aria-label={t(lang, "yourPick")}>
                               <div className="pickcard-head">
@@ -2033,6 +2305,8 @@ function AskCartHome() {
       <TabBar tab={tab}
               onHome={() => { setNavStack([]); setTab("search"); window.scrollTo({ top: 0 }); }}
               onCategories={() => setNavOpen(true)}
+              onAsk={chatOff ? null : () => openChat("tabbar", null)}
+              chatOff={chatOff}
               onTab={(t) => switchTab(t)}
               cartCount={cartCount} wishCount={wishCount} lang={lang} />
       <Footer catalogSize={preview ? preview.catalogSize : 54304}
@@ -2044,17 +2318,37 @@ function AskCartHome() {
                  onTab={(t) => switchTab(t)}
                  onInsights={() => switchTab("analytics")}
                  onMenuSearch={() => { /* mobile search overlay lives in Header */ }} />
-      {tab === "search" && (
+      {tab === "search" && !chatOff && (
+        <>
+          {prompt && !peek && (
+            <div className="peek" role="status">
+              <I name="sparkle" size={13} aria-hidden="true" />
+              <span className="peek-t">{prompt.text}</span>
+              <button className="peek-btn" onClick={promptClick}>{t(lang, "askMe")}</button>
+              <button className="peek-x" aria-label={t(lang, "dismiss")} onClick={promptDismiss}><I name="x" size={12} /></button>
+            </div>
+          )}
+          {peek && !chatOpen && (
+            <button className="peek peek-reply" role="status" onClick={() => openChat("peek", null)}>
+              <I name="sparkle" size={13} aria-hidden="true" />
+              <span className="peek-t">{peek.text}</span>
+            </button>
+          )}
+        </>
+      )}
+      {tab === "search" && !chatOff && (
         <ChatLauncher
-          nudge={chatNudge}
+          nudge={chatNudge && !prompt}
           lang={lang}
+          unread={chatUnread}
+          chatOpen={chatOpen}
           onOpen={() => {
             if (chatNudge) {
               track("chat_nudge_accepted", { trigger: "null_search" });
               try { sessionStorage.setItem("askcart_chat_nudged", "1"); } catch {}
               setChatNudge(false);
             }
-            setChatOpen(true);
+            openChat("fab");
           }}
           onNudgeDismiss={() => {
             track("chat_nudge_dismissed", { trigger: "null_search" });
@@ -2066,6 +2360,9 @@ function AskCartHome() {
       <ChatPanel
         open={chatOpen}
         onClose={() => setChatOpen(false)}
+        chat={chat}
+        onActionUndo={actionUndo}
+        onOpenCart={() => { setCartOpen(true); track("cart_view", { item_count: cartCount, source: "chat" }); }}
         persona={persona}
         profileName={profile && profile.name ? profile.name : ""}
         context={chatContext}
@@ -2091,6 +2388,8 @@ function AskCartHome() {
                    onInc={(r) => incCart(r)} onDec={(r) => decCart(r)} />
       )}
       <CartDrawer lang={lang} open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} setCart={setCart}
+                  chatOff={chatOff}
+                  onAskHelp={chatOff ? null : () => { setCartOpen(false); openChat("cart", "Anything I should add or swap?"); }}
                   onCheckout={() => openCheckout("cart")}
                   onWishSave={saveForLater} onWishUndo={restoreFromLater}
                   onAdd={(it, from) => addToCart(it, from)}

@@ -3,6 +3,7 @@
 import { ProductMini } from "./ProductMini";
 import { QuickReplies } from "./QuickReplies";
 import { Feedback } from "./Feedback";
+import { I } from "../kit/Icon";
 import { t } from "../../lib/i18n";
 
 function CompareTable({ rows, lang }) {
@@ -30,7 +31,22 @@ function CompareTable({ rows, lang }) {
   );
 }
 
-export function Message({ lang, m, latest, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onWish, wished }) {
+export function Message({ lang, m, latest, busy, onChip, onAdd, onOpen, onFeedback, feedbackDone, onWish, wished, onActionUndo, onOpenCart, onBuyNow }) {
+  if (m.kind === "action") {
+    const undoable = ["add_to_cart", "remove_from_cart", "add_to_wishlist"].includes(m.action);
+    return (
+      <div className="cht-msg cht-msg-action" role="status">
+        <I name="check-circle" size={14} aria-hidden="true" />
+        <span className="cht-action-t">{m.text}</span>
+        {m.action === "add_to_cart" && onOpenCart && (
+          <button className="cht-action-link" onClick={() => onOpenCart()}>{t(lang, "viewCart")}</button>
+        )}
+        {undoable && onActionUndo && (
+          <button className="cht-action-link" onClick={() => onActionUndo(m.action, m.sku)}>{t(lang, "undo")}</button>
+        )}
+      </div>
+    );
+  }
   if (m.role === "user") {
     return <div className="cht-msg cht-msg-user">{m.text}</div>;
   }
@@ -66,6 +82,7 @@ export function Message({ lang, m, latest, busy, onChip, onAdd, onOpen, onFeedba
       {products.map((p, pi) => p.items.map((it, ii) => (
         <ProductMini lang={lang} key={it.sku + pi} item={it} pos={ii + 1}
                      onAdd={(x, pos) => { onAdd(x, pos); }}
+                     onBuyNow={onBuyNow}
                      onOpen={(x, pos) => onOpen(x, pos)}
                      onWish={onWish} wished={wished ? wished.includes(it.sku) : false} />
       )))}

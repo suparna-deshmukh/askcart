@@ -61,17 +61,40 @@ export function useChat(ctx) {
     outcome.current = "none";
   }, []);
 
+  // 5C: every server action executes through the SAME page handlers the
+  // buttons use (ctx callbacks) - no duplicate logic.
   const applyUiActions = useCallback((actions, reply) => {
     for (const a of actions || []) {
       const c = ctxRef.current;
+      let done = false;
       if (a.action === "apply_search" && c.onApplySearch) {
         outcome.current = "results_applied";
         c.onApplySearch(a.query, a.opts || {}, { echo: a.echo || null, trailLabel: a.trailLabel || null });
+        done = true;
       } else if (a.action === "add_to_cart" && c.onAddToCart) {
         outcome.current = "cart";
         c.onAddToCart(a.sku, reply);
+        done = true;
+      } else if (a.action === "buy_now" && c.onBuyNow) {
+        outcome.current = "buy_now";
+        c.onBuyNow(a.sku);
+        done = true;
+      } else if (a.action === "open_product" && c.onOpenPdp) {
+        c.onOpenPdp(a.sku);
+        done = true;
       } else if (a.action === "open_cart" && c.onOpenCart) {
         c.onOpenCart();
+        done = true;
+      } else if (a.action === "remove_from_cart" && c.onRemoveFromCart) {
+        c.onRemoveFromCart(a.sku);
+        done = true;
+      } else if (a.action === "add_to_wishlist" && c.onWishSku) {
+        c.onWishSku(a.sku);
+        done = true;
+      }
+      if (done) {
+        track("chat_action_executed", { type: a.action, sku: a.sku || null });
+        c.onActionExecuted && c.onActionExecuted(a);
       }
     }
   }, []);
@@ -100,6 +123,8 @@ export function useChat(ctx) {
             source: c.context && c.context.source ? c.context.source : "hero",
             lastText: input.text || null,
             region: c.context && c.context.region ? c.context.region : null,
+            query: c.context && c.context.query ? c.context.query : null,
+            skus: Array.isArray(c.context && c.context.skus) ? c.context.skus.slice(0, 3) : null,
           },
         }),
       });
@@ -124,6 +149,7 @@ export function useChat(ctx) {
       push(asst);
       fireEvents(j.events);
       applyUiActions(j.reply.ui_actions, asst);
+      if (!ctxRef.current.open && c.onClosedReply) c.onClosedReply(asst);
     } catch {
       setMessages((ms) => ms.filter((m) => m.id !== thinkingId));
       if (!retried) return doSend(input, true);
@@ -133,23 +159,51 @@ export function useChat(ctx) {
     }
   }, [push, persist, fireEvents, applyUiActions]);
 
+  // 5C: messages queue while a reply is in flight; the composer is only
+  // disabled for an empty input, and the page is never locked.
+  const queueRef = useRef([]);
+  const processingRef = useRef(false);
+
+  const pump = useCallback(() => {
+    if (processingRef.current) return;
+    const next = queueRef.current.shift();
+    if (!next) return;
+    processingRef.current = true;
+    setBusy(true);
+    doSend(next.input, false).finally(() => {
+      setBusy(false);
+      processingRef.current = false;
+      if (queueRef.current.length) pump();
+    });
+  }, [doSend]);
+
+  const enqueue = useCallback((input) => {
+    queueRef.current.push({ input });
+    pump();
+  }, [pump]);
+
+  const pushLocal = useCallback((m) => {
+    // Client-only transcript entry (action chips): rendered in-thread but
+    // never persisted (Undo handlers live in the page).
+    setMessages((ms) => [...ms, m].slice(-MAX_MSGS));
+  }, []);
+
   const sendText = useCallback((text) => {
     const t = String(text || "").trim().slice(0, MAX_LEN);
-    if (!t || busy) return;
+    if (!t) return;
     push({ id: mid(), role: "user", kind: "text", text: t, ts: Date.now() });
     track("chat_user_message", { len: t.length, lang: /[\u0900-\u097F]/.test(t) ? "hi" : /\b(ka|ki|ke|ko|hai|kya|mujhe|liye|wala)\b/i.test(t) ? "hinglish" : "en", type: "text", redacted: false });
-    doSend({ type: "text", text: t }, false);
-  }, [busy, push, doSend]);
+    enqueue({ type: "text", text: t });
+  }, [push, enqueue]);
 
   const sendChip = useCallback((chipId, label) => {
-    if (busy) return;
     push({ id: mid(), role: "user", kind: "chip", text: label || chipId, ts: Date.now() });
     track("chat_user_message", { len: (label || chipId).length, lang: "en", type: "chip", redacted: false });
-    doSend({ type: "chip", chip_id: chipId }, false);
-  }, [busy, push, doSend]);
+    enqueue({ type: "chip", chip_id: chipId });
+  }, [push, enqueue]);
 
   return {
     open, close, setOpen: setIsOpen,
-    messages, busy, clear, sendText, sendChip,
+    messages, busy, clear, sendText, sendChip, pushLocal,
   };
 }

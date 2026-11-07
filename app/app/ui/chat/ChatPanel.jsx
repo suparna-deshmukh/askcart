@@ -3,7 +3,6 @@
 // role: complementary (desktop) / dialog (mobile sheet); focus moves to the
 // composer on open and back to the launcher on close; Esc closes.
 import { useEffect, useRef, useState } from "react";
-import { useChat } from "./useChat";
 import { I } from "../kit/Icon";
 import { MessageList } from "./MessageList";
 import { Composer } from "./Composer";
@@ -11,9 +10,18 @@ import { track } from "../../lib/track";
 import { t } from "../../lib/i18n";
 import "./chat.css";
 
-export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool, onPromptConsumed, aiLive, onWish, wished, lang, persona, profileName }) {
-  const chat = useChat({ context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool });
+export function ChatPanel({ open, onClose, chat, onActionUndo, onBuyNow, context, onApplySearch, onAddToCart, onOpenPdp, onOpenCart, itemPool, onPromptConsumed, aiLive, onWish, wished, lang, persona, profileName }) {
   const [mobile, setMobile] = useState(false);
+  // L5: capability card on first open (rule-based, zero LLM).
+  const [capsSeen, setCapsSeen] = useState(() => {
+    try { return sessionStorage.getItem("askcart_chat_caps_seen") === "1"; } catch { return true; }
+  });
+  useEffect(() => {
+    if (open && !capsSeen && chat.messages.length > 0) {
+      setCapsSeen(true);
+      try { sessionStorage.setItem("askcart_chat_caps_seen", "1"); } catch {}
+    }
+  }, [open, capsSeen, chat.messages.length]);
   const composerRef = useRef(null);
   const panelRef = useRef(null);
   const [feedbackDone, setFeedbackDone] = useState({});
@@ -93,6 +101,10 @@ export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, 
     track("chat_card_click", { sku: item.sku, position: pos || 0 });
     onOpenPdp(item.sku);
   }
+  function handleBuy(item, pos) {
+    track("buy_now_click", { sku: item.sku, source: "chat", position: pos || 0 });
+    onBuyNow && onBuyNow(item.sku);
+  }
 
   return (
     <div
@@ -116,6 +128,16 @@ export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, 
         <button className="cht-head-btn" onClick={() => { chat.clear(); }} title={t(lang, "chtClear")} aria-label={t(lang, "chtClear")}><I name="more-horizontal" size={18} /></button>
         <button className="cht-head-btn" onClick={onClose} aria-label={t(lang, "chtClose")}><I name="x" size={18} /></button>
       </div>
+      {!capsSeen && open && chat.messages.length === 0 && (
+        <div className="cht-caps" role="note" aria-label={t(lang, "capTitle")}>
+          <div className="cht-caps-t"><I name="sparkle" size={14} /> {t(lang, "capTitle")}</div>
+          <div className="cht-caps-row"><I name="search" size={15} /> {t(lang, "capFind")}</div>
+          <div className="cht-caps-row"><I name="layers" size={15} /> {t(lang, "capCompare")}</div>
+          <div className="cht-caps-row"><I name="bag" size={15} /> {t(lang, "capBuy")}</div>
+          <div className="cht-caps-row"><I name="info" size={15} /> {t(lang, "capExplain")}</div>
+          <div className="cht-caps-line">{t(lang, "capLine")}</div>
+        </div>
+      )}
       <MessageList
         lang={lang}
         messages={chat.messages}
@@ -123,6 +145,9 @@ export function ChatPanel({ open, onClose, context, onApplySearch, onAddToCart, 
         context={context}
         persona={persona}
         profileName={profileName}
+        onActionUndo={onActionUndo}
+        onOpenCart={onOpenCart}
+        onBuyNow={handleBuy}
         onChip={(id, label) => chat.sendChip(id, label)}
         onAdd={handleAdd}
         onOpen={handleOpen}

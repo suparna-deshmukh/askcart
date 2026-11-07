@@ -74,6 +74,8 @@ export async function POST(req) {
       sku: typeof context.sku === "string" ? context.sku : null,
       source: context.source || null,
       lastText: typeof context.lastText === "string" ? context.lastText.slice(0, 500) : (typeof body.input?.text === "string" ? body.input.text.slice(0, 500) : ""),
+      query: typeof context.query === "string" ? context.query.slice(0, 200) : null,
+      skus: Array.isArray(context.skus) ? context.skus.filter((x) => typeof x === "string").slice(0, 3) : null,
     },
     llmEnabled: process.env.CHAT_LLM === "1",
     brandSet: catalogBrands(catalog).set,
