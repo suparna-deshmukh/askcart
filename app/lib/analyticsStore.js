@@ -330,58 +330,9 @@ export function record(type, payload = {}, env = null) {
   const sj = p.session_id ? touchSession(st, p.session_id) : null;
   switch (type) {
     case "search_results":
-      if (sj) sj.searches += 1;
-      break;
-    case "guide_question_shown":
-      if (sj) sj.questions += 1;
-      break;
-    case "guide_option_selected": case "guide_typed_answer":
-      if (sj) sj.answers += 1;
-      break;
-    case "guide_skipped":
-      if (sj) sj.skips += 1;
-      break;
-    case "onboarding_complete":
-      if (sj && p.forWhom) sj.persona = String(p.forWhom) + (p.shopStyle ? "|" + p.shopStyle : "");
-      if (sj && Array.isArray(p.interests)) sj.interests = p.interests.map(String).slice(0, 8);
-      break;
-    case "add_to_cart":
-      if (sj) sj.carts += 1;
-      break;
-    case "checkout_start":
-      if (sj) sj.checkouts += 1;
-      break;
-    case "product_impression": case "product_view":
-      if (sj) sj.views += 1;
-      break;
-    case "order_complete":
-      if (sj) { sj.orders += 1; sj.orderValue += Number(p.total) || 0; }
-      break;
-    case "ai_call":
-      if (sj) {
-        if (p.via === "gemini") sj.ai.gemini += 1;
-        else if (p.via === "rules" || p.via === "cache") sj.ai.rules += 1;
-        else sj.ai.qwen += 1;
-      }
-      break;
-    case "ai_key_exhausted":
-      if (sj) sj.ai.switches += 1;
-      break;
-    case "chat_open":
-      if (sj) sj.chat.opens += 1;
-      if (p.source) bump(st.chatSources, String("src:" + p.source).slice(0, 60), { searches: 1 });
-      break;
-    case "chat_user_message":
-      if (sj) sj.chat.msgs += 1;
-      break;
-    case "chat_add_to_cart":
-      if (sj) sj.chat.adds += 1;
-      break;
-    case "search_results":
       T.searches++;
-      if (qk) {
-        const q = bump(st.queries, qk, { searches: 1, turnsSum: p.turn || 1, turnsN: 1 });
-      }
+      if (sj) sj.searches += 1;
+      if (qk) bump(st.queries, qk, { searches: 1, turnsSum: p.turn || 1, turnsN: 1 });
       break;
     case "zero_result":
       T.zeroResults++;
@@ -409,10 +360,10 @@ export function record(type, payload = {}, env = null) {
       if (Number(p.ms) > 0) { T.journeyMsSum += Number(p.ms); T.journeyMsN++; }
       if (p.session_id) {
         const sid = String(p.session_id).slice(0, 40);
-        const sj = st.sessions[sid] || { journeys: 0 };
-        sj.journeys++;
-        st.sessions[sid] = sj;
-        if (sj.journeys === 2) T.multiJourneySessions++;
+        const sj2 = st.sessions[sid] || { journeys: 0 };
+        sj2.journeys++;
+        st.sessions[sid] = sj2;
+        if (sj2.journeys === 2) T.multiJourneySessions++;
       }
       // per-query: resolution + turns only (views/carts/orders are counted
       // by the individual events to avoid double counting)
@@ -429,6 +380,7 @@ export function record(type, payload = {}, env = null) {
       }
       break;
     case "guide_question_shown":
+      if (sj) sj.questions += 1;
       if (p.refine) T.guideRefines++; else T.guideRescues++;
       if (p.question_type) {
         const g = bump(st.guide, String(p.question_type).slice(0, 40), { searches: 1 });
@@ -436,14 +388,22 @@ export function record(type, payload = {}, env = null) {
       }
       break;
     case "guide_option_selected":
+      if (sj) sj.answers += 1;
       if (Number(p.ttfc_ms) > 0) { T.ttfcSum += Number(p.ttfc_ms); T.ttfcN++; }
       if (p.question_type) {
         const g = bump(st.guide, String(p.question_type).slice(0, 40), {});
         g.options[p.option] = (g.options[p.option] || 0) + 1;
       }
       break;
+    case "guide_typed_answer":
+      if (sj) sj.answers += 1;
+      break;
+    case "guide_skipped":
+      if (sj) sj.skips += 1;
+      break;
     case "product_impression": case "product_view": // B4: renamed, legacy alias kept
       T.productsViewed++;
+      if (sj) sj.views += 1;
       if (qk) bump(st.queries, qk, { views: 1 });
       if (p.category) bump(st.cats, String(p.category).slice(0, 60), { views: 1 });
       if (p.brand) bump(st.brands, String(p.brand).slice(0, 40), { views: 1 });
@@ -459,6 +419,7 @@ export function record(type, payload = {}, env = null) {
       break;
     case "add_to_cart":
       T.cartAdds++;
+      if (sj) sj.carts += 1;
       if (qk) bump(st.queries, qk, { carts: 1 });
       if (p.category) bump(st.cats, String(p.category).slice(0, 60), { carts: 1 });
       if (p.brand) bump(st.brands, String(p.brand).slice(0, 40), { carts: 1 });
@@ -468,10 +429,14 @@ export function record(type, payload = {}, env = null) {
       T.buyNow++;
       if (sj) sj.buyNow += 1;
       break;
-    case "checkout_start": T.checkouts++; break;
+    case "checkout_start":
+      T.checkouts++;
+      if (sj) sj.checkouts += 1;
+      break;
     case "order_complete": {
       T.orders++;
       T.orderValue += Number(p.total) || 0;
+      if (sj) { sj.orders += 1; sj.orderValue += Number(p.total) || 0; }
       if (qk) bump(st.queries, qk, { orders: 1, orderValue: Number(p.total) || 0 });
       st.orders.push({
         id: p.order_id, at: Date.now(), items: p.item_count, total: Number(p.total) || 0,
@@ -482,6 +447,8 @@ export function record(type, payload = {}, env = null) {
     }
     case "onboarding_complete":
       T.onboardingDone++;
+      if (sj && p.forWhom) sj.persona = String(p.forWhom) + (p.shopStyle ? "|" + p.shopStyle : "");
+      if (sj && Array.isArray(p.interests)) sj.interests = p.interests.map(String).slice(0, 8);
       for (const f of ["userType", "spendStyle", "context"]) {
         if (p[f]) bump(st.onboarding, String(f + ":" + p[f]).slice(0, 80), { searches: 1 });
       }
@@ -490,6 +457,26 @@ export function record(type, payload = {}, env = null) {
       }
       break;
     case "onboarding_skipped": T.onboardingSkipped++; break;
+    case "ai_call":
+      if (sj) {
+        if (p.via === "gemini") sj.ai.gemini += 1;
+        else if (p.via === "rules" || p.via === "cache") sj.ai.rules += 1;
+        else sj.ai.qwen += 1;
+      }
+      break;
+    case "ai_key_exhausted":
+      if (sj) sj.ai.switches += 1;
+      break;
+    case "chat_open":
+      if (sj) sj.chat.opens += 1;
+      if (p.source) bump(st.chatSources, String("src:" + p.source).slice(0, 60), { searches: 1 });
+      break;
+    case "chat_user_message":
+      if (sj) sj.chat.msgs += 1;
+      break;
+    case "chat_add_to_cart":
+      if (sj) sj.chat.adds += 1;
+      break;
     case "outcome_feedback":
       if (p.value === "yes") st.outcome.yes++;
       else if (p.value === "no") {
