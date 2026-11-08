@@ -1910,6 +1910,7 @@ function AskCartHome() {
                  onInc={(r) => incCart(r)} onDec={(r) => decCart(r)} />
       ) : checkoutOpen && (cartCount > 0 || buyNowItem) ? (
         <CheckoutView lang={lang} cart={cart} buyNow={buyNowItem} pin={pin} region={region}
+                      profileName={profile ? (profile.name || "") : ""}
                       onBack={closeCheckout} onEditCart={() => setCartOpen(true)} onPlaced={placeOrder} />
       ) : tab === "confirmation" && order ? (
         <ConfirmationView lang={lang} order={order} chatOff={chatOff}

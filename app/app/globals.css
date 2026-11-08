@@ -1289,7 +1289,11 @@ html[lang="hi"] .titem-lbl { line-height: 1.4; }
 .co-mobile .kit-input { max-width: 220px; }
 .co-pinline { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: end; }
 .co-pinregion { font-size: 12.5px; color: var(--text-3); padding-bottom: 8px; }
-.co-cardfoot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+/* S7: nothing compulsory — soft hints + persistent shortcut */
+.co-optional { margin: -8px 0 12px; font-size: 12.5px; color: var(--text-3); }
+.co-shortcut { align-self: center; background: none; border: none; color: var(--brand); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; padding: 8px 10px; border-radius: 8px; white-space: nowrap; }
+.co-shortcut:hover { background: var(--brand-50); text-decoration: underline; }
+.co-cardfoot { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 .co-radio { display: grid; grid-template-columns: 40px 1fr 24px; gap: 12px; align-items: center; border: 1.5px solid var(--border-strong); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; background: var(--surface); transition: border-color var(--t-micro); }
 .co-radio:hover { border-color: var(--brand); }
 .co-radio.on { border-color: var(--brand); background: var(--brand-50); box-shadow: var(--ring); }

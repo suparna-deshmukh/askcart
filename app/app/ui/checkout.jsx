@@ -27,28 +27,33 @@ function etaRange(now = Date.now()) {
 
 const EMPTY_ADDR = { name: "", mobile: "", pin: "", street: "", landmark: "", city: "", state: "", type: "home" };
 
-export function CheckoutView({ lang, cart, buyNow = null, pin, region, onBack, onEditCart, onPlaced }) {
+export function CheckoutView({ lang, cart, buyNow = null, pin, region, profileName = "", onBack, onEditCart, onPlaced }) {
   const L = (k) => t(lang, k);
   // S6: Buy Now checks out exactly one item; the cart list is not the order.
   const items = buyNow ? [{ ...buyNow, qty: 1 }] : Object.entries(cart).map(([sku, e]) => ({ sku, ...e.item, qty: e.qty }));
   const total = items.reduce((a, it) => a + it.price * it.qty, 0);
   const count = items.reduce((a, it) => a + it.qty, 0);
 
+  // S7: name auto-fills from the local profile (askcart_profile_v1); every
+  // field is optional and nothing blocks progress — format hints are soft.
   const [addr, setAddr] = useState(() => {
     try {
       const v = JSON.parse(localStorage.getItem("askcart_address_v1") || "null");
-      if (v && typeof v === "object") return { ...EMPTY_ADDR, ...v };
+      if (v && typeof v === "object") {
+        const merged = { ...EMPTY_ADDR, ...v };
+        if (!merged.name && profileName) merged.name = profileName;
+        return merged;
+      }
     } catch {}
-    return { ...EMPTY_ADDR, pin: pin || "" };
+    return { ...EMPTY_ADDR, pin: pin || "", name: profileName || "" };
   });
   const [step, setStep] = useState(1);
-  const [done, setDone] = useState({ 1: false, 2: false, 3: false });
-  const [payment, setPayment] = useState("upi");
+  const [done, setDone] = useState({ 1: false, 2: false });
+  const [payment, setPayment] = useState("cod");
   const [placing, setPlacing] = useState(false);
   const [sumOpen, setSumOpen] = useState(false);
-  const [errs, setErrs] = useState({});
   const seenView = useRef({});
-  const steps = ["coAddress", "coDelivery", "coPayment", "coReview"];
+  const steps = ["coAddress", "coPayment", "coReview"];
 
   useEffect(() => {
     if (!seenView.current[step]) {
@@ -57,33 +62,16 @@ export function CheckoutView({ lang, cart, buyNow = null, pin, region, onBack, o
     }
   }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const setF = (k, v) => { setAddr((a) => ({ ...a, [k]: v })); setErrs((e) => ({ ...e, [k]: false })); };
+  const setF = (k, v) => { setAddr((a) => ({ ...a, [k]: v })); };
 
-  function validField(k, v) {
-    switch (k) {
-      case "name": return v.trim().length >= 2;
-      case "mobile": return /^\d{10}$/.test(v);
-      case "pin": return /^\d{6}$/.test(v);
-      case "street": return v.trim().length >= 2;
-      case "city": return v.trim().length >= 2;
-      case "state": return !!v;
-      default: return true;
-    }
-  }
-  function submitAddress() {
-    const need = ["name", "mobile", "pin", "street", "city", "state"];
-    const bad = {};
-    for (const k of need) if (!validField(k, addr[k])) bad[k] = true;
-    setErrs(bad);
-    if (Object.keys(bad).length) return;
-    try { localStorage.setItem("askcart_address_v1", JSON.stringify(addr)); } catch {}
-    const finish = () => { setDone((d) => ({ ...d, 1: true })); setStep(2); track("checkout_step_complete", { step: 1, step_name: "address" }); };
-    finish();
-  }
   function completeStep(n) {
     setDone((d) => ({ ...d, [n]: true }));
     setStep(n + 1);
     track("checkout_step_complete", { step: n, step_name: steps[n - 1] });
+  }
+  function saveAddress() {
+    try { localStorage.setItem("askcart_address_v1", JSON.stringify(addr)); } catch {}
+    completeStep(1);
   }
   function place() {
     if (placing) return;
@@ -98,8 +86,16 @@ export function CheckoutView({ lang, cart, buyNow = null, pin, region, onBack, o
       });
     }, 900);
   }
+  // S7: persistent shortcut on every step — places the order with whatever is filled.
+  function placeNow() {
+    if (placing) return;
+    track("demo_order_shortcut", { from_step: step, payment });
+    place();
+  }
 
   const addrLine = addr.city ? `${addr.city}${addr.state ? ", " + addr.state : ""}` : "";
+  const addrParts = [addr.name, addr.mobile && `+91 ${addr.mobile}`, [addr.street, addr.landmark].filter(Boolean).join(", "), addrLine].filter(Boolean);
+  const addrSummary = addrParts.length ? addrParts.join(" · ") : L("notProvided");
   const payLabel = { upi: "coPaymentUpi", card: "coPaymentCard", cod: "coPaymentCod" }[payment];
 
   return (
@@ -114,7 +110,7 @@ export function CheckoutView({ lang, cart, buyNow = null, pin, region, onBack, o
             <div key={k} className={"co-step " + state}>
               <span className="co-step-n">{done[n] ? <I name="check" size={14} /> : n}</span>
               <span className="co-step-l">{L(k)}</span>
-              {n < 4 && <span className="co-step-line" aria-hidden="true" />}
+              {n < steps.length && <span className="co-step-line" aria-hidden="true" />}
             </div>
           );
         })}
@@ -125,74 +121,49 @@ export function CheckoutView({ lang, cart, buyNow = null, pin, region, onBack, o
           {step === 1 && (
             <section className="co-card" aria-label={L("coAddress")}>
               <h2>{L("coAddress")}</h2>
+              <p className="co-optional">{L("coOptional")}</p>
               <div className="co-addrtypes">
                 <Chip variant={addr.type === "home" ? "selected" : "default"} onClick={() => setF("type", "home")}>{L("coHome")}</Chip>
                 <Chip variant={addr.type === "work" ? "selected" : "default"} onClick={() => setF("type", "work")}>{L("coWork")}</Chip>
               </div>
               <div className="co-fields">
-                <Input label={L("coFullName")} data-field="name" value={addr.name} error={errs.name ? L("coReq") : null}
-                       autoComplete="name" onChange={(e) => setF("name", e.target.value)}
-                       onBlur={() => setErrs((er) => ({ ...er, name: !validField("name", addr.name) }))} />
+                <Input label={L("coFullName") + " (opt.)"} data-field="name" value={addr.name}
+                       autoComplete="name" onChange={(e) => setF("name", e.target.value)} />
                 <div className="co-mobile">
-                  <Input label={L("coMobile")} data-field="mobile" value={addr.mobile} placeholder="98765 43210"
+                  <Input label={L("coMobile") + " (opt.)"} data-field="mobile" value={addr.mobile} placeholder="98765 43210"
                          inputMode="numeric" autoComplete="tel-national"
-                         error={errs.mobile ? L("coReq10") : null}
                          onChange={(e) => setF("mobile", e.target.value.replace(/[^\d]/g, "").slice(0, 10))}
-                         onBlur={() => setErrs((er) => ({ ...er, mobile: !validField("mobile", addr.mobile) }))}
-                         prefix="+91" />
+                         prefix="+91" hint="10 digits" />
                 </div>
                 <div className="co-pinline">
-                  <Input label={L("coPin")} data-field="pin" value={addr.pin} placeholder="110001" inputMode="numeric"
-                         autoComplete="postal-code"
-                         error={errs.pin ? L("coReq6") : null}
-                         onChange={(e) => setF("pin", e.target.value.replace(/[^\d]/g, "").slice(0, 6))}
-                         onBlur={() => setErrs((er) => ({ ...er, pin: !validField("pin", addr.pin) }))} />
+                  <Input label={L("coPin") + " (opt.)"} data-field="pin" value={addr.pin} placeholder="110001" inputMode="numeric"
+                         autoComplete="postal-code" hint="6 digits"
+                         onChange={(e) => setF("pin", e.target.value.replace(/[^\d]/g, "").slice(0, 6))} />
                   <div className="co-pinregion">{addr.pin && addr.pin.length === 6 && region ? L("pdpDelivRegion").replace("{region}", region) : (L("pdpDelivNoPin"))}</div>
                 </div>
-                <Input label={L("coStreet")} data-field="street" value={addr.street} autoComplete="address-line1"
-                       error={errs.street ? L("coReq") : null}
-                       onChange={(e) => setF("street", e.target.value)}
-                       onBlur={() => setErrs((er) => ({ ...er, street: !validField("street", addr.street) }))} />
+                <Input label={L("coStreet") + " (opt.)"} data-field="street" value={addr.street} autoComplete="address-line1"
+                       onChange={(e) => setF("street", e.target.value)} />
                 <Input label={L("coLandmark") + " (opt.)"} value={addr.landmark} autoComplete="address-line2"
                        onChange={(e) => setF("landmark", e.target.value)} />
                 <div className="co-2col">
-                  <Input label={L("coCity")} data-field="city" value={addr.city} autoComplete="address-level2"
-                         error={errs.city ? L("coReq") : null}
-                         onChange={(e) => setF("city", e.target.value)}
-                         onBlur={() => setErrs((er) => ({ ...er, city: !validField("city", addr.city) }))} />
-                  <Select label={L("coState")} data-field="state" value={addr.state} error={errs.state ? L("coReq") : null}
+                  <Input label={L("coCity") + " (opt.)"} data-field="city" value={addr.city} autoComplete="address-level2"
+                         onChange={(e) => setF("city", e.target.value)} />
+                  <Select label={L("coState") + " (opt.)"} data-field="state" value={addr.state}
                           onChange={(e) => setF("state", e.target.value)}
                           options={["", ...STATES]} placeholder={L("coStatePh")} />
                 </div>
               </div>
               <div className="co-cardfoot">
-                <Button size="lg" data-step="address" onClick={submitAddress}>{L("deliverHere")}</Button>
+                <Button size="lg" data-step="address" onClick={saveAddress}>{L("deliverHere")}</Button>
+                <button className="co-shortcut" onClick={placeNow}>{L("placeDemoNow")}</button>
               </div>
             </section>
           )}
 
           {step === 2 && (
-            <section className="co-card" aria-label={L("coDelivery")}>
-              <h2>{L("coDelivery")}</h2>
-              <label className="co-radio on">
-                <span className="co-radio-ic"><I name="truck" size={18} /></span>
-                <span className="co-radio-t">
-                  <b>{L("coStandard")}</b>
-                  <small>{L("coEta")}: {etaRange().from} – {etaRange().to} · {L("freeDemo")}</small>
-                </span>
-                <span className="co-radio-mark"><I name="check-circle" size={18} /></span>
-              </label>
-              <div className="co-cardfoot">
-                {done[1] && <Button variant="ghost" onClick={() => setStep(1)}>{L("coEdit")}</Button>}
-                <Button size="lg" data-step="delivery" onClick={() => completeStep(2)}>{L("coContinue")}</Button>
-              </div>
-            </section>
-          )}
-
-          {step === 3 && (
             <section className="co-card" aria-label={L("coPayment")}>
               <h2>{L("coPayment")}</h2>
-              {(["upi", "card", "cod"]).map((m) => (
+              {(["cod", "upi", "card"]).map((m) => (
                 <label key={m} className={"co-radio" + (payment === m ? " on" : "")} onClick={() => setPayment(m)}>
                   <span className="co-radio-ic"><I name={m === "upi" ? "smartphone" : m === "card" ? "credit-card" : "wallet"} size={18} /></span>
                   <span className="co-radio-t"><b>{L({ upi: "coPaymentUpi", card: "coPaymentCard", cod: "coPaymentCod" }[m])}</b></span>
@@ -201,26 +172,27 @@ export function CheckoutView({ lang, cart, buyNow = null, pin, region, onBack, o
               ))}
               <div className="co-simnote"><I name="info" size={14} /> {L("simNote")}</div>
               <div className="co-cardfoot">
-                {done[2] && <Button variant="ghost" onClick={() => setStep(2)}>{L("coEdit")}</Button>}
-                <Button size="lg" data-step="payment" onClick={() => completeStep(3)}>{L("coContinue")}</Button>
+                <Button variant="ghost" onClick={() => setStep(1)}>{L("coEdit")}</Button>
+                <Button size="lg" data-step="payment" onClick={() => completeStep(2)}>{L("coContinue")}</Button>
+                <button className="co-shortcut" onClick={placeNow}>{L("placeDemoNow")}</button>
               </div>
             </section>
           )}
 
-          {step === 4 && (
+          {step === 3 && (
             <section className="co-card" aria-label={L("coReview")}>
               <h2>{L("coReview")}</h2>
               <div className="co-review">
                 <div className="co-rv">
                   <div className="co-rv-h"><span>{L("coAddress")}</span><button onClick={() => setStep(1)}>{L("coEdit")}</button></div>
-                  <div className="co-rv-b">{addr.name} · {addr.street}{addr.landmark ? ", " + addr.landmark : ""}, {addrLine}</div>
+                  <div className="co-rv-b">{addrSummary}</div>
                 </div>
                 <div className="co-rv">
-                  <div className="co-rv-h"><span>{L("coDelivery")}</span><button onClick={() => setStep(2)}>{L("coEdit")}</button></div>
-                  <div className="co-rv-b">{L("coStandard")} · {etaRange().from} – {etaRange().to}</div>
+                  <div className="co-rv-h"><span>{L("coDelivery")}</span></div>
+                  <div className="co-rv-b">{L("coStandard")} · {etaRange().from} – {etaRange().to} · {L("freeDemo")}</div>
                 </div>
                 <div className="co-rv">
-                  <div className="co-rv-h"><span>{L("coPayment")}</span><button onClick={() => setStep(3)}>{L("coEdit")}</button></div>
+                  <div className="co-rv-h"><span>{L("coPayment")}</span><button onClick={() => setStep(2)}>{L("coEdit")}</button></div>
                   <div className="co-rv-b">{L(payLabel)}</div>
                 </div>
                 <div className="co-rv">
@@ -239,6 +211,7 @@ export function CheckoutView({ lang, cart, buyNow = null, pin, region, onBack, o
               </div>
               <div className="co-cardfoot">
                 <Button size="lg" data-step="place" loading={placing} onClick={place}>{placing ? L("coPlacing") : L("placeOrder")}</Button>
+                <button className="co-shortcut" onClick={placeNow}>{L("placeDemoNow")}</button>
               </div>
             </section>
           )}
@@ -287,6 +260,7 @@ export function ConfirmationView({ lang, order, onTrack, onContinue, onAsk }) {
   if (!order) return null;
   const eta = order.eta || etaRange();
   const shipTo = order.addr ? `${order.addr.city || ""}${order.addr.state ? ", " + order.addr.state : ""}` : "";
+  const shipToLine = shipTo || L("notProvided");
   return (
     <div className="wrap cf">
       <div className="cf-confetti" aria-hidden="true">
@@ -315,7 +289,7 @@ export function ConfirmationView({ lang, order, onTrack, onContinue, onAsk }) {
         <div className="cf-card">
           <div className="cf-card-h"><I name="truck" size={15} /> {L("confirmEta")}</div>
           <div className="cf-card-b">{eta.from} – {eta.to}</div>
-          {shipTo && <div className="cf-card-c"><I name="map-pin" size={13} /> {shipTo}</div>}
+          <div className="cf-card-c"><I name="map-pin" size={13} /> {shipToLine}</div>
         </div>
         <div className="cf-card">
           <div className="cf-card-h">{L("coReviewItems")} ({order.count})</div>

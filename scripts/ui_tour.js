@@ -157,7 +157,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   must(await poll(async () => page.$(".co-stepper"), 8000), "checkout page opens");
   await shot("mvp_checkout_address");
 
-  // 8. checkout: address -> delivery -> payment -> review -> place
+  // 8. checkout: details -> payment -> review -> place (3 steps, S7)
   await page.type('[data-field="name"]', "Demo Shopper");
   await page.type('[data-field="mobile"]', "9876543210");
   const pinVal = await page.$eval('[data-field="pin"]', (e) => e.value).catch(() => "");
@@ -168,8 +168,6 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await sleep(300);
   const addrBtn = await page.$('[data-step="address"]');
   if (must(addrBtn, "deliver here")) { await addrBtn.click(); await sleep(800); }
-  const delivBtn = await page.$('[data-step="delivery"]');
-  if (must(delivBtn, "delivery continue")) { await delivBtn.click(); await sleep(800); }
   const payBtn = await page.$('[data-step="payment"]');
   if (must(payBtn, "payment continue")) { await payBtn.click(); await sleep(800); }
   await shot("mvp_checkout_review");
