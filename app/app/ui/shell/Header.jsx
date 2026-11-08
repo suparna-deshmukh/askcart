@@ -86,10 +86,13 @@ export function Header({
   const aiChipLabel = activeKey
     ? t(lang, "shAiKeyActive", { k: activeKey.idx + 1, used: activeKey.used, cap: activeKey.rpd })
     : t(lang, "shAiRules");
+  const allExhausted = !!(g && Array.isArray(g.keys) && g.keys.length &&
+    g.keys.every((k) => (k.used || 0) >= (k.rpd || 20)));
   const aiRows = () => (
     <div className="acct-ai">
       <div className="acct-ai-t"><I name="sparkle" size={13} /> {t(lang, "shAiStatus")}</div>
       <div>{g ? t(lang, "shAiTotal", { used, cap }) : t(lang, "shAiNoKeys")}</div>
+      {allExhausted && <div>{t(lang, "shAiExhaustedNote")}</div>}
       {g?.keys?.map((k) => (
         <div key={k.idx} className={"ai-k" + (k.idx === g.activeIdx ? " on" : "")}>
           {t(lang, "shAiKey", { idx: k.idx + 1, used: k.used, cap: k.rpd })}

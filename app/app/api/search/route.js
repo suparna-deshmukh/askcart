@@ -27,7 +27,7 @@ export async function POST(req) {
   const naive = !!body.naive;
   const parsed = parseQuery(q);
   const forWhom = ["women", "men", "kids", "unisex"].includes(body.forWhom) ? body.forWhom : null;
-  const limit = Math.max(1, Math.min(96, Number(body.limit) || 12));
+  const limit = Math.max(1, Math.min(200, Number(body.limit) || 12));
   const searchOpts = {
     relax,
     naive,

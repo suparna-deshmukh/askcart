@@ -1145,6 +1145,12 @@ function resolveCartSku(state, ctx, refs) {
 }
 function resolveCompare(state, ctx) {
   const pool = state.last ? state.last.all : [];
+  // Chat sync: with no ordinal/pronoun reference, "compare the top 3"
+  // compares the shopper's LIVE visible list (page context skus), even when
+  // a stale state.last from a previous session/search still exists.
+  const pageItems = Array.isArray(ctx.context && ctx.context.skus) && ctx.context.skus.length
+    ? ctx.context.skus.map((k) => ctx.catalog.find((x) => x.sku === k)).filter(Boolean)
+    : null;
   const text = String(ctx.context && ctx.context.lastText || "");
   const idx = new Set();
   for (const w of text.match(/\b(first|second|third|1st|2nd|3rd)\b/gi) || []) {
@@ -1156,7 +1162,7 @@ function resolveCompare(state, ctx) {
     if (i >= 0) idx.add(i);
   }
   let out = [...idx].slice(0, 3).map((i) => pool[i]).filter(Boolean);
-  if (!out.length) out = pool.slice(0, Math.min(pool.length, 3));
+  if (!out.length) out = (pageItems && pageItems.length ? pageItems : pool).slice(0, 3);
   return out;
 }
 function whichChips(state) {

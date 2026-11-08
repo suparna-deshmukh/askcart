@@ -198,6 +198,14 @@ export function parseQuery(q) {
     out.tokens = out.tokens.filter((t) => !GIFT_PACK.has(t));
     out.giftPack = true;
   }
+  // S5: normalized 2-gram phrases for whole-value tag matches
+  // ("stainless steel" -> "stainlesssteel", "baby shower" -> "babyshower").
+  out.phrases = [];
+  {
+    const pw = (out.rawWords || []).filter((w) => /^[a-z]{3,}$/.test(String(w)));
+    for (let i = 0; i + 1 < pw.length && out.phrases.length < 8; i++)
+      out.phrases.push(pw[i] + pw[i + 1]);
+  }
   return out;
 }
 
@@ -242,13 +250,19 @@ function wordInOCC(t, out) {
 }
 
 let _idx = null;
+const IDX_V = 2; // bump on any indexed-field change (S5 tagged columns)
+const TAG_COLS = ["location", "for_whom", "purpose", "material", "feature",
+                  "spec", "season", "style"];
 function titleIndex(catalog) {
-  if (_idx && _idx.len === catalog.length) return _idx;
+  if (_idx && _idx.len === catalog.length && _idx.v === IDX_V) return _idx;
   const pos = [];   // per item: Map(word -> earliest word position in title)
   const words = [];
   const cats = [];
   const titles = [];
   const firstWords = [];
+  const tagTokA = []; // S5: normalized tag tokens (columns + occasion tags)
+  const tagValA = []; // S5: normalized full tag values (phrase matches)
+  const specNA = [];  // S5: numeric spec sets {inch,star,ton,kg,gb,l,size}
   const brandSet = new Set();
   // S1: global vocabulary for typo candidates (length buckets + frequency)
   const vlenMap = new Map();
@@ -270,11 +284,40 @@ function titleIndex(catalog) {
     cats.push(new Set(String(it.category).toLowerCase().split(/[^a-z0-9-]+/).filter(Boolean)));
     const b = String(it.brand || "").toLowerCase().trim();
     if (b) { brandSet.add(b); brandSet.add(b.split(/\s+/)[0]); vocabAdd(b); }
+    // S5: tagged catalog columns + occasion tags as normalized match sets.
+    {
+      const tagTok = new Set(), tagVal = new Set();
+      const spN = { inch: new Set(), star: new Set(), ton: new Set(),
+                    kg: new Set(), gb: new Set(), l: new Set(), size: new Set() };
+      const addTag = (v) => {
+        const sv = String(v).toLowerCase();
+        const n = sv.replace(/[^a-z0-9]+/g, "");
+        if (n) tagVal.add(n);
+        for (const w of sv.split(/[\s/-]+/)) {
+          const wn = w.replace(/[^a-z0-9]+/g, "");
+          if (wn) tagTok.add(wn);
+        }
+      };
+      for (const f of TAG_COLS) if (Array.isArray(it[f])) for (const v of it[f]) addTag(v);
+      if (Array.isArray(it.tags)) for (const v of it.tags) addTag(v);
+      for (const v of Array.isArray(it.spec) ? it.spec : []) {
+        const sv = String(v).toLowerCase().replace(/-/g, "");
+        let m;
+        if ((m = sv.match(/^(\d+(?:\.\d+)?)inch$/))) spN.inch.add(parseFloat(m[1]));
+        else if ((m = sv.match(/^(\d+(?:\.\d+)?)star$/))) spN.star.add(parseFloat(m[1]));
+        else if ((m = sv.match(/^(\d+(?:\.\d+)?)ton$/))) spN.ton.add(parseFloat(m[1]));
+        else if ((m = sv.match(/^(\d+(?:\.\d+)?)kg$/))) spN.kg.add(parseFloat(m[1]));
+        else if ((m = sv.match(/^(\d+(?:\.\d+)?)gb$/))) spN.gb.add(parseFloat(m[1]));
+        else if ((m = sv.match(/^(\d+(?:\.\d+)?)l$/))) spN.l.add(parseFloat(m[1]));
+        else if (sv) spN.size.add(sv);
+      }
+      tagTokA.push(tagTok); tagValA.push(tagVal); specNA.push(spN);
+    }
   }
   const vlen = new Map();
   for (const [L, set] of vlenMap) vlen.set(L, [...set]);
   _idx = { words, cats, pos, titles, firstWords, brandSet, vlen, vocabFreq,
-           len: catalog.length };
+           tagTokA, tagValA, specNA, len: catalog.length, v: IDX_V };
   return _idx;
 }
 
@@ -534,7 +577,7 @@ function wordPos(posMap, t) {
   for (const [w, p] of posMap) {
     for (const t2 of cands) {
       if (w === t2 || w === t2 + "s" || (t2.endsWith("s") && w === t2.slice(0, -1)) ||
-          (t2.length >= 5 && w.startsWith(t2) && w.length - t2.length <= 3)) {
+          (t2.length >= 5 && w.startsWith(t2) && w.length - t2.length <= 5)) {
         if (best === -1 || p < best) best = p;
         break;
       }
@@ -785,6 +828,50 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
       else if (wordHit(idx.cats[i], t)) { score += 1.5; matched++; matchedSet.add(t); }
     }
     let hits = matched;
+    // S5: tagged-column boosts (material/feature/style/season/location/
+    // purpose tokens, 2-gram phrases, for-whom, spec match + conflict).
+    {
+      const tagTok = idx.tagTokA[i], tagVal = idx.tagValA[i];
+      let tagB = 0;
+      for (const t of nonMod) {
+        const tn = t.replace(/[^a-z0-9]+/g, "");
+        if (tn.length >= 2 && tagTok.has(tn)) tagB += 0.9;
+      }
+      if (tagB > 1.8) tagB = 1.8;
+      if (tagB) score += tagB;
+      let phHit = 0;
+      for (const ph of parsed.phrases) if (tagVal.has(ph)) { phHit++; if (phHit >= 2) break; }
+      if (phHit) { score += phHit * 1.5; hits += phHit; }
+      const fw = forWhom || parsed.forWhom;
+      if (fw && tagTok.has(fw)) score += 1.2;
+      const spN = idx.specNA[i];
+      if (specs.inches !== undefined) {
+        if (spN.inch.has(specs.inches)) score += 1.5;
+        else if (spN.inch.size) score -= 2.5;
+      }
+      if (specs.stars !== undefined) {
+        if (spN.star.has(specs.stars)) score += 1.5;
+        else if (spN.star.size) score -= 2.0;
+      }
+      if (specs.tonnage !== undefined) {
+        if (spN.ton.has(specs.tonnage)) score += 1.5;
+        else if (spN.ton.size) score -= 2.0;
+      }
+      if (specs.kg !== undefined) {
+        if (spN.kg.has(specs.kg)) score += 1.5;
+        else if (spN.kg.size) score -= 2.0;
+      }
+      if (specs.storage !== undefined) {
+        if (spN.gb.has(specs.storage)) score += 1.0;
+        else if (spN.gb.size) score -= 1.0;
+      }
+      if (specs.ram !== undefined && spN.gb.has(specs.ram)) score += 1.0;
+      if (specs.volume !== undefined) {
+        if (spN.l.has(specs.volume)) score += 1.0;
+        else if (spN.l.size) score -= 1.0;
+      }
+      if (specs.size !== undefined && spN.size.has(String(specs.size).toLowerCase())) score += 1.0;
+    }
     // S4: structured spec slots as soft boosts/penalties (never budgets).
     // A stated spec the item carries outranks one it contradicts.
     if (specs.tonnage !== undefined) {
@@ -914,6 +1001,10 @@ function scoreAll(catalog, q, { relax = false, category = null, occasion = null,
     // accessory penalty: "phone" should not surface phone cases first
     if (matched > 0) score += accessoryDelta(accHints, idx.pos[i]);
     const allRequired = required.length > 0 && required.every((t) => matchedSet.has(t));
+    // Full-match coverage bonus: an item carrying EVERY query token outranks
+    // partial matches ("smart watch" -> Smartwatch beats Smart Bulb). Single-
+    // token queries shift uniformly (no reordering).
+    if (allRequired) score += 1.5;
     // Brand + model number ("Nokia 105"): the number is the model, not a
     // missed token - a brand-matched title carrying the number is on-intent.
     const qBrandTok = tokens.find((t) => !/^\d+$/.test(t) &&
@@ -943,7 +1034,7 @@ export function search(catalog, q, opts = {}) {
     results.push(...nonAcc, ...acc, ...rest);
   }
   for (const r of results) delete r._acc;
-  const limit = Math.max(1, Math.min(96, Math.floor(Number(opts.limit) || 12)));
+  const limit = Math.max(1, Math.min(200, Math.floor(Number(opts.limit) || 12)));
   const out = results.slice(0, limit);
   // Full pre-cap match count for the "N of M left" echo. Plain array
   // property: dropped by JSON serialisation, invisible to all callers.

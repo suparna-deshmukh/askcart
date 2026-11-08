@@ -1,6 +1,6 @@
 "use client";
 // Insights (analytics) v2 — Phase 8 (brief §14): presentation shell only.
-// 232px rail (mobile: scrollable pills) · banner · live pill · density toggle
+// 232px rail (mobile: scrollable pills) · banner · live pill
 // · KPI sparklines · single chart palette · funnel conversion chips ·
 // sticky-header tables · family-chip event feed · loading skeletons.
 // Data sources, polling intervals and panel contents are unchanged.
@@ -902,14 +902,6 @@ export function AnalyticsView({ anview, setAnview }) {
   const [sum, setSum] = useState(null);
   const [cat, setCat] = useState(null);
   const [ev, setEv] = useState(null);
-  const [density, setDensity] = useState("comfortable");
-  useEffect(() => {
-    try { const d = localStorage.getItem("askcart_an_density"); if (d === "compact" || d === "comfortable") setDensity(d); } catch {}
-  }, []);
-  const setDensityPersist = (d) => {
-    setDensity(d);
-    try { localStorage.setItem("askcart_an_density", d); } catch {}
-  };
   useEffect(() => {
     let stop = false;
     const pull = () => fetch("/api/analytics/summary")
@@ -935,7 +927,7 @@ export function AnalyticsView({ anview, setAnview }) {
     return () => { stop = true; clearInterval(id); };
   }, []);
   return (
-    <div className={"an-wrap" + (density === "compact" ? " an-compact" : "")}>
+    <div className="an-wrap">
       <div className="an-banner"><I name="info" size={15} /> Prototype analytics, not part of the shopper experience</div>
       <div className="an-grid">
         <nav className="an-rail" aria-label="Insights sections">
@@ -949,10 +941,6 @@ export function AnalyticsView({ anview, setAnview }) {
         <div className="an-main">
           <div className="an-head">
             <h1>Insights</h1>
-            <span className="an-density" role="group" aria-label="Table density">
-              <button className={density === "comfortable" ? "on" : ""} onClick={() => setDensityPersist("comfortable")}>Comfortable</button>
-              <button className={density === "compact" ? "on" : ""} onClick={() => setDensityPersist("compact")}>Compact</button>
-            </span>
             <span className="an-livepill"><span className="live-dot" /> Live · refreshes every 2.5 s · shared across every user of this deployment</span>
           </div>
           {!sum ? <LoadingPanel /> : (

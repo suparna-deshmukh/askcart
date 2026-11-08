@@ -446,7 +446,8 @@ const STRINGS = {
     announce3: 'Demo store · checkout is simulated, nothing is charged',
     shAnalytics: 'Analytics',
     shAiKeyActive: 'Gemini key {k} · {used}/{cap} today',
-    shAiRules: 'AI · Rules (keys exhausted)',
+    shAiRules: 'AI · Rules (Gemini limit reached)',
+    shAiExhaustedNote: 'All Gemini keys hit their 20-calls/day limit — AskCart is answering with built-in rules. Chat, guidance and recommendations keep working normally (no LLM calls); keys reset at midnight (US Pacific).',
     shAiActive: 'active',
 
 
@@ -894,7 +895,8 @@ const STRINGS = {
     announce3: 'डेमो स्टोर · चेकआउट सिमुलेटेड है, कोई शुल्क नहीं',
     shAnalytics: 'इनसाइट्स',
     shAiKeyActive: 'Gemini की {k} · {used}/{cap} आज',
-    shAiRules: 'AI · नियम (की खतम)',
+    shAiRules: 'AI · नियम (Gemini सीमा पूरी)',
+    shAiExhaustedNote: 'सभी Gemini कीज़ 20-कॉल/दिन की सीमा पर पहुँच चुकी हैं — AskCart अब बिल्ट-इन नियमों से जवाब दे रहा है। चैट, गाइडेंस और सुझाव सामान्य रूप से चलते रहते हैं (कोई LLM कॉल नहीं)। कीज़ मध्यरात्रि (US Pacific) पर रिसेट होती हैं।',
     shAiActive: 'सक्रिय',
 
 
@@ -1343,7 +1345,8 @@ const STRINGS = {
     announce3: 'Demo store · checkout simulated hai, koi charge nahi',
     shAnalytics: 'Analytics',
     shAiKeyActive: 'Gemini key {k} · {used}/{cap} aaj',
-    shAiRules: 'AI · Rules (keys khatam)',
+    shAiRules: 'AI · Rules (Gemini limit poora)',
+    shAiExhaustedNote: 'Saare Gemini keys ne 20-calls/day ki limit poori kar li — AskCart ab built-in rules se jawab de raha hai. Chat, guidance aur recommendations normally kaam karte hain (koi LLM call nahi). Keys midnight (US Pacific) pe reset hote hain.',
     shAiActive: 'active',
 
 

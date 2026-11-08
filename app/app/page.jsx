@@ -373,13 +373,24 @@ function AskCartHome() {
   }, []);
   const params = useSearchParams();
   if (params.get("kit") === "1") return <KitPage />;
-  // shell: scroll shadow + tier-2 hide on scroll down
+  const tnavRef = useRef(false);
+  function showTnav() { tnavRef.current = false; setTnavCollapsed(false); }
+  // shell: scroll shadow + tier-2 hide on scroll down. Hysteresis is
+  // deliberate: the old 24px relative toggle oscillated near the 160px
+  // threshold and on step transitions (scrollTo(0,0) kept it collapsed),
+  // and every flip reflowed the 44px header tier - visible flicker at the
+  // top of the page while scrolling / moving between steps.
   useEffect(() => {
     let lastY = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
-      setScrolled(y > 8);
-      if (Math.abs(y - lastY) > 24) { setTnavCollapsed(y > lastY && y > 160); lastY = y; }
+      setScrolled((prev) => (y > 8 ? true : y < 4 ? false : prev));
+      const dy = y - lastY;
+      if (Math.abs(dy) > 24) {
+        if (!tnavRef.current && dy > 0 && y > 160) { tnavRef.current = true; setTnavCollapsed(true); }
+        else if (tnavRef.current && y < 120) { tnavRef.current = false; setTnavCollapsed(false); }
+        lastY = y;
+      }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -634,7 +645,7 @@ function AskCartHome() {
     }
     setBusy(true);
     const t0 = Date.now();
-    const res = await doSearch(query, { ...opts, turn: 1, limit: 48 });
+    const res = await doSearch(query, { ...opts, turn: 1, limit: 150 });
     setBusy(false);
     if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
     const ok = res.results.filter((r) => r.intent).length >= 2;
@@ -917,6 +928,7 @@ function AskCartHome() {
   function switchTab(next) {
     if (next === tab) return;
     pushNav();
+    showTnav();
     setTab(next);
     try { window.history.replaceState(null, "", "/?tab=" + next); } catch {}
     track("page_view", { screen: next });
@@ -938,6 +950,7 @@ function AskCartHome() {
   function goBack() {
     if (!navStack.length) return;
     const prev = navStack[navStack.length - 1];
+    showTnav();
     setNavStack(navStack.slice(0, -1));
     setTab(prev.tab);
     setCartOpen(prev.cartOpen);
@@ -950,7 +963,7 @@ function AskCartHome() {
     track("nav_back", { to: prev.tab, stack: navStack.length - 1 });
   }
 
-  async function doSearch(query, { relax = false, category = null, occasion = null, budget = null, brand = null, turn = 1, limit = 48, forWhom = null, size = null, capacity = null, naive = false } = {}) {
+  async function doSearch(query, { relax = false, category = null, occasion = null, budget = null, brand = null, turn = 1, limit = 150, forWhom = null, size = null, capacity = null, naive = false } = {}) {
     try {
       const t0 = Date.now();
       const r = await fetch("/api/search", {
@@ -1882,6 +1895,7 @@ function AskCartHome() {
   }
   function openPdp(r, from, position) {
     pushNav();
+    showTnav();
     touchRecent(r);
     filterCountRef.current = 0; // a product click resets the filter-fiddling counter
     pdpSeenRef.current.add(r.sku);
@@ -1968,7 +1982,7 @@ function AskCartHome() {
       <Header
         lang={lang} setLang={setLang}
         canBack={navStack.length > 0} onBack={goBack}
-        onLogo={() => { setNavStack([]); if (s) resetToHero(); else if (tab !== "search") setTab("search"); window.scrollTo({ top: 0 }); }}
+        onLogo={() => { setNavStack([]); showTnav(); if (s) resetToHero(); else if (tab !== "search") setTab("search"); window.scrollTo({ top: 0 }); }}
         tab={tab} onTab={(t) => switchTab(t)} onInsights={() => switchTab("analytics")}
         input={input} setInput={setInput}
         onSearch={() => startSearch(input, "header")}

@@ -146,6 +146,23 @@ export function parseRefs(text) {
 
 // Classify one message. Returns { intent, kind, confidence, slots_delta, refs,
 // lang, redacted, via, giftWords, recipient, productTokens }.
+// Filler phrases at the start of a search request ("show me", "please
+// find", "dikhao mujhe") carry no product meaning; leaving them in the
+// query makes "show" an unsatisfiable required token ("show me saree"
+// used to search 0 results).
+const SEARCH_FILLER_RE = /^(please\s+|kindly\s+)?(?:show|find|get|look\s+for|dikhao|dikha|chahiye)\s+(?:me\s+|mujhe\s+|ko\s+)?/i;
+function stripSearchFiller(t) {
+  const out = String(t || "").trim().replace(SEARCH_FILLER_RE, "").trim();
+  return out || String(t || "").trim();
+}
+const FILLER_TOKENS = new Set(["please", "kindly", "show", "find", "get", "look",
+  "for", "me", "dikhao", "dikha", "mujhe", "chahiye"]);
+function leadFillerTokens(toks) {
+  let i = 0;
+  while (i < toks.length && FILLER_TOKENS.has(String(toks[i]).toLowerCase())) i++;
+  return toks.slice(i);
+}
+
 export function classify(state, text, langHint = null) {
   const g = inputGuard(text);
   const lang = detectLang(text);
@@ -292,8 +309,8 @@ export function classify(state, text, langHint = null) {
     if (recipient) slots.recipient = recipient;
     for (const [v, rx] of Object.entries(FOR_WHOM)) if (rx.test(g.text)) { slots.forWhom = v; break; }
     if (named.specs && named.specs.size) slots.size = named.specs.size;
-    return { ...base, intent: "search", kind: "new", slots_delta: slots, productTokens: prodToks,
-             query: g.text.trim() };
+    return { ...base, intent: "search", kind: "new", slots_delta: slots, productTokens: leadFillerTokens(prodToks),
+             query: stripSearchFiller(g.text) };
   }
 
   // 11) mid-sentence chitchat ("that was great, thanks")
@@ -375,6 +392,6 @@ export async function llmNlu({ chat }, state, text, catalogBrands, catalogCats) 
     return { intent: obj.intent, kind: typeof obj.kind === "string" ? obj.kind : null,
              confidence: 0.8, slots_delta: slots, refs: parseRefs(text),
              lang: detectLang(text), redacted: false, via: "llm",
-             productTokens: [], query: obj.intent === "search" ? String(text).trim() : null };
+             productTokens: [], query: obj.intent === "search" ? stripSearchFiller(String(text)) : null };
   } catch { return null; }
 }
