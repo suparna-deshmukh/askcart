@@ -35,10 +35,12 @@ export async function POST(req) {
   // exact visible world; silently widening it to the loose stats set made
   // every client recount diverge and disabled all chips (blocked-options
   // report, 2026-11-08).
+  // Cap 200 = the search cap; the browser sends its FULL visible world
+  // (<=150) so option counts match the "N products" badge the shopper reads.
   const visibleCtx = Array.isArray(body.visible)
     ? body.visible
       .filter((x) => x && typeof x === "object")
-      .slice(0, 48)
+      .slice(0, 200)
       .map((x) => ({
         sku: String(x.sku || "").slice(0, 64),
         // 200 = catalogue max title length; truncating shorter changed

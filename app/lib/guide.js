@@ -332,9 +332,13 @@ export async function decideGuide(catalog, query, nResults, context = {}) {
   // candidate set stands in for the visible world.
   // undefined visible = in-process/legacy caller (stats stand in); an
   // explicit array (even empty) is the client's exact visible world.
+  // 200 = the server's search cap; the client's visible world is its FULL
+  // fetched result list (<=150 today) — chip counts must match what the
+  // shopper sees next to the "N products" badge, not an arbitrary head slice
+  // (2026-11-09 report: "Prestige 9" on a 150-product card looked wrong).
   const visItems = (context.visible === undefined || !Array.isArray(context.visible))
     ? stats.items
-    : context.visible.slice(0, 48);
+    : context.visible.slice(0, 200);
   const visIntent = visItems.filter((h) => h.intent);
   // A 1-2 item intent subset is not a world (no brands/tags, degenerate
   // quantiles) - it grounds no option, so the visible set stands in.

@@ -208,11 +208,13 @@ const WHY_COPY = {
 };
 
 // §9: the visible world the guide policy grounds its options in, plus the
-// client-side audit events. The cap must equal the /api/guide 48-item cap:
-// server counts and client recount run over the SAME 48 (a larger sent
-// world makes every recount diverge and disables all chips).
+// client-side audit events. The world is the FULL result list the shopper
+// sees (the "N products" badge): server counts and client recount run over
+// the SAME full set — chip counts must agree with what the shopper counts
+// by eye (2026-11-09: a 48-item head slice made "Prestige 9" look wrong on
+// a 150-product card).
 function visibleProj(results) {
-  return (results || []).slice(0, 48).map((r) => ({
+  return (results || []).map((r) => ({
     sku: r.sku, title: r.title, price: r.price,
     brand: r.brand || null, category: r.category || null,
     tags: r.tags || [], intent: r.intent === true,
@@ -2220,7 +2222,7 @@ function AskCartHome() {
                               onSkip={skipGuide} progress={s.turn}
                               prevCount={s.counts && s.counts.length >= 2 ? s.counts[s.counts.length - 2] : null}
                               countAfter={s.counts ? s.counts[s.counts.length - 1] : null}
-                              results={(s.results || []).slice(0, 48)} rescue={!!s.guide.rescue} />
+                              results={s.results} rescue={!!s.guide.rescue} />
               )}
 
               {s && s.error && (
