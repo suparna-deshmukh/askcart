@@ -690,10 +690,12 @@ function AskCartHome() {
   // ---- L6: proactive peek prompts (rule-based, capped, polite) ----
   const [prompt, setPrompt] = useState(null);
   const promptStats = useRef({ last: 0, shown: 0, dismissed: 0, suppressed: {} });
+  const searchFocusRef = useRef(false);
+  searchFocusRef.current = searchFocus;
   function typingActive() {
     let a = null;
     try { a = document.activeElement; } catch {}
-    return searchFocus || !!(a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA"));
+    return searchFocusRef.current || !!(a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA"));
   }
   function maybePrompt(trigger, text, action) {
     const st = promptStats.current;
@@ -725,7 +727,7 @@ function AskCartHome() {
     const tm = setTimeout(() => maybePrompt("home_idle", t(lang, "askHomeIdle"), () => openChat("prompt_idle", null)), 8000);
     return () => clearTimeout(tm);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatOff, tab, s, onboarded, chatOpen]);
+  }, [chatOff, tab, s, onboarded, chatOpen, boot, checkoutOpen, prompt]);
   useEffect(() => {
     if (s && s.ok === false) {
       maybePrompt("weak_search", t(lang, "askWeak"), () => openChat("prompt_weak", s.query));
@@ -738,7 +740,7 @@ function AskCartHome() {
     const tm = setTimeout(() => maybePrompt("pdp_dwell", t(lang, "askPdpDwell"), () => openChat("prompt_pdp_dwell", t(lang, "askGift"))), 20000);
     return () => clearTimeout(tm);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatOff, pdp, chatOpen, checkoutOpen, onboarded]);
+  }, [chatOff, pdp, chatOpen, checkoutOpen, onboarded, boot]);
   useEffect(() => {
     if (!prompt) return;
     const h = (e) => { if (e.key === "Escape") promptDismiss(); };
