@@ -26,6 +26,9 @@ All events carry (added client-side, `app/app/lib/track.js`):
 | `zero_result` | a search returned <2 on-intent results | `query`, `turn`, `intent_n` |
 | `search_error` | search request failed | `query`, `turn`, `error` |
 | `guide_question_shown` | follow-up question shown | `query`, `question_type` (budget/occasion/category/brand), `turn`, `options_count`, `mode` (llm/policy/fallback), `refine` (true = optional refinement, not rescue), `reason` (policy rationale) |
+| `guide_question` | §9 grounded-question audit (fired with every shown question) | `type` (budget/occasion/category/brand/for_whom/size/capacity/any/ai), `source` (policy/llm/plan/fallback/ai), `reason`, `zero_count_options` (count of options with 0 items), `n_visible` (visible results the question was grounded on) |
+| `guide_option_mismatch` | §9 client recount differs from server count (chip disabled) | `type`, `option`, `server_count`, `client_count` (throttled: once per option per session) |
+| `rail_item_dropped` | §9 recommendation rail dropped ungrounded item(s) | `surface` (picked/similar/more_from_brand/cart_complete/home_band/recent/home_tile), `reason` (ungrounded/hide_below_min) |
 | `guide_option_selected` | chip tapped | `query`, `question_type`, `option`, `turn`, `ttfc_ms` (time-to-first-click) |
 | `guide_no_question` | policy exhausted (no question left) | `query`, `turn`, `reason` |
 | `filter_applied` | mid-search filter changed (sort / brand / price band / rating / category / clear) | `query`, `turn`, `filter_type` (sort/brand/price_band/rating/category/clear), `value`, `n_before`, `n_after` (visible count before/after), `journey_id` |

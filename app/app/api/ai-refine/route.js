@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadCatalog } from "../../../lib/catalog";
-import { searchStats } from "../../../lib/search";
-import { forWhomOptions, sizeOptions } from "../../../lib/guide.js";
+import { search, searchStats } from "../../../lib/search";
+import { buildIntentView, forWhomOptions, sizeOptions } from "../../../lib/guide.js";
 import { aiRefine } from "../../../lib/guide_ai.js";
 import { record } from "../../../lib/analyticsStore";
 import { geminiStatus } from "../../../lib/gemini_keys.js";
@@ -64,6 +64,46 @@ function setFromStats(stats) {
   };
 }
 
+// §9: the `set` summary Gemini is offered must be the world the shopper
+// sees (the visible on-intent set), not the loose top-300 candidate set -
+// the same iv decideGuide grounds its questions on.
+function setFromView(iv, nVisible) {
+  const items = (iv.items || []).map((i) => ({ title: i.title, price: i.price, tags: i.tags || [], brand: i.brand || null, category: i.category || null }));
+  const sizes = new Set();
+  for (const it of items) for (const w of String(it.title).match(SIZE_RE) || []) {
+    const u = w.toUpperCase();
+    if (SIZE_SET.has(u)) sizes.add(u);
+  }
+  const vocab = new Set();
+  for (const it of items) {
+    for (const t of String(it.title).toLowerCase().split(/[^a-z0-9]+/)) if (t) vocab.add(t);
+    for (const tg of it.tags || []) for (const t of String(tg).toLowerCase().split(/[^a-z0-9]+/)) if (t) vocab.add(t);
+  }
+  const P = iv.pricePIntent || iv.priceP;
+  const maxPrice = (iv.items || []).reduce((a, i) => Math.max(a, i.price || 0), 0);
+  const counts = new Map();
+  for (const b of iv.brands || []) counts.set(b.name, b.count);
+  for (const c of iv.categories || []) counts.set(c.name, c.count);
+  for (const t of iv.tags || []) counts.set(t.name, t.count);
+  return {
+    n: nVisible != null ? nVisible : iv.n,
+    brands: (iv.brands || []).map((b) => b.name),
+    categories: (iv.categories || []).map((c) => c.name),
+    tags: (iv.tags || []).map((t) => t.name),
+    sizes: [...sizes],
+    maxPrice,
+    p25: P.p25, p50: P.p50, p75: P.p75,
+    titles: items.slice(0, 8).map((i) => i.title),
+    titleVocab: vocab,
+    counts,
+    items,
+  };
+}
+function visibleIv(visItems) {
+  const visIntent = visItems.filter((h) => h.intent);
+  return buildIntentView(visIntent.length >= 3 ? visIntent : visItems);
+}
+
 // G1-style facet counts for the AI question's options, on the set the
 // shopper will actually see next (post-filter when the AI also filters).
 function optionCount(o, set) {
@@ -110,7 +150,11 @@ export async function POST(req) {
 
   const catalog = loadCatalog();
   const base = q + (queryExt ? " " + queryExt : "");
-  const preSet = setFromStats(searchStats(catalog, base, statsOpts));
+  // §9 frozen spec: the set summary Gemini is offered is the intent view
+  // over the POST-answer visible grid (search cap 48, same relax the
+  // client's chip/typed re-search uses) - never the loose top-300 stats.
+  const preVis = search(catalog, base, { ...statsOpts, relax: true, limit: 48 });
+  const preSet = setFromView(visibleIv(preVis), preVis.length);
   const out = await aiRefine({
     query: q,
     queryExt,
@@ -139,9 +183,13 @@ export async function POST(req) {
     if (filters.occasion) post.occasion = filters.occasion;
     if (filters.budget_max != null) post.budgetMax = filters.budget_max;
     const base2 = base + (filters.keyword ? " " + filters.keyword : "");
-    const postSet = setFromStats(searchStats(catalog, base2, post));
+    // §9: the post-filter set is the post-filter VISIBLE grid (search cap
+    // 48 = what the shopper will see), summarised through the same intent
+    // view; option counts are recounted over it.
+    const postVis = search(catalog, base2, { ...post, relax: true, limit: 48 });
+    const postSet = setFromView(visibleIv(postVis), postVis.length);
     question.options = question.options.map((o) => ({ ...o, count: optionCount(o, postSet) }));
-    if (postSet.n <= 12) question = null;
+    if (postVis.length <= 12) question = null;
   }
 
   // (2026-11-06 fix) the record block used to sit AFTER the return -

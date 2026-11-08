@@ -17,6 +17,7 @@
 // open a 5-minute breaker. 10-minute in-memory cache keyed on the
 // conversation state (repeat answers are free).
 import { geminiGenerate } from "./gemini_keys.js";
+import { optionMatch } from "./facets.js";
 
 const G = globalThis;
 const cache = (G.__askcartAiRefineCache ??= new Map());
@@ -64,26 +65,8 @@ function extractJson(raw) {
   try { return JSON.parse(m[0]); } catch { return null; }
 }
 
-function inList(v, list) {
-  const x = String(v).toLowerCase().trim();
-  const hit = list.find((e) => String(e).toLowerCase() === x);
-  return hit === undefined ? null : hit;
-}
-// Looser match for QUESTION OPTIONS only: the model may say "Wedding /
-// Shaadi" or "boAt Airdopes" when the set has "wedding" / "boAt" - map to
-// the canonical set value instead of dropping the option. Filters stay
-// strict (inList) so nothing ungrounded is ever APPLIED.
-function optionMatch(v, list) {
-  const x = String(v).toLowerCase().trim();
-  const exact = inList(v, list);
-  if (exact) return exact;
-  const partial = (list || []).find((e) => {
-    const e2 = String(e).toLowerCase().trim();
-    if (!e2 || e2.length < 3) return false;
-    return x.includes(e2) || e2.includes(x);
-  });
-  return partial || null;
-}
+
+
 
 // Strict grounding: drop every value the set does not contain.
 function validateAi(obj, set, answered, askedTypes) {

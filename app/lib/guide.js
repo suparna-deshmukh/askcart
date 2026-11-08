@@ -18,6 +18,14 @@ import { getLadderPlan, logPlanDisagreement } from "./plan.js";
 import fs from "fs";
 import path from "path";
 import { parseQuery, searchStats } from "./search.js";
+import {
+  CAT_DISPLAY, displayCat, OCCASION_TAG, FESTIVAL_TAG,
+  countBudget, forWhomOptions, sizeOptions, capacityOptions, optionMatch,
+} from "./facets.js";
+export { CAT_DISPLAY, displayCat, OCCASION_TAG, FESTIVAL_TAG,
+  countBudget, forWhomOptions, sizeOptions, capacityOptions, optionMatch };
+
+import { validateGuideQuestion } from "./guard.js";
 
 const CATEGORY_FLOWS = {
   electronics: ["budget", "brand"],
@@ -124,56 +132,7 @@ export function occasionOptions(region, { gift = false } = {}) {
   return opts.slice(0, 7);
 }
 
-// G3: for-whom / size / capacity option generators - counts come from the
-// candidate set (top-300), same rule as the budget/occasion/brand facets.
-const FOR_WHOM_WORDS = {
-  Women: /\b(women|womens|ladies|female)\b/i,
-  Men: /\b(men|mens|male|groom)\b/i,
-  Kids: /\b(kids|kid|children|child|toddler|baby|infant|boy|boys|girl|girls|school)\b/i,
-};
-export function forWhomOptions(items, n) {
-  const counts = {};
-  for (const [label, re] of Object.entries(FOR_WHOM_WORDS)) {
-    counts[label] = items.filter((it) => re.test(it.title)).length;
-  }
-  return [
-    { label: "Women", count: counts.Women },
-    { label: "Men", count: counts.Men },
-    { label: "Kids", count: counts.Kids },
-    { label: "Unisex / any", count: n },
-  ];
-}
-const SIZE_ORDER = ["xs", "s", "m", "l", "xl", "xxl"];
-export function sizeOptions(items, n) {
-  const counts = {};
-  for (const it of items) {
-    const ms = String(it.title).match(/\b(xxxl|xxl|xl|l|m|s|xs)\b/gi) || [];
-    for (const w of ms) {
-      const k = w.toLowerCase();
-      if (SIZE_ORDER.includes(k)) counts[k] = (counts[k] || 0) + 1;
-    }
-  }
-  const opts = SIZE_ORDER.filter((s) => counts[s])
-    .map((s) => ({ label: s.toUpperCase(), count: counts[s] }));
-  opts.push({ label: "Any size", count: n });
-  return opts;
-}
-export function capacityOptions(items, n) {
-  const counts = new Map();
-  for (const it of items) {
-    const ms = String(it.title).match(/(\d+(?:\.\d+)?)\s*(ton|kg|l)\b/g) || [];
-    for (const raw of ms) {
-      const m = raw.match(/(\d+(?:\.\d+)?)\s*(ton|kg|l)/i);
-      const u = m[2].toLowerCase();
-      const key = `${m[1]} ${u === "l" ? "L" : u}`;
-      counts.set(key, (counts.get(key) || 0) + 1);
-    }
-  }
-  const opts = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4)
-    .map(([label, count]) => ({ label, count }));
-  if (opts.length) opts.push({ label: "Any", count: n });
-  return opts;
-}
+
 
 // G3 eligibility: don't re-ask what the query already states.
 // S3: the full relation vocabulary (kept in sync with the recipient sets
@@ -227,32 +186,63 @@ function budgetOptions(stats, { stepDown = false } = {}) {
   return opts;
 }
 
-// G1: facet counts per option, from the candidate set (top-300).
-const parseInr = (s) => parseInt(String(s).replace(/[₹,\s]/g, ""), 10) || 0;
-function countBudget(items, n, label) {
-  if (label.startsWith("Not sure")) return n;
-  const range = label.match(/₹[\d,]+\s*–\s*₹([\d,]+)/);
-  if (range) {
-    const lo = parseInr(label.slice(label.indexOf("₹") + 1, label.indexOf("–")));
-    const hi = parseInr(range[1]);
-    return items.filter((x) => x.price >= lo && x.price < hi).length;
-  }
-  const under = label.match(/^Under (₹[\d,]+)/);
-  if (under) return items.filter((x) => x.price < parseInr(under[1])).length;
-  return 0;
-}
-const OCCASION_TAG = { "Wedding / Shaadi": "wedding", Birthday: "birthday",
-  Anniversary: "anniversary", Gift: "gift", "Housewarming": "housewarming" };
-// Festival calendar names -> nearest catalogue tag (honest counts: the
-// Diwali window maps to the diwali tag; other festivals to party).
-const FESTIVAL_TAG = { Diwali: "diwali", Dhanteras: "diwali", "Bhai Dooj": "diwali",
-  "Guru Nanak Jayanti": "diwali" };
+
+
 function countOccasion(items, n, tagCounts, label) {
   const tag = OCCASION_TAG[label];
   if (!tag) return label === "Everyday use"
     ? Math.max(0, n - tagCounts.reduce((a, t) => a + (["wedding", "birthday", "anniversary", "gift"].includes(t.name) ? t.count : 0), 0))
     : (tagCounts.find((t) => t.name === (FESTIVAL_TAG[label] || "party")) || { count: 0 }).count;
   return (tagCounts.find((t) => t.name === tag) || { count: 0 }).count;
+}
+
+// §9: occasion counts recounted over the VISIBLE items (the tier ladder,
+// the guard and the client card all recount with the same predicate).
+const CORE_OCC_TAGS = ["wedding", "birthday", "anniversary", "gift"];
+// §9: every catalogue usage tag is an occasion tag; when the occasion
+// facet is settled (answered or query-stated) these sources are re-asks.
+const ALL_OCCASION_TAGS = new Set([...Object.values(OCCASION_TAG), ...Object.values(FESTIVAL_TAG), "party"]);
+export function countOccasionIn(items, n, label) {
+  if (label === "Everyday use") {
+    return Math.max(0, n - items.filter((r) => (r.tags || []).some((tg) => CORE_OCC_TAGS.includes(tg))).length);
+  }
+  const tag = OCCASION_TAG[label] || FESTIVAL_TAG[label] || (label === "Party / Event" ? "party" : null);
+  return tag ? items.filter((r) => (r.tags || []).includes(tag)).length : 0;
+}
+
+// §9: the ONE intent-scoped view every question option source reads from.
+// Built over the given items (visible on-intent set in the API flow, the
+// top-300 candidate set for in-process callers without a visible set).
+function quantilesOf(items) {
+  const prices = items.map((h) => h.price).sort((a, b) => a - b);
+  const q = (x) => prices.length ? prices[Math.min(prices.length - 1, Math.floor(x * prices.length))] : 0;
+  return { p25: q(0.25), p50: q(0.5), p75: q(0.75) };
+}
+export function buildIntentView(items) {
+  const cat = new Map(), brand = new Map(), tag = new Map();
+  for (const it of items) {
+    if (it.category) cat.set(it.category, (cat.get(it.category) || 0) + 1);
+    if (it.brand) brand.set(it.brand, (brand.get(it.brand) || 0) + 1);
+    for (const tg of it.tags || []) tag.set(tg, (tag.get(tg) || 0) + 1);
+  }
+  const topN = (m, n) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([name, count]) => ({ name, count }));
+  const base = quantilesOf(items);
+  // Same bimodal guard as searchStats: a dominant-category clear majority
+  // narrows the intent quantiles when the set spans two price worlds.
+  let pricePIntent = items.length >= 20 ? base : null;
+  if (items.length >= 20 && base.p25 > 0) {
+    const spread = base.p75 / Math.max(1, base.p25);
+    let domCat = null, domN = 0;
+    for (const [c, n] of cat) if (n > domN) { domN = n; domCat = c; }
+    const domItems = items.filter((h) => h.category === domCat);
+    if (spread > 6 && domItems.length >= 20 && domItems.length / items.length >= 0.5) {
+      pricePIntent = quantilesOf(domItems);
+    }
+  }
+  const P = pricePIntent || base;
+  if (P.p25 > 0 && P.p50 / P.p25 > 6) pricePIntent = null; // final bimodal guard
+  return { n: items.length, items, brands: topN(brand, 4), tags: topN(tag, 12),
+           categories: topN(cat, 4), priceP: base, pricePIntent };
 }
 
 const TEMPLATES = {
@@ -267,25 +257,7 @@ const TEMPLATES = {
   ai: "Which of these fits best? (or type your own)",
 };
 
-// Shopper-facing display labels for the coarse department categories.
-const CAT_DISPLAY = {
-  "AMAZON FASHION": "Fashion & Clothing",
-  "Amazon Home": "Home & Decor",
-  "All Electronics": "Electronics",
-  "Cell Phones & Accessories": "Mobile & Accessories",
-  "Computers": "Computers & Laptops",
-  "Tools & Home Improvement": "Tools & DIY",
-  "Health & Personal Care": "Health & Care",
-  "Office Products": "Office & Stationery",
-  "All Beauty": "Beauty",
-  "Appliances": "Home Appliances",
-  "Automotive": "Auto & Car",
-  "Pet Supplies": "Pet Care",
-  "Arts, Crafts & Sewing": "Arts & Crafts",
-  "Home Audio & Theater": "Audio & TV",
-  "Collectibles & Fine Art": "Collectibles & Art",
-};
-const displayCat = (name) => CAT_DISPLAY[name] || name;
+
 
 // Query-subject -> category synonyms for intent-ranked rescue options.
 const CAT_SYNONYMS = {
@@ -352,6 +324,20 @@ export async function decideGuide(catalog, query, nResults, context = {}) {
   if (slots.size) statsOpts.size = slots.size;
   if (slots.capacity) statsOpts.capacity = slots.capacity;
   const stats = searchStats(catalog, query, statsOpts);
+  // §9: ONE intent-scoped view for every question option source. The loose
+  // candidate set (stats) stays for not-found/rescue decisions, flow
+  // selection and total_matches reporting — never for option labels or
+  // counts. context.visible is the client's visible results (post-cap);
+  // in-process callers (canaries, audit) pass none and the top-300
+  // candidate set stands in for the visible world.
+  const visItems = (Array.isArray(context.visible) && context.visible.length)
+    ? context.visible.slice(0, 48)
+    : stats.items;
+  const visIntent = visItems.filter((h) => h.intent);
+  // A 1-2 item intent subset is not a world (no brands/tags, degenerate
+  // quantiles) - it grounds no option, so the visible set stands in.
+  const iv = buildIntentView(visIntent.length >= 3 ? visIntent : visItems);
+  const nVis = visItems.length;
   const dominant = stats.categories[0] || null;
   const dominantShare = dominant && stats.n ? dominant.count / stats.n : 0;
   // Devanagari queries carry their relation words only after the lexicon
@@ -366,6 +352,29 @@ export async function decideGuide(catalog, query, nResults, context = {}) {
   const WEARABLE_Q = /\b(watch|smartwatch|watches|bangle|bangles|earring|earrings|bracelet|necklace|chain|ring|rings|sandal|sandals|slipper|slippers|shoe|shoes|sneaker|sneakers|flipflop|flip-flop|cap|caps|tie|belt|wallet|hoodie|hoodies|sweater|sweaters|coat|coats|jacket|jackets?|blazer|blazers|jeans|jeans?|trouser|trousers|pants|short|shorts|skirt|skirts|top|tops|kurti|kurtas?|kurta|dhoti|dhotis|lungi|salwar|salwars|saree|sari|sarees|shirt|shirts|tshirt|t-shirts?|t-?shirts?|blouse|blouses|dress|dresses|frock|frocks|nighty|nightys|pyjama|pyjamas|uniform|uniforms|gown|lehenga)\b/i;
 const DEVANAGARI_WEARABLE = /(?<![ऀ-ॿ])(घड़ी|घडियां|कमीज़|कुर्ता|कुर्ती|शर्ट|साड़ी|सारी|ब्लाज़र|ब्लेज़र|टॉप|स्वेटर|जीन्स|जींस|टाई|बेल्ट|जूता|जूते|चप्पल|ड्रेस|नाइट|कपड़े|कपड़ा|पायजामा|लेहंगा|अनारकली)(?![ऀ-ॿ])/;
 const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
+  // §9 subject/world guard (generalises the categorySplitOK FASHION check):
+  // a NON-apparel query whose visible set is dominated by fashion — or by
+  // a dominant category contradicting the query subject via CAT_SYNONYMS —
+  // is a world mismatch; brand and tag option sources are suppressed (the
+  // category question keeps its existing rules).
+  const visCatView = buildIntentView(visItems);
+  const worldGuard = (() => {
+    if (isWearableQ(query)) return false;
+    if (visCatView.categories.slice(0, 2).some((c) => c.name === "AMAZON FASHION")) return true;
+    const dom = visCatView.categories[0];
+    if (dom && nVis && dom.count / nVis >= 0.5) {
+      const synCats = new Set();
+      for (const tk of parsed.tokens || []) { const sy = CAT_SYNONYMS[tk]; if (sy) sy.forEach((c) => synCats.add(c)); }
+      if (synCats.size && !synCats.has(dom.name)) return true;
+    }
+    return false;
+  })();
+  // §9: answered/asked view for the exit guard (a query-stated occasion
+  // settles the occasion facet just like a chip answer).
+  const answeredEff = { ...(slots || {}) };
+  if (parsed.occasion && parsed.occasion !== "gift" && answeredEff.occasion == null) {
+    answeredEff.occasion = parsed.occasion;
+  }
   // Direct-buy spec slots (tonnage/kg/litres/size/stars/storage/ram/inches):
   // a "7 kg washing machine" shopper is buying, not browsing - a budget or
   // capacity quiz on top is noise.
@@ -402,6 +411,17 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     ? (CATEGORY_FLOWS[flowKey(dominant ? dominant.name : null)] || DEFAULT_FLOW)
     : DEFAULT_FLOW;
   const prev = new Set((context.prevTypes || []).map(String));
+  // P3 (guide_audit cluster): a facet is DONE once it was asked in any
+  // form — including the open-refinement "any:<source>" markers — or
+  // answered via a slot. The tier ladder's exact-type checks
+  // (prev.has(t)) missed both, so brand could be re-asked after
+  // any:brands and budget after any:bands (re-ask bug class).
+  const FACET_MARKS = { brand: ["brand", "any:brands"], budget: ["budget", "any:bands"],
+                        occasion: ["occasion", "any:tags"] };
+  const facetDone = (slot) => {
+    if ((FACET_MARKS[slot] || [slot]).some((m) => prev.has(m))) return true;
+    return answeredEff[slot] != null;
+  };
   const vague = /\b(kuch|something|anything|ideas?|suggestions?|koi cheez)\b/i.test(query);
   const selfRef = /\b(apna|apne|apni|khud|mere|mujhe|for me|for myself|own)\b/i.test(query) ||
     (parsed.rawWords || []).some((w) => /\b(apna|apne|apni|khud|mere|mujhe|own)\b/.test(w));
@@ -436,7 +456,14 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   const baseFlow = gift ? GIFT_FLOW : flow;
   const ladder = [...baseFlow, ...UNIVERSAL_TAIL.filter((t) => !baseFlow.includes(t))];
 
-  const isRescue = nResults < 2;
+  // §9: when the client sends the visible set, it is the ground truth of
+  // how many results the shopper is looking at. The strict intent count can
+  // be 1 on a well-resolved multi-token search ("non stick cookware set":
+  // 48 good cookware sets, one strict all-tokens match) - a visible 2+
+  // grid is not a rescue, and the guaranteed question must be able to run.
+  const effN = (Array.isArray(context.visible) && context.visible.length)
+    ? context.visible.length : nResults;
+  const isRescue = effN < 2;
   // A resolved set is genuinely multi-family when a second family holds
   // >=20% of the candidates AND clearly trails the first by >=15 points
   // (charger: 61%/23% yes; soap: 33%/31% no - "options overlap";
@@ -485,6 +512,8 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // enough to matter (judge fit: "budget fits when the price range is
     // wide"); narrow cheap sets ("trousers", "shawl") don't need it.
     if (t === "budget" && parsed.budgetMax !== null) return false;
+    // P3: a band chip (any:bands) or a budget slot settles the price facet.
+    if (t === "budget" && facetDone("budget")) return false;
     // A gift query that states BOTH recipient and occasion has no
     // fit/occasion left to ask - budget becomes the remaining facet.
     const giftFacetsKnown = gift && parsed.occasion && parsed.occasion !== "gift" && recipientHint;
@@ -493,29 +522,29 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
       // cover <10% of candidates, any answer keeps ~everything and the
       // question reads as noise (Qwen UX panel 2026-11-04: "budget
       // redundant after size selection", "options lack product coverage").
-      const cov = budgetOptions(stats, {}).reduce((a, o) => a + (countBudget(stats.items, stats.n, o) || 0), 0) / Math.max(1, stats.n);
-      if (stats.n > 0 && cov < 0.10) return false;
+      const cov = budgetOptions(iv, {}).reduce((a, o) => a + (countBudget(visItems, nVis, o) || 0), 0) / Math.max(1, nVis);
+      if (nVis > 0 && cov < 0.10) return false;
     }
-    if (t === "budget" && stats.n >= 8 && stats.priceP.p25 > 0 &&
-        stats.priceP.p75 / stats.priceP.p25 < 3 && stats.priceP.p50 < 3000) return false;
+    if (t === "budget" && iv.n >= 8 && iv.priceP.p25 > 0 &&
+        iv.priceP.p75 / iv.priceP.p25 < 3 && iv.priceP.p50 < 3000) return false;
     // A budget question needs a product subject, not a stated spec (a
     // "7 kg washing machine" shopper is direct-buying), not a tiny set a
     // price band cannot split, and not a set a fit answer just narrowed
     // (budget after a size/for-whom answer reads redundant - Qwen UX
     // panel v2).
-    if (t === "budget" && ((!hasSubject && !giftFacetsKnown) || directSpec || modelNum || stats.n < 15 ||
+    if (t === "budget" && ((!hasSubject && !giftFacetsKnown) || directSpec || modelNum || iv.n < 15 ||
         prev.has("size") || prev.has("for_whom") || prev.has("capacity"))) return false;
     // Cheap, tight sets (bottles, pens, shawls): no band can split them -
     // "budget irrelevant for generic bottle query".
-    if (t === "budget" && stats.priceP.p75 > 0 && stats.priceP.p25 > 0 &&
-        stats.priceP.p75 < 3000 && stats.priceP.p75 / stats.priceP.p25 < 6) return false;
+    if (t === "budget" && iv.priceP.p75 > 0 && iv.priceP.p25 > 0 &&
+        iv.priceP.p75 < 3000 && iv.priceP.p75 / iv.priceP.p25 < 6) return false;
     // P3: a budget question is only fit when the on-intent range is
     // genuinely wide (p75/p25 >= 4: headphones 1-4k, laptops 1.25k-42k)
     // or the set is high-ticket (p50 >= 15k, where even a 3x band is a
     // real choice: TVs 34k-110k). Narrow mid-price sets (microwave
     // 10-14k, fan, photo frame, blazer, typo-headphones 3.5x) get NQ
     // (Qwen UX panel v2 round 6: budget B's on 1.4-3.9x ranges).
-    const PB = stats.pricePIntent || stats.priceP;
+    const PB = iv.pricePIntent || iv.priceP;
     if (t === "budget" && PB.p25 > 0 && PB.p75 / PB.p25 < 4 && PB.p50 < 15000) return false;
     // F10: a range spanning >15x (sitar 1.5k-33k) is not a budget quiz -
     // the shopper needs to specify type/use first (Qwen UX panel v2 round 8).
@@ -531,6 +560,8 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     if (t === "occasion" && !gift && parsed.specs && Object.keys(parsed.specs).length >= 1) return false;
     // "gift" is a generic occasion tag: still worth refining to a real occasion
     if (t === "occasion" && !gift && parsed.occasion && parsed.occasion !== "gift") return false;
+    // P3: answered/asked occasion (chip, tag source, or query-stated) settles it.
+    if (t === "occasion" && facetDone("occasion")) return false;
     // F1: a NAMED occasion in the query (diwali/anniversary/birthday/wedding/
     // ...) makes the occasion quiz redundant - the options either ignore the
     // stated intent or re-ask it. "party" is generic ("event"), still worth
@@ -594,18 +625,23 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     const brandMin = (parsed.budgetMax !== null || prev.has("budget"))
       ? 0.30 : (brandPersona ? 0.10 : 0.20);
     // statedBrand is derived above (used by budget/category/brand gates).
-    if (t === "brand" && (!hasSubject || statedBrand || stats.n < 20 ||
-        stats.brands.length < 2 || stats.brands[0].count / stats.n < brandMin)) return false;
+    if (t === "brand" && (!hasSubject || statedBrand || worldGuard || facetDone("brand") || iv.n < 20 ||
+        iv.brands.length < 2 || (iv.brands[0] || { count: 0 }).count / Math.max(1, iv.n) < brandMin)) return false;
     if (t === "for_whom") {
       // Gender tokens must actually exist in the candidate set, or the
       // chip tap would re-rank nothing (India-layer titles carry no
       // women/men tokens: "kurti" -> Women 1 / Men 0 / Kids 0).
-      const fw = forWhomOptions(stats.items, stats.n);
+      const fw = forWhomOptions(iv.items, iv.n);
       const named = fw[0].count + fw[1].count + fw[2].count;
+      // P3: one live gender ("Nike Womens T-Shirt" -> Women only) means the
+      // card downgrades to typed-only in the guard; require >=2 live
+      // non-escape options (the "Unisex / any" escape always has a count
+      // and must not satisfy the bar — guard parity, ESCAPE_RE).
+      if (fw.filter((o) => o.count > 0 && !/^(unisex|any|no preference|not sure)/i.test(o.label)).length < 2) return false;
       // From the universal tail (not the fashion flow's own for-whom) the
       // set must be clearly mixed, or the question is noise ("phones").
       const minShare = baseFlow.includes("for_whom") ? 0.05 : 0.10;
-      if (stats.n < 20 || named < 15 || named / stats.n < minShare) return false;
+      if (iv.n < 20 || named < 15 || named / Math.max(1, iv.n) < minShare) return false;
       // From the universal tail (not a fashion flow) the set must actually
       // be apparel, or "who's it for?" is noise ("rotary phone").
       const APPAREL_SET = ["AMAZON FASHION", "All Beauty", "Handmade", "Baby"];
@@ -619,23 +655,23 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // sizing that titles don't carry, so adult S/M/L/XL chips are skipped.
     const FIT_GARMENT = /\b(shirts?|sharts?|kurtas?|kurtis?|dresses?|frocks?|trousers?|jeans?|pants?|t-?shirts?|sarees?|salwars?|suits?|jackets?|blazers?|coats?|hoodies?|blouses?|nightys?|dhotis?|lungis?|pyjamas?|uniforms?|tops|watch(es)?|smartwatch(es)?)\b/i;
     const KIDS_QUERY = /\b(kids?|child|children|bab(?:y|ies)|toddlers?|bachche|bachcha|bachchi|bacche|bache)\b/i;
-    const kidShare = (stats.items || []).length
-      ? (stats.items || []).filter((x) => /\b(kids?|child|children|baby|toddler)\b/i.test(String(x.title || ""))).length / stats.items.length
+    const kidShare = (iv.items || []).length
+      ? (iv.items || []).filter((x) => /\b(kids?|child|children|baby|toddler)\b/i.test(String(x.title || ""))).length / iv.items.length
       : 0;
-    if (t === "size" && (!hasSubject || (parsed.specs && parsed.specs.size) || sizeOptions(stats.items, stats.n).length < 3 ||
+    if (t === "size" && (!hasSubject || (parsed.specs && parsed.specs.size) || sizeOptions(iv.items, iv.n).length < 3 ||
         !dominant || !["AMAZON FASHION", "All Beauty", "Handmade", "Arts, Crafts & Sewing", "Baby", "Toys & Games"].includes(dominant.name) ||
         KIDS_QUERY.test(query) || (prev.has("for_whom") && kidShare > 0.5) ||
-        (!FIT_GARMENT.test(query) && !FIT_GARMENT.test((stats.items || []).slice(0, 10).map((x) => String(x.title || "")).join(" "))) ||
-        (sizeOptions(stats.items, stats.n).filter((o) => !String(o.label).startsWith("Any") && o.count >= 5).length < 2 &&
-         !sizeOptions(stats.items, stats.n).some((o) => !String(o.label).startsWith("Any") && (o.count || 0) >= 25 &&
-           o.count / Math.max(1, stats.n) >= 0.20 && stats.n >= 300)) ||
-        sizeOptions(stats.items, stats.n).reduce((a, o) => a + (String(o.label).startsWith("Any") ? 0 : (o.count || 0)), 0) < 25)) return false;
+        (!FIT_GARMENT.test(query) && !FIT_GARMENT.test((iv.items || []).slice(0, 10).map((x) => String(x.title || "")).join(" "))) ||
+        (sizeOptions(iv.items, iv.n).filter((o) => !String(o.label).startsWith("Any") && o.count >= 5).length < 2 &&
+         !sizeOptions(iv.items, iv.n).some((o) => !String(o.label).startsWith("Any") && (o.count || 0) >= 25 &&
+           o.count / Math.max(1, iv.n) >= 0.20 && iv.n >= 30)) ||
+        sizeOptions(iv.items, iv.n).reduce((a, o) => a + (String(o.label).startsWith("Any") ? 0 : (o.count || 0)), 0) < 25)) return false;
     // Capacity (tonnage/kg/litres) only where such specs live - appliances,
     // electronics, gym weights. "5 kg" options on a kids' t-shirt set are
     // noise (Qwen UX panel 2026-11-04).
     const APPLIANCE_Q = /\b(ac\b|air\s?fryer|fridge|refrigerator|washing|washer|dryer|mixer|grinder|cooker|kettle|microwave|vacuum|geyser|dispenser|freezer|oven|induction|stove|heater|dumbbell|weights?|kettle)\b/i;
     if (t === "capacity" && (!hasSubject || directSpec ||
-        capacityOptions(stats.items, stats.n).length < 3 ||
+        capacityOptions(iv.items, iv.n).length < 3 ||
         (!dominant || !["Appliances", "All Electronics", "Computers & Accessories", "Sports & Outdoors"].includes(dominant.name)) && !APPLIANCE_Q.test(query))) return false;
     return true;
   });
@@ -695,9 +731,12 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   // Only after at least one ANSWERED question: the first question is
   // guaranteed on every search (product premise), even when the initial
   // set is already small.
-  if (nResults <= 1 && prev.size >= 1) {
+  // §9: the stop counts VISIBLE items (the client's strict intent count is
+  // 1 on a resolved multi-token search - the shopper is not at a pickable
+  // one-item grid).
+  if (effN <= 1 && prev.size >= 1) {
     return { ask: false, type: null, options: [], question: "",
-             reason: nResults === 0
+             reason: effN === 0
                ? "set exhausted (0 items) - this answer path holds nothing"
                : "destination reached (1 item left - your pick)",
              stats };
@@ -716,16 +755,21 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   // chip answer the narrowed set still gets its next question (user
   // requirement 2026-11-05), unless the set is a pickable shortlist
   // (destination stop above) or every type was already asked.
-  const firstQ = !isRescue && nResults >= 2;
+  const firstQ = !isRescue && effN >= 2;
   const firstQuestionFallback = () => {
     if (!firstQ) return null;
-    const out = (type, options, optionCounts, reason, subType) => ({
-      ask: true, type, options, optionCounts, question: TEMPLATES[type], reason, subType: subType || null,
-      stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue },
-    });
+    const out = (type, options, optionCounts, reason, subType) => {
+      const q = {
+        ask: true, type, options, optionCounts, question: TEMPLATES[type], reason, subType: subType || null,
+        stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue },
+      };
+      // §9: the exit guard runs on EVERY emitted question (all tiers).
+      const g = validateGuideQuestion(q, iv, visItems, answeredEff, [...prev]);
+      return g.ok ? g.question : { ...g.question, ask: true, type, question: TEMPLATES[type] };
+    };
     const watchBare = /\b(watch|watches|smartwatch|ghadi)\b/i.test(query) || /घड़[ीि]/.test(query);
     const genderTok = /\b(men|mens|women|womens|him|her|uske|uski|uska)\b/i.test(query);
-    const PB = stats.pricePIntent || stats.priceP;
+    const PB = iv.pricePIntent || iv.priceP;
     const giftFacetsKnown = gift && parsed.occasion && parsed.occasion !== "gift" && recipientHint;
     // Tier 1 - for-whom (wearable or gift): >=2 named gender lines with
     // real counts (a 1-line set like "saree" Women:8/Men:0/Kids:0 is a
@@ -735,9 +779,9 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     if ((gift || isWearableQ(query)) && !recipientHint && !selfRef &&
         !(watchBare && !genderTok) && !(parsed.specs && parsed.specs.size) &&
         !(parsed.specs && parsed.specs.age !== undefined) && !prev.has("for_whom")) {
-      const fw = forWhomOptions(stats.items, stats.n);
+      const fw = forWhomOptions(iv.items, iv.n);
       const named = fw.slice(0, 3).filter((o) => (o.count || 0) >= 3);
-      if (named.length >= 2) return out("for_whom", fw.map((o) => o.label), fw,
+      if (named.length >= 2) return out("for_whom", fw.map((o) => o.label), forWhomOptions(visItems, nVis),
         "guaranteed first question: candidate set spans multiple gender lines (relaxed data floor)");
     }
     // Tier 2 - occasion (gift/vague, no stated occasion, no stated price -
@@ -749,10 +793,10 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
         !(parsed.specs && parsed.specs.age !== undefined) &&
         !(parsed.occasion && parsed.occasion !== "gift" && parsed.occasion !== "party")) {
       const occOpts = occasionOptions(context.region, { gift });
-      const all = occOpts.map((label) => ({ label, count: countOccasion(stats.items, stats.n, stats.tagCounts, label) }));
-      const minOcc = Math.max(5, Math.round(0.03 * stats.n));
+      const all = occOpts.map((label) => ({ label, count: countOccasionIn(visItems, nVis, label) }));
+      const minOcc = Math.max(5, Math.round(0.03 * iv.n));
       const strong = all.filter((c) => (c.count || 0) >= minOcc);
-      const share = strong.reduce((a, c) => a + (c.count || 0), 0) / Math.max(1, stats.n);
+      const share = strong.reduce((a, c) => a + (c.count || 0), 0) / Math.max(1, nVis);
       if (strong.length >= 2 && share >= 0.15) return out("occasion", strong.map((c) => c.label), strong,
         "guaranteed first question: grounded occasion tags in the candidate set (relaxed data floor)");
     }
@@ -760,53 +804,60 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // queries ("बहन की शादी के लिए कुछ", "kuch gift dena hai"): the product
     // FAMILY is the actual unknown. Genuinely multi-family set only
     // (nothing over 50%, second family >= 15%).
-    if (!prev.has("category") && !hasSubject && (gift || vague) && parsed.budgetMax === null && stats.n >= 30 &&
-        dominantShare <= 0.5 && (stats.categories[1] || { count: 0 }).count / Math.max(1, stats.n) >= 0.15) {
-      const names = rankCategoriesByIntent(stats.categories.slice(0, 4).map((c) => c.name), query);
-      const cats = names.map((nm) => ({ label: displayCat(nm), count: (stats.categories.find((c) => c.name === nm) || { count: 0 }).count }));
-      cats.push({ label: "Any category", count: stats.n }); // safe option (never zeroes the chain)
+    if (!prev.has("category") && !hasSubject && (gift || vague) && parsed.budgetMax === null && iv.n >= 30 &&
+        dominantShare <= 0.5 && (iv.categories[1] || { count: 0 }).count / Math.max(1, iv.n) >= 0.15) {
+      const catCountVis = new Map();
+      for (const r of visItems) if (r.category) catCountVis.set(r.category, (catCountVis.get(r.category) || 0) + 1);
+      const names = rankCategoriesByIntent(iv.categories.slice(0, 4).map((c) => c.name), query);
+      const cats = names.map((nm) => ({ label: displayCat(nm), count: catCountVis.get(nm) || 0 }));
+      cats.push({ label: "Any category", count: nVis }); // safe option (never zeroes the chain)
       return out("category", cats.map((c) => c.label), cats,
         "guaranteed first question: subject-free query - candidate set splits across product families (relaxed data floor)");
     }
     // Tier 3 - budget: the main path's budget gates, ported (a priced,
     // spec-anchored, model-anchored, wearable or unscoped-gift set never
     // gets a budget quiz) plus the discriminative-band coverage floor.
-    if (!prev.has("budget") && parsed.budgetMax === null && hasSubject && !directSpec && !modelNum &&
-        stats.n >= 15 && !(gift && !giftFacetsKnown) && !isWearableQ(query) &&
+    if (!facetDone("budget") && parsed.budgetMax === null && hasSubject && !directSpec && !modelNum &&
+        iv.n >= 15 && !(gift && !giftFacetsKnown) && !isWearableQ(query) &&
         PB.p25 > 0 && (PB.p75 / PB.p25 >= 4 || PB.p50 >= 15000) && PB.p75 / PB.p25 <= 15 &&
-        !(stats.priceP.p25 > 0 && stats.priceP.p75 < 3000 && stats.priceP.p75 / stats.priceP.p25 < 6)) {
-      const cov = budgetOptions(stats, {}).reduce((a, o) => a + (countBudget(stats.items, stats.n, o) || 0), 0) / Math.max(1, stats.n);
+        !(iv.priceP.p25 > 0 && iv.priceP.p75 < 3000 && iv.priceP.p75 / iv.priceP.p25 < 6)) {
+      const cov = budgetOptions(iv, {}).reduce((a, o) => a + (countBudget(visItems, nVis, o) || 0), 0) / Math.max(1, nVis);
       if (cov >= 0.10) {
-        const opts = budgetOptions(stats, {});
-        return out("budget", opts, opts.map((o) => ({ label: o, count: countBudget(stats.items, stats.n, o) })),
+        const opts = budgetOptions(iv, {});
+        return out("budget", opts, opts.map((o) => ({ label: o, count: countBudget(visItems, nVis, o) })),
           "guaranteed first question: wide price range in the visible candidate set (relaxed data floor)");
       }
     }
     // Tier 4 - size: >=2 sizes with >= max(5, 3% of set) items, apparel-ish
     // dominant family, size not already stated in the query.
     if (!(parsed.specs && parsed.specs.size) && !prev.has("size")) {
-      const szAll = sizeOptions(stats.items, stats.n).filter((o) => !String(o.label).startsWith("Any"));
-      const minSz = Math.max(5, Math.round(0.03 * stats.n));
+      const szAll = sizeOptions(iv.items, iv.n).filter((o) => !String(o.label).startsWith("Any"));
+      const minSz = Math.max(5, Math.round(0.03 * iv.n));
       const szStrong = szAll.filter((o) => (o.count || 0) >= minSz);
       if (szStrong.length >= 2 && dominant &&
           ["AMAZON FASHION", "All Beauty", "Handmade", "Arts, Crafts & Sewing", "Baby", "Toys & Games"].includes(dominant.name)) {
-        return out("size", szAll.map((o) => o.label), szAll,
+        return out("size", szAll.map((o) => o.label), sizeOptions(visItems, nVis),
           "guaranteed first question: size stated in candidate titles (relaxed data floor)");
       }
     }
     // Tier 5 - brand-led set (no stated price, not a gift): a few brands
     // dominate the candidates (brand = the trust facet, trust_gap = 54.4%
     // of mined complaints).
-    const bTop = (stats.brands[0] || { count: 0 }).count || 0;
-    const bThird = (stats.brands[2] || { count: 0 }).count || 0;
-    if (parsed.budgetMax === null && !gift && stats.n >= 30 && stats.brands.length >= 2 &&
-        !prev.has("brand") &&
-        bTop / Math.max(1, stats.n) >= 0.08 &&
-        stats.brands.slice(0, 3).reduce((a, b) => a + b.count, 0) / Math.max(1, stats.n) >= 0.25 &&
+    // §9: brand-led eligibility from the intent-scoped view (the loose
+    // top-300 brands are the cross-world bug class), counts recounted
+    // over the visible set; the world guard suppresses a fashion world
+    // on a non-wearable query.
+    const bTop = (iv.brands[0] || { count: 0 }).count || 0;
+    const bThird = (iv.brands[2] || { count: 0 }).count || 0;
+    if (parsed.budgetMax === null && !gift && !worldGuard && iv.n >= 30 && iv.brands.length >= 2 &&
+        !facetDone("brand") &&
+        bTop / Math.max(1, iv.n) >= 0.08 &&
+        iv.brands.slice(0, 3).reduce((a, b) => a + b.count, 0) / Math.max(1, iv.n) >= 0.25 &&
         bTop - bThird >= 3 && bTop >= 1.25 * Math.max(1, bThird)) {
-      const opts = stats.brands.slice(0, 3).map((b) => b.name);
+      const brandCountVis = (name) => visItems.filter((r) => (r.brand || "") === name).length;
+      const opts = iv.brands.slice(0, 3).map((b) => b.name);
       opts.push("No preference - best rated");
-      return out("brand", opts, opts.map((o) => ({ label: o, count: o.startsWith("No preference") ? stats.n : (stats.brands.find((b) => b.name === o) || { count: 0 }).count })),
+      return out("brand", opts, opts.map((o) => ({ label: o, count: o.startsWith("No preference") ? nVis : brandCountVis(o) })),
         "guaranteed first question: brand-led candidate set (relaxed data floor)");
     }
     // No department "category" tier (F6/F7): a Fashion/Electronics/
@@ -823,18 +874,21 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // spans all scored hits (for "5 star ac under 30k" that is 2005 items
     // whose top brands are Adidas/Nike/Apple - a brand question built on
     // that set would offer the wrong brand world).
-    if (parsed.budgetMax !== null && !parsed.brand && !prev.has("brand") && stats.n >= 10) {
-      const budgeted = stats.items.filter((h) => h.intent && h.price <= parsed.budgetMax);
+    // §9: the inline intent filter is subsumed by iv (iv.items IS the
+    // intent-scoped visible set); eligibility on iv, counts recounted
+    // over the full visible set, world guard suppresses cross-world.
+    if (parsed.budgetMax !== null && !parsed.brand && !facetDone("brand") && !worldGuard && iv.n >= 10) {
+      const budgeted = iv.items.filter((h) => h.price <= parsed.budgetMax);
       const bc = new Map();
       for (const h of budgeted) if (h.brand) bc.set(h.brand, (bc.get(h.brand) || 0) + 1);
       const brands = [...bc.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
       const live = brands.filter((b) => b.count >= 3).slice(0, 3);
       if (live.length >= 2) {
+        const brandCountVis = (name) => visItems.filter((r) => (r.brand || "") === name).length;
         const opts = live.map((b) => b.name);
         opts.push("No preference - best rated");
-        const total = budgeted.length;
-        return out("brand", opts, opts.map((o) => ({ label: o, count: o.startsWith("No preference") ? total : bc.get(o) })),
-          "guaranteed first question (last resort): budget already stated - brand counts over the on-budget on-intent candidate set");
+        return out("brand", opts, opts.map((o) => ({ label: o, count: o.startsWith("No preference") ? nVis : brandCountVis(o) })),
+          "guaranteed first question (last resort): budget already stated - brands from the on-budget on-intent visible set");
       }
     }
     // Tier 7 - absolute last resort: a typed-only open question. Product
@@ -857,11 +911,24 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
       // available. At most 2 data-sourced open questions per journey;
       // a 3rd may only be the pure-typed last resort (never the same
       // option source twice).
-      const tagOpts = (stats.tagCounts || [])
+      // §9: tag/brand option sources from the intent-scoped view; when
+      // the occasion facet is settled every catalogue tag is an occasion
+      // tag, so the tag source is a re-ask and is excluded entirely.
+      const occSettled = facetDone("occasion"); // gift answers settle too (guard parity)
+      // §9: a facet the shopper already answered (or was already asked) is
+      // never an open-refinement source - that is a re-ask by another name.
+      const brandFacetDone = facetDone("brand");
+      const budgetFacetDone = facetDone("budget");
+      // P3: the world guard suppresses the tag source too (a fashion
+      // world on a non-wearable query is a mismatch, not an option).
+      const tagOpts = (!worldGuard && !occSettled) ? (iv.tags || [])
         .filter((o) => o.count >= 3 && !/^(gift|new|best|sale|offer|deal)$/i.test(o.name))
-        .slice(0, 3).map((o) => ({ label: o.name, count: o.count }));
-      const brandOpts = (stats.brands || []).filter((b) => b.count >= 2)
-        .slice(0, 3).map((b) => ({ label: b.name, count: b.count }));
+        .slice(0, 3).map((o) => ({ label: o.name, count: visItems.filter((r) => (r.tags || []).includes(o.name)).length }))
+        : [];
+      const brandOpts = (!worldGuard && !brandFacetDone && iv.brands.length >= 2)
+        ? iv.brands.filter((b) => b.count >= 2)
+          .slice(0, 3).map((b) => ({ label: b.name, count: visItems.filter((r) => (r.brand || "") === b.name).length }))
+        : [];
       if (tagOpts.length >= 2 && !usedAny.has("tags")) {
         return out("any", tagOpts.map((o) => o.label), tagOpts,
           "open refinement: options drawn from the narrowed set (usage tags), typed escape available", "tags");
@@ -870,13 +937,16 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
         return out("any", brandOpts.map((o) => o.label), brandOpts,
           "open refinement: options drawn from the narrowed set (brands), typed escape available", "brands");
       }
-      const P = stats.priceP || {};
+      const P = (iv.pricePIntent || iv.priceP) || {};
       // 2026-11-06: a stated budget already settled the price facet -
       // sub-budget bands ("Under 909 / 909-1579" after "under 2000")
       // read as a bad question, so the bands source only runs when the
       // query states no budget.
-      if (P.p25 > 0 && P.p75 > P.p25 && stats.items.length >= 5 && !usedAny.has("bands") &&
-          parsed.budgetMax === null) {
+      // §9: quantiles from the intent-scoped view, counts recounted over
+      // the visible set with the SAME countBudget predicate the exit
+      // guard recounts with (server == guard == client by construction).
+      if (P.p25 > 0 && P.p75 > P.p25 && iv.n >= 5 && !usedAny.has("bands") &&
+          !budgetFacetDone && parsed.budgetMax === null) {
         const p25 = Math.round(P.p25).toLocaleString("en-IN");
         const p75 = Math.round(P.p75).toLocaleString("en-IN");
         // Only "Under"/range bands: both map to an applicable budget cap.
@@ -884,8 +954,8 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
         // (budget is a soft ranker), so offering it would show a filter that
         // cannot be applied.
         const bandOpts = [
-          { label: `Under \u20b9${p25}`, count: stats.items.filter((h) => h.price < P.p25).length },
-          { label: `\u20b9${p25} \u2013 \u20b9${p75}`, count: stats.items.filter((h) => h.price >= P.p25 && h.price < P.p75).length },
+          { label: `Under \u20b9${p25}`, count: countBudget(visItems, nVis, `Under \u20b9${p25}`) },
+          { label: `\u20b9${p25} \u2013 \u20b9${p75}`, count: countBudget(visItems, nVis, `\u20b9${p25} \u2013 \u20b9${p75}`) },
         ].filter((o) => o.count > 0);
         if (bandOpts.length >= 2) {
           return out("any", bandOpts.map((o) => o.label), bandOpts,
@@ -924,9 +994,9 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   outer: for (const t of order) {
     type = t;
     if (type === "budget") {
-    options = budgetOptions(stats, { stepDown: context.persona?.ageBand === "Under 25" || context.persona?.userType === "Student" });
-    reason = `no explicit budget in query; candidate set price range p25 ${inr(stats.priceP.p25)} – p75 ${inr(stats.priceP.p75)} (budget_mismatch = 9.4% of mined complaints; price spread is the issue, not the label)`;
-    optionCounts = options.map((o) => ({ label: o, count: countBudget(stats.items, stats.n, o) }));
+    options = budgetOptions(iv, { stepDown: context.persona?.ageBand === "Under 25" || context.persona?.userType === "Student" });
+    reason = `no explicit budget in query; candidate set price range p25 ${inr((iv.pricePIntent || iv.priceP).p25)} – p75 ${inr((iv.pricePIntent || iv.priceP).p75)} (budget_mismatch = 9.4% of mined complaints; price spread is the issue, not the label)`;
+    optionCounts = options.map((o) => ({ label: o, count: countBudget(visItems, nVis, o) }));
   } else if (type === "occasion") {
     // G7: calendar- and region-aware ordering (Diwali leads in Nov 2026).
     // A query that NAMES its occasion leads with it - the question becomes
@@ -948,7 +1018,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
       : gift
         ? `gift intent without occasion; occasion tags decide ranking (occasion_blindness = 0.7% overall, but the top driver of gift-query failures in the corpus)`
         : `category flow prioritizes occasion (fashion/gift-adjacent)`;
-    optionCounts = options.map((o) => ({ label: o, count: countOccasion(stats.items, stats.n, stats.tagCounts, o) }));
+    optionCounts = options.map((o) => ({ label: o, count: countOccasionIn(visItems, nVis, o) }));
     // Prune weak festival options (Qwen UX panel v2: "occasion options weak"
     // on Dhanteras: 4 / Diwali: 4 / Bhai Dooj: 4): keep options with at
     // least max(2, 1% of the candidate set) items when >=2 qualify.
@@ -957,24 +1027,25 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // grounded answer (Qwen UX panel v2 round 7: "options weak/redundant"
     // on tshirt/rug/organizer/hi-tshirt moments; A'd gift moments - gift
     // box, kids dress, candle - all keep >=2 strong options).
-    const minOcc = Math.max(5, Math.round(0.03 * stats.n));
+    const minOcc = Math.max(5, Math.round(0.03 * iv.n));
     const strong = optionCounts.filter((c) => (c.count || 0) >= minOcc);
     // F9': the tagged options must also cover >=15% of the candidate set,
     // or the "occasion" chips touch a sliver ("dress for my wife": Gift:34 +
     // Wedding:81 of 1130 = 10% - "options weak"). A'd gift moments all cover
     // >=20% (Qwen UX panel v2 round 8).
-    const totalShare = strong.reduce((a, c) => a + (c.count || 0), 0) / Math.max(1, stats.n);
+    const totalShare = strong.reduce((a, c) => a + (c.count || 0), 0) / Math.max(1, nVis);
     optionCounts = (strong.length >= 2 && totalShare >= 0.15) ? strong : [];
     options = optionCounts.map((c) => c.label);
   } else if (type === "category") {
     // Dead-end (n=0) gift queries: offer gift-adjacent categories.
     const GIFT_AFFINITY = ["Toys & Games", "Handmade", "Arts, Crafts & Sewing", "AMAZON FASHION",
       "Amazon Home", "All Beauty", "Baby", "Video Games", "Musical Instruments"];
-    const counts = new Map(stats.categories.map((c) => [c.name, c.count]));
-    let names = stats.categories.slice(0, 4).map((c) => c.name);
-    if (stats.n === 0) {
+    const catCountVis = new Map();
+    for (const r of visItems) if (r.category) catCountVis.set(r.category, (catCountVis.get(r.category) || 0) + 1);
+    let names = iv.categories.slice(0, 4).map((c) => c.name);
+    if (isDeadEnd) {
       names = GIFT_AFFINITY.filter((c) => catalog.some((x) => x.category === c));
-      names.sort((a, b) => (counts.get(b) || 0) - (counts.get(a) || 0));
+      names.sort((a, b) => (catCountVis.get(b) || 0) - (catCountVis.get(a) || 0));
       names = names.slice(0, 4);
     }
     // Intent rank: categories matching the query's SUBJECT lead ("baby shower"
@@ -982,10 +1053,9 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // category); frequency breaks ties.
     names = rankCategoriesByIntent(names, query);
     reason = `ambiguous across categories (top share ${(dominantShare * 100).toFixed(0)}%); zero_or_wrong = 3.5% of mined complaints`;
-    const catCount = (name) => {
-      if (stats.n > 0) return counts.get(name) || 0;
-      return catalog.filter((x) => x.category === name).length; // dead-end: whole catalogue
-    };
+    // §9: counts over the visible set (the recount world); a true dead
+    // end with no visible results recounts over the candidate fallback.
+    const catCount = (name) => catCountVis.get(name) || 0;
     // Shopper-facing family names ("Home & Decor", not "Amazon Home" /
     // "AMAZON FASHION"); the raw names stay the filter values (CAT_ALIAS in
     // search.js maps the display label back on a chip tap).
@@ -995,28 +1065,31 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // question runs on the same set. The grounded gate ignores
     // Any/No-preference/Not-sure labels, so it never counts as a live
     // data option.
-    if (stats.n > 0) optionCounts.push({ label: "Any category", count: stats.n });
+    optionCounts.push({ label: "Any category", count: nVis });
     options = optionCounts.map((c) => c.label);
   } else if (type === "brand") {
-    const brandFloor = Math.max(5, Math.round(0.05 * stats.n));
-    options = stats.brands.filter((b) => b.count >= brandFloor).slice(0, 3).map((b) => b.name);
+    const brandFloor = Math.max(5, Math.round(0.05 * iv.n));
+    options = iv.brands.filter((b) => b.count >= brandFloor).slice(0, 3).map((b) => b.name);
     options.push("No preference - best rated");
-    reason = `brand-driven category, results fragmented (${stats.brands.length} brands in candidate set); brand = strongest trust proxy (trust_gap = 54.4% of mined complaints)`;
-    const brandCount = (name) => (stats.brands.find((b) => b.name === name) || { count: 0 }).count;
-    optionCounts = options.map((o) => ({ label: o, count: o.startsWith("No preference") ? stats.n : brandCount(o) }));
+    reason = `brand-driven category, results fragmented (${iv.brands.length} brands in candidate set); brand = strongest trust proxy (trust_gap = 54.4% of mined complaints)`;
+    const brandCount = (name) => visItems.filter((r) => (r.brand || "") === name).length;
+    optionCounts = options.map((o) => ({ label: o, count: o.startsWith("No preference") ? nVis : brandCount(o) }));
   } else if (type === "for_whom") {
-    // G3: fashion for-whom facet
-    optionCounts = forWhomOptions(stats.items, stats.n);
+    // G3: fashion for-whom facet — §9: counts recounted over the visible
+    // set (labels are the fixed Women/Men/Kids/Unisex set).
+    optionCounts = forWhomOptions(visItems, nVis);
     options = optionCounts.map((o) => o.label);
     reason = `fashion candidate set spans women/men/kids lines; for-whom is the strongest single filter on fashion (46.7% of the catalogue is fashion)`;
   } else if (type === "size") {
-    // G3: size facet, derived from title variants (S/M/L/XL)
-    optionCounts = sizeOptions(stats.items, stats.n);
+    // G3: size facet, derived from title variants (S/M/L/XL) — §9:
+    // counts recounted over the visible set.
+    optionCounts = sizeOptions(visItems, nVis);
     options = optionCounts.map((o) => o.label);
     reason = `size is stated in most candidate titles; picking one removes the largest cluster of near-duplicate variant cards`;
   } else if (type === "capacity") {
-    // G3: appliance capacity facet (tonnage / kg / litres from titles)
-    optionCounts = capacityOptions(stats.items, stats.n);
+    // G3: appliance capacity facet (tonnage / kg / litres from titles) —
+    // §9: counts recounted over the visible set.
+    optionCounts = capacityOptions(visItems, nVis);
     options = optionCounts.map((o) => o.label);
     reason = `appliance candidate set spans multiple capacities (tonnage/kg/litres); the spec slot re-ranks on it`;
   }
@@ -1052,9 +1125,9 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
         parsed,
         persona: context.persona || null,
         types: [...grounded.keys()],
-        setSummary: `n=${stats.n}; top categories: ` +
-          stats.categories.slice(0, 4).map((c) => `${c.name}:${c.count}`).join(", ") +
-          `; price p25/p50/p75: ${inr(stats.priceP.p25)}/${inr(stats.priceP.p50)}/${inr(stats.priceP.p75)}`,
+        setSummary: `n=${iv.n} visible on-intent (loose ${stats.n}); top categories: ` +
+          iv.categories.slice(0, 4).map((c) => `${c.name}:${c.count}`).join(", ") +
+          `; price p25/p50/p75: ${inr((iv.pricePIntent || iv.priceP).p25)}/${inr((iv.pricePIntent || iv.priceP).p50)}/${inr((iv.pricePIntent || iv.priceP).p75)}`,
       });
     } catch { plannerInfo = null; }
   }
@@ -1097,7 +1170,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     : null;
   const usePlanPhrase = !!(inPlan && planEntry && (context.lang || "en") === "en");
 
-  return {
+  const decided = {
     ask: true,
     type,
     options,
@@ -1109,5 +1182,20 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     plannerAi: inPlan ? { keyIdx: plannerInfo.keyIdx ?? null, rotatedFrom: plannerInfo.rotatedFrom ?? null, cached: !!plannerInfo.cached } : null,
     planPhrase: usePlanPhrase || null,
     stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue },
+  };
+  // §9 exit guard on the FINAL emitted question (all tiers, plan-owned
+  // path included): labels must exist in the intent-scoped view, counts
+  // must equal a recount over the visible set, no re-ask. On a violation
+  // the typed-only fallback survives (the typed escape always does).
+  const gv = validateGuideQuestion(decided, iv, visItems, answeredEff, [...prev]);
+  if (gv.ok) return gv.question;
+  return {
+    ...decided,
+    options: [],
+    optionCounts: [],
+    question: TEMPLATES[type],
+    subType: null,
+    planPhrase: null,
+    reason: gv.question.reason,
   };
 }

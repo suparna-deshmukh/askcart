@@ -12,17 +12,27 @@ import { I } from "./kit/Icon";
 import { useToast } from "./kit/Toaster";
 import { displayCat } from "../lib/categories";
 import { track } from "../lib/track";
+import { validateRecommendationRail } from "../../lib/guard.js";
 import { t } from "../lib/i18n";
 
 const EXAMPLES = ["gift under 2k", "diwali decorations", "headphones under 3k", "cotton kurti"];
+const CART_RAIL_NOTED = new Set(); // §9: one drop event per anchor per session
 
+// §9: "Complete your purchase" items must pass the same-category relation
+// to the anchor; below the minimum the rail is hidden, never padded.
 function similarTwo(first, pool, inCart) {
   if (!first || !pool || !pool.length) return [];
-  return pool
+  const base = pool
     .filter((x) => x.sku !== first.sku && !inCart[x.sku] && x.category === first.category &&
       Math.abs(x.price - first.price) <= Math.max(100, first.price * 0.4))
     .sort((a, b) => (b.rating - a.rating) || (b.num_ratings - a.num_ratings))
     .slice(0, 2);
+  const g = validateRecommendationRail(base, { item: first }, { surface: "cart_complete", mode: "item", min: 2, max: 2 });
+  if (g.dropped && !CART_RAIL_NOTED.has("cart:" + first.sku)) {
+    CART_RAIL_NOTED.add("cart:" + first.sku);
+    track("rail_item_dropped", { surface: "cart_complete", reason: "ungrounded" });
+  }
+  return g.hidden ? [] : g.items;
 }
 
 export function CartDrawer({ lang, open, onClose, cart, setCart, onCheckout, onWishSave, onWishUndo, onAdd, onSearch, onHome, similarPool, onAskHelp }) {

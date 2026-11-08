@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { t } from "../lib/i18n";
 import { displayCat } from "../lib/categories";
 import { track } from "../lib/track";
+import { validateRecommendationRail } from "../../lib/guard.js";
 import { I } from "./kit/Icon";
 import { Glyph, glyphFor } from "./kit/Glyphs";
 import { Tile, catTheme } from "./kit/Tile";
@@ -121,6 +122,8 @@ function CatTile({ c, onClick }) {
   );
 }
 
+const RAIL_DROP_NOTED = new Set(); // §9: one drop event per rail per session
+
 export function HomeSections({ lang, preview, facets, recent, onQuery, onAdd, onOpenSku, profileName, interestCtx, picked }) {
   const ic = interestCtx || { interests: [], tokens: [] };
   // Section 4: categories ordered interest-first (stable; equal scores keep
@@ -138,6 +141,16 @@ export function HomeSections({ lang, preview, facets, recent, onQuery, onAdd, on
   const goOcc = (o) => { track("occasion_tile_click", { occasion: o.id, query: o.q }); onQuery(o.q, "occasion"); };
   const goBud = (b) => { track("budget_tile_click", { budget: b.label, query: b.q }); onQuery(b.q, "budget"); };
   const goBrand = (b) => { track("brand_tile_click", { brand: b.name, source: "home" }); onQuery(b.name, "brand"); };
+
+  // §9: home rails route through the recommendation guard. Occasion tiles
+  // (min 3) keep the section; festival band item rails must pass the
+  // price-in-band relation (min 3 per band, hidden below); Recently viewed
+  // is a rail-level history relation (min 3, never padded).
+  const occTilesG = validateRecommendationRail(occs, {}, { surface: "home_occ_tile", mode: "tile", min: 3 });
+  const occsG = occTilesG.hidden ? [] : occTilesG.items;
+  const bandG = (b) => validateRecommendationRail(b.items, { band: [b.min, b.cap], bandLabel: b.label },
+    { surface: "home_band", mode: "item", min: 3 });
+  const recentG = validateRecommendationRail(recent || [], {}, { surface: "home_recent", mode: "history", min: 3 });
 
   const intLabel = (x) => (INTEREST_TK[x] ? t(lang, INTEREST_TK[x]) : x);
 
@@ -171,10 +184,11 @@ export function HomeSections({ lang, preview, facets, recent, onQuery, onAdd, on
         </div>
       )}
 
+      {occsG.length > 0 && (
       <div>
         <div className="sec-head"><h2>{t(lang, "shopByOccasion")}</h2></div>
         <div className="homeocc">
-          {occs.map((o) => {
+          {occsG.map((o) => {
             const th = catTheme(o.cat, o.cat);
             return (
               <button key={o.id} className={"homeocc-card" + (o.days != null ? " live" : "")}
@@ -195,6 +209,7 @@ export function HomeSections({ lang, preview, facets, recent, onQuery, onAdd, on
           })}
         </div>
       </div>
+      )}
 
       <div>
         <div className="sec-head"><h2>{t(lang, "shopByBudget")}</h2></div>
@@ -219,20 +234,29 @@ export function HomeSections({ lang, preview, facets, recent, onQuery, onAdd, on
                   t(lang, "daysAway").replace("{n}", preview.rails.days)} · best-rated per budget · {preview.catalogSize.toLocaleString("en-IN")} products loaded
               </span>
             </div>
-            {preview.rails.bands.map((b) => (
+            {preview.rails.bands.map((b) => {
+              const g = bandG(b);
+              if (g.dropped && !RAIL_DROP_NOTED.has("band:" + b.label)) {
+                RAIL_DROP_NOTED.add("band:" + b.label);
+                track("rail_item_dropped", { surface: "home_band", reason: "ungrounded" });
+              }
+              if (g.hidden) return null; // below minimum: hidden, never padded
+              const items = g.items;
+              return (
               <div className="rail" key={b.label}>
                 <div className="rail-head">
                   <h3>{b.label}</h3>
-                  <span className="gc">{b.items.length} picks · festive goods & gifts</span>
+                  <span className="gc">{items.length} picks · festive goods & gifts</span>
                 </div>
                 <div className="rail-row">
-                  {b.items.map((r) => (
+                  {items.map((r) => (
                     <ProductCard key={r.sku} r={r} onAdd={(x) => onAdd(x)}
-                                 onOpen={(x) => onOpenSku(x.sku, preview.rails.bands.flatMap((z) => z.items))} />
+                                 onOpen={(x) => onOpenSku(x.sku, items)} />
                   ))}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div>
@@ -290,13 +314,13 @@ export function HomeSections({ lang, preview, facets, recent, onQuery, onAdd, on
         </div>
       )}
 
-      {recent && recent.length > 0 && (
+      {recentG.items.length >= recentG.min && (
         <div>
           <div className="sec-head"><h2>{t(lang, "recentlyViewed")}</h2></div>
           <div className="rail-row">
-            {recent.map((r) => (
+            {recentG.items.map((r) => (
               <ProductCard key={r.sku} r={r} onAdd={(x) => onAdd(x)}
-                           onOpen={(x) => onOpenSku(x.sku, recent)} />
+                           onOpen={(x) => onOpenSku(x.sku, recentG.items)} />
             ))}
           </div>
         </div>

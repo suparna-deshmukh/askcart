@@ -488,6 +488,24 @@ function OverviewPanel({ sum }) {
 }
 function SearchGuidePanel({ sum }) {
   const t = sum.totals;
+  // S9: guided-question health — 24h window stats (JSONL) + the in-process
+  // guard counters from /api/ai-status.
+  const [gh, setGh] = useState(null);
+  const [guard, setGuard] = useState(null);
+  useEffect(() => {
+    let stop = false;
+    const pull = () => Promise.all([
+      fetch("/api/analytics/summary?range=24h").then(r => r.json()).catch(() => null),
+      fetch("/api/ai-status").then(r => r.json()).catch(() => null),
+    ]).then(([j24, jai]) => {
+      if (stop) return;
+      if (j24 && j24.current && j24.current.guideHealth) setGh(j24.current.guideHealth);
+      if (jai && jai.guard) setGuard(jai.guard);
+    });
+    pull();
+    const id = setInterval(pull, 5000);
+    return () => { stop = true; clearInterval(id); };
+  }, []);
   return (
     <div>
       <div className="statgrid">
@@ -512,6 +530,17 @@ function SearchGuidePanel({ sum }) {
             <div className="meta">The guide asks when a search is weak (rescue) or can sharpen strong results (refine).</div>
           </>
         ) : <div className="feedempty">No guide activity yet.</div>}
+      </div>
+      <div className="dim">
+        <h3>Guided question health &middot; last 24 h</h3>
+        <div className="statgrid">
+          <Stat k="Questions asked" v={gh ? gh.asked : "\u2013"} note="guide_question events in the last 24 h" />
+          <Stat k="Zero-narrowing" v={gh && gh.zeroNarrowPct != null ? gh.zeroNarrowPct + "%" : "\u2013"} warn={!!(gh && gh.zeroNarrowPct != null && gh.zeroNarrowPct > 25)} note="chip answers that did not shrink the visible set" />
+          <Stat k="Zero-count options" v={gh && gh.zeroCountPct != null ? gh.zeroCountPct + "%" : "\u2013"} warn={!!(gh && gh.zeroCountPct != null && gh.zeroCountPct > 10)} note="questions offering \u22651 zero-count option" />
+          <Stat k="Guard fallbacks" v={guard ? guard.fallbacks : "\u2013"} note="exit-guard typed-only downgrades (this process)" />
+          <Stat k="Option mismatches" v={gh ? gh.mismatches : "\u2013"} note="client recount \u2260 server count (24 h)" />
+          <Stat k="Rail items dropped" v={gh ? gh.railDrops : "\u2013"} note="ungrounded rail items dropped (24 h)" />
+        </div>
       </div>
       <div className="dim">
         <h3>Filter usage · mid-search refinement (brand / price / rating / category / sort)</h3>

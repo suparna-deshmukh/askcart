@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { loadCatalog } from "../../../lib/catalog";
 import { parseQuery } from "../../../lib/search";
 import { decideGuide } from "../../../lib/guide.js";
+import { optionKind } from "../../../lib/guard.js";
 import { geminiChat, geminiStatus } from "../../../lib/gemini_keys.js";
 import { record } from "../../../lib/analyticsStore";
 import { t, budgetLabel, occasionLabel } from "../../../app/lib/i18n.js";
@@ -34,6 +35,20 @@ export async function POST(req) {
     // Item D: the page opts into the AI question-type planner; canaries and
     // the chat dialog keep the deterministic policy order.
     planner: body.planner === true,
+    // §9: the shopper's visible results (post-cap) - the world every
+    // question option must be grounded in. Sanitised: shape + size caps.
+    visible: (Array.isArray(body.visible) ? body.visible : [])
+      .filter((x) => x && typeof x === "object")
+      .slice(0, 48)
+      .map((x) => ({
+        sku: String(x.sku || "").slice(0, 64),
+        title: String(x.title || "").slice(0, 120),
+        price: Math.max(0, Number(x.price) || 0),
+        brand: x.brand ? String(x.brand).slice(0, 48) : null,
+        category: x.category ? String(x.category).slice(0, 64) : null,
+        tags: Array.isArray(x.tags) ? x.tags.slice(0, 12).map((tg) => String(tg).slice(0, 24)) : [],
+        intent: x.intent === true,
+      })),
   });
 
   if (!decision.ask) {
@@ -56,10 +71,11 @@ export async function POST(req) {
   };
   if (lang !== "en") {
     // O2: non-English phrasing comes from static tables (no LLM) so it is
-    // deterministic and never invents vocabulary.
+    // deterministic and never invents vocabulary. §9: carry orig+kind so
+    // the client card can recount on the original (canonical) label.
     question = t(lang, "q" + decision.type[0].toUpperCase() + decision.type.slice(1));
     options = options.map(translateOption);
-    optionCounts = optionCounts.map((c) => ({ ...c, label: translateOption(c.label) }));
+    optionCounts = optionCounts.map((c) => ({ ...c, orig: c.label, kind: c.kind || optionKind(decision, c.label), label: translateOption(c.label) }));
   } else if (decision.planPhrase) {
     // Item B: the one-call journey plan already phrased this question
     // (server-validated: <=12 words, no prices/URLs) - no second LLM
@@ -90,6 +106,9 @@ export async function POST(req) {
     }
   }
 
+  // §9: every option carries its canonical label + kind so the client
+  // question card can recount exactly (mismatch -> disabled chip + event).
+  optionCounts = optionCounts.map((c) => ({ ...c, orig: c.orig || c.label, kind: c.kind || optionKind(decision, c.orig || c.label) }));
   const guide = { type: decision.type, question, options, reason: decision.reason };
   if (decision.subType) guide.subType = decision.subType;
   if (optionCounts.length) guide.optionCounts = optionCounts;

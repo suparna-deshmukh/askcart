@@ -10,6 +10,7 @@
 // similar rails, mobile sticky buy bar.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { track } from "../lib/track";
+import { validateRecommendationRail } from "../../lib/guard.js";
 import { t } from "../lib/i18n";
 import { displayCat } from "../lib/categories";
 import { Tile } from "./kit/Tile";
@@ -205,7 +206,11 @@ export function PdpView({ lang, item, onBack, onAdd, onBuy, onGoCart, similar, m
       <ProductCard r={x} {...cardProps(from, x)} />
     </div>
   ));
-  const recentList = (recent || []).filter((r) => r.sku !== cur.sku).slice(0, 8);
+  // §9: recently-viewed is a rail-level history relation; below the
+  // minimum the rail is hidden rather than padded.
+  const recentRaw = (recent || []).filter((r) => r.sku !== cur.sku).slice(0, 8);
+  const recentG = validateRecommendationRail(recentRaw, {}, { surface: "pdp_recent", mode: "history", min: 3 });
+  const recentList = recentG.items.length >= recentG.min ? recentG.items : [];
 
   return (
     <div className="wrap pdpv" id="pdp-view">

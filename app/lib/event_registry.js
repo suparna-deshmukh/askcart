@@ -48,6 +48,9 @@ export const EVENTS = {
   demand_signal: { label: "Demand signal (dead-end)", family: "search" },
   // guide loop
   guide_question_shown: { label: "Guide question shown", family: "guide" },
+  guide_question: { label: "Guide question (grounded)", family: "guide" },
+  guide_option_mismatch: { label: "Guide option count mismatch", family: "guide" },
+  rail_item_dropped: { label: "Rail item dropped (ungrounded)", family: "guide" },
   guide_option_selected: { label: "Guide option picked", family: "guide" },
   guide_typed_answer: { label: "Guide typed answer", family: "guide" },
   guide_skipped: { label: "Guide skipped", family: "guide" },

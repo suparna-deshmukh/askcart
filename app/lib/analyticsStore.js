@@ -48,6 +48,23 @@ function logLine(type, p) {
   if (p.source) o.src = String(p.source).slice(0, 24);
   if (p.n_results !== undefined) o.n = Number(p.n_results) || 0;
   if (p.turn) o.tr = Number(p.turn) || 0;
+  // §9 guided-grounding fields (frozen compact shape): qt=question type,
+  // nv=n_visible, zc=zero_count_options, sf=rail surface, rn=rail/guard
+  // reason; guide_option_mismatch reuses o.c (option) / o.v (client) /
+  // o.n (server) so no new keys are added for it.
+  if (type === "guide_question") {
+    if (p.type !== undefined && p.type !== "") o.qt = String(p.type).slice(0, 24);
+    if (p.n_visible !== undefined) o.nv = Number(p.n_visible) || 0;
+    if (p.zero_count_options !== undefined) o.zc = Number(p.zero_count_options) || 0;
+    if (p.reason) o.rn = String(p.reason).slice(0, 24);
+  } else if (type === "guide_option_mismatch") {
+    if (p.option) o.c = String(p.option).slice(0, 40);
+    if (p.client_count !== undefined) o.v = Number(p.client_count) || 0;
+    if (p.server_count !== undefined) o.n = Number(p.server_count) || 0;
+  } else if (type === "rail_item_dropped") {
+    if (p.surface) o.sf = String(p.surface).slice(0, 24);
+    if (p.reason) o.rn = String(p.reason).slice(0, 24);
+  }
   return JSON.stringify(o);
 }
 function appendLog(type, p, env) {
@@ -118,6 +135,30 @@ export function windowStats(fromMs, toMs, env = null) {
   }
   const top = (m, n) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([name, count]) => ({ name, count }));
   const journeysWithChat = [...msgSids].filter((s) => journeySids.has(s)).length;
+  // §9: guided-question health (last-window, from the JSONL log):
+  // questions asked, % options with zero count, % zero-narrowing turns
+  // (consecutive same-session/same-query n_visible that did not drop),
+  // client/server option mismatches, rail item drops.
+  const gh = { asked: 0, zeroCountOpts: 0, narrowPairs: 0, zeroNarrow: 0, mismatches: 0, railDrops: 0 };
+  const nvisSeq = new Map(); // "s\u0000q" -> [[tr, nv], ...]
+  for (const l of lines) {
+    if (l.type === "guide_question") {
+      gh.asked += 1;
+      if (l.zc > 0) gh.zeroCountOpts += 1;
+      const k = (l.s || "?") + "\u0000" + (l.q || "?");
+      if (!nvisSeq.has(k)) nvisSeq.set(k, []);
+      nvisSeq.get(k).push([l.tr || 0, l.nv || 0]);
+    } else if (l.type === "guide_option_mismatch") gh.mismatches += 1;
+    else if (l.type === "rail_item_dropped") gh.railDrops += 1;
+  }
+  for (const seq of nvisSeq.values()) {
+    for (let i = 1; i < seq.length; i++) {
+      if (seq[i][0] > seq[i - 1][0]) {
+        gh.narrowPairs += 1;
+        if (seq[i][1] >= seq[i - 1][1]) gh.zeroNarrow += 1;
+      }
+    }
+  }
   return {
     spanMs: span,
     events: lines.length,
@@ -141,6 +182,13 @@ export function windowStats(fromMs, toMs, env = null) {
     topCats: top(cMap, 10),
     topSkus: top(kMap, 10),
     activity,
+    guideHealth: {
+      asked: gh.asked,
+      zeroCountPct: gh.asked ? +((100 * gh.zeroCountOpts) / gh.asked).toFixed(1) : null,
+      zeroNarrowPct: gh.narrowPairs ? +((100 * gh.zeroNarrow) / gh.narrowPairs).toFixed(1) : null,
+      mismatches: gh.mismatches,
+      railDrops: gh.railDrops,
+    },
   };
 }
 

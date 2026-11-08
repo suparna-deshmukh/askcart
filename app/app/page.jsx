@@ -24,6 +24,7 @@ import { Footer } from "./ui/shell/Footer";
 import { ToasterProvider, useToast } from "./ui/kit/Toaster";
 import { useChat } from "./ui/chat/useChat";
 import { looksConversational } from "../lib/ask";
+import { recountOption, optionKind, validateRecommendationRail } from "../lib/guard.js";
 import { WishlistView } from "./ui/wishlist";
 import { ProductCard, VARIANT_PAREN } from "./ui/cards";
 import { HeroDemo, HomeSections, useTypewriter } from "./ui/home";
@@ -206,11 +207,57 @@ const WHY_COPY = {
   any: "No single filter dominated these results, so this is an open question — type a brand, a use or a detail and the results re-rank on it.",
 };
 
-function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1, prevCount = null, countAfter = null }) {
+// §9: the visible world (post-cap results) the guide policy grounds its
+// options in, plus the client-side audit events.
+function visibleProj(results) {
+  return (results || []).slice(0, 96).map((r) => ({
+    sku: r.sku, title: r.title, price: r.price,
+    brand: r.brand || null, category: r.category || null,
+    tags: r.tags || [], intent: r.intent === true,
+  }));
+}
+const GUIDE_MISMATCH_SEEN = new Set(); // §9: one mismatch event per option per session
+const RAIL_DROP_NOTED = new Set(); // §9: one drop event per rail anchor per session
+function trackGuideQuestion(g, nVisible) {
+  const oc = (g && g.guide && g.guide.optionCounts) || [];
+  track("guide_question", {
+    type: (g && g.guide && g.guide.type) || null,
+    source: (g && g.mode === "ai") ? "ai" : ((g && g.mode) || "policy"),
+    reason: (g && g.decision && g.decision.reason) || "",
+    zero_count_options: oc.filter((c) => !c || !(c.count > 0)).length,
+    n_visible: nVisible || 0,
+  });
+}
+
+function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1, prevCount = null, countAfter = null, results = null, rescue = false }) {
   const [whyOpen, setWhyOpen] = useState(false);
   const [typed, setTyped] = useState("");
   const inputRef = useRef(null);
   const counts = Object.fromEntries((guide.optionCounts || []).map((c) => [c.label, c.count]));
+  // §9 runtime safety net: recount every option count from the VISIBLE
+  // results the card is shown with. Server ≠ client -> the chip is
+  // disabled (the typed escape always survives) and a throttled mismatch
+  // event fires. Rescue questions (honest not-found "closest picks")
+  // keep their server counts - their options are catalogue-wide by design.
+  const shownCounts = { ...counts };
+  const mismatched = {};
+  if (results && !rescue && guide.optionCounts) {
+    for (const c of guide.optionCounts) {
+      if (!c || !c.label) continue;
+      const canon = c.orig || c.label;
+      const kind = c.kind || optionKind(guide, canon);
+      const rc = recountOption(kind, canon, results);
+      shownCounts[c.label] = rc;
+      if (rc !== (c.count || 0)) {
+        mismatched[c.label] = true;
+        const k = guide.type + ":" + canon;
+        if (!GUIDE_MISMATCH_SEEN.has(k)) {
+          GUIDE_MISMATCH_SEEN.add(k);
+          track("guide_option_mismatch", { type: guide.type, option: c.label, server_count: c.count || 0, client_count: rc });
+        }
+      }
+    }
+  }
   // Every question (strip or card) carries options PLUS a typed escape:
   // the last chip ("Something else") focuses the input, so the shopper
   // can always answer in their own words.
@@ -218,8 +265,15 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
   const submitTyped = () => { if (typed.trim()) { onTyped(typed); setTyped(""); } };
   const focusTyped = () => { try { inputRef.current && inputRef.current.focus(); } catch {} };
   const answered = Math.max(0, progress - 1);
+  // §9 meter: a narrowing shows "M → N"; a zero-delta answer renders
+  // honestly ("still N products"); a count that would INCREASE never shows
+  // the arrow (just the current number).
   const meter = (countAfter != null && prevCount != null)
-    ? (<><b>{prevCount}</b> <span className="qmeter-arr">→</span> <b className="qmeter-now">{countAfter}</b> {t(lang, "productsWord")}</>)
+    ? (countAfter < prevCount
+      ? (<><b>{prevCount}</b> <span className="qmeter-arr">→</span> <b className="qmeter-now">{countAfter}</b> {t(lang, "productsWord")}</>)
+      : countAfter === prevCount
+        ? (<>{t(lang, "qStill")} <b className="qmeter-now">{countAfter}</b> {t(lang, "productsWord")}</>)
+        : (<><b className="qmeter-now">{countAfter}</b> {t(lang, "productsWord")}</>))
     : (countAfter != null ? <>{countAfter} {t(lang, "productsWord")}</> : null);
   if (refine) {
     // G11: resolved searches get a compact strip, never a card pushing
@@ -240,8 +294,9 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
         </div>
         <div className="qstrip2-chips">
           {guide.options.map((c) => (
-            <button key={c} className={"qchip2" + (counts[c] === 0 ? " zero" : "")} onClick={() => onChip(c)} disabled={busy || counts[c] === 0}>
-              {c}{counts[c] != null && <span className="ccnt">{counts[c]}</span>}
+            <button key={c} className={"qchip2" + ((shownCounts[c] === 0 || mismatched[c]) ? " zero" : "")}
+                    onClick={() => onChip(c)} disabled={busy || shownCounts[c] === 0 || !!mismatched[c]}>
+              {c}{shownCounts[c] != null && <span className="ccnt">{shownCounts[c]}</span>}
             </button>
           ))}
           {guide.options.length > 0 && (
@@ -278,9 +333,9 @@ function QuestionCard({ guide, lang, busy, onChip, onTyped, onSkip, progress = 1
       <div className="qcard2-chips" role="radiogroup" aria-label={guide.question}>
         {guide.options.map((c) => (
           <button key={c} role="radio" aria-checked="false"
-                  className={"qchip2" + (counts[c] === 0 ? " zero" : "")}
-                  onClick={() => onChip(c)} disabled={busy || counts[c] === 0}>
-            {c}{counts[c] != null && <span className="ccnt">{counts[c]}</span>}
+                  className={"qchip2" + ((shownCounts[c] === 0 || mismatched[c]) ? " zero" : "")}
+                  onClick={() => onChip(c)} disabled={busy || shownCounts[c] === 0 || !!mismatched[c]}>
+            {c}{shownCounts[c] != null && <span className="ccnt">{shownCounts[c]}</span>}
           </button>
         ))}
         {guide.options.length > 0 && (
@@ -502,7 +557,19 @@ function AskCartHome() {
         .filter((r) => { if (!r || !r.sku || seen.has(r.sku)) return false; seen.add(r.sku); return true; });
       if (!items.length) return;
       items.sort((a, b) => recommendScore(b, persona, interestCtx) - recommendScore(a, persona, interestCtx));
-      setPicked({ items: items.slice(0, 10), interests: std });
+      // §9: every rail item must carry a NAMED relation to its anchor (the
+      // declared interests); ungrounded items are dropped, a rail below its
+      // minimum is hidden (never padded), and the "Because you like X" line
+      // is generated ONLY from the relations that actually passed.
+      const g = validateRecommendationRail(items.slice(0, 10), { interests: std, tokens: interestCtx.tokens },
+        { surface: "picked", mode: "interest", min: 3, max: 10 });
+      if (g.hidden) return;
+      if (g.dropped && !RAIL_DROP_NOTED.has("picked:" + std.join(","))) {
+        RAIL_DROP_NOTED.add("picked:" + std.join(","));
+        track("rail_item_dropped", { surface: "picked", reason: "ungrounded" });
+      }
+      const matched = [...g.reasons].filter((r) => r.startsWith("interest:")).map((r) => r.slice("interest:".length));
+      setPicked({ items: g.items, interests: matched.length ? matched : std });
     });
     return () => { alive = false; };
   }, [boot, tab, s, interestCtx, persona]);
@@ -577,7 +644,7 @@ function AskCartHome() {
     const trail = [query];
     if (meta.trailLabel) trail.push({ label: meta.trailLabel, opts: { budget: opts.budget || null, occasion: opts.occasion || null, category: opts.category || null, brand: opts.brand || null, forWhom: opts.forWhom || null, size: opts.size || null, capacity: opts.capacity || null } });
     setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results,
-           total: res.total_matches ?? res.results.length, parsed: res.parsed,
+           total: res.results.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null, trail, exhausted: !ok, error: null, counts: [res.results.length],
            echo: meta.echo || null });
     setMoreN(24);
@@ -949,7 +1016,7 @@ function AskCartHome() {
         text: "Quick mode: to keep responses fast, the remaining questions in this session come from the built-in rules." });
     }
   }
-  async function askGuide(query, nResults, turn, slotsOverride) {
+  async function askGuide(query, nResults, turn, slotsOverride, visibleArr) {
     const jn = journeyRef.current;
     const prevTypes = jn ? jn.prevTypes || [] : [];
     // Cumulative chip answers (from the trail) so the policy builds its
@@ -966,7 +1033,8 @@ function AskCartHome() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, n_results: nResults, turn, prev_types: prevTypes,
                              journey_id: jn ? jn.id : null, region, persona, lang, slots,
-                             planner: useAI, session_id: getSessionId() }),
+                             planner: useAI, session_id: getSessionId(),
+                             visible: visibleProj(visibleArr != null ? visibleArr : (s ? s.results : [])) }),
     });
     const j = await r.json().catch(() => ({}));
     // Item B: a cached plan read made NO LLM call - give the budget unit
@@ -1029,7 +1097,7 @@ function AskCartHome() {
     // study and the simulation use). Loose/relax results alone do not count.
     const ok = res.results.filter((r) => r.intent).length >= 2;
     markResultsShown(query, res.results, 1, "results");
-    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, total: res.total_matches ?? res.results.length, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null, counts: [res.results.length] });
+    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, total: res.results.length, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null, counts: [res.results.length] });
     setMoreN(24);
     if (ok) {
       track("resolved", { query, turns: 1, n_results: res.results.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
@@ -1037,7 +1105,7 @@ function AskCartHome() {
       // Optional refinement: the policy decides if one more question adds
       // value (e.g. budget for an open-ended "headphones" query).
       // n_results = intent-hit count (same semantics as the study).
-      const g = await askGuide(query, res.results.filter((r) => r.intent).length, 2);
+      const g = await askGuide(query, res.results.filter((r) => r.intent).length, 2, null, res.results);
       if (g.guide) {
         planPhraseRef.current = !!(g.decision && g.decision.planPhrase);
         pushPrevType(g.guide);
@@ -1048,7 +1116,8 @@ function AskCartHome() {
           planner: (g.decision && g.decision.planner) || null,
           journey_id: journeyRef.current.id,
         });
-        setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: true } });
+        trackGuideQuestion(g, res.results.length);
+        setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: true, rescue: !!(g.decision && g.decision.rescue) } });
       } else {
         endJourney(journeyRef.current, { resolved: true, turns: 1 });
       }
@@ -1071,7 +1140,7 @@ function AskCartHome() {
       }
     }
     for (let turn = 2; turn <= 5; turn++) {
-      const g = await askGuide(query, res.results.filter((r) => r.intent).length, turn);
+      const g = await askGuide(query, res.results.filter((r) => r.intent).length, turn, null, res.results);
       const guide = g.guide;
       if (!guide) {
         track("guide_no_question", { query, turn, reason: (g.decision && g.decision.reason) || "" });
@@ -1087,9 +1156,10 @@ function AskCartHome() {
         query, question_type: guide.type, turn, options_count: guide.options.length,
         mode: g.mode, reason: g.decision && g.decision.reason, planner: (g.decision && g.decision.planner) || null, journey_id: journeyRef.current.id,
       });
+      trackGuideQuestion(g, res.results.length);
       // s.turn stays at the last displayed search (1) - the search after
       // this chip answer is turn 2, same numbering as the n=150 study.
-      setS((st) => st && { ...st, guide: { ...guide, mode: g.mode, refine: false } });
+      setS((st) => st && { ...st, guide: { ...guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } });
       break; // user picks a chip
     }
     setBusy(false);
@@ -1182,19 +1252,21 @@ function AskCartHome() {
         type: ai.question.type,
         question: ai.question.prompt,
         options: ai.question.options.map((o) => o.label),
-        optionCounts: ai.question.options.map((o) => ({ label: o.label, count: o.count || 0 })),
+        optionCounts: ai.question.options.map((o) => ({ label: o.label, count: o.count || 0, kind: o.kind || null, orig: o.label })),
         reason: "ai_refine",
       },
       mode: "ai",
-      decision: { type: ai.question.type, reason: "ai_refine", planner: ai.via || null },
+      decision: { type: ai.question.type, reason: "ai_refine", planner: ai.via || null, rescue: false },
     };
   }
 
-  // G10: one-line echo of what changed, shown above the results. Totals
-  // are full pre-cap match counts, so "N of M left" counts the whole
-  // matching set, not the 48-item display cap.
-  function echoFor(chip, totalNow, totalPrev) {
-    return `${chip} · ${totalNow} of ${totalPrev} left`;
+  // G10 + §9: one-line echo of what changed, above the results. Counts are
+  // the VISIBLE (post-cap) results, and a narrowing must never show an
+  // INCREASING "left" count - if the number would go up (or the previous
+  // total is unknown) the "of M" part is dropped.
+  function echoFor(chip, nowN, prevN) {
+    if (prevN != null && Number.isFinite(prevN) && nowN < prevN) return `${chip} · ${nowN} of ${prevN} left`;
+    return `${chip} · ${nowN} left`;
   }
   async function applyAnswer(chip, guide) {
     if (!s || busy) return;
@@ -1314,17 +1386,17 @@ function AskCartHome() {
     const wasOk = s.ok === true;
     markResultsShown(s.query, finalResults, turnNow, "results");
     setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: finalResults,
-           total: res.total_matches ?? finalResults.length, parsed: res.parsed,
+           total: finalResults.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null,
            trail: [...s.trail, { label: trailLabel, opts: appliedOpts }, ...aiSteps],
-           echo: echoFor(trailLabel, res.total_matches ?? finalResults.length, s.total ?? s.results.length), error: null, counts: [...(s.counts || []), finalResults.length] });
+           echo: echoFor(trailLabel, finalResults.length, s.total), error: null, counts: [...(s.counts || []), finalResults.length] });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: finalResults.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
       // Keep guiding: a resolved result is a start, not the destination.
       // Ask the next ladder question until 1 item remains (or 0), the
       // ladder runs dry, or the shopper skips (2026-11-06: no turn cap).
       if (!plainMode) {
-        const g2 = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots));
+        const g2 = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots, finalResults));
         if (g2.guide) {
           planPhraseRef.current = !!(g2.decision && g2.decision.planPhrase);
           pushPrevType(g2.guide);
@@ -1334,7 +1406,8 @@ function AskCartHome() {
             options_count: g2.guide.options.length, mode: g2.mode, refine: true,
             reason: g2.decision && g2.decision.reason, planner: (g2.decision && g2.decision.planner) || null, journey_id: journeyRef.current.id,
           });
-          setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true } });
+          trackGuideQuestion(g2, finalResults.length);
+          setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true, rescue: !!(g2.decision && g2.decision.rescue) } });
           setBusy(false);
           return;
         }
@@ -1347,7 +1420,7 @@ function AskCartHome() {
     // narrowed set until 1 item remains (or 0), the ladder runs dry, or
     // the shopper skips (2026-11-06: no turn cap).
     if (!plainMode) {
-      const g = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots));
+      const g = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query, finalResults.filter((r) => r.intent).length, turnNow + 1, newSlots, finalResults));
       if (g.guide) {
         planPhraseRef.current = !!(g.decision && g.decision.planPhrase);
         pushPrevType(g.guide);
@@ -1357,7 +1430,8 @@ function AskCartHome() {
           options_count: g.guide.options.length, mode: g.mode,
           reason: g.decision && g.decision.reason, planner: (g.decision && g.decision.planner) || null, journey_id: journeyRef.current.id,
         });
-        setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: false } });
+        trackGuideQuestion(g, finalResults.length);
+        setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } });
         setBusy(false);
         return;
       }
@@ -1438,15 +1512,15 @@ function AskCartHome() {
     const ok = intentN >= 2;
     markResultsShown(s.query, res.results, turnNow, "results");
     setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: res.results,
-           total: res.total_matches ?? res.results.length, parsed: res.parsed,
+           total: res.results.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, { label: txt, opts: null }, ...aiSteps],
-           echo: `${txt} · ${res.total_matches ?? res.results.length} of ${s.total ?? s.results.length} left`, error: null, counts: [...(s.counts || []), res.results.length] });
+           echo: echoFor(txt, res.results.length, s.total), error: null, counts: [...(s.counts || []), res.results.length] });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: intentN, journey_id: journeyRef.current.id });
       // Same keep-guiding rule as chip answers: the typed text narrows
       // the set, so the next question is built on the narrowed set.
       if (!plainMode) {
-        const g2 = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }));
+        const g2 = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }, res.results));
         if (g2.guide) {
           planPhraseRef.current = !!(g2.decision && g2.decision.planPhrase);
           pushPrevType(g2.guide);
@@ -1456,7 +1530,8 @@ function AskCartHome() {
             options_count: g2.guide.options.length, mode: g2.mode, refine: true,
             reason: g2.decision && g2.decision.reason, planner: (g2.decision && g2.decision.planner) || null, journey_id: journeyRef.current.id,
           });
-          setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true } });
+          trackGuideQuestion(g2, res.results.length);
+          setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true, rescue: !!(g2.decision && g2.decision.rescue) } });
           setBusy(false);
           return;
         }
@@ -1466,7 +1541,7 @@ function AskCartHome() {
       return;
     }
     if (!plainMode) {
-      const g = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }));
+      const g = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }, res.results));
       if (g.guide) {
         planPhraseRef.current = !!(g.decision && g.decision.planPhrase);
         pushPrevType(g.guide);
@@ -1476,7 +1551,8 @@ function AskCartHome() {
           options_count: g.guide.options.length, mode: g.mode,
           reason: g.decision && g.decision.reason, planner: (g.decision && g.decision.planner) || null, journey_id: journeyRef.current.id,
         });
-        setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: false } });
+        trackGuideQuestion(g, res.results.length);
+        setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } });
         setBusy(false);
         return;
       }
@@ -1509,7 +1585,7 @@ function AskCartHome() {
     }
     const intentN = s.results.filter((r) => r.intent).length;
     if (!plainMode && skips < 3) {
-      const g2 = await askGuide(s.query, intentN, s.turn + 1);
+      const g2 = await askGuide(s.query, intentN, s.turn + 1, null, s.results);
       if (g2.guide) {
         planPhraseRef.current = !!(g2.decision && g2.decision.planPhrase);
         pushPrevType(g2.guide);
@@ -1520,7 +1596,8 @@ function AskCartHome() {
           reason: g2.decision && g2.decision.reason, planner: (g2.decision && g2.decision.planner) || null,
           journey_id: jn ? jn.id : null,
         });
-        setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true } });
+        trackGuideQuestion(g2, s.results.length);
+        setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true, rescue: !!(g2.decision && g2.decision.rescue) } });
         setBusy(false);
         return;
       }
@@ -1548,7 +1625,7 @@ function AskCartHome() {
     const ok = res.results.filter((r) => r.intent).length >= 2;
     markResultsShown(s.query, res.results, remaining.length + 1, "results");
     setS((st) => st && { ...st, ok, ms: Date.now() - t0, results: res.results,
-                         total: res.total_matches ?? res.results.length, parsed: res.parsed,
+                         total: res.results.length, parsed: res.parsed,
                          trail: st.trail.filter((_, j) => j !== i), echo: null,
                          guide: null, exhausted: false });
   }
@@ -1776,17 +1853,32 @@ function AskCartHome() {
   }, [s, persona]);
 
   // 7.1: similar items = same category, within ±40% price, best rated.
+  // §9: both PDP rails run through the recommendation guard - every item
+  // must pass a NAMED relation to the anchor (same category / same
+  // non-empty brand); below-minimum rails are hidden, never padded.
   function similarFor(item, pool) {
-    return (pool || []).filter((x) => x.sku !== item.sku && x.category === item.category &&
+    const base = (pool || []).filter((x) => x.sku !== item.sku && x.category === item.category &&
       Math.abs(x.price - item.price) <= Math.max(100, item.price * 0.4))
       .sort((a, b) => (b.rating - a.rating) || (b.num_ratings - a.num_ratings))
       .slice(0, 12);
+    const g = validateRecommendationRail(base, { item }, { surface: "similar", mode: "item", min: 4, max: 12 });
+    if (g.dropped && !RAIL_DROP_NOTED.has("similar:" + item.sku)) {
+      RAIL_DROP_NOTED.add("similar:" + item.sku);
+      track("rail_item_dropped", { surface: "similar", reason: "ungrounded" });
+    }
+    return g.hidden ? [] : g.items;
   }
   function moreFromBrandFor(item, pool) {
-    if (!item || !item.brand) return [];
-    return (pool || []).filter((x) => x.sku !== item.sku && x.brand === item.brand && x.category !== item.category)
+    if (!item || !item.brand) return []; // brand-less anchors get no rail at all
+    const base = (pool || []).filter((x) => x.sku !== item.sku && x.brand === item.brand && x.category !== item.category)
       .sort((a, b) => (b.rating - a.rating) || (b.num_ratings - a.num_ratings))
       .slice(0, 12);
+    const g = validateRecommendationRail(base, { item }, { surface: "more_from_brand", mode: "item", min: 2, max: 12 });
+    if (g.dropped && !RAIL_DROP_NOTED.has("brand:" + item.sku)) {
+      RAIL_DROP_NOTED.add("brand:" + item.sku);
+      track("rail_item_dropped", { surface: "more_from_brand", reason: "ungrounded" });
+    }
+    return g.hidden ? [] : g.items;
   }
   function openPdp(r, from, position) {
     pushNav();
@@ -2106,7 +2198,8 @@ function AskCartHome() {
                               onTyped={(txt) => answerTyped(txt, s.guide)}
                               onSkip={skipGuide} progress={s.turn}
                               prevCount={s.counts && s.counts.length >= 2 ? s.counts[s.counts.length - 2] : null}
-                              countAfter={s.counts ? s.counts[s.counts.length - 1] : null} />
+                              countAfter={s.counts ? s.counts[s.counts.length - 1] : null}
+                              results={s.results} rescue={!!s.guide.rescue} />
               )}
 
               {s && s.error && (
