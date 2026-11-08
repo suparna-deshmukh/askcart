@@ -3,7 +3,7 @@ import { loadCatalog } from "../../../lib/catalog";
 import { search, parseQuery } from "../../../lib/search";
 import {
   loadIndex, embedQuery, topK, buildSemanticText, applyConstraints,
-  thresholdPicks, mergeResults, semanticItem, warmupSemantic,
+  thresholdPicks, mergeResults, semanticItem, warmupSemantic, semanticFill,
 } from "../../../lib/semantic";
 
 // Warm the ONNX embedding model in the background so the first
@@ -88,43 +88,21 @@ export async function POST(req) {
     : (process.env.SEMANTIC_FALLBACK !== "0" && lexIntentN < 2 && !browseOnly && !naive));
   if (rateLimited) sem.reason = "rate_limited";
   if (runSemantic) {
-    const t0 = Date.now();
-    try {
-      const idx = loadIndex(catalog);
-      if (!idx.ok) sem.reason = idx.reason;
-      else {
-        if (idx.loadMs != null) sem.index_load_ms = idx.loadMs;
-        const text = buildSemanticText(parsed, q);
-        const qv = text ? await embedQuery(text) : null;
-        if (!qv) sem.reason = text ? "embed_unavailable" : "no_semantic_text";
-        else {
-          const constrained = applyConstraints(topK(qv, idx), parsed, catalog, {
-            budgetMax: budget, brand: body.brand || null, forWhom, relax: true,
-            category: searchOpts.category, size: searchOpts.size, capacity: searchOpts.capacity,
-          });
-          const picks = thresholdPicks(constrained);
-          if (process.env.EVAL_MODE === "1") {
-            // eval-only: pre-threshold top cosines for tau calibration
-            sem.top = constrained.slice(0, 3).map((p) => ({
-              sku: p.item.sku, title: p.item.title, price: p.item.price,
-              cos: Math.round(p.cos * 1000) / 1000,
-            }));
-          }
-          if (!picks.length) sem.reason = "below_threshold";
-          else {
-            const semItems = picks.map((p) => semanticItem(p.item, p.cos, p.relaxed));
-            out = mergeResults(results, semItems, limit, { only: override === "only" });
-            sem.used = true;
-            sem.added = out.filter((r) => r.source === "semantic").length;
-            sem.top_cos = Math.round(picks[0].cos * 1000) / 1000;
-          }
-          if (override === "only" && !sem.used) out = []; // pure ablation: no lexical fallback
-        }
-      }
-    } catch (e) {
-      sem.reason = "error:" + String(e.message || e).slice(0, 60);
-    }
-    sem.ms = Date.now() - t0;
+    // Shared core (semantic.js) — the chat dialog runs the SAME fill so the
+    // two search worlds never diverge.
+    const fill = await semanticFill(catalog, parsed, q, results, {
+      budgetMax: budget, brand: body.brand || null, forWhom,
+      category: searchOpts.category, size: searchOpts.size, capacity: searchOpts.capacity,
+      limit, only: override === "only", evalTop: process.env.EVAL_MODE === "1",
+    });
+    sem.index_load_ms = fill.index_load_ms;
+    sem.top = fill.top;
+    sem.added = fill.added;
+    sem.top_cos = fill.top_cos;
+    sem.used = fill.used;
+    sem.reason = fill.reason;
+    sem.ms = fill.ms;
+    out = fill.results;
   }
   return NextResponse.json({
     results: out.map((r) => {

@@ -279,6 +279,79 @@ export function recomputeIntentN(merged) {
   return merged.filter((r) => r.intent).length;
 }
 
+// Garbage/OOV guard for semantic picks. Small multilingual embedders can
+// return high cosine for meaningless token soup ("zzz qqq xxxyyy" -> 0.85
+// vs fashion pants), so a pick is only kept when it is explainable: it must
+// share a significant token (>=3 chars, bidirectional substring) with the
+// query. Queries without any significant token (e.g. bare "ac") are
+// exempt - they are resolved lexically anyway.
+const SEM_GUARD_STOP = new Set(["the", "a", "an", "and", "or", "for", "of", "in", "on", "to",
+  "with", "under", "over", "per", "via", "se", "kam", "wala", "wali"]);
+function querySignificantTokens(rawQuery) {
+  const ws = String(rawQuery || "").toLowerCase().replace(/\u20b9/g, " ").match(/[a-z0-9']+/g) || [];
+  return [...new Set(ws.filter((w) => w.length >= 3 && !SEM_GUARD_STOP.has(w)))];
+}
+export function pickSharesQueryToken(item, rawQuery) {
+  const qw = querySignificantTokens(rawQuery);
+  if (!qw.length) return true; // nothing to check against -> exempt
+  const words = itemWordSet(item);
+  for (const w of qw) for (const t of words) {
+    if (t.length >= 3 && (t.includes(w) || w.includes(t))) return true;
+  }
+  return false;
+}
+
+// Shared semantic fallback core: lexical search returned <2 on-intent ->
+// embed the query, take threshold-passing constrained picks, merge.
+// Used by BOTH /api/search (page) and the chat dialog so the two worlds
+// never diverge (2026-11-08: chat dead-ended "latest iphone" while the
+// page's search found the iPhones).
+export async function semanticFill(catalog, parsed, rawQuery, lexical, {
+  budgetMax = null, brand = null, forWhom = null, category = null,
+  size = null, capacity = null, limit = 48, only = false, evalTop = false,
+} = {}) {
+  const sem = { used: false };
+  const t0 = Date.now();
+  try {
+    const idx = loadIndex(catalog);
+    if (!idx.ok) sem.reason = idx.reason;
+    else {
+      if (idx.loadMs != null) sem.index_load_ms = idx.loadMs;
+      const text = buildSemanticText(parsed, rawQuery);
+      const qv = text ? await embedQuery(text) : null;
+      if (!qv) sem.reason = text ? "embed_unavailable" : "no_semantic_text";
+      else {
+        const constrained = applyConstraints(topK(qv, idx), parsed, catalog, {
+          budgetMax, brand, forWhom, relax: true, category, size, capacity,
+        });
+        let picks = thresholdPicks(constrained);
+        if (evalTop) sem.top = constrained.slice(0, 3).map((p) => ({
+          sku: p.item.sku, title: p.item.title, price: p.item.price,
+          cos: Math.round(p.cos * 1000) / 1000,
+        }));
+        // Drop unexplainable picks (garbage-query pathology, 2026-11-08):
+        // every shown semantic item must be traceable to a shared token.
+        picks = picks.filter((p) => pickSharesQueryToken(p.item, rawQuery));
+        if (!picks.length) sem.reason = constrained.length ? "no_token_overlap" : "below_threshold";
+        else {
+          const semItems = picks.map((p) => semanticItem(p.item, p.cos, p.relaxed));
+          sem.results = mergeResults(lexical, semItems, limit, { only });
+          sem.used = true;
+          sem.added = sem.results.filter((r) => r.source === "semantic").length;
+          sem.top_cos = Math.round(picks[0].cos * 1000) / 1000;
+        }
+        // eval-only pure ablation: semantic picks or nothing
+        if (only && !sem.used) sem.results = [];
+      }
+    }
+  } catch (e) {
+    sem.reason = "error:" + String(e.message || e).slice(0, 60);
+  }
+  sem.ms = Date.now() - t0;
+  sem.results = sem.results || lexical;
+  return sem;
+}
+
 export function semanticItem(catalogItem, cos, relaxed) {
   return { ...catalogItem, score: Math.round(cos * 1000) / 1000, intent: true,
            source: "semantic", relaxed: !!relaxed };

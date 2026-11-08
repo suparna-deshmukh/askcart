@@ -29,26 +29,35 @@ export async function POST(req) {
   const forceMode = body.mode || null;
   // O2: region/persona/lang are additive context (client carries them).
   const lang = ["en", "hi", "hinglish"].includes(body.lang) ? body.lang : "en";
+  // §9 fix: the visible world the client will recount against. An ABSENT
+  // visible key = in-process/legacy caller (canaries, audit) — the server's
+  // candidate set stands in. An EXPLICIT array (even empty) = the browser's
+  // exact visible world; silently widening it to the loose stats set made
+  // every client recount diverge and disabled all chips (blocked-options
+  // report, 2026-11-08).
+  const visibleCtx = Array.isArray(body.visible)
+    ? body.visible
+      .filter((x) => x && typeof x === "object")
+      .slice(0, 48)
+      .map((x) => ({
+        sku: String(x.sku || "").slice(0, 64),
+        // 200 = catalogue max title length; truncating shorter changed
+        // for_whom/size token counts vs the client's raw recount.
+        title: String(x.title || "").slice(0, 200),
+        price: Math.max(0, Number(x.price) || 0),
+        brand: x.brand ? String(x.brand).slice(0, 48) : null,
+        category: x.category ? String(x.category).slice(0, 64) : null,
+        tags: Array.isArray(x.tags) ? x.tags.slice(0, 12).map((tg) => String(tg).slice(0, 24)) : [],
+        intent: x.intent === true,
+      }))
+    : undefined;
   const decision = await decideGuide(loadCatalog(), q, nResults, {
     turn, prevTypes, region: body.region || null, persona: body.persona || null, lang,
     slots: body.slots || {},
     // Item D: the page opts into the AI question-type planner; canaries and
     // the chat dialog keep the deterministic policy order.
     planner: body.planner === true,
-    // §9: the shopper's visible results (post-cap) - the world every
-    // question option must be grounded in. Sanitised: shape + size caps.
-    visible: (Array.isArray(body.visible) ? body.visible : [])
-      .filter((x) => x && typeof x === "object")
-      .slice(0, 48)
-      .map((x) => ({
-        sku: String(x.sku || "").slice(0, 64),
-        title: String(x.title || "").slice(0, 120),
-        price: Math.max(0, Number(x.price) || 0),
-        brand: x.brand ? String(x.brand).slice(0, 48) : null,
-        category: x.category ? String(x.category).slice(0, 64) : null,
-        tags: Array.isArray(x.tags) ? x.tags.slice(0, 12).map((tg) => String(tg).slice(0, 24)) : [],
-        intent: x.intent === true,
-      })),
+    visible: visibleCtx,
   });
 
   if (!decision.ask) {

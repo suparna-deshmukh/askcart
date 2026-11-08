@@ -10,6 +10,7 @@ import { classify, parseAsAnswer, inputGuard } from "./nlu.js";
 import { T_, QUESTION_KEY } from "./templates.js";
 import { validateGrounding } from "./grounding.js";
 import { faqMatch } from "./faq.js";
+import { semanticFill, recomputeIntentN } from "../semantic.js";
 
 const MAX_TURNS = 30;
 const MAX_QUESTIONS = 3;
@@ -810,6 +811,24 @@ async function productTurn(state, nlu, ctx, events, ui_actions) {
     const relN = rel.filter((r) => r.intent).length;
     if (relN >= 2 || relN > intentN) { res = rel; intentN = relN; relaxed = true; }
   }
+  // Semantic parity with the page search: "latest iphone" is lexically one
+  // intent hit ("iPhone Adapter") but semantically the whole iPhone family.
+  // The page's /api/search runs this same fill (semantic.js) when lexical
+  // returns <2 on-intent — the chat used to dead-end where the page found
+  // the product (2026-11-08 report).
+  if (intentN < 2 && process.env.SEMANTIC_FALLBACK !== "0") {
+    const fill = await semanticFill(catalog, parseQuery(query), query, res, {
+      budgetMax: state.slots.budgetMax != null ? state.slots.budgetMax : null,
+      brand: state.slots.brand || null, forWhom: state.slots.forWhom || null,
+      category: state.slots.category || null, size: state.slots.size || null,
+      capacity: state.slots.capacity || null, limit: 48,
+    });
+    if (fill.used) {
+      res = fill.results;
+      intentN = recomputeIntentN(res);
+      if (!relaxed) relaxed = true; // semantic picks are labelled relaxed too
+    }
+  }
 
   // rollback guard: a refine that halves the match keeps the previous picks
   const prevN = state.last ? state.last.intentN : 0;
@@ -846,11 +865,17 @@ async function productTurn(state, nlu, ctx, events, ui_actions) {
     events.push({ type: "demand_signal", payload: { query } });
     const d2 = await decideGuide(catalog, query, intentN, { turn: state.asked.length + 2, prevTypes: state.asked, lang });
     const suggest = d2.stats && d2.stats.topCategory ? displayCatShort(d2.stats.topCategory) : null;
+    // Honest not-found: closest lexical picks (when any) + the nearest
+    // section. A category name is a section, not a "broader word" — the old
+    // phrasing told shoppers to search "cell phones & accessories" as a
+    // word (2026-11-08 report: "latest iphone" dead-end).
+    const closest = (state.last.all || []).slice(0, 3);
     return {
       act: "not_found_with_substitutes",
-      text: suggest ? T_(lang, "not_found_alt", { suggest: suggest.toLowerCase() }) : T_(lang, "not_found"),
-      components: [], chips: [{ id: "more", label: "Show a broader search", ghost: true }],
-      n: intentN, intentN, facts: { items: [], slots: state.slots },
+      text: suggest ? T_(lang, "not_found_alt", { suggest }) : T_(lang, "not_found"),
+      components: closest.length ? [{ kind: "products", items: closest.map((r) => cardItem(r, tagReasons(r))) }] : [],
+      chips: [{ id: "more", label: "Show a broader search", ghost: true }],
+      n: intentN, intentN, facts: { items: closest, slots: state.slots },
     };
   }
 

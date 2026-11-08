@@ -330,9 +330,11 @@ export async function decideGuide(catalog, query, nResults, context = {}) {
   // counts. context.visible is the client's visible results (post-cap);
   // in-process callers (canaries, audit) pass none and the top-300
   // candidate set stands in for the visible world.
-  const visItems = (Array.isArray(context.visible) && context.visible.length)
-    ? context.visible.slice(0, 48)
-    : stats.items;
+  // undefined visible = in-process/legacy caller (stats stand in); an
+  // explicit array (even empty) is the client's exact visible world.
+  const visItems = (context.visible === undefined || !Array.isArray(context.visible))
+    ? stats.items
+    : context.visible.slice(0, 48);
   const visIntent = visItems.filter((h) => h.intent);
   // A 1-2 item intent subset is not a world (no brands/tags, degenerate
   // quantiles) - it grounds no option, so the visible set stands in.

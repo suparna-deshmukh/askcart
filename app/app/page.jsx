@@ -207,10 +207,12 @@ const WHY_COPY = {
   any: "No single filter dominated these results, so this is an open question — type a brand, a use or a detail and the results re-rank on it.",
 };
 
-// §9: the visible world (post-cap results) the guide policy grounds its
-// options in, plus the client-side audit events.
+// §9: the visible world the guide policy grounds its options in, plus the
+// client-side audit events. The cap must equal the /api/guide 48-item cap:
+// server counts and client recount run over the SAME 48 (a larger sent
+// world makes every recount diverge and disables all chips).
 function visibleProj(results) {
-  return (results || []).slice(0, 96).map((r) => ({
+  return (results || []).slice(0, 48).map((r) => ({
     sku: r.sku, title: r.title, price: r.price,
     brand: r.brand || null, category: r.category || null,
     tags: r.tags || [], intent: r.intent === true,
@@ -875,6 +877,7 @@ function AskCartHome() {
   });
   const journeyRef = useRef(null); // {id, query, views:Set, added, ordered, ended, t0, prevTypes}
   const guideShownAtRef = useRef(0);
+  const searchSeqRef = useRef(0); // a guide may only land on the state of the search that asked for it
 
   useEffect(() => {
     fetch("/api/catalog-preview?festival=1").then(r => r.json()).then(j => {
@@ -1093,7 +1096,8 @@ function AskCartHome() {
     }
     setBusy(true);
     pushNav({ search: null });
-    setS({ query, turn: 1, ok: null, results: [], total: null, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
+    const seq = ++searchSeqRef.current;
+    setS({ query, turn: 1, ok: null, seq, results: [], total: null, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null });
     setInput("");
     planPhraseRef.current = false;
     journeyRef.current = ensureJourney(query);
@@ -1110,7 +1114,7 @@ function AskCartHome() {
     // study and the simulation use). Loose/relax results alone do not count.
     const ok = res.results.filter((r) => r.intent).length >= 2;
     markResultsShown(query, res.results, 1, "results");
-    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results, total: res.results.length, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null, counts: [res.results.length] });
+    setS({ query, turn: 1, ok, seq, ms: Date.now() - t0, results: res.results, total: res.results.length, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null, counts: [res.results.length] });
     setMoreN(24);
     if (ok) {
       track("resolved", { query, turns: 1, n_results: res.results.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
@@ -1130,7 +1134,7 @@ function AskCartHome() {
           journey_id: journeyRef.current.id,
         });
         trackGuideQuestion(g, res.results.length);
-        setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: true, rescue: !!(g.decision && g.decision.rescue) } });
+        setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...g.guide, mode: g.mode, refine: true, rescue: !!(g.decision && g.decision.rescue) } } : st);
       } else {
         endJourney(journeyRef.current, { resolved: true, turns: 1 });
       }
@@ -1172,7 +1176,7 @@ function AskCartHome() {
       trackGuideQuestion(g, res.results.length);
       // s.turn stays at the last displayed search (1) - the search after
       // this chip answer is turn 2, same numbering as the n=150 study.
-      setS((st) => st && { ...st, guide: { ...guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } });
+      setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } } : st);
       break; // user picks a chip
     }
     setBusy(false);
@@ -1284,6 +1288,7 @@ function AskCartHome() {
   async function applyAnswer(chip, guide) {
     if (!s || busy) return;
     setBusy(true);
+    const seq = ++searchSeqRef.current;
     const turnNow = s.turn + 1;
     track("guide_option_selected", {
       query: s.query, question_type: guide.type, option: chip, turn: turnNow,
@@ -1398,7 +1403,7 @@ function AskCartHome() {
     const ok = finalResults.filter((r) => r.intent).length >= 2;
     const wasOk = s.ok === true;
     markResultsShown(s.query, finalResults, turnNow, "results");
-    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: finalResults,
+    setS({ ...s, turn: turnNow, ok, seq, ms: Date.now() - t0, results: finalResults,
            total: finalResults.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null,
            trail: [...s.trail, { label: trailLabel, opts: appliedOpts }, ...aiSteps],
@@ -1420,7 +1425,7 @@ function AskCartHome() {
             reason: g2.decision && g2.decision.reason, planner: (g2.decision && g2.decision.planner) || null, journey_id: journeyRef.current.id,
           });
           trackGuideQuestion(g2, finalResults.length);
-          setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true, rescue: !!(g2.decision && g2.decision.rescue) } });
+          setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true, rescue: !!(g2.decision && g2.decision.rescue) } } : st);
           setBusy(false);
           return;
         }
@@ -1444,7 +1449,7 @@ function AskCartHome() {
           reason: g.decision && g.decision.reason, planner: (g.decision && g.decision.planner) || null, journey_id: journeyRef.current.id,
         });
         trackGuideQuestion(g, finalResults.length);
-        setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } });
+        setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...g.guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } } : st);
         setBusy(false);
         return;
       }
@@ -1508,6 +1513,7 @@ function AskCartHome() {
                       prevTypes: journeyRef.current ? journeyRef.current.prevTypes || [] : [],
                       question: !planPhraseRef.current })
       : Promise.resolve(null);
+    const seq = ++searchSeqRef.current;
     let res = await doSearch(s.query + " " + txt, { relax: true, turn: turnNow, ...trailOpts() });
     const ai = await Promise.race([aiPromise, new Promise((r) => setTimeout(() => r(null), 5500))]);
     const aiOpts = ai ? aiFilterOpts(ai.filters) : {};
@@ -1524,7 +1530,7 @@ function AskCartHome() {
     const intentN = res.results.filter((r) => r.intent).length;
     const ok = intentN >= 2;
     markResultsShown(s.query, res.results, turnNow, "results");
-    setS({ ...s, turn: turnNow, ok, ms: Date.now() - t0, results: res.results,
+    setS({ ...s, turn: turnNow, ok, seq, ms: Date.now() - t0, results: res.results,
            total: res.results.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, { label: txt, opts: null }, ...aiSteps],
            echo: echoFor(txt, res.results.length, s.total), error: null, counts: [...(s.counts || []), res.results.length] });
@@ -1544,7 +1550,7 @@ function AskCartHome() {
             reason: g2.decision && g2.decision.reason, planner: (g2.decision && g2.decision.planner) || null, journey_id: journeyRef.current.id,
           });
           trackGuideQuestion(g2, res.results.length);
-          setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true, rescue: !!(g2.decision && g2.decision.rescue) } });
+          setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true, rescue: !!(g2.decision && g2.decision.rescue) } } : st);
           setBusy(false);
           return;
         }
@@ -1565,7 +1571,7 @@ function AskCartHome() {
           reason: g.decision && g.decision.reason, planner: (g.decision && g.decision.planner) || null, journey_id: journeyRef.current.id,
         });
         trackGuideQuestion(g, res.results.length);
-        setS((st) => st && { ...st, guide: { ...g.guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } });
+        setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...g.guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } } : st);
         setBusy(false);
         return;
       }
@@ -1592,6 +1598,7 @@ function AskCartHome() {
     pushPrevType({ type: g.type, subType: g.subType });
     setS((st) => st && { ...st, guide: null });
     const skips = jn ? (jn.skips = (jn.skips || 0) + 1) : 1;
+    const seq = searchSeqRef.current;
     skipCountRef.current += 1;
     if (skipCountRef.current >= 2) {
       maybePrompt("skips_2", t(lang, "askPickForMe"), () => openChat("prompt_skips", s.query));
@@ -1610,7 +1617,7 @@ function AskCartHome() {
           journey_id: jn ? jn.id : null,
         });
         trackGuideQuestion(g2, s.results.length);
-        setS((st) => st && { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true, rescue: !!(g2.decision && g2.decision.rescue) } });
+        setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true, rescue: !!(g2.decision && g2.decision.rescue) } } : st);
         setBusy(false);
         return;
       }
@@ -2213,7 +2220,7 @@ function AskCartHome() {
                               onSkip={skipGuide} progress={s.turn}
                               prevCount={s.counts && s.counts.length >= 2 ? s.counts[s.counts.length - 2] : null}
                               countAfter={s.counts ? s.counts[s.counts.length - 1] : null}
-                              results={s.results} rescue={!!s.guide.rescue} />
+                              results={(s.results || []).slice(0, 48)} rescue={!!s.guide.rescue} />
               )}
 
               {s && s.error && (
