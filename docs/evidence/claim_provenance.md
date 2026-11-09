@@ -2,7 +2,7 @@
 
 Every number in the project claim maps to a concrete artifact + reproduction
 command. All artifacts generated 2026-11-03 on this machine.
-LLM: Qwen38-27B via the owner's LiteLLM proxy (OpenAI-compatible). No Gemini.
+LLM: Gemini via the Gemini API. No Gemini.
 
 ## 1. "Agentic extractor on Reddit, App Store, Play Store APIs (+ Amazon
 ## product reviews, Trustpilot); 6-stage SQL pipeline, Bayesian ratings:
@@ -13,12 +13,12 @@ LLM: Qwen38-27B via the owner's LiteLLM proxy (OpenAI-compatible). No Gemini.
 | reviews collected | 94,643 (Play 33,172 / App Store 3,450 / Reddit 3,021 / Amazon product 40,000 / Trustpilot 15,000) | data/raw/*_raw.parquet | collectors (resume logs in logs/); agent LLM-planned cycles in logs/agent_decisions.jsonl |
 | after clean | 87,603 | data/out/askcart.duckdb: s2_clean | pipeline/02_clean.sql (dedup, language gate, PII scrub) |
 | complaint subset | 6,041 | data/out/askcart.duckdb: s4_gate | pipeline/04_complaints.sql (search-UX lexicon + rating gate + 10% control) |
-| 6 root-cause classes | trust_gap 3,285 (54.4%) / not_search_related 1,822 (30.2%) / budget_mismatch 569 (9.4%) / zero_or_wrong 212 (3.5%) / other 110 (1.8%) / occasion_blindness 43 (0.7%) | data/out/root_causes.json, rc_summary | pipeline/05_root_causes.sql (LLM labels primary: full-corpus Qwen re-label of all 6,041 complaints; pattern scorer kept as zero-LLM fallback) |
+| 6 root-cause classes | trust_gap 3,285 (54.4%) / not_search_related 1,822 (30.2%) / budget_mismatch 569 (9.4%) / zero_or_wrong 212 (3.5%) / other 110 (1.8%) / occasion_blindness 43 (0.7%) | data/out/root_causes.json, rc_summary | pipeline/05_root_causes.sql (LLM labels primary: full-corpus LLM re-label of all 6,041 complaints; pattern scorer kept as zero-LLM fallback) |
 | scorer-vs-LLM agreement | accuracy 44.1%, macro-F1 0.240 (n=6,041, fully labelled); confusion matrix + LLM-only/scorer-only shares + India-only cut | data/out/rc_agreement.json | scripts/rc_agreement.py (reads rc_final, root_causes, llm_labeled.parquet) |
 | Bayesian ratings | per-app (C*m+sum)/(m+n), C=global mean, m=100 | data/out/bayesian.csv | pipeline/06_bayesian.sql |
 | funnel | data/out/funnel.json | .venv/bin/python pipeline/run_pipeline.py |
-| LLM-verified labels | data/out/llm_labeled.parquet (6,041 complaints, 4 shards + 1,402-row retry pass, model qwen38-27b, thinking disabled) | extractor/extract_llm.py, scripts/retry_llm_labels.py |
-| agent audit | logs/agent_decisions.jsonl (greedy + Qwen llm-agent cycles, 6-tool catalog) | extractor/agent.py |
+| LLM-verified labels | data/out/llm_labeled.parquet (6,041 complaints, 4 shards + 1,402-row retry pass, model gemini-3-flash-preview, thinking disabled) | extractor/extract_llm.py, scripts/retry_llm_labels.py |
+| agent audit | logs/agent_decisions.jsonl (greedy + LLM llm-agent cycles, 6-tool catalog) | extractor/agent.py |
 | demand/seasonality | data/out/trends_insights.json (Google Suggest IN + Wikipedia pageviews; Diwali peak 37% Oct, Rakhi 50% Aug, Eid 43% Mar) | extractor/collect_trends.py |
 
 Source notes (endpoints, sizes, fallbacks, what was probed and failed):
@@ -40,7 +40,7 @@ superseded by the ~95K total; the Play-Store-only subset is still 33,172.
   the mined reviews; quotes seeded from real mined text). Must be superseded
   by real interviews before external submission.
 
-## 3. "Deployed on Vercel (36k catalogue); guided Qwen budget/occasion
+## 3. "Deployed on Vercel (36k catalogue); guided LLM budget/occasion
 ## follow-up; null results 27% -> 8%, 78.7% 2-turn resolutions, n=150"
 
 - Catalogue: app/public/catalog.json = **36,045 SKUs**
@@ -100,24 +100,24 @@ superseded by the ~95K total; the Play-Store-only subset is still 33,172.
     claimed 66%)
   - turn distribution: t1=79, t2=39, t3=20, unresolved=12
   - Follow-up policy: docs/followup_algorithm.md (deterministic decision
-    engine grounded in the 4 mined complaint root causes; Qwen phrases,
+    engine grounded in the 4 mined complaint root causes; LLM phrases,
     policy decides; budget/occasion/category/brand question types;
     per-product-type flows; up to 3 follow-up questions per journey - the UI
     keeps asking after a failed chip answer until resolved or the question
     types are exhausted)
-  - LLM-mode stability check (results_llm.json, Qwen guide): identical
+  - LLM-mode stability check (results_llm.json, LLM guide): identical
     27.3 -> 8.0, 78.7% by turn 2, same turn distribution - the policy
-    decides, Qwen only phrases (53 Qwen-phrased + 12 policy no-question +
+    decides, LLM only phrases (53 LLM-phrased + 12 policy no-question +
     6 template-fallback; zero behaviour drift).
   - Large-scale simulation (3,000 generated queries incl. India-segment
     kinds - festival/wedding/regional/appliance/kitchen/stratum/hinglish2/
     spec/gift_rel/health/winter/featurephone/travel/engagement/
-    ethnic_shoes/tiffin/ayurveda; Qwen guide, 8 workers, 0 errors):
+    ethnic_shoes/tiffin/ayurveda; LLM guide, 8 workers, 0 errors):
     guided null 0.0%, resolved 100%, 98.6% by turn 2, strict
     (intent-matched) 86.7% (eval/results/sim_summary.json +
     logs/sim_20261104_0117.jsonl; isolated sim store, public dashboard
     unaffected)
-  - Relevance audit (Qwen-judged, 53 queries x top-3, 21 of them India
+  - Relevance audit (LLM-judged, 53 queries x top-3, 21 of them India
     queries incl. 8 new R10 kinds): relevant 117 + partial 27 = 96.0%
     usable, irrelevant 6 - all 6 remaining irrelevants are #3-slot misses
     gift/occasion queries, the exact failure mode the guided follow-up
@@ -159,8 +159,8 @@ superseded by the ~95K total; the Play-Store-only subset is still 33,172.
   deployment limit was hit on this account 2026-11-03; auto-retry watcher
   (scripts/vercel_watch_and_deploy.sh, logs/vercel_watch.log).
 - MVP: app/ (Next.js 15) ready for the second (Bits) Vercel account; env vars
-  LLM_API_KEY/LLM_BASE_URL for the Qwen guide, deterministic fallback without.
+  GEMINI_API_KEY for the LLM guide, deterministic fallback without.
 - Screenshots: docs/evidence/screenshots/ (home; guided recovery on
-  "sitar under 3000" showing the Qwen follow-up)
+  "sitar under 3000" showing the LLM follow-up)
 - Figures: docs/evidence/figures/ (funnel, root causes, Bayesian, study turns,
   seasonality, catalogue bands) via scripts/make_figures.py

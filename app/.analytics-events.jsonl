@@ -3915,3 +3915,391 @@
 {"t":1794178527816,"type":"ai_call","s":"s_pxlvwzjcmw8fkb9z","tr":2}
 {"t":1794178527831,"type":"guide_question_shown","s":"s_pxlvwzjcmw8fkb9z","q":"non stick cookware set","tr":2}
 {"t":1794178527835,"type":"guide_question","s":"s_pxlvwzjcmw8fkb9z","src":"fallback","qt":"any","nv":150,"zc":0,"rn":"open refinement: options"}
+{"t":1794184020599,"type":"chat_prompt_shown","s":"s_ch653lb3mw137i97"}
+{"t":1794185148602,"type":"session_start","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185148603,"type":"onboarding_start","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185151376,"type":"onboarding_skipped","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185151962,"type":"onboarding_step","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185152546,"type":"onboarding_step","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185152863,"type":"onboarding_step","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185153449,"type":"onboarding_step","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185154035,"type":"onboarding_step","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185154263,"type":"onboarding_complete","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185161155,"type":"language_change","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185162200,"type":"region_set","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185163331,"type":"add_to_cart","s":"s_yllqh5szmw8jig7j","c":"Home Audio & Theater","b":"Micromax","k":"AC-51887"}
+{"t":1794185164929,"type":"search_start","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","src":"deep_link"}
+{"t":1794185164962,"type":"search_results","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","n":150,"tr":1}
+{"t":1794185164972,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"FabIndia","k":"AC-53200","src":"results","tr":1}
+{"t":1794185164972,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"FabIndia","k":"AC-53201","src":"results","tr":1}
+{"t":1794185164973,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Sona Silks","k":"AC-54014","src":"results","tr":1}
+{"t":1794185164973,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-53494","src":"results","tr":1}
+{"t":1794185164974,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-53692","src":"results","tr":1}
+{"t":1794185164983,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-53493","src":"results","tr":1}
+{"t":1794185164996,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-53265","src":"results","tr":1}
+{"t":1794185164997,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-53266","src":"results","tr":1}
+{"t":1794185164997,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Lakshmi Weaves","k":"AC-53558","src":"results","tr":1}
+{"t":1794185164997,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-53691","src":"results","tr":1}
+{"t":1794185164998,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-52776","src":"results","tr":1}
+{"t":1794185165007,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-54283","src":"results","tr":1}
+{"t":1794185165015,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Lakshmi Weaves","k":"AC-53559","src":"results","tr":1}
+{"t":1794185165016,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Sona Silks","k":"AC-54015","src":"results","tr":1}
+{"t":1794185165016,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-52775","src":"results","tr":1}
+{"t":1794185165016,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-54284","src":"results","tr":1}
+{"t":1794185165016,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-02919","src":"results","tr":1}
+{"t":1794185165030,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Handmade","k":"AC-07610","src":"results","tr":1}
+{"t":1794185165038,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03216","src":"results","tr":1}
+{"t":1794185165039,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03697","src":"results","tr":1}
+{"t":1794185165039,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-04012","src":"results","tr":1}
+{"t":1794185165039,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-04344","src":"results","tr":1}
+{"t":1794185165039,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03687","src":"results","tr":1}
+{"t":1794185165047,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-01612","src":"results","tr":1}
+{"t":1794185165055,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-00304","src":"results","tr":1}
+{"t":1794185165055,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Camera & Photo","k":"AC-08249","src":"results","tr":1}
+{"t":1794185165055,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Handmade","k":"AC-07723","src":"results","tr":1}
+{"t":1794185165055,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-01367","src":"results","tr":1}
+{"t":1794185165055,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Office Products","k":"AC-06757","src":"results","tr":1}
+{"t":1794185165063,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03096","src":"results","tr":1}
+{"t":1794185165070,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-01763","src":"results","tr":1}
+{"t":1794185165071,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Office Products","k":"AC-06758","src":"results","tr":1}
+{"t":1794185165071,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Handmade","k":"AC-07652","src":"results","tr":1}
+{"t":1794185165071,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-04018","src":"results","tr":1}
+{"t":1794185165071,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-04281","src":"results","tr":1}
+{"t":1794185165079,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-02247","src":"results","tr":1}
+{"t":1794185165087,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"Amazon Home","k":"AC-03032","src":"results","tr":1}
+{"t":1794185165087,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Myntra","k":"AC-29340","src":"results","tr":1}
+{"t":1794185165088,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37109","src":"results","tr":1}
+{"t":1794185165088,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-44879","src":"results","tr":1}
+{"t":1794185165088,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37625","src":"results","tr":1}
+{"t":1794185165096,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-50386","src":"results","tr":1}
+{"t":1794185165104,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-49834","src":"results","tr":1}
+{"t":1794185165105,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-40072","src":"results","tr":1}
+{"t":1794185165105,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-41514","src":"results","tr":1}
+{"t":1794185165105,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-42822","src":"results","tr":1}
+{"t":1794185165105,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-45460","src":"results","tr":1}
+{"t":1794185165114,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Aurelia","k":"AC-26047","src":"results","tr":1}
+{"t":1794185165122,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-43131","src":"results","tr":1}
+{"t":1794185165123,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-41061","src":"results","tr":1}
+{"t":1794185165123,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-44876","src":"results","tr":1}
+{"t":1794185165123,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-42823","src":"results","tr":1}
+{"t":1794185165123,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-40063","src":"results","tr":1}
+{"t":1794185165141,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-43488","src":"results","tr":1}
+{"t":1794185165149,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Anouk","k":"AC-25871","src":"results","tr":1}
+{"t":1794185165149,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-50484","src":"results","tr":1}
+{"t":1794185165149,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Meera","k":"AC-29123","src":"results","tr":1}
+{"t":1794185165149,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-49804","src":"results","tr":1}
+{"t":1794185165149,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Sona Silks","k":"AC-54011","src":"results","tr":1}
+{"t":1794185165157,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-43126","src":"results","tr":1}
+{"t":1794185165164,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Libas","k":"AC-28397","src":"results","tr":1}
+{"t":1794185165165,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-39460","src":"results","tr":1}
+{"t":1794185165165,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Libas","k":"AC-28296","src":"results","tr":1}
+{"t":1794185165165,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-49839","src":"results","tr":1}
+{"t":1794185165165,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37644","src":"results","tr":1}
+{"t":1794185165173,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-41085","src":"results","tr":1}
+{"t":1794185165181,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Myntra","k":"AC-29509","src":"results","tr":1}
+{"t":1794185165181,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-40117","src":"results","tr":1}
+{"t":1794185165182,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-49886","src":"results","tr":1}
+{"t":1794185165182,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-44915","src":"results","tr":1}
+{"t":1794185165182,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-42789","src":"results","tr":1}
+{"t":1794185165190,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-45559","src":"results","tr":1}
+{"t":1794185165198,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-41521","src":"results","tr":1}
+{"t":1794185165198,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-45448","src":"results","tr":1}
+{"t":1794185165198,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-41082","src":"results","tr":1}
+{"t":1794185165198,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-39490","src":"results","tr":1}
+{"t":1794185165199,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-39495","src":"results","tr":1}
+{"t":1794185165208,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-40068","src":"results","tr":1}
+{"t":1794185165216,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37636","src":"results","tr":1}
+{"t":1794185165216,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Lakshmi Weaves","k":"AC-41656","src":"results","tr":1}
+{"t":1794185165216,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-53237","src":"results","tr":1}
+{"t":1794185165217,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-50530","src":"results","tr":1}
+{"t":1794185165217,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-43395","src":"results","tr":1}
+{"t":1794185165226,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-25310","src":"results","tr":1}
+{"t":1794185165244,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-44861","src":"results","tr":1}
+{"t":1794185165244,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37380","src":"results","tr":1}
+{"t":1794185165244,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-39450","src":"results","tr":1}
+{"t":1794185165244,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-44898","src":"results","tr":1}
+{"t":1794185165244,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Meera","k":"AC-29122","src":"results","tr":1}
+{"t":1794185165252,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-49887","src":"results","tr":1}
+{"t":1794185165260,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-40047","src":"results","tr":1}
+{"t":1794185165260,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Libas","k":"AC-28399","src":"results","tr":1}
+{"t":1794185165260,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-50392","src":"results","tr":1}
+{"t":1794185165261,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-39402","src":"results","tr":1}
+{"t":1794185165261,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-42875","src":"results","tr":1}
+{"t":1794185165268,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-44874","src":"results","tr":1}
+{"t":1794185165276,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37737","src":"results","tr":1}
+{"t":1794185165276,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37138","src":"results","tr":1}
+{"t":1794185165276,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-41495","src":"results","tr":1}
+{"t":1794185165276,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-43382","src":"results","tr":1}
+{"t":1794185165276,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-40136","src":"results","tr":1}
+{"t":1794185165284,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-53257","src":"results","tr":1}
+{"t":1794185165291,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-53476","src":"results","tr":1}
+{"t":1794185165292,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-50486","src":"results","tr":1}
+{"t":1794185165292,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-40071","src":"results","tr":1}
+{"t":1794185165292,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-39799","src":"results","tr":1}
+{"t":1794185165292,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-39499","src":"results","tr":1}
+{"t":1794185165300,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-45558","src":"results","tr":1}
+{"t":1794185165308,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-41092","src":"results","tr":1}
+{"t":1794185165308,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"W for Woman","k":"AC-31920","src":"results","tr":1}
+{"t":1794185165308,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-50114","src":"results","tr":1}
+{"t":1794185165308,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-25421","src":"results","tr":1}
+{"t":1794185165309,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-49884","src":"results","tr":1}
+{"t":1794185165316,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37131","src":"results","tr":1}
+{"t":1794185165324,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37145","src":"results","tr":1}
+{"t":1794185165325,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Aurelia","k":"AC-26048","src":"results","tr":1}
+{"t":1794185165325,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37294","src":"results","tr":1}
+{"t":1794185165325,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-49890","src":"results","tr":1}
+{"t":1794185165325,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37768","src":"results","tr":1}
+{"t":1794185165342,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-40070","src":"results","tr":1}
+{"t":1794185165350,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Khaadi","k":"AC-41519","src":"results","tr":1}
+{"t":1794185165350,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37141","src":"results","tr":1}
+{"t":1794185165350,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-49756","src":"results","tr":1}
+{"t":1794185165350,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-52787","src":"results","tr":1}
+{"t":1794185165351,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37352","src":"results","tr":1}
+{"t":1794185165358,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Myntra","k":"AC-29501","src":"results","tr":1}
+{"t":1794185165365,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"W for Woman","k":"AC-32108","src":"results","tr":1}
+{"t":1794185165366,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-39689","src":"results","tr":1}
+{"t":1794185165366,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Lakshmi Weaves","k":"AC-41614","src":"results","tr":1}
+{"t":1794185165366,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Libas","k":"AC-28470","src":"results","tr":1}
+{"t":1794185165366,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-45619","src":"results","tr":1}
+{"t":1794185165374,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-42788","src":"results","tr":1}
+{"t":1794185165381,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-50496","src":"results","tr":1}
+{"t":1794185165381,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Libas","k":"AC-28395","src":"results","tr":1}
+{"t":1794185165382,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-39459","src":"results","tr":1}
+{"t":1794185165382,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-43129","src":"results","tr":1}
+{"t":1794185165382,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Aurelia","k":"AC-26050","src":"results","tr":1}
+{"t":1794185165389,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-50460","src":"results","tr":1}
+{"t":1794185165397,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-43481","src":"results","tr":1}
+{"t":1794185165397,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Zariin","k":"AC-50372","src":"results","tr":1}
+{"t":1794185165397,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-44830","src":"results","tr":1}
+{"t":1794185165397,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37117","src":"results","tr":1}
+{"t":1794185165397,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"High Road","k":"AC-39520","src":"results","tr":1}
+{"t":1794185165405,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-42854","src":"results","tr":1}
+{"t":1794185165413,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Azzam","k":"AC-37360","src":"results","tr":1}
+{"t":1794185165414,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Nivaaya","k":"AC-42821","src":"results","tr":1}
+{"t":1794185165414,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-53791","src":"results","tr":1}
+{"t":1794185165414,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","k":"AC-25494","src":"results","tr":1}
+{"t":1794185165419,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"Pepe Jeans","k":"AC-45023","src":"results","tr":1}
+{"t":1794185165477,"type":"ai_call","s":"s_yllqh5szmw8jig7j","tr":2}
+{"t":1794185165488,"type":"guide_question_shown","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","tr":2}
+{"t":1794185165492,"type":"guide_question","s":"s_yllqh5szmw8jig7j","src":"fallback","qt":"for_whom","nv":150,"zc":0,"rn":"guaranteed first questio"}
+{"t":1794185166291,"type":"add_to_cart","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","c":"AMAZON FASHION","b":"FabIndia","k":"AC-53200"}
+{"t":1794185167162,"type":"filter_applied","s":"s_yllqh5szmw8jig7j","q":"shaadi gift under 2k","tr":1}
+{"t":1794185168317,"type":"cart_view","s":"s_yllqh5szmw8jig7j","v":4798}
+{"t":1794185169856,"type":"search_start","s":"s_yllqh5szmw8jig7j","q":"headphones","src":"deep_link"}
+{"t":1794185169949,"type":"search_results","s":"s_yllqh5szmw8jig7j","q":"headphones","n":150,"tr":1}
+{"t":1794185169959,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"Sanwa","k":"AC-51897","src":"results","tr":1}
+{"t":1794185169959,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"Zebronics","k":"AC-51917","src":"results","tr":1}
+{"t":1794185169959,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"boAt","k":"AC-51928","src":"results","tr":1}
+{"t":1794185169960,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"Micromax","k":"AC-51887","src":"results","tr":1}
+{"t":1794185169960,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"Sanwa","k":"AC-51898","src":"results","tr":1}
+{"t":1794185169972,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-33031","src":"results","tr":1}
+{"t":1794185169981,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"Sony","k":"AC-51907","src":"results","tr":1}
+{"t":1794185169982,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"Zebronics","k":"AC-51918","src":"results","tr":1}
+{"t":1794185169982,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"JBL","k":"AC-51878","src":"results","tr":1}
+{"t":1794185169982,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"JBL","k":"AC-51877","src":"results","tr":1}
+{"t":1794185169982,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"iBall","k":"AC-51937","src":"results","tr":1}
+{"t":1794185169992,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"boAt","k":"AC-51927","src":"results","tr":1}
+{"t":1794185170001,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"Micromax","k":"AC-51888","src":"results","tr":1}
+{"t":1794185170001,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-33032","src":"results","tr":1}
+{"t":1794185170001,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"iBall","k":"AC-51938","src":"results","tr":1}
+{"t":1794185170002,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"Sony","k":"AC-51908","src":"results","tr":1}
+{"t":1794185170002,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24870","src":"results","tr":1}
+{"t":1794185170012,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24871","src":"results","tr":1}
+{"t":1794185170020,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-24876","src":"results","tr":1}
+{"t":1794185170021,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sennheiser","k":"AC-24883","src":"results","tr":1}
+{"t":1794185170021,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12748","src":"results","tr":1}
+{"t":1794185170021,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-18512","src":"results","tr":1}
+{"t":1794185170021,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-23860","src":"results","tr":1}
+{"t":1794185170030,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24868","src":"results","tr":1}
+{"t":1794185170039,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-24875","src":"results","tr":1}
+{"t":1794185170039,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Anker","k":"AC-24885","src":"results","tr":1}
+{"t":1794185170039,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33133","src":"results","tr":1}
+{"t":1794185170039,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-33132","src":"results","tr":1}
+{"t":1794185170039,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-12600","src":"results","tr":1}
+{"t":1794185170048,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-12607","src":"results","tr":1}
+{"t":1794185170056,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24867","src":"results","tr":1}
+{"t":1794185170056,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-24869","src":"results","tr":1}
+{"t":1794185170056,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-24873","src":"results","tr":1}
+{"t":1794185170057,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-24874","src":"results","tr":1}
+{"t":1794185170057,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Philips","k":"AC-21897","src":"results","tr":1}
+{"t":1794185170065,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-24872","src":"results","tr":1}
+{"t":1794185170073,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-24880","src":"results","tr":1}
+{"t":1794185170073,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-24881","src":"results","tr":1}
+{"t":1794185170074,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-24878","src":"results","tr":1}
+{"t":1794185170074,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-24879","src":"results","tr":1}
+{"t":1794185170074,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-24882","src":"results","tr":1}
+{"t":1794185170090,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"JBL","k":"AC-12533","src":"results","tr":1}
+{"t":1794185170098,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04449","src":"results","tr":1}
+{"t":1794185170098,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-05078","src":"results","tr":1}
+{"t":1794185170099,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04745","src":"results","tr":1}
+{"t":1794185170099,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04925","src":"results","tr":1}
+{"t":1794185170099,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Audio-Technica","k":"AC-24884","src":"results","tr":1}
+{"t":1794185170107,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12695","src":"results","tr":1}
+{"t":1794185170115,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-24606","src":"results","tr":1}
+{"t":1794185170116,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04779","src":"results","tr":1}
+{"t":1794185170116,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12679","src":"results","tr":1}
+{"t":1794185170116,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-24610","src":"results","tr":1}
+{"t":1794185170116,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12803","src":"results","tr":1}
+{"t":1794185170124,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-21880","src":"results","tr":1}
+{"t":1794185170132,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Musical Instruments","k":"AC-22658","src":"results","tr":1}
+{"t":1794185170132,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04963","src":"results","tr":1}
+{"t":1794185170132,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-21873","src":"results","tr":1}
+{"t":1794185170132,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-21975","src":"results","tr":1}
+{"t":1794185170132,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Computers","k":"AC-19059","src":"results","tr":1}
+{"t":1794185170139,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04846","src":"results","tr":1}
+{"t":1794185170147,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04990","src":"results","tr":1}
+{"t":1794185170147,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-05087","src":"results","tr":1}
+{"t":1794185170147,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12547","src":"results","tr":1}
+{"t":1794185170148,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12587","src":"results","tr":1}
+{"t":1794185170148,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12798","src":"results","tr":1}
+{"t":1794185170156,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-18554","src":"results","tr":1}
+{"t":1794185170164,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04464","src":"results","tr":1}
+{"t":1794185170164,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-18513","src":"results","tr":1}
+{"t":1794185170164,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04452","src":"results","tr":1}
+{"t":1794185170165,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Cell Phones & Accessories","k":"AC-13119","src":"results","tr":1}
+{"t":1794185170165,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-18528","src":"results","tr":1}
+{"t":1794185170173,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04975","src":"results","tr":1}
+{"t":1794185170180,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-05025","src":"results","tr":1}
+{"t":1794185170180,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12524","src":"results","tr":1}
+{"t":1794185170181,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04757","src":"results","tr":1}
+{"t":1794185170181,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04761","src":"results","tr":1}
+{"t":1794185170181,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04951","src":"results","tr":1}
+{"t":1794185170199,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-12501","src":"results","tr":1}
+{"t":1794185170207,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-12677","src":"results","tr":1}
+{"t":1794185170208,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Cell Phones & Accessories","k":"AC-13136","src":"results","tr":1}
+{"t":1794185170208,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-24613","src":"results","tr":1}
+{"t":1794185170208,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04577","src":"results","tr":1}
+{"t":1794185170208,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04833","src":"results","tr":1}
+{"t":1794185170222,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-05005","src":"results","tr":1}
+{"t":1794185170232,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-21925","src":"results","tr":1}
+{"t":1794185170233,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-24609","src":"results","tr":1}
+{"t":1794185170234,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-24614","src":"results","tr":1}
+{"t":1794185170234,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-33193","src":"results","tr":1}
+{"t":1794185170234,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04639","src":"results","tr":1}
+{"t":1794185170247,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04913","src":"results","tr":1}
+{"t":1794185170260,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-05073","src":"results","tr":1}
+{"t":1794185170260,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12821","src":"results","tr":1}
+{"t":1794185170261,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-24615","src":"results","tr":1}
+{"t":1794185170261,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-24640","src":"results","tr":1}
+{"t":1794185170261,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-33192","src":"results","tr":1}
+{"t":1794185170272,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04490","src":"results","tr":1}
+{"t":1794185170283,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04547","src":"results","tr":1}
+{"t":1794185170284,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04721","src":"results","tr":1}
+{"t":1794185170284,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04995","src":"results","tr":1}
+{"t":1794185170284,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Samsung","k":"AC-12760","src":"results","tr":1}
+{"t":1794185170284,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Sony","k":"AC-18480","src":"results","tr":1}
+{"t":1794185170298,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-21938","src":"results","tr":1}
+{"t":1794185170310,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Musical Instruments","b":"Sennheiser","k":"AC-22650","src":"results","tr":1}
+{"t":1794185170310,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Bose","k":"AC-23764","src":"results","tr":1}
+{"t":1794185170311,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"boAt","k":"AC-33191","src":"results","tr":1}
+{"t":1794185170311,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04517","src":"results","tr":1}
+{"t":1794185170311,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04607","src":"results","tr":1}
+{"t":1794185170323,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04823","src":"results","tr":1}
+{"t":1794185170335,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Computers","b":"Xiaomi","k":"AC-14343","src":"results","tr":1}
+{"t":1794185170336,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04440","src":"results","tr":1}
+{"t":1794185170336,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-18509","src":"results","tr":1}
+{"t":1794185170336,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-24639","src":"results","tr":1}
+{"t":1794185170336,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04537","src":"results","tr":1}
+{"t":1794185170347,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12868","src":"results","tr":1}
+{"t":1794185170357,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Cell Phones & Accessories","k":"AC-12953","src":"results","tr":1}
+{"t":1794185170358,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Philips","k":"AC-21932","src":"results","tr":1}
+{"t":1794185170358,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04984","src":"results","tr":1}
+{"t":1794185170358,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-05007","src":"results","tr":1}
+{"t":1794185170359,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12591","src":"results","tr":1}
+{"t":1794185170374,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12849","src":"results","tr":1}
+{"t":1794185170386,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04697","src":"results","tr":1}
+{"t":1794185170387,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Samsung","k":"AC-04862","src":"results","tr":1}
+{"t":1794185170387,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04651","src":"results","tr":1}
+{"t":1794185170388,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-05001","src":"results","tr":1}
+{"t":1794185170388,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12806","src":"results","tr":1}
+{"t":1794185170400,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04788","src":"results","tr":1}
+{"t":1794185170411,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12879","src":"results","tr":1}
+{"t":1794185170412,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Cell Phones & Accessories","k":"AC-13251","src":"results","tr":1}
+{"t":1794185170412,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04800","src":"results","tr":1}
+{"t":1794185170413,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04869","src":"results","tr":1}
+{"t":1794185170537,"type":"ai_call","s":"s_yllqh5szmw8jig7j","tr":2}
+{"t":1794185172702,"type":"search_results","s":"s_yllqh5szmw8jig7j","q":"headphones","n":150,"tr":2}
+{"t":1794185176779,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04471","src":"results","tr":2}
+{"t":1794185176787,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04523","src":"results","tr":2}
+{"t":1794185176787,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04796","src":"results","tr":2}
+{"t":1794185176787,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-05075","src":"results","tr":2}
+{"t":1794185176793,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Cell Phones & Accessories","k":"AC-05612","src":"results","tr":2}
+{"t":1794185176799,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04430","src":"results","tr":2}
+{"t":1794185176806,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-24617","src":"results","tr":2}
+{"t":1794185176806,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04689","src":"results","tr":2}
+{"t":1794185176807,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04935","src":"results","tr":2}
+{"t":1794185176807,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04967","src":"results","tr":2}
+{"t":1794185176812,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-05062","src":"results","tr":2}
+{"t":1794185176815,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12534","src":"results","tr":2}
+{"t":1794185176823,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12852","src":"results","tr":2}
+{"t":1794185176823,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-24605","src":"results","tr":2}
+{"t":1794185176823,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Amazon Home","k":"AC-03807","src":"results","tr":2}
+{"t":1794185176823,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04853","src":"results","tr":2}
+{"t":1794185176828,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12688","src":"results","tr":2}
+{"t":1794185176832,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12869","src":"results","tr":2}
+{"t":1794185176840,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-24608","src":"results","tr":2}
+{"t":1794185176840,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04435","src":"results","tr":2}
+{"t":1794185176840,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04677","src":"results","tr":2}
+{"t":1794185176840,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-05061","src":"results","tr":2}
+{"t":1794185176846,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","k":"AC-08505","src":"results","tr":2}
+{"t":1794185176851,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Xbox","k":"AC-12825","src":"results","tr":2}
+{"t":1794185176858,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Cell Phones & Accessories","k":"AC-13164","src":"results","tr":2}
+{"t":1794185176858,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-24611","src":"results","tr":2}
+{"t":1794185176859,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"AMAZON FASHION","k":"AC-02314","src":"results","tr":2}
+{"t":1794185176859,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04536","src":"results","tr":2}
+{"t":1794185176864,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04623","src":"results","tr":2}
+{"t":1794185176875,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04635","src":"results","tr":2}
+{"t":1794185176881,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04832","src":"results","tr":2}
+{"t":1794185176882,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04870","src":"results","tr":2}
+{"t":1794185176882,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-05036","src":"results","tr":2}
+{"t":1794185176887,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12789","src":"results","tr":2}
+{"t":1794185176891,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-24607","src":"results","tr":2}
+{"t":1794185176898,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04497","src":"results","tr":2}
+{"t":1794185176898,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04828","src":"results","tr":2}
+{"t":1794185176898,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-05103","src":"results","tr":2}
+{"t":1794185176898,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12541","src":"results","tr":2}
+{"t":1794185176905,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"AMAZON FASHION","k":"AC-02378","src":"results","tr":2}
+{"t":1794185176909,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04451","src":"results","tr":2}
+{"t":1794185176915,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04501","src":"results","tr":2}
+{"t":1794185176916,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Samsung","k":"AC-04626","src":"results","tr":2}
+{"t":1794185176916,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04894","src":"results","tr":2}
+{"t":1794185176916,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Cell Phones & Accessories","k":"AC-05235","src":"results","tr":2}
+{"t":1794185176921,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12662","src":"results","tr":2}
+{"t":1794185176925,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12746","src":"results","tr":2}
+{"t":1794185176932,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"AMAZON FASHION","k":"AC-01813","src":"results","tr":2}
+{"t":1794185176932,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04465","src":"results","tr":2}
+{"t":1794185176932,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04472","src":"results","tr":2}
+{"t":1794185176933,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04478","src":"results","tr":2}
+{"t":1794185176939,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04903","src":"results","tr":2}
+{"t":1794185176943,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","k":"AC-08472","src":"results","tr":2}
+{"t":1794185176950,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-12638","src":"results","tr":2}
+{"t":1794185176950,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04849","src":"results","tr":2}
+{"t":1794185176951,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04871","src":"results","tr":2}
+{"t":1794185176951,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04971","src":"results","tr":2}
+{"t":1794185176956,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-05013","src":"results","tr":2}
+{"t":1794185176960,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","k":"AC-04637","src":"results","tr":2}
+{"t":1794185176974,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04709","src":"results","tr":2}
+{"t":1794185176974,"type":"product_impression","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"All Electronics","b":"Apple","k":"AC-04720","src":"results","tr":2}
+{"t":1794185176974,"type":"resolved","s":"s_yllqh5szmw8jig7j","q":"headphones","n":150}
+{"t":1794185177077,"type":"ai_call","s":"s_yllqh5szmw8jig7j","tr":3}
+{"t":1794185177085,"type":"guide_question_shown","s":"s_yllqh5szmw8jig7j","q":"headphones","tr":3}
+{"t":1794185177089,"type":"guide_question","s":"s_yllqh5szmw8jig7j","src":"policy","qt":"brand","nv":150,"zc":0,"rn":"guaranteed first questio"}
+{"t":1794185177329,"type":"add_to_cart","s":"s_yllqh5szmw8jig7j","q":"headphones","c":"Home Audio & Theater","b":"Sanwa","k":"AC-51897"}
+{"t":1794185178460,"type":"product_open","s":"s_yllqh5szmw8jig7j","k":"AC-51897"}
+{"t":1794185178461,"type":"pdp_close","s":"s_yllqh5szmw8jig7j","k":"AC-51897"}
+{"t":1794185178461,"type":"product_open","s":"s_yllqh5szmw8jig7j","k":"AC-51897"}
+{"t":1794185178799,"type":"buy_now","s":"s_yllqh5szmw8jig7j","c":"Home Audio & Theater","b":"Sanwa","k":"AC-51897"}
+{"t":1794185178806,"type":"buy_now_click","s":"s_yllqh5szmw8jig7j","k":"AC-51897","src":"pdp"}
+{"t":1794185178806,"type":"checkout_start","s":"s_yllqh5szmw8jig7j","v":2989,"src":"buy_now"}
+{"t":1794185178810,"type":"page_view","s":"s_yllqh5szmw8jig7j","src":"buy_now"}
+{"t":1794185178819,"type":"pdp_close","s":"s_yllqh5szmw8jig7j","k":"AC-51897"}
+{"t":1794185178822,"type":"checkout_step_view","s":"s_yllqh5szmw8jig7j","v":2989}
+{"t":1794185180255,"type":"ai_call","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185180756,"type":"checkout_step_complete","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185180767,"type":"checkout_step_view","s":"s_yllqh5szmw8jig7j","v":2989}
+{"t":1794185181581,"type":"checkout_step_complete","s":"s_yllqh5szmw8jig7j"}
+{"t":1794185181597,"type":"checkout_step_view","s":"s_yllqh5szmw8jig7j","v":2989}
+{"t":1794185183457,"type":"journey_end","s":"s_yllqh5szmw8jig7j","q":"headphones"}
+{"t":1794185183463,"type":"order_complete","s":"s_yllqh5szmw8jig7j","v":2989,"src":"checkout"}
+{"t":1794185183473,"type":"order_confirm_view","s":"s_yllqh5szmw8jig7j","v":2989}
+{"t":1794185183477,"type":"order_confirm_view","s":"s_yllqh5szmw8jig7j","v":2989}

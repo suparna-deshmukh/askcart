@@ -1,11 +1,11 @@
 """
-Qwen suite - SEARCH dimension (400 cases).
+LLM suite - SEARCH dimension (400 cases).
 For each frozen query: POST /api/search, take the top-3 results (response
-order = what the shopper sees), Qwen judges each R/P/I (one call per batch
+order = what the shopper sees), LLM judges each R/P/I (one call per batch
 of 20 queries). PASS (usable@3) = at least one R or P in top-3;
 STRICT = top-1 is R. Resume-safe: skips ids already in verdicts file.
 
-Usage: .venv/bin/python eval/qwen_suite/judge_search.py [--url http://localhost:3000]
+Usage: .venv/bin/python eval/llm_suite/judge_search.py [--url http://localhost:3000]
 """
 import json
 import re

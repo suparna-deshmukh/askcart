@@ -28,8 +28,8 @@ Ranked by (frequency x severity x feasibility):
   ranking model; MVP surfaces real rating/count as a stopgap).
 
 ## How the MVP maps (P1-P12, n=12)
-- D3 -> `POST /api/guide` follow-up loop (Qwen38-27B via the user's LiteLLM
-  proxy proposes the next question; zero-LLM rule-based fallback keeps the app
+- D3 -> `POST /api/guide` follow-up loop (Gemini
+  proposes the next question; zero-LLM rule-based fallback keeps the app
   functional with no key - the n=150 study ran in deterministic fallback mode).
 - D1 -> budget chip answers feed a strict price cap into the re-search.
 - D2 -> occasion tags on catalogue + occasion chip answers feed occasion filtering.

@@ -1,4 +1,4 @@
-// Shared Qwen relevance judge for the semantic eval (single LLM judge).
+// Shared LLM relevance judge for the semantic eval (single LLM judge).
 // Batch of up to 20 queries per call, minimal prompt, thinking off
 // (temperature 0, tight maxTokens) — per the work-order cost discipline.
 // Returns { [queryId]: [1|2|3, 1|2|3, 1|2|3] } (1 relevant, 2 partial, 3 irrelevant).

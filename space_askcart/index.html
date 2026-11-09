@@ -11,7 +11,7 @@
   <div class="wrap">
     <div class="brand"><span class="logo">🛒</span>
       <div><h1>AskCart</h1>
-      <p class="tag">Agentic extractor for e-commerce search UX · 5 review sources · Qwen-planned · 6-stage SQL pipeline</p></div>
+      <p class="tag">Agentic extractor for e-commerce search UX · 5 review sources · LLM-planned · 6-stage SQL pipeline</p></div>
     </div>
     <nav id="tabs">
       <button class="tab active" data-tab="overview">Overview</button>
@@ -42,7 +42,7 @@
 
   <section id="tab-causes" class="tabpane">
     <div class="card"><h2>Complaints by root cause</h2>
-      <p class="sub">SQL lexicon scoring over 6,041 complaints; 238 labels overridden by Qwen-verified labels (600 stratified sample).</p>
+      <p class="sub">SQL lexicon scoring over 6,041 complaints; 238 labels overridden by LLM-verified labels (600 stratified sample).</p>
       <div id="rc-chart"></div>
       <img class="fig" src="figures/root_causes.png" alt="root causes">
       <div id="rc-quotes"></div>
@@ -91,7 +91,7 @@
   </section>
 </main>
 <footer><div class="wrap">
-  All numbers computed from bundled artifacts (pipeline runs 2026-11-03). LLM: Qwen38-27B via the owner's LiteLLM proxy - no Gemini/other vendor used anywhere.
+  All numbers computed from bundled artifacts (pipeline runs 2026-11-03). LLM: Gemini via the owner's Gemini API - no Gemini/other vendor used anywhere.
   Quotes are verbatim mined reviews (usernames stripped). Static HF Space - analysis runs in your browser; nothing is uploaded.
 </div></footer>
 <script src="app.js"></script>

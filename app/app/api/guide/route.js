@@ -8,7 +8,7 @@ import { record } from "../../../lib/analyticsStore";
 import { t, budgetLabel, occasionLabel } from "../../../app/lib/i18n.js";
 
 // The policy engine decides WHAT to ask (type + data-driven options + reason);
-// Qwen only phrases the question naturally. Fallback mode uses the policy's
+// LLM only phrases the question naturally. Fallback mode uses the policy's
 // template verbatim (deterministic study runs). See docs/followup_algorithm.md.
 const PHRASE_SYSTEM =
   "You phrase a single, warm, one-line follow-up question for AskCart, a guided " +

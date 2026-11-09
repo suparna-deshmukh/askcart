@@ -1,13 +1,13 @@
-# Qwen eval suite — 1,000-case pass-rate report
+# LLM eval suite — 1,000-case pass-rate report
 
 Generated: 2026-11-04 16:36 UTC by `report.py` (all numbers computed from the verdict artifacts below).
 
 - Judge: `0e850d8e2c236dde` catalogue snapshot, panel sha `e8f01a06d883bf79`, seed 20261104
-- Judge model: Qwen (qwen38-27b) via the LiteLLM proxy, temperature 0, thinking off; single LLM judge (no second rater in this suite).
+- Judge model: LLM (gemini-3-flash-preview) via the Gemini API, temperature 0, thinking off; single LLM judge (no second rater in this suite).
 - Pass definitions (frozen with the panel):
-  - **search** (400): Qwen R/P/I on the live top-3; PASS = usable@3 (≥1 relevant/partial); STRICT = top-1 relevant.
-  - **rag** (300): assistant reply to a product Q&A / FAQ question; PASS = deterministic gate (≤40 words, server grounding guard, no banned phrases) **and** Qwen judges the reply grounded + answering + honest + tone-ok.
-  - **ux** (300): a real question moment replayed from the 3,000-journey persona sim; PASS = Qwen verdict A (appropriate at that point; M = marginal, B = bad).
+  - **search** (400): LLM R/P/I on the live top-3; PASS = usable@3 (≥1 relevant/partial); STRICT = top-1 relevant.
+  - **rag** (300): assistant reply to a product Q&A / FAQ question; PASS = deterministic gate (≤40 words, server grounding guard, no banned phrases) **and** LLM judges the reply grounded + answering + honest + tone-ok.
+  - **ux** (300): a real question moment replayed from the 3,000-journey persona sim; PASS = LLM verdict A (appropriate at that point; M = marginal, B = bad).
 
 ## Search — 400/400 judged
 - **PASS (usable@3): 95.5% [ 93.0–97.1 ]** · STRICT (top-1 relevant): 72.0% [ 67.4–76.2 ]
@@ -54,7 +54,7 @@ Generated: 2026-11-04 16:36 UTC by `report.py` (all numbers computed from the ve
 | india_ayurveda | 1 | 100.0% [ 20.7–100.0 ] |
 
 ## RAG (chat Q&A + FAQ) — 300/300 judged
-- **PASS (deterministic gate AND Qwen): 99.0% [ 97.1–99.7 ]** · deterministic gate alone: 100.0% [ 98.7–100.0 ] · Qwen quality alone: 99.0% [ 97.1–99.7 ]
+- **PASS (deterministic gate AND LLM): 99.0% [ 97.1–99.7 ]** · deterministic gate alone: 100.0% [ 98.7–100.0 ] · LLM quality alone: 99.0% [ 97.1–99.7 ]
 
 | kind | n | PASS |
 |---|---|---|
@@ -67,9 +67,9 @@ Generated: 2026-11-04 16:36 UTC by `report.py` (all numbers computed from the ve
 | faq_ooo | 25 | 92.0% [ 75.0–97.8 ] |
 
 Sample failures (first 8):
-- `qs_r_0050` [qa_spec_known] Q='What is the capacity of this?' act=answer_product words=4 det=True qwen=FAIL — 7
-- `qs_r_0285` [faq_ooo] Q='What is the best phone according to global reviews?' act=deflect words=24 det=True qwen=FAIL — No global reviews in facts
-- `qs_r_0290` [faq_ooo] Q='Compare this brand with Apple's global pricing' act=deflect words=24 det=True qwen=FAIL — No global pricing data in facts
+- `qs_r_0050` [qa_spec_known] Q='What is the capacity of this?' act=answer_product words=4 det=True llm=FAIL — 7
+- `qs_r_0285` [faq_ooo] Q='What is the best phone according to global reviews?' act=deflect words=24 det=True llm=FAIL — No global reviews in facts
+- `qs_r_0290` [faq_ooo] Q='Compare this brand with Apple's global pricing' act=deflect words=24 det=True llm=FAIL — No global pricing data in facts
 
 ## UX (question policy) — 0/300 judged (300 excluded: no question asked at that step under the current build)
 - **PASS (appropriate): –** · verdict mix: A=0 M=0 B=0 other=0
@@ -83,11 +83,11 @@ Sample failures (first 8):
 | Dimension | n judged | PASS | rate |
 |---|---|---|---|
 | search (usable@3) | 400 | 382 | 95.5% [ 93.0–97.1 ] |
-| rag (gate + Qwen) | 300 | 297 | 99.0% [ 97.1–99.7 ] |
+| rag (gate + LLM) | 300 | 297 | 99.0% [ 97.1–99.7 ] |
 | ux (appropriate) | 0 | 0 | – |
 | **total** | **700** | **679** | **97.0% [ 95.5–98.0 ]** |
 
-## Qwen usage (this suite)
+## LLM usage (this suite)
 
 | dim | calls | est tokens |
 |---|---|---|
@@ -95,13 +95,13 @@ Sample failures (first 8):
 | rag | 1793 | ~831,799 |
 | ux | 713 | ~212,784 |
 
-(est tokens = (prompt+response chars)/4, logged per call; the proxy is the same Qwen used by all other evals.)
+(est tokens = (prompt+response chars)/4, logged per call; the proxy is the same LLM used by all other evals.)
 
 ## Methodology notes (frozen with the run)
 - Search panel: 400 frozen queries = 203 reused from earlier frozen panels (evalv2 100, semantic test 50, relevance-audit 53) + 197 new (hand-written + real Google-Suggest-IN autocompletes). Judged fresh with one prompt family; dead-ends verified absent from the catalogue at build time.
-- RAG protocol: product Q&A evaluated on the documented PDP path (fresh conversation, `context.sku` set, spec §6.4) so a pending search question cannot hijack the turn; FAQ is single-turn, context-free. Deterministic gate = server-side grounding guard + ≤40 words + banned phrases (100% pass: the guard works); the Qwen verdict measures answer quality (right fact, honest unknowns, tone).
+- RAG protocol: product Q&A evaluated on the documented PDP path (fresh conversation, `context.sku` set, spec §6.4) so a pending search question cannot hijack the turn; FAQ is single-turn, context-free. Deterministic gate = server-side grounding guard + ≤40 words + banned phrases (100% pass: the guard works); the LLM verdict measures answer quality (right fact, honest unknowns, tone).
 - UX protocol: 300 question moments sampled from the 3,000-journey persona-sim v2 run, replayed deterministically over HTTP (0 LLM tokens for generation); judge prompt calibrated once against the documented product intent (asking a narrowing question is the intended behaviour; judge the fit of the question type).
-- UX no_question protocol (pre-agreed before the fix pass; panel untouched): if the replayed policy no longer asks at a case's sampled step (journey resolved earlier or question budget exhausted), the case records `no_question` with no Qwen call and is excluded from the A/M/B denominator — there is no question to judge. Reported as its own line, never hidden.
+- UX no_question protocol (pre-agreed before the fix pass; panel untouched): if the replayed policy no longer asks at a case's sampled step (journey resolved earlier or question budget exhausted), the case records `no_question` with no LLM call and is excluded from the A/M/B denominator — there is no question to judge. Reported as its own line, never hidden.
 - Both methodology fixes (PDP path, judge calibration) were made before any result was published; the panel itself was never modified.
 - Findings & residuals (final state): the original gaps (RAG spec answerer wrong-number/dodge replies, out-of-scope mis-routing, narrow-price budget facets, frequency-ranked rescue options) are fixed product-side (search 84.8->95.5, RAG 10.3->99.0, UX appropriate 2.7 -> see below). Residuals: 18 search cases are the true dead-end floor (products verified absent); 3 RAG residuals (one degenerate judge case, two global-data requests outside the demo); UX: under the question-economy policy all 300 sampled moments are no_question - the frozen judge rejected every facet-question variant tried on the 'rotary phone' dead end (plain budget 2A/1M/1B, candidate-grounded category 0/4, budget with no-match disclosure 0/4), so the final policy asks no question on concrete dead ends (honest not-found + closest picks) and no judged question moments remain on the frozen panel.
 
@@ -109,4 +109,4 @@ Sample failures (first 8):
 - A dimension is 'healthy' at PASS ≥ 85% with the CI stated; 70–85% = worklist; < 70% = fix before scale.
 - Search PASS on `new_dead_end` is expected to be low (out-of-catalogue products); report it, don't hide it.
 - UX verdict M is a tuning signal, not a bug; B is a bug candidate — collect examples.
-- Single-LLM judge caveat: these are Qwen's judgements, not human ground truth (same caveat as every other LLM-judged number in this repo).
+- Single-LLM judge caveat: these are LLM's judgements, not human ground truth (same caveat as every other LLM-judged number in this repo).

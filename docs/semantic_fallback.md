@@ -63,7 +63,7 @@ constraints reusing the lexical engine's exported helpers
 Threshold: keep `cos ≥ tau` **and** `cos ≥ top1 − margin`.
 `tau`/`margin` are calibrated **on the dev split only**
 (`eval/semantic/calibrate.mjs`; `eval/semantic/results/threshold.json`)
-under the constraints dead-end false-resolve ≤ 10% and Qwen
+under the constraints dead-end false-resolve ≤ 10% and LLM
 precision@3 ≥ 80%.
 
 **On-intent definition (semantic-aware)**: a semantic item is on-intent
@@ -76,7 +76,7 @@ reported alongside in the eval (`eval/semantic/results/results.json`).
 See `eval/semantic/results/summary.md` (generated from artifacts).
 Headline: tau=0.845 / margin=0.03 calibrated on the dev split; hybrid
 fallback vs lexical-only — null 8% [3.2-18.8] -> 6% [2.1-16.2]
-(directional, CIs overlap), Qwen success@3 52% -> 58%, questions/journey
+(directional, CIs overlap), LLM success@3 52% -> 58%, questions/journey
 0.46 -> 0.34, semantic p95 23 ms idle (67-83 ms under machine
 load; index warm); the 4/4 dead-end app-level
 "false-resolve" is inherited from the baseline category-rescue path
@@ -101,9 +101,9 @@ cd app
 node ../scripts/build_embeddings.mjs
 # unit gates (index integrity, parity >=9/10, constraints, no-op):
 node --import ../eval/chat/register-shim.mjs lib/__tests__/semantic.test.js
-# calibrate tau (dev split only; Qwen judge):
+# calibrate tau (dev split only; LLM judge):
 node --import ../eval/chat/register-shim.mjs ../eval/semantic/calibrate.mjs
-# test split arms A/B/C + CIs + summary.md (Qwen judge):
+# test split arms A/B/C + CIs + summary.md (LLM judge):
 node --import ../eval/chat/register-shim.mjs ../eval/semantic/run.mjs
 ```
 
@@ -121,13 +121,13 @@ node --import ../eval/chat/register-shim.mjs ../eval/semantic/run.mjs
 
 ## Honest limitations
 
-- Relevance is judged by a **single LLM judge** (Qwen, thinking off); there
+- Relevance is judged by a **single LLM judge** (LLM, thinking off); there
   is no multi-annotator human ground truth. A 40-query second-rater check
-  (120 item judgements, labelled blind to Qwen; the second rater is the
-  **build agent - an LLM, not a human**, stated plainly) agrees with Qwen
+  (120 item judgements, labelled blind to LLM; the second rater is the
+  **build agent - an LLM, not a human**, stated plainly) agrees with LLM
   on the binary "usable in top-3" question **85%** of the time
   (Cohen's kappa 0.66) and 70.8% on the 3-class scale (kappa 0.56); the
-  gap sits mostly in the partial/irrelevant boundary, where Qwen is the
+  gap sits mostly in the partial/irrelevant boundary, where LLM is the
   more lenient rater. Artifacts: `eval/semantic/results/hand_label_40.json`
   + `agreement_40.json`, section generated into `summary.md`. Arm B
   (semantic-only) top-3 is not judged in the standard pass (ablation arm).

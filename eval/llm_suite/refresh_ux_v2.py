@@ -1,5 +1,5 @@
 """
-Qwen suite - UX verdict refresh (token saver, 0 LLM tokens).
+LLM suite - UX verdict refresh (token saver, 0 LLM tokens).
 Replays each unique journey deterministically over HTTP (fallback mode,
 persona ground-truth answers). Keeps old verdicts ONLY where the replayed
 moment is identical to the recorded one (turn, question, options+counts,
@@ -19,15 +19,15 @@ spec = importlib.util.spec_from_file_location("ps", BASE / "eval/persona_sim.py"
 ps = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ps)
 
-from judge_ux import replay  # noqa: E402  (same deterministic replay the judge uses)
+from replay_v2 import replay  # noqa: E402  (UI-faithful, deterministic, 0 LLM tokens)
 
-OUT = HERE / "results" / "verdicts_ux.jsonl"
+OUT = HERE / "results" / "verdicts_ux_v2.jsonl"
 
 def main():
     url = "http://localhost:3000"
     if "--url" in sys.argv:
         url = sys.argv[sys.argv.index("--url") + 1]
-    panel = [json.loads(l) for l in open(HERE / "panel.jsonl") if l.strip()]
+    panel = [json.loads(l) for l in open(HERE / "panel_ux_v2.jsonl") if l.strip()]
     cases = [p for p in panel if p["dim"] == "ux"]
     old = {}
     for l in OUT.open():
@@ -38,13 +38,13 @@ def main():
     personas = {p["pid"]: p for p in ps.build_personas()}
     by_journey = {}
     for c in cases:
-        by_journey.setdefault((c["pid"], c["query"]), []).append(c)
+        by_journey.setdefault((c["pid"], c.get("sim_dim", c["dim"]), c["query"]), []).append(c)
 
     def replay_one(jkey):
-        pid, q = jkey
+        pid, simdim, q = jkey
         p = personas[pid]
-        matches = [(d, q2) for d, q2 in ps.queries_for(p) if q2 == q]
-        assert matches, f"query not found for persona {pid}: {q}"
+        matches = [(d, q2) for d, q2 in ps.queries_for(p) if d == simdim and q2 == q]
+        assert matches, f"query not found for persona {pid} dim {simdim}: {q}"
         dim, qq = matches[0]
         return jkey, *replay(url, p, dim, qq)
 

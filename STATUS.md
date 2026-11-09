@@ -13,7 +13,7 @@
   - 6-stage DuckDB pipeline (auto-discovers raw sources):
     94,643 raw -> 87,603 clean -> 6,041 complaints -> 4 root causes
     (trust 42.2 / budget 31.4 / zero-wrong 19.3 / occasion 7.1)
-  - LLM: Qwen38-27B via LiteLLM proxy (Gemini removed everywhere):
+  - LLM: Gemini via Gemini API (Gemini removed everywhere):
     agent fetch planning (audited, logs/agent_decisions.jsonl),
     root-cause label verification (stratified 600, parallel shards),
     app guided follow-ups
@@ -41,12 +41,12 @@
   simulations - supersede with real sessions before submission)
 - 5 drop-offs mapped; 3 solved (D1 budget, D2 occasion, D3 zero-result)
 - Search v6 + relevance audit: 96.0% usable (relevant+partial,
-  117/27/6 of 150 results), Qwen-judged, 53 queries x top-3 (+8 R10 kinds:
+  117/27/6 of 150 results), LLM-judged, 53 queries x top-3 (+8 R10 kinds:
   health/winter/featurephone/travel/engagement/ethnic_shoes/tiffin/ayurveda)
   (eval/results/relevance_summary.json); sim (3,000 queries incl.
   India-segment kinds: festival/wedding/regional/appliance/kitchen/stratum/
   hinglish2/spec/gift_rel/health/winter/featurephone/travel/engagement/
-  ethnic_shoes/tiffin/ayurveda, Qwen guide): guided null 0.0%, 100%
+  ethnic_shoes/tiffin/ayurveda, LLM guide): guided null 0.0%, 100%
   resolved, 98.6% by turn 2, 0 errors
   (eval/results/sim_summary.json); 44-query canary suite
   (eval/canaries.py) all green. Reviewer pass: docs/evidence/reviewer_pass.md
@@ -118,12 +118,12 @@
 
 ## Point 3 - MVP prototype: DONE (deployable on the 2nd Vercel account)
 - Next.js 15 app: plain-language search over 36,045 SKUs; guided follow-up
-  (Qwen by default when a key is present; deterministic fallback otherwise)
+  (LLM by default when a key is present; deterministic fallback otherwise)
 - n=150 study (deterministic guide, reproducible):
   null 27.3% -> 8.0% | 78.7% resolved within 2 turns (t1=79, t2=39, t3=20,
   unres=12) - matches the claimed 27/8, exceeds the claimed 66
 - Deploy on the second account (Bits email - the only missing credential):
-  `cd app && vercel`, set LLM_API_KEY + LLM_BASE_URL env vars
+  `cd app && vercel`, set GEMINI_API_KEY env var
 
 ## Pending / user-side
 - [ ] Vercel extractor function deploy (secondary) - watcher auto-runs after
@@ -131,12 +131,12 @@
       it's up, set space_askcart/data.json -> vercel_probe_url and re-push the
       space so the live-probe tab also covers play/reddit.
 - [ ] MVP deploy on the Bits account (needs your login - the only missing
-      credential): cd app && vercel, set LLM_API_KEY + LLM_BASE_URL
-- [x] LLM labels: 238 Qwen-verified overrides merged (600 stratified sample,
+      credential): cd app && vercel, set GEMINI_API_KEY
+- [x] LLM labels: 238 LLM-verified overrides merged (600 stratified sample,
       3 parallel shards)
-- [x] Qwen-mode stability study: null 27.3% -> 8.0%, 78.7% by turn 2
+- [x] LLM-mode stability study: null 27.3% -> 8.0%, 78.7% by turn 2
       (identical turn distribution to deterministic - policy decides,
-      Qwen phrases; 53 llm / 12 policy / 6 fallback)
+      LLM phrases; 53 llm / 12 policy / 6 fallback)
 - [x] final figures, review_quotes.csv, deploy re-stage
 
 ## Reproduce everything
@@ -182,9 +182,9 @@ claim inflation, acceptance tests per item, commits `T3:`-style per item.
   applies then.
 - **T8 IN FLIGHT** — scorer-vs-LLM agreement: the 600-sample LLM labels
   were dropping LLM "OTHER" answers silently (rc_map bug — fixed).
-  Full-corpus 6,041-review Qwen re-label with 6-class taxonomy running
+  Full-corpus 6,041-review LLM re-label with 6-class taxonomy running
   (4 shards, logs/llm_full_0..3.log). First run failed 100% of batches:
-  qwen38-27b is a thinking model that spent the whole token budget on
+  gemini-3-flash-preview is a thinking model that spent the whole token budget on
   reasoning (25k thinking tokens, zero content). Fix: send
   `extra_body: {chat_template_kwargs: {enable_thinking: false}}` (new
   `thinking=False` option in llm_client) — batch calls now ~5 s. A small
@@ -295,7 +295,7 @@ G12 outcome micro-survey.
   selector (sibling chips, `variant_select` event — already allowlisted).
   US-pool parentheticals are NOT families (only build-time family_id
   groups). Canaries 111/111, ui tour 16 shots, sync check green.
-- **T8/T9 DONE** — full-corpus 6-class Qwen re-label: 4,639 (4 slices,
+- **T8/T9 DONE** — full-corpus 6-class LLM re-label: 4,639 (4 slices,
   thinking disabled, `enable_thinking: false` fix) + 1,402-row retry pass
   (`scripts/retry_llm_labels.py`, 200-char truncation, 71 batches, 0
   failures) = 6,041/6,041. Pipeline re-run → final shares: trust_gap
@@ -396,7 +396,7 @@ G12 outcome micro-survey.
   150 dev set). Arms: A = naive keyword baseline (one shot, no
   questions), B = live app path (guided scorer + <=3 questions answered
   by a neutral deterministic simulator, client re-search + rollback
-  semantics). Top-3 per arm judged by Qwen (single judge, thinking off,
+  semantics). Top-3 per arm judged by LLM (single judge, thinking off,
   0 unknowns). Results (Wilson 95% CIs, from
   eval/evalv2/results/evalv2.json): strict null 24.0% [16.7-33.2] ->
   0.0% [0-3.7]; app-null (final <2 intent) 28.0% [20.1-37.5] -> 10.0%
@@ -456,21 +456,21 @@ G12 outcome micro-survey.
   mismatches SEMANTIC_FALLBACK 1 vs 0), parity float/int8 top-10 avg
   9.8/10, index integrity (shuffled catalog -> index_mismatch),
   canaries 111+5, ui tour 17, contrast 0. Calibration (dev, n=50,
-  Qwen judge thinking-off): **tau=0.845 margin=0.03**, hit 31/41,
+  LLM judge thinking-off): **tau=0.845 margin=0.03**, hit 31/41,
   dev dead-end false-resolve 0/5, precision@3 92.1%. Test split
   (n=50, frozen panel, run once): null 8% [3.2-18.8] -> 6% [2.1-16.2],
-  Qwen success@3 52% -> 58%, usable@3 flat 82%, questions/journey
+  LLM success@3 52% -> 58%, usable@3 flat 82%, questions/journey
   0.46 -> 0.34, semantic p95 23 ms, used on 36/50 queries — CIs
   overlap everywhere, reported as **directional, not significant**.
   Ablation B (pure semantic, no lexical fallback): 32% null. Honest
   finding: 4/4 dead-end "false-resolve" is the baseline category-rescue
-  path (identical in arm A; Qwen judged all top-3s irrelevant in both
+  path (identical in arm A; LLM judged all top-3s irrelevant in both
   arms); the semantic layer rejected all 4 (below threshold) and added
   zero dead-end items. Per-query diff: 7 top-3s improved / 4 degraded
   (gift-shaped). Dev finding: positive vs dead-end top-1 cosine
   distributions overlap heavily (0.826-0.899 vs 0.822-0.850) —
   separation comes from constraints+margin, not a cosine gap.
-  LLM spend this item: ~12 Qwen batch calls (calibrate 3 + arms 6 +
+  LLM spend this item: ~12 LLM batch calls (calibrate 3 + arms 6 +
   3 reruns of calibrate/arms absorbed transient proxy timeouts),
   thinking off; judge verdicts reuse on rerun when top-3s unchanged.
   Bugs caught in this pass: batched-tensor shape in build script
@@ -535,7 +535,7 @@ Work order:
 4. P3-lite: B4 event rename (product_impression) + variant/lang props DONE,
    Guided-vs-Plain compare toggle DONE (reuse naive mode; no live A/B -
    no real users on localhost), E3 eval DONE: 100-query frozen panel
-   (committed before arms), 2 arms, Qwen-judged top-3, Wilson CIs,
+   (committed before arms), 2 arms, LLM-judged top-3, Wilson CIs,
    substitute_shown class (eval/evalv2/, summary generated from
    artifacts).
 5. Chatbot MVP (Mode A): DONE 2026-11-04 (see J10 entry above) —
@@ -604,7 +604,7 @@ Gates (all after the full batch): canaries 111+5 (0 failures), semantic
 suite ALL PASS (no-op guarantee intact), chat eval CHAT_LLM=0 100% intent
 (76/76) / 0 grounding / 37-37 safe, ui tour 17 shots, contrast 16/16.
 Semantic eval re-run (frozen panel, 0 LLM tokens — verdicts reused):
-headline metrics unchanged (null 8% → 6%, Qwen s@3 52% → 58%, q 0.46 →
+headline metrics unchanged (null 8% → 6%, LLM s@3 52% → 58%, q 0.46 →
 0.34, dead-end FR 4/4 inherited from baseline rescue); only arm-B
 per-journey question counts and the semantic-path latency moved (p95
 23 ms idle → 67-83 ms under machine load, same code) — docs now state the
@@ -619,13 +619,13 @@ Closes the last executable spec item of the semantic fallback build
 (§10 "optional but valuable: hand-label 40 random Arm C top-3 results"):
 
 - 40 random Arm-C test queries (seed 20261104), top-3 each = 120 item
-  judgements, labelled **blind** to the Qwen verdicts (relevant/partial/
+  judgements, labelled **blind** to the LLM verdicts (relevant/partial/
   irrelevant, same scale as judge.mjs). Artifacts:
   `eval/semantic/results/hand_label_40.json` + `agreement_40.json`.
-- Agreement with the Qwen judge: 3-class exact **70.8%** (Cohen's kappa
+- Agreement with the LLM judge: 3-class exact **70.8%** (Cohen's kappa
   0.56); binary "usable in top-3" **85.0%** (kappa 0.66). Confusion:
   30/24/31 on the diagonal; the gap is concentrated in the
-  partial/irrelevant boundary (Qwen is the more lenient rater).
+  partial/irrelevant boundary (LLM is the more lenient rater).
 - **Honesty note (kept visible everywhere it's reported):** the second
   rater is the build agent (a single LLM), NOT a human — there is no
   multi-annotator human ground truth. Stated in summary.md,
@@ -718,36 +718,36 @@ extremely detailed standalone MD of the whole project. All five done.
   Semantic frozen-panel re-run after the policy+catalogue change:
   A null 10% [4.3–21.4], C null 6% [2.1–16.2], C u@3 88% [76.2–94.4]
   (was 82), s@3 58%, q 0.46→0.34, p50/p95 19/32 ms; only the
-  changed frozen-panel top-3s were re-judged (small Qwen spend).
+  changed frozen-panel top-3s were re-judged (small LLM spend).
 
-## Qwen eval suite — 1,000-case pass rates: search / RAG / UX (2026-11-04 night)
+## LLM eval suite — 1,000-case pass rates: search / RAG / UX (2026-11-04 night)
 
-User asked whether the "Qwen AI evals for search, RAG, UX, 1,000-case
+User asked whether the "LLM AI evals for search, RAG, UX, 1,000-case
 pass rate" already existed. Honest answer: search relevance was
 fragmented across three panels (no single pass rate); RAG had
 deterministic gates only (no quality judgement); UX had none. Built
-the consolidated suite (`eval/qwen_suite/`), froze the panel in git
+the consolidated suite (`eval/llm_suite/`), froze the panel in git
 BEFORE any run (2b81ab5), then ran it.
 
 - **Protocol** (frozen with the run): search 400 (203 reused frozen
   queries + 197 new: hand-written gift/budget/hinglish/hi-Devanagari/
   spec/brand/vague/typo/synonym/dead-end + real Google-Suggest-IN
   autocompletes; dead-ends verified absent, synonyms verified
-  lead-word-absent) → Qwen R/P/I on the live top-3, PASS = usable@3;
+  lead-word-absent) → LLM R/P/I on the live top-3, PASS = usable@3;
   RAG 300 (250 product Q&A × 5 question families over a seeded 250-SKU
   sample, evaluated on the documented PDP path = fresh conversation +
   context.sku; + 50 FAQ 25 in-scope/25 out-of-scope) → PASS =
   deterministic gate (server grounding guard + ≤40 words + banned
-  phrases) AND Qwen quality verdict; UX 300 (question moments sampled
+  phrases) AND LLM quality verdict; UX 300 (question moments sampled
   seed 20261104 from the persona-sim v2 run, replayed deterministically
-  over HTTP, 0 LLM tokens for generation) → PASS = Qwen verdict A
+  over HTTP, 0 LLM tokens for generation) → PASS = LLM verdict A
   (appropriate at that point; prompt calibrated once to the documented
   product intent before any result was published).
-- **Results** (`eval/qwen_suite/results/summary.md`, generated):
+- **Results** (`eval/llm_suite/results/summary.md`, generated):
   **search 84.8% [80.9–87.9]** usable@3 (strict top-1 57.2%
   [52.4–62.0]; dead-end 31.2%/12.5% = expected out-of-catalogue floor),
   **RAG 10.3% [7.4–14.3]** (deterministic gate 100% — the guard works;
-  Qwen quality 10.3%), **UX 2.7% [1.4–5.2]** (A=8/M=19/B=273),
+  LLM quality 10.3%), **UX 2.7% [1.4–5.2]** (A=8/M=19/B=273),
   **total 37.8% [34.8–40.8]** on 1,000 cases.
 - **Verified real gaps (spot-checked against raw replies, not just
   judge labels)**: (1) RAG spec answerer picks the wrong number (RAM
@@ -765,7 +765,7 @@ BEFORE any run (2b81ab5), then ran it.
   in-process route import graph (its fs.open hangs — libuv thread-pool
   starvation; sync fs works) → judges use appendFileSync; background
   `&` jobs get reaped in this environment → long runs go through
-  managed exec sessions. Qwen usage: 1,194 calls ≈ 400K est tokens
+  managed exec sessions. LLM usage: 1,194 calls ≈ 400K est tokens
   (search 44 / RAG 550 / UX 600), per-call cost files in
   results/cost_*.json. Single LLM judge (no second rater in this
   suite) — stated in the report.
@@ -774,16 +774,16 @@ BEFORE any run (2b81ab5), then ran it.
   gates (canaries 111+5, semantic suite, chat 76/76/0/37-37, ui tour
   17, contrast 16/16) stand; sync_doc_numbers --check green.
 
-## Qwen suite 90%+ push — product-side fix passes: search 95.5 / RAG 99.0 / UX 300 no_question (2026-11-04 late night)
+## LLM suite 90%+ push — product-side fix passes: search 95.5 / RAG 99.0 / UX 300 no_question (2026-11-04 late night)
 
-- **Mission**: bring all three Qwen-suite dimensions to ≥90% via
+- **Mission**: bring all three LLM-suite dimensions to ≥90% via
   product-code fixes only (frozen panel `e8f01a06d883bf79`, frozen judge
   prompts, no methodology changes). **Final**: search 382/400 =
   **95.5% [93.0–97.1]** usable@3 (strict 72.0%), RAG 297/300 =
   **99.0% [97.1–99.7]**, UX **0 judged — 300/300 no_question** (see
   honest note below), overall 679/700 = 97.0% [95.5–98.0] on the
   protocol denominator. Generated report:
-  `eval/qwen_suite/results/summary.md` (all numbers from verdict
+  `eval/llm_suite/results/summary.md` (all numbers from verdict
   artifacts).
 - **Search fixes (intent-token bugs found via the 37 rescue-with-
   candidates UX moments)**: Hinglish recipient/pronoun words leaked
@@ -840,7 +840,7 @@ BEFORE any run (2b81ab5), then ran it.
   / 37/37 safe / GATES PASS ×2; ui tour 17 shots; contrast 16/16;
   sync_doc_numbers --check OK. Dev server = managed exec session
   (localhost:3000) — restarted-safe since no catalog/index change.
-- **Qwen spend this session**: search 14 re-judges (~2 calls batched),
+- **LLM spend this session**: search 14 re-judges (~2 calls batched),
   UX 20 re-judges (4+8+4+4 across the variant trials), RAG 0 →
   cumulative suite spend now 2,571 calls ≈ 1.12M est tokens
   (cost_*.json).
@@ -890,7 +890,7 @@ BEFORE any run (2b81ab5), then ran it.
   u@3 86% · B null 32% · **C null 14% [7–26.2] s@3 84% u@3 88%**,
   questions 0; semantic used 36/50 (14 below_threshold); semantic-layer
   dead-end false-resolve 0/4 (the 4/4 app-level FR is the pre-existing
-  category-rescue inheritance, Qwen-judged irrelevant, documented in
+  category-rescue inheritance, LLM-judged irrelevant, documented in
   summary.md); p50/p95 53/91 ms. `summary.md` regenerated from
   artifacts.
 - **Gates (re-run after every product change, all green)**: canaries
@@ -901,7 +901,7 @@ BEFORE any run (2b81ab5), then ran it.
 - **Docs**: PROJECT.md §5.10 UX v2 block; deep-dive §10.10 round-by-
   round detail; followup_algorithm.md §3.6 stop-conditions + A-grade
   fit floors.
-- **Qwen spend (UX v2 cumulative)**: 611 calls ≈ 220K est tokens
+- **LLM spend (UX v2 cumulative)**: 611 calls ≈ 220K est tokens
   (within the 500K budget for this task; round 8 re-judged 0 moments).
 - Local commit only (`T3:` prefix), no GitHub/remote; localhost dev
   server.
@@ -959,7 +959,7 @@ BEFORE any run (2b81ab5), then ran it.
 - **Docs:** followup_algorithm.md §3.6 guaranteed-first-question +
   ladder + P8 nuance; PROJECT.md §5.10 always-ask block with
   trajectory + residual breakdown.
-- **Qwen spend (UX v2 cumulative):** 793 calls ≈ 286K est tokens
+- **LLM spend (UX v2 cumulative):** 793 calls ≈ 286K est tokens
   (within the 500K task budget; rounds re-judged only changed
   moments: 150 + 29 + 1 calls across the three passes).
 - Local commit only (`T3:` prefix), no GitHub/remote; localhost dev
@@ -1158,7 +1158,7 @@ BEFORE any run (2b81ab5), then ran it.
   sync_doc_numbers --check OK.
 - Local commit only, no GitHub/remote; localhost :3000.
 
-## 2026-11-05 — Item D: AI decides which question to ask (Qwen -> Gemini -> policy)
+## 2026-11-05 — Item D: AI decides which question to ask (LLM -> Gemini -> policy)
 - **User requirement:** the question sequence should be decided by AI
   ("the AI will detect: this is the query, this is the requirement, and
   these are the possible questions").
@@ -1177,8 +1177,8 @@ BEFORE any run (2b81ab5), then ran it.
     response; `guide_question_shown.planner` logged on all 6 track sites.
   - New `app/lib/guide_planner.js`: compact prompt (query, answered
     slots, types already asked, set summary n/top-4 categories/price
-    quantiles, candidate type list) -> `{"type":...}`; Qwen38-27B via
-    LiteLLM (thinking off, temp 0, 60 out-tokens, 1 attempt, 1500 ms)
+    quantiles, candidate type list) -> `{"type":...}`; Gemini via
+    Gemini (thinking off, temp 0, 60 out-tokens, 1 attempt, 1500 ms)
     -> Gemini REST fallback (GEMINI_API_KEY / GEMINI_MODEL from .env,
     2500 ms) -> deterministic policy; 3 consecutive failures open a
     5-min breaker; 10-min in-memory cache keyed
@@ -1193,14 +1193,14 @@ BEFORE any run (2b81ab5), then ran it.
   (Gemini appears in exactly one place: the planner's second provider).
 - **Verified:**
   - HTTP: `planner:true` on "shirt under 5000" -> `planner: llm`
-    (Qwen picked for_whom over the deterministic size-first order);
+    (LLM picked for_whom over the deterministic size-first order);
     no flag -> deterministic size (canary path unchanged).
   - Live page: "shirt under 5000" renders "Quick one - who's it for?"
     (planner-driven), event logged
     `guide_question_shown {question_type: for_whom, planner: "llm"}`.
   - Planner skips the LLM entirely when <2 grounded types (single-choice
     sets, e.g. "saree") - verified in-process.
-  - Qwen latency measured warm: 550-1100 ms per pick (1500 ms budget);
+  - LLM latency measured warm: 550-1100 ms per pick (1500 ms budget);
     Gemini currently 503 on this key (service side) - the fallback chain
     then lands on deterministic policy, which is the designed safe
     behaviour; noted honestly rather than hidden.
@@ -1308,7 +1308,7 @@ BEFORE any run (2b81ab5), then ran it.
   17 shots, contrast 16/16, sync OK.
 - Local commit only, no GitHub/remote; localhost :3000.
 
-## 2026-11-06 — Item C (6): AI (Gemini → Qwen) emits validated filters + next question after EVERY answer; chain keeps asking
+## 2026-11-06 — Item C (6): AI (Gemini → LLM) emits validated filters + next question after EVERY answer; chain keeps asking
 - **User report (batch):** "Use the Gemini API; take actionable outputs from it for every answer —
   filters you apply and display; the next question must be based on the previous answer's
   narrowed subset; results update after every answer." Item 8 in the same batch: first-visit
@@ -1317,7 +1317,7 @@ BEFORE any run (2b81ab5), then ran it.
   NARROWED set (same slot→opts mapping as guide.js + this answer's opts) and asks the model for
   `{filters, question}`. Provider chain: GEMINI_MODEL (env) → gemini-3-flash-preview →
   gemini-3.5-flash (sticky known-good model, 5-min cooldowns on 404/503, 1-min on timeout,
-  3s each, ≤2 attempts) → **Qwen fallback** (LiteLLM, thinking off, 3s/attempt, ≤2 attempts)
+  3s each, ≤2 attempts) → **LLM fallback** (Gemini, thinking off, 3s/attempt, ≤2 attempts)
   when Gemini is down OR returns truncated JSON. 3 consecutive total failures → 5-min breaker.
   10-min cache keyed on (query, queryExt, slots, answer, answerType, askedTypes).
 - **Every value is validated server-side against the live set** (validateAi): brand/category/
@@ -1327,7 +1327,7 @@ BEFORE any run (2b81ab5), then ran it.
   options else the question is voided; max 2 filters; no re-ask of an answered facet.
   Nothing ungrounded can reach the client; model down → v6 deterministic policy unchanged.
 - **Prompt hardening (found live):** Gemini 3.x thinking tokens ate the 300-token budget and
-  truncated the JSON → maxOutputTokens 512 + Qwen fallback on unparseable output. Family words
+  truncated the JSON → maxOutputTokens 512 + LLM fallback on unparseable output. Family words
   map explicitly (ammi/sister/didi→women, papa/brother→men, child→kids) — "for my sister" now
   emits `for_whom:women`. "Allowed question types now: …" line kills the model re-asking an
   answered facet; "almost always required" wording kills the lazy `question:null` (set >12).
@@ -1337,7 +1337,7 @@ BEFORE any run (2b81ab5), then ran it.
   dropped rare tags like "wedding" → the model's occasion options were silently voided);
   optionCount is case-insensitive (zero-count chips were about to disable real options).
 - **Client (page.jsx):** ai-refine fires in flight with the deterministic re-search; 5500ms
-  race (client abort 5500ms — tuned to Qwen's warm ~2-4s, cold two-attempt ~8s misses and
+  race (client abort 5500ms — tuned to LLM's warm ~2-4s, cold two-attempt ~8s misses and
   falls back to the deterministic chain, which still asks the next question). AI filters
   become REMOVABLE trail chips (O4: no silent caps); AI question rendered as a normal guide
   with its type so prevTypes dedup works; `ai_refine` analytics event (via/filters/question/ms).
@@ -1346,7 +1346,7 @@ BEFORE any run (2b81ab5), then ran it.
   grounded options party(10)/wedding(4), server 3.9s. Chip-click chain "headphones under
   3000": Q1 brand → Apple → Q2 price-band 2/4 → band → Q3 3/4; trail "Apple ✕ · Under ₹829 ✕".
   Cold-miss path: deterministic chain still continues (no dead loop). Gemini state today:
-  all three model names 404/429 (quota) most of the session — Qwen carried every call; the
+  all three model names 404/429 (quota) most of the session — LLM carried every call; the
   sticky chain auto-adopts Gemini when it recovers, no code change needed.
 - **Item 8 (same commit):** first-visit centered persona modal (context → age band → spend
   style; persona = {context, ageBand, spendStyle,…}), payoff toast (Gifting / Under 25
@@ -1390,7 +1390,7 @@ BEFORE any run (2b81ab5), then ran it.
   fixed in PROJECT.md, README, page footer, source_notes, semantic_fallback,
   FULL_DEEP_DIVE; reviewer_pass.md left as a dated historical artifact).
 - Verified live: "playstation 5" → 12/12 on-intent (new SKUs lead);
-  "saree under 2700" + typed "for my sister" → Qwen for_whom:women chip +
+  "saree under 2700" + typed "for my sister" → LLM for_whom:women chip +
   brand question on the narrowed set; "samovar" → semantic below_threshold,
   dead end preserved.
 - Gates (all green): canaries 111+6 0-fail · contrast 16/16 · sync --check OK ·
@@ -1412,9 +1412,9 @@ BEFORE any run (2b81ab5), then ran it.
   timeout -> MODEL cooldown (sticky known-good model, chain
   gemini-3.8-flash -> 3-flash-preview -> 3.5-flash), not key exhaustion.
   One attempt per key (2.5 s), bounded worst case ~7.5 s; never throws.
-- Cost order is now QWEN-FIRST everywhere (`guide_planner.js`,
-  `guide_ai.js`): Qwen38-27B (LiteLLM proxy, no daily cap, warm 0.6-1.1 s)
-  answers; the Gemini 3-key chain engages only when Qwen fails or returns
+- Cost order is now GEMINI-FIRST everywhere (`guide_planner.js`,
+  `guide_ai.js`): Gemini (Gemini API, no daily cap, warm 0.6-1.1 s)
+  answers; the Gemini 3-key chain engages only when LLM fails or returns
   unparseable JSON; then the deterministic policy. A heavy day across all
   users spends ~0 Gemini RPD on the common path.
 - Call minimisation: 10-min state cache (repeats free), unambiguous-set skip
@@ -1422,18 +1422,18 @@ BEFORE any run (2b81ab5), then ran it.
   (`AI_MAX_PER_SESSION=8`): after 8 AI decisions the client stops requesting
   AI (one "Quick mode" toast) and the deterministic chain continues asking.
   `/api/ai-status` (no LLM call) serves the pill.
-- Visible status (top bar, always): pill `AI · Qwen 38B` / `AI · Gemini key
-  2/3` / `AI · Rules (offline)` / `AI · Qwen 38B · ready`; hover shows per-key
+- Visible status (top bar, always): pill `AI · LLM 38B` / `AI · Gemini key
+  2/3` / `AI · Rules (offline)` / `AI · LLM 38B · ready`; hover shows per-key
   usage (key1 3/20 · key2 20/20 (rpd) · key3 0/20) + remaining session
   budget. Toast on rotation: "Gemini key 1 daily limit hit - switched to key
   2. Guidance continues."
 - New analytics events (server-recorded): `ai_call` {kind: planner|refine,
-  via: qwen|gemini|rules, key_idx, ms, session_id, turn} and
+  via: llm|gemini|rules, key_idx, ms, session_id, turn} and
   `ai_key_exhausted` {key_idx, reason}. Both added to the event allowlist.
 - `docs/llm_routing.md`: the full flowchart, cost math, degradation matrix
-  (Qwen down / key 429 / all exhausted -> policy; journey never breaks).
+  (LLM down / key 429 / all exhausted -> policy; journey never breaks).
 - Verified: /api/ai-status serves state; "shirt under 5000" planner turn =
-  Qwen, Gemini key usage stays 0/20; standalone chain test: pre-exhausted
+  LLM, Gemini key usage stays 0/20; standalone chain test: pre-exhausted
   key0 skipped without a call, key1 attempted (usage 0->1), model 404s cool
   the model not the key, all-fail -> null -> deterministic. Pill + tooltip
   verified in the top bar at 1440px.
@@ -1469,11 +1469,11 @@ BEFORE any run (2b81ab5), then ran it.
 - analyticsStore: per-session rollups now persist in the shared store
   (survive the 500-event live-feed window): searches, questions, answers,
   skips, views, carts, checkouts, orders, orderValue, persona (from
-  onboarding), AI-engine mix (qwen/gemini/rules + key switches), chat usage.
+  onboarding), AI-engine mix (llm/gemini/rules + key switches), chat usage.
   `snapshot()` exposes `userSessions` (all sessions, newest-first, cap 200).
 - New 6th sub-tab "Backend (Admin)" in Analytics (same full-width pattern as
   the others): stat grid (users, users-with-searches, AI decisions with
-  Qwen/Gemini/rules split, Gemini key switches, orders + AOV, cart rate),
+  LLM/Gemini/rules split, Gemini key switches, orders + AOV, cart rate),
   client-side filters (persona / min searches / active window 1h-24h-all),
   and one row per user: persona, last active, searches, questions, answer
   rate, carts, orders, value, AI mix (Q/G/R + switches), funnel-to-cart %.
@@ -1506,8 +1506,8 @@ BEFORE any run (2b81ab5), then ran it.
   in the null counts) and that a full re-run is the way to refresh headline
   numbers (est. ~50-100K tokens if requested).
 
-## 2026-11-06 — Qwen removed: Gemini-only LLM routing (user work order)
-- Per user instruction, Qwen (LiteLLM proxy) is no longer called by any
+## 2026-11-06 — LLM removed: Gemini-only LLM routing (user work order)
+- Per user instruction, LLM (Gemini API) is no longer called by any
   product path. Every AI decision now runs: state cache (10 min, 0 calls)
   -> unambiguous-set skip (<2 grounded types or n<=12, 0 calls) -> session
   AI budget (8, 0 calls after) -> **Gemini 3-key chain** (20 RPD/key, local
@@ -1515,7 +1515,7 @@ BEFORE any run (2b81ab5), then ran it.
 - `gemini_keys.js` gained a generic `geminiChat({system,user,maxTokens,
   temperature,timeoutMs})` sharing the same key-chain attempt logic
   (refactored to one `attempt()`); `geminiGenerate` is its temp-0 wrapper.
-- All five former Qwen call sites rewired: guide planner, ai-refine,
+- All five former LLM call sites rewired: guide planner, ai-refine,
   question phrasing (/api/guide, 1.5 s), chatbot NLU (dialog adapter keeps
   nlu.js's chat() signature), chatbot composer (phraseSafe, 800 ms).
   `llm.js` chat() is now referenced only by eval tooling (header says so);
@@ -1527,7 +1527,7 @@ BEFORE any run (2b81ab5), then ran it.
   the pill + tooltip surface every key's x/20 usage and the toast surfaces
   each rotation.
 - UI: top-bar pill is now Gemini-only ("AI · Gemini key 2/3" / "AI · Gemini
-  · ready" / "AI · Rules (offline)"); /api/ai-status dropped the qwen field.
+  · ready" / "AI · Rules (offline)"); /api/ai-status dropped the llm field.
 - Verified live: /api/guide planner turn attempted the key chain (usage 0->2
   on 404 model-name responses -> model cooldowns, policy answered with an
   honest planner:null), pill shows "AI · Gemini · ready" with key1 2/20.

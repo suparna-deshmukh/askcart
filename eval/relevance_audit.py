@@ -1,8 +1,8 @@
 """
 Level-2 reviewer pass: sample queries of every type, run them through the
-live app, and have Qwen judge the relevance of each top-3 result
+live app, and have LLM judge the relevance of each top-3 result
 (relevant / partial / irrelevant). Writes logs/relevance_audit_<ts>.jsonl
-and a summary. Uses the same Qwen proxy config (no Gemini anywhere).
+and a summary. Uses the Gemini API (OpenAI-compatible endpoint).
 Usage: .venv/bin/python eval/relevance_audit.py [--url http://localhost:3000]
 """
 import argparse
@@ -34,9 +34,9 @@ def env(name):
         pass
     return None
 
-BASE_URL = (env("LLM_BASE_URL") or "").rstrip("/")
-KEY = env("LLM_API_KEY")
-MODEL = env("LLM_MODEL") or "qwen38-27b"
+BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+KEY = env("GEMINI_API_KEY") or env("LIVE_LLM_API_KEY") or ""
+MODEL = env("GEMINI_MODEL") or env("LIVE_LLM_MODEL") or "gemini-3-flash-preview"
 
 QUERIES = [
     # flagship / gift

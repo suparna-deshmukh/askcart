@@ -55,7 +55,7 @@ L.append(f"Dev dead-end sample was small (n=5); the 0% dev false-resolve is weak
 L.append("")
 L.append("## Test split (n=50, run once)")
 L.append("")
-L.append("| Arm | Null rate (app def.) | Usable@3 (Qwen) | Success@3 (Qwen) | Dead-end false-resolve | Avg questions/journey | p95 ms (semantic path) |")
+L.append("| Arm | Null rate (app def.) | Usable@3 (LLM) | Success@3 (LLM) | Dead-end false-resolve | Avg questions/journey | p95 ms (semantic path) |")
 L.append("|---|---|---|---|---|---|---|")
 L.append(f"| A lexical + rescue | {rate(A['null'])} | {rate(A['usable_at3'])} | {rate(A['success_at3'])} | 4/4 (see note) | {A['questions_avg']} | n/a |")
 L.append(f"| B semantic only (ablation) | {rate(B['null'])} | n/a (not judged) | n/a (not judged) | 4/4 null (honest) | {B['questions_avg']} | n/a |")
@@ -69,12 +69,12 @@ L.append("- Arm B is the pure ablation (`?semantic=only`, no lexical fallback wh
 L.append("- **Dead-end false-resolve 4/4 in both A and C** is inherited from the "
          "existing category-rescue path (the guided loop asks a category question "
          "and the simulated answer fills 24+ in-category items, which the scorer "
-         "marks intent). Qwen judged all 4 dead-end top-3s as irrelevant (3,3,3) "
+         "marks intent). LLM judged all 4 dead-end top-3s as irrelevant (3,3,3) "
          "in **both** arms. Semantic itself contributed **zero** items to all 4 "
          "dead-ends (all `below_threshold`): it never false-resolves one. n=4 — "
          "Wilson CI not meaningful at this sample size.")
 L.append("- Usable@3 counts >=1 relevant-or-partial in top-3; Success@3 counts "
-         ">=1 relevant. Judge: single Qwen model, thinking off, temp 0; "
+         ">=1 relevant. Judge: single LLM model, thinking off, temp 0; "
          "top-3 of null searches count as failures.")
 L.append("")
 L.append("## Per kind (test split)")
@@ -130,7 +130,7 @@ if ag.exists() and hl.exists():
     A40 = json.load(open(ag)); H40 = json.load(open(hl))
     L.append("## Second-rater agreement check (40-query hand label)")
     L.append(f"40 random Arm-C test queries (seed {H40['seed']}), top-3 each, labelled "
-             f"blind to the Qwen verdicts by {H40['annotator']}. "
+             f"blind to the LLM verdicts by {H40['annotator']}. "
              f"{A40['n_items']} item-level judgements:")
     L.append(f"- 3-class exact agreement (relevant/partial/irrelevant): "
              f"**{A40['exact_agreement_3class']*100:.1f}%** (Cohen's kappa "
@@ -138,16 +138,16 @@ if ag.exists() and hl.exists():
     L.append(f"- Binary 'usable in top-3' (relevant+partial vs irrelevant): "
              f"**{A40['usable_binary_agreement']*100:.1f}%** (Cohen's kappa "
              f"{A40['kappa_binary_usable']:.2f})")
-    t = A40["confusion_hand_x_qwen"]
-    L.append(f"- Confusion (rows = second rater, cols = Qwen; order relevant/"
+    t = A40["confusion_hand_x_llm"]
+    L.append(f"- Confusion (rows = second rater, cols = LLM; order relevant/"
              f"partial/irrelevant):")
-    L.append(f"  |  | Qwen rel | Qwen part | Qwen irr |")
+    L.append(f"  |  | LLM rel | LLM part | LLM irr |")
     L.append(f"  |---|---|---|---|")
     for i, name in enumerate(["rel", "part", "irr"]):
         L.append(f"  | {name} | {t[i][0]} | {t[i][1]} | {t[i][2]} |")
     L.append("- Reading: the two raters agree on the binary usability question "
              "4 of 5 times; the 3-class gap is mostly in the partial/irrelevant "
-             "boundary (Qwen calls more items 'partial' than the second rater). "
+             "boundary (LLM calls more items 'partial' than the second rater). "
              "Single annotator, single LLM — directional only.")
     L.append("")
 L.append("## Interpretation")
@@ -168,7 +168,7 @@ L.append("- The fallback does exactly what it is designed to do: it is "
          "lexical nulls.")
 L.append("")
 L.append("## Limitations (do not omit)")
-L.append("- Relevance is judged by a single Qwen model (temp 0, thinking off) "
+L.append("- Relevance is judged by a single LLM model (temp 0, thinking off) "
          "plus no multi-annotator ground truth; 40-result hand labelling was "
          "skipped per the agreed cut line (n=50 panel) — agreement with the "
          "judge is therefore unmeasured.")
@@ -190,7 +190,7 @@ L.append(f"> A semantic fallback (multilingual e5-small embeddings, int8 index, 
          f"on-intent results reduced the null rate on a frozen held-out panel "
          f"(n=50) from {A['null']['pct']}% [{A['null']['ci'][0]}-"
          f"{A['null']['ci'][1]}] to {C['null']['pct']}% [{C['null']['ci'][0]}-"
-         f"{C['null']['ci'][1]}] (directional; CIs overlap), raised Qwen-judged "
+         f"{C['null']['ci'][1]}] (directional; CIs overlap), raised LLM-judged "
          f"success@3 from {A['success_at3']['pct']}% to {C['success_at3']['pct']}% "
          f"(usable@3 flat at {C['usable_at3']['pct']}%), and cut questions per "
          f"journey from {A['questions_avg']} to {C['questions_avg']}, with "

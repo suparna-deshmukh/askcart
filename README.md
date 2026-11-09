@@ -1,6 +1,6 @@
 # AskCart - Guided E-Commerce Search MVP
 
-Prototype MVP (Next.js 15, Vercel-ready, **Qwen38-27B** via a LiteLLM proxy,
+Prototype MVP (Next.js 15, Vercel-ready, **Gemini**,
 DuckDB SQL pipeline) that guides shoppers out of empty search results with ONE
 short follow-up question (budget / occasion / category) and re-searches with the
 captured intent.
@@ -19,11 +19,53 @@ Claimed study results (achieved, reproducible - see `docs/evidence/claim_provena
   within 2 turns (n=150)**; 3,000-query simulation: 100% resolved, 0.0%
   null, 98.6% by turn 2, 0 errors
 
+## System design
+
+```
+                 ┌─────────────────────────── browser (client-only libs) ───────────────────────────┐
+                 │  page.jsx (single-page app) · i18n 3-lang (437 keys) · track.js (events)        │
+                 │  question card (live-count chips, client recount) · chat panel · checkout       │
+                 └───────┬──────────────────────────────────────────────────────────────────────────┘
+                         │ fetch (JSON)
+                 ┌───────▼─────────────────────────── Next.js 15 API routes ────────────────────────┐
+ /api/search ───►│ rule-based scorer (search.js) + gated ONNX semantic fallback (semantic.js,      │
+                 │   multilingual-e5-small int8, 54K-vector index) - only for dead-end queries     │
+ /api/guide ────►│ decideGuide (guide.js): intent-scoped option view, tiered question ladder,      │
+                 │   exit guard (guard.js: every option re-counted vs the visible set)             │
+ /api/ai-refine ►│ Gemini phrasing of the policy question (guide_ai.js) - 24h plan/refine caches   │
+ /api/chat ─────►│ grounded chat: every product claim validated against the live catalogue         │
+ /api/analytics ►│ event ingest + KPI rollups (analyticsStore.js: JSONL event ledger +          │
+                 │   aggregated KPI state, retention-safe, no PII)                               │
+ /api/ai-status ►│ Gemini key-pool status + guard counters (masked keys only)                     │
+                 └───────┬──────────────────────────────────────────────────────────────────────────┘
+                         │
+                 gemini_keys.js: 4-key pool · 20 RPD/key · Pacific-day rollover · model chain
+                 (zero LLM calls on the rule-based path - Gemini only phrases / validates)
+```
+
+- **Split**: `app/lib/` = server + shared logic (search, semantic, guide, guard, persona,
+  gemini routing, analytics store); `app/app/lib/` = client-only (i18n, tracking).
+- **Catalogue**: 54,304-SKU `public/catalog.json` served as a static file; search runs
+  server-side, the client only ever receives result pages (≤48 items).
+- **AI**: Gemini only. Deterministic policy decides the question; Gemini phrases it
+  (never the options) and its output re-validates against the visible candidate set.
+- **AI-refine set summary** is built from the intent-scoped view of the visible results,
+  so the model only sees the world the shopper sees.
+- **Events**: 89-event allowlist (`event_registry.js` + `docs/event_schema.md`), no PII;
+  CI coverage check fails on any unregistered event.
+- **Persistence**: local JSONL/state files on disk; Vercel needs the KV adapter
+  (checklist in `docs/ui-revamp/NOTES.md`).
+- **Offline pipeline** (`extractor/`): 6-source agentic collector → DuckDB 6-stage SQL
+  pipeline → Bayesian ratings → LLM root-cause labelling (Gemini; zero-LLM greedy
+  fallback) → the 24,998-product Amazon layer of the catalogue.
+- **CI gates**: `eval/canaries.py` (111+6 core + guided-grounding section),
+  `scripts/guide_audit.mjs` (200 deterministic journeys), contrast, i18n parity,
+  semantic test, UI tour, chat eval (grounding 0, GATES PASS), analytics coverage.
 ## Layout
 ```
 extractor/           agentic extractor (agent loop + 6 source collectors + LLM labeling)
   sources.py         locked source table (apps, categories, queries, targets)
-  agent.py           LLM-planned fetch loop (Qwen; greedy zero-LLM fallback), audit log
+  agent.py           LLM-planned fetch loop (Gemini; greedy zero-LLM fallback), audit log
   collect_play.py    Google Play reviews (google-play-scraper, multi-app, resume)
   collect_appstore.py  App Store (iTunes RSS live path)
   collect_appstore_dataset.py  App Store review datasets (fallback)
@@ -31,7 +73,7 @@ extractor/           agentic extractor (agent loop + 6 source collectors + LLM l
   collect_amazon_reviews.py  Amazon product reviews (McAuley 2023, HF, range-sampled)
   collect_trustpilot.py  Trustpilot brand reviews (HF mirror of trustpilot.com)
   collect_trends.py  Google Suggest + Wikipedia pageviews demand/seasonality
-  llm_client.py      Qwen client (LiteLLM proxy; retries; daily cap)
+  llm_client.py      Gemini client (retries; daily cap)
   extract_llm.py     LLM-verified root-cause labels on a stratified complaint sample
   deploy/            Vercel deployment package (evidence API + probe)
 pipeline/            6-stage DuckDB pipeline (01 ingest -> 06 bayesian) + runner
@@ -54,15 +96,15 @@ logs/                collector + agent audit logs
 zsh scripts/run_all.sh          # needs app dev server on :3000 (step 6)
 
 # or step by step:
-.venv/bin/python extractor/agent.py         # agentic loop (Qwen-planned; --auto = greedy)
+.venv/bin/python extractor/agent.py         # agentic loop (LLM-planned; --auto = greedy)
 .venv/bin/python pipeline/run_pipeline.py   # 6-stage pipeline
-.venv/bin/python extractor/extract_llm.py   # Qwen-verified labels (empty if no LLM)
+.venv/bin/python extractor/extract_llm.py   # Gemini-verified labels (empty if no key)
 .venv/bin/python pipeline/run_pipeline.py   # merge labels
 .venv/bin/python scripts/build_catalog.py   # 54,304 SKUs (US base + India layer + expansion matrix)
 cd app && npm run dev                      # http://localhost:3000
 .venv/bin/python eval/run_eval.py              # deterministic guide (reproducible study)
-.venv/bin/python eval/run_eval.py --llm        # Qwen guide (stability check)
-.venv/bin/python eval/relevance_audit.py       # Qwen-judged relevance audit (top-3)
+.venv/bin/python eval/run_eval.py --llm        # LLM guide (stability check)
+.venv/bin/python eval/relevance_audit.py       # LLM-judged relevance audit (top-3)
 .venv/bin/python eval/simulate.py --total 3000 # large-scale query simulation
 .venv/bin/python eval/canaries.py              # 44 eyeball canaries (post-change regression)
 cd app && node --import ../eval/chat/register-shim.mjs \
@@ -75,7 +117,7 @@ cd app && node --import ../eval/chat/register-shim.mjs \
   prefix match on product tokens only; ignores budget language and occasion
   words) - the failure mode we study. The guided re-search applies the budget
   cap, occasion tags and category narrowing from the follow-up answers.
-- **LLM**: Qwen38-27B through the owner's LiteLLM proxy (OpenAI-compatible).
+- **LLM**: Gemini (OpenAI-compatible endpoint).
   It (a) plans the extractor's fetch batches (audit-logged), (b) verifies
   root-cause labels, and (c) generates the guided follow-up in the app.
   Every stage has a deterministic zero-LLM path, so the whole project runs
@@ -135,6 +177,6 @@ cd app && node --import ../eval/chat/register-shim.mjs \
 - Extractor/evidence API (Vercel, secondary): `extractor/deploy/` ->
   `vercel --prod` (staged artifacts in `extractor/deploy/data/`; re-stage with
   `.venv/bin/python scripts/stage_deploy.py` after the final pipeline).
-- MVP: `app/` is Vercel-ready (Next 15). Set `LLM_API_KEY` + `LLM_BASE_URL`
-  (+ optional `LLM_MODEL`) as env vars on the target Vercel account; without
+- MVP: `app/` is Vercel-ready (Next 15). Set `GEMINI_API_KEY`
+  (+ optional `GEMINI_MODEL`) as env vars on the target Vercel account; without
   them the guide falls back to the deterministic rule-based follow-ups.

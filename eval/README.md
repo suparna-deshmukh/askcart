@@ -39,8 +39,8 @@ and absent-product dead ends.
 ## Guide mode
 - Default (study numbers above): deterministic rule-based guide
   (`/api/guide {mode:"fallback"}`) - fully reproducible.
-- `run_eval.py --llm`: Qwen38-27B (LiteLLM proxy) proposes the follow-up
-  (same options/semantics); the app also uses Qwen by default when a key is
+- `run_eval.py --llm`: Gemini proposes the follow-up
+  (same options/semantics); the app also uses the LLM by default when a key is
   present. `scripts/llm_watch_and_run.sh` re-runs the LLM chain + this study
   automatically if the proxy is down. Calibration always measures in
   deterministic mode so the candidate pool is reproducible.

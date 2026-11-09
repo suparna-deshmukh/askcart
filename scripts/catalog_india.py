@@ -2404,7 +2404,7 @@ for b, m, lo, hi, r, nr, vs in AYUR:
     _fam(b, m, cat, lo, hi, r, nr, vs)
 
 # --- Z) budget-gap fillers (2026-11-04 eval pass) -------------------------
-# The Qwen suite's held-out queries exposed catalogue holes: no budget
+# The LLM suite's held-out queries exposed catalogue holes: no budget
 # 5G smartphone under ~15k (real ones start at 65.9k), no soap under
 # ~489, no mug under ~499. These rows make the demo catalogue complete in
 # the ranges Indian shoppers actually budget in. Documented in STATUS.md.
@@ -2443,7 +2443,7 @@ BUDGET_MUGS = [
 for b, m, price in BUDGET_MUGS:
     _fam(b, m, "Amazon Home", price, price, 4.2, 12400, ["Standard"])
 
-# --- AA) more budget-gap fillers (2026-11-04 Qwen-suite fix pass) ---------
+# --- AA) more budget-gap fillers (2026-11-04 LLM-suite fix pass) ---------
 # Second eval pass exposed the same pattern in other ranges: no steel
 # water bottle under ~300 (baby bottles led instead), no thermos flask
 # under ~800, no real sofa set under ~15k (couch blankets led), no
@@ -2490,7 +2490,7 @@ BUDGET_LOAFERS = [
 for b, m, price in BUDGET_LOAFERS:
     _fam(b, m, "AMAZON FASHION", price, price, 4.2, 7600, ["UK 7", "UK 8", "UK 9"])
 
-# --- AB) Qwen-suite fix-pass fillers (2026-11-04, second eval pass) ------
+# --- AB) LLM-suite fix-pass fillers (2026-11-04, second eval pass) ------
 # Panel queries exposed the same catalogue holes in more ranges: no trolley
 # with "bag" in the title under 5k, no laptop bag under 1500, no t-shirt 3
 # pack, no LG refrigerator under 25k, no 256 GB tablet under 15k, no

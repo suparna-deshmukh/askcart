@@ -3,19 +3,19 @@
 Panel: **100 queries, frozen in git before any arm was run** (real Google-Suggest-shaped 41, vague 25, Hinglish 14, typo 10, dead-end 10). Deduped against the 44 canaries and the old 150-query dev set.
 
 Arms: **A baseline** = `naive` keyword search, one shot, no questions (the pre-guidance engine). **B guided** = live app path (guided scorer + ≤3 follow-up questions answered by a neutral deterministic simulator, client re-search + rollback semantics).
-Relevance of each arm's top-3 judged by Qwen (single LLM judge, thinking off; R/P/I per item; 0 unknowns).
+Relevance of each arm's top-3 judged by LLM (single LLM judge, thinking off; R/P/I per item; 0 unknowns).
 
 | Metric | A baseline (naive) | B guided |
 |---|---|---|
 | Null rate (0 results) | 24.0% [16.7-33.2] | 0.0% [0.0-3.7] |
 | App null (final < 2 intent-matched) | 28.0% [20.1-37.5] | 10.0% [5.5-17.4] |
-| success@3 (≥1 relevant in top-3, Qwen) | 44.7% [34.1-55.9] | 52.0% [42.3-61.5] |
+| success@3 (≥1 relevant in top-3, LLM) | 44.7% [34.1-55.9] | 52.0% [42.3-61.5] |
 | usable@3 (≥1 relevant or partial) | 82.9% [72.9-89.7] | 75.0% [65.7-82.5] |
 | p50 / p95 latency ms | 54 / 131 | 64 / 737 |
 | Questions / journey (avg) | – | 0.36 (max 3) |
 | Rollback events (answer made it worse) | – | 8 turns across 5.0% of journeys |
 
-Outcome classes (app-intent definition; Qwen-judged below):
+Outcome classes (app-intent definition; LLM-judged below):
 
 | Outcome | A | B |
 |---|---|---|
@@ -25,7 +25,7 @@ Outcome classes (app-intent definition; Qwen-judged below):
 | substitute_shown | 0 | 3 |
 | not_in_catalogue | 1 | 0 |
 
-## Per-kind (Qwen success@3 / usable@3)
+## Per-kind (LLM success@3 / usable@3)
 
 | kind | n | A success@3 | B success@3 | A usable@3 | B usable@3 |
 |---|---|---|---|---|---|
@@ -37,7 +37,7 @@ Outcome classes (app-intent definition; Qwen-judged below):
 
 Products absent from the catalogue per the guided lexical probe: 3 (something for my room, office ke liye kuch, kettledrum).
 
-## Failure examples (guided arm, all top-3 irrelevant per Qwen)
+## Failure examples (guided arm, all top-3 irrelevant per LLM)
 
 - `gift under 2000` (real_suggest): Superhero Capes and Mask for Kids Superhero Costumes for Boy / SUNBVE Kids Girls Cute Fashion Soft Cotton Dress Socks Gift / Loritta 4 Pairs Womens Boot Socks Winter Warm Crochet Knitte
 - `gift under 2000 for men` (real_suggest): Superhero Capes and Mask for Kids Superhero Costumes for Boy / SUNBVE Kids Girls Cute Fashion Soft Cotton Dress Socks Gift / Loritta 4 Pairs Womens Boot Socks Winter Warm Crochet Knitte
@@ -53,7 +53,7 @@ Products absent from the catalogue per the guided lexical probe: 3 (something fo
 ## Interpretation & limitations (honest read)
 
 - The old n=150 study (27.3% → 8.0% null) remains the *dev-set* result: its panel was calibrated against the live app, so it demonstrates mechanics, not shopper benefit. Eval v2 is the held-out check; both are reported, never blended.
-- Relevance is judged by a **single LLM judge** (Qwen, thinking off) with no human spot-check in this pass; there is no multi-annotator ground truth.
+- Relevance is judged by a **single LLM judge** (LLM, thinking off) with no human spot-check in this pass; there is no multi-annotator ground truth.
 - `real_suggest` queries are Google-Suggest *autocompletes*, not logged shopper queries, and they are gift-heavy (a bias that favours this app's occasion strength).
 - There are **no real users** on this deployment; the guided arm's answers come from a neutral deterministic simulator (middle budget band / first count-backed option).
 - The catalogue is a demo catalogue (US-converted + synthetic India layer); absolute relevance numbers are indicative.

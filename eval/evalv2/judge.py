@@ -1,5 +1,5 @@
 """
-E3 Eval v2 - Qwen relevance judge for top-3 per query per arm.
+E3 Eval v2 - LLM relevance judge for top-3 per query per arm.
 Single LLM judge, thinking off, batched. Verdicts: R / P / I.
 Writes eval/evalv2/results/judged.jsonl (qid+arm keyed; re-runs skip).
 

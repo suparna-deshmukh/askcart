@@ -107,27 +107,27 @@ def main():
                  "(the pre-guidance engine). **B guided** = live app path "
                  "(guided scorer + ≤3 follow-up questions answered by a neutral "
                  "deterministic simulator, client re-search + rollback semantics).")
-    lines.append("Relevance of each arm's top-3 judged by Qwen (single LLM judge, "
+    lines.append("Relevance of each arm's top-3 judged by LLM (single LLM judge, "
                  "thinking off; R/P/I per item; 0 unknowns).")
     lines.append("")
     lines.append("| Metric | A baseline (naive) | B guided |")
     lines.append("|---|---|---|")
     lines.append(f"| Null rate (0 results) | {row('a', A, 'null_strict')} | {row('b', B, 'null_strict')} |")
     lines.append(f"| App null (final < 2 intent-matched) | {row('a', A, 'null_app_lt2_intent')} | {row('b', B, 'null_app_lt2_intent')} |")
-    lines.append(f"| success@3 (≥1 relevant in top-3, Qwen) | {row('a', A, 'success_at3')} | {row('b', B, 'success_at3')} |")
+    lines.append(f"| success@3 (≥1 relevant in top-3, LLM) | {row('a', A, 'success_at3')} | {row('b', B, 'success_at3')} |")
     lines.append(f"| usable@3 (≥1 relevant or partial) | {row('a', A, 'usable_at3')} | {row('b', B, 'usable_at3')} |")
     lines.append(f"| p50 / p95 latency ms | {A['latency_ms']['p50']} / {A['latency_ms']['p95']} | {B['latency_ms']['p50']} / {B['latency_ms']['p95']} |")
     lines.append(f"| Questions / journey (avg) | – | {B['questions_avg']} (max {B['questions_max']}) |")
     lines.append(f"| Rollback events (answer made it worse) | – | {B['rollback_turns']} turns across {B['rollback_rate_pct_queries']}% of journeys |")
     lines.append("")
-    lines.append("Outcome classes (app-intent definition; Qwen-judged below):")
+    lines.append("Outcome classes (app-intent definition; LLM-judged below):")
     lines.append("")
     lines.append("| Outcome | A | B |")
     lines.append("|---|---|---|")
     for oc in ("resolved", "null", "weak", "substitute_shown", "not_in_catalogue"):
         lines.append(f"| {oc} | {A['outcomes'].get(oc, 0)} | {B['outcomes'].get(oc, 0)} |")
     lines.append("")
-    lines.append("## Per-kind (Qwen success@3 / usable@3)")
+    lines.append("## Per-kind (LLM success@3 / usable@3)")
     lines.append("")
     lines.append("| kind | n | A success@3 | B success@3 | A usable@3 | B usable@3 |")
     lines.append("|---|---|---|---|---|---|")
@@ -137,7 +137,7 @@ def main():
     lines.append(f"Products absent from the catalogue per the guided lexical probe: {len(absent_ids)} "
                  f"({', '.join(absent_ids[:12])}{', …' if len(absent_ids) > 12 else ''}).")
     lines.append("")
-    lines.append("## Failure examples (guided arm, all top-3 irrelevant per Qwen)")
+    lines.append("## Failure examples (guided arm, all top-3 irrelevant per LLM)")
     lines.append("")
     for fex in fails[:10]:
         lines.append(f"- `{fex['query']}` ({fex['kind']}): " + " / ".join(fex["items"]))
@@ -149,7 +149,7 @@ def main():
     lines.append("- The old n=150 study (27.3% → 8.0% null) remains the *dev-set* result: its panel was "
                  "calibrated against the live app, so it demonstrates mechanics, not shopper benefit. "
                  "Eval v2 is the held-out check; both are reported, never blended.")
-    lines.append("- Relevance is judged by a **single LLM judge** (Qwen, thinking off) with no human "
+    lines.append("- Relevance is judged by a **single LLM judge** (LLM, thinking off) with no human "
                  "spot-check in this pass; there is no multi-annotator ground truth.")
     lines.append("- `real_suggest` queries are Google-Suggest *autocompletes*, not logged shopper "
                  "queries, and they are gift-heavy (a bias that favours this app's occasion strength).")

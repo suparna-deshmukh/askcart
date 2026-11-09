@@ -5,7 +5,7 @@
 //
 // 1. runs every dev query through the REAL /api/search route in-process
 //    with EVAL_MODE=1&semantic=only (the semantic-only ablation)
-// 2. Qwen-judges each query's top-3 (single judge; thinking off; batch 20)
+// 2. LLM-judges each query's top-3 (single judge; thinking off; batch 20)
 // 3. sweeps tau x margin:
 //      hit rate on positives (top-1 judged relevant/partial; >=2 items pass)
 //      dead-end false-resolve (>=2 items pass)          target <= 10%

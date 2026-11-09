@@ -119,7 +119,7 @@ export function occasionOptions(region, { gift = false } = {}) {
   const fest = upcomingFestivals(region).slice(0, 3);
   const opts = [];
   // A generic "gift" query reads best with the generic Gift option leading
-  // (Qwen UX panel v2: "occasion options weak / lack generic gift" on
+  // (LLM UX panel v2: "occasion options weak / lack generic gift" on
   // "gift box", "bhai ke liye gift 2k"); festival dates follow (G7).
   if (gift) opts.push("Gift");
   for (const f of fest) if (opts.length < 6 && !opts.includes(f)) opts.push(f);
@@ -157,13 +157,13 @@ function budgetOptions(stats, { stepDown = false } = {}) {
   const f = stepDown ? 0.75 : 1;
   // On-intent quantiles when the intent set is representative (>=20 items):
   // "laptob" top-300 is polluted with laptop bags/stands that pull the bands
-  // to 1k-42k while the actual laptops run 33k-75k (Qwen UX panel v2:
+  // to 1k-42k while the actual laptops run 33k-75k (LLM UX panel v2:
   // "Laptops are expensive, options are wrong").
   const P = stats.pricePIntent || stats.priceP;
   const { p25, p50, p75 } = P;
   if (!p25 || !p75) return ["Under ₹2,000", "₹2,000 – ₹5,000", "₹5,000 – ₹10,000", "Not sure / flexible"];
   const a = clean(p25 * f), b = clean(Math.max(p50 * f, p25 * f + 500)), c = clean(p75 * f);
-  // Any band wider than 4x is not a band (Qwen UX panel v2: "options poorly
+  // Any band wider than 4x is not a band (LLM UX panel v2: "options poorly
   // scaled" on laptop/TV): split at the geometric mean. Laptop candidate
   // sets are bimodal (accessories + real laptops), so the MIDDLE band needs
   // the same treatment as the tail.
@@ -348,12 +348,12 @@ export async function decideGuide(catalog, query, nResults, context = {}) {
   const dominantShare = dominant && stats.n ? dominant.count / stats.n : 0;
   // Devanagari queries carry their relation words only after the lexicon
   // maps them to latin ("bhai", "behen") - test the rawWords too, or a
-  // "who's it for?" follows a "gift for bhai" (Qwen UX panel v2: 22/38 hi
+  // "who's it for?" follows a "gift for bhai" (LLM UX panel v2: 22/38 hi
   // for-whom moments flagged redundant).
   const recipientHint = hasRecipientHint(query) ||
     (parsed.rawWords || []).some((w) => RECIPIENT_HINT.test(w));
   const hasSubject = parsed.tokens.length > 0;
-  // Apparel/wearable subject test (Qwen UX rubric: for-whom/size fit
+  // Apparel/wearable subject test (LLM UX rubric: for-whom/size fit
   // apparel & wearable queries only - "sitar is instrument, not apparel").
   const WEARABLE_Q = /\b(watch|smartwatch|watches|bangle|bangles|earring|earrings|bracelet|necklace|chain|ring|rings|sandal|sandals|slipper|slippers|shoe|shoes|sneaker|sneakers|flipflop|flip-flop|cap|caps|tie|belt|wallet|hoodie|hoodies|sweater|sweaters|coat|coats|jacket|jackets?|blazer|blazers|jeans|jeans?|trouser|trousers|pants|short|shorts|skirt|skirts|top|tops|kurti|kurtas?|kurta|dhoti|dhotis|lungi|salwar|salwars|saree|sari|sarees|shirt|shirts|tshirt|t-shirts?|t-?shirts?|blouse|blouses|dress|dresses|frock|frocks|nighty|nightys|pyjama|pyjamas|uniform|uniforms|gown|lehenga)\b/i;
 const DEVANAGARI_WEARABLE = /(?<![ऀ-ॿ])(घड़ी|घडियां|कमीज़|कुर्ता|कुर्ती|शर्ट|साड़ी|सारी|ब्लाज़र|ब्लेज़र|टॉप|स्वेटर|जीन्स|जींस|टाई|बेल्ट|जूता|जूते|चप्पल|ड्रेस|नाइट|कपड़े|कपड़ा|पायजामा|लेहंगा|अनारकली)(?![ऀ-ॿ])/;
@@ -396,14 +396,14 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     stats.brands[0].count / stats.n >= 0.5;
   // "ipone 15" / "iphone 15 pro": a 1-3 digit model number (not a pack
   // count, not the budget) pins a specific model - a budget quiz on it is
-  // noise (Qwen UX panel v2: "iPhone price is fixed" x4).
+  // noise (LLM UX panel v2: "iPhone price is fixed" x4).
   const modelNum = (() => {
     const t = String(query).replace(/pack\s*(of\s*)?\d+|\d+\s*(packs?|pieces?|pcs?|pcs|pairs?|sets?|count)/gi, " ");
     return /\b\d{1,3}\b/.test(t) && parsed.budgetMax === null && !directSpec;
   })();
   // A brand-first shopper (onboarding persona) lowers the dominance bar:
   // for them the brand answer changes the ranking even at ~10% - and the
-  // brand question leads (Qwen UX panel v2: "brand preference ignored for
+  // brand question leads (LLM UX panel v2: "brand preference ignored for
   // brand lover" on TV/laptop budget moments).
   const brandPersona = typeof context.persona === "string"
     ? context.persona === "brand_lover"
@@ -411,7 +411,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
        /brand/i.test(String(context.persona.userType || ""))));
   // A category flow is only trusted when that category actually dominates
   // the candidate set - "fan" is 24% AMAZON FASHION (hand fans) and must
-  // not inherit the fashion ladder (Qwen UX panel v2: "for-whom irrelevant
+  // not inherit the fashion ladder (LLM UX panel v2: "for-whom irrelevant
   // for generic fan").
   const flow = dominantShare >= 0.4
     ? (CATEGORY_FLOWS[flowKey(dominant ? dominant.name : null)] || DEFAULT_FLOW)
@@ -441,7 +441,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // P2: a stated recipient + product subject without a stated occasion is
     // gifting intent ("candle for my colleague", "phone for dad") - the
     // gift ladder (occasion first after recipient/size drop-outs) fits
-    // better than a category budget quiz (Qwen UX panel v2 round 6).
+    // better than a category budget quiz (LLM UX panel v2 round 6).
     (recipientHint && hasSubject && !parsed.occasion) ||
     // F12: possessive pronouns (uske/unke...) signal gifting intent
     // ("ghadi uske liye") - run the gift ladder. They are NOT added to
@@ -487,13 +487,13 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   const isDeadEnd = stats.n === 0; // unfiltered search found nothing
   // A concrete product search the catalogue cannot resolve gets an honest
   // not-found (with broader-word suggestion), not a category quiz: options
-  // cannot be grounded in a subject the catalogue doesn't carry (Qwen UX
+  // cannot be grounded in a subject the catalogue doesn't carry (LLM UX
   // panel 2026-11-04: "category options ignore query subject" on zither,
   // rotary phone, samovar, theremin, ...). Vague browses and gift intents
   // keep disambiguation.
   // A concrete product search the catalogue cannot fully resolve gets an
   // honest not-found (closest picks shown), not a quiz: options cannot be
-  // grounded in a subject the catalogue doesn't carry. Qwen UX panel
+  // grounded in a subject the catalogue doesn't carry. LLM UX panel
   // 2026-11-04: "category options ignore query subject" (zither, samovar,
   // ...), and on the "rotary phone" dead end the frozen judge rejected
   // every facet variant tried (plain budget 2A/1M/1B, candidate-grounded
@@ -526,7 +526,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     if (t === "budget") {
       // The priced bands must actually narrow the candidate set: if they
       // cover <10% of candidates, any answer keeps ~everything and the
-      // question reads as noise (Qwen UX panel 2026-11-04: "budget
+      // question reads as noise (LLM UX panel 2026-11-04: "budget
       // redundant after size selection", "options lack product coverage").
       const cov = budgetOptions(iv, {}).reduce((a, o) => a + (countBudget(visItems, nVis, o) || 0), 0) / Math.max(1, nVis);
       if (nVis > 0 && cov < 0.10) return false;
@@ -536,7 +536,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // A budget question needs a product subject, not a stated spec (a
     // "7 kg washing machine" shopper is direct-buying), not a tiny set a
     // price band cannot split, and not a set a fit answer just narrowed
-    // (budget after a size/for-whom answer reads redundant - Qwen UX
+    // (budget after a size/for-whom answer reads redundant - LLM UX
     // panel v2).
     if (t === "budget" && ((!hasSubject && !giftFacetsKnown) || directSpec || modelNum || iv.n < 15 ||
         prev.has("size") || prev.has("for_whom") || prev.has("capacity"))) return false;
@@ -549,11 +549,11 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // or the set is high-ticket (p50 >= 15k, where even a 3x band is a
     // real choice: TVs 34k-110k). Narrow mid-price sets (microwave
     // 10-14k, fan, photo frame, blazer, typo-headphones 3.5x) get NQ
-    // (Qwen UX panel v2 round 6: budget B's on 1.4-3.9x ranges).
+    // (LLM UX panel v2 round 6: budget B's on 1.4-3.9x ranges).
     const PB = iv.pricePIntent || iv.priceP;
     if (t === "budget" && PB.p25 > 0 && PB.p75 / PB.p25 < 4 && PB.p50 < 15000) return false;
     // F10: a range spanning >15x (sitar 1.5k-33k) is not a budget quiz -
-    // the shopper needs to specify type/use first (Qwen UX panel v2 round 8).
+    // the shopper needs to specify type/use first (LLM UX panel v2 round 8).
     if (t === "budget" && PB.p25 > 0 && PB.p75 / PB.p25 > 15) return false;
     // Apparel & gift queries: the decisive facets are fit/occasion, not
     // price ("budget less useful than size for sneakers"). Exception: a
@@ -571,24 +571,24 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // F1: a NAMED occasion in the query (diwali/anniversary/birthday/wedding/
     // ...) makes the occasion quiz redundant - the options either ignore the
     // stated intent or re-ask it. "party" is generic ("event"), still worth
-    // asking (Qwen UX panel v2 round 7: 11 M/B stated-occasion moments vs
+    // asking (LLM UX panel v2 round 7: 11 M/B stated-occasion moments vs
     // A's on unstated-occasion and event queries).
     if (t === "occasion" && gift && parsed.occasion && parsed.occasion !== "gift" &&
         parsed.occasion !== "party") return false;
     // F8: a pure gift/kuch query with no stated recipient has no grounded
     // occasion answer in the mega candidate set ("options weak") - the
-    // recipient question is the fit (Qwen UX panel v2 round 7).
+    // recipient question is the fit (LLM UX panel v2 round 7).
     if (t === "occasion" && gift && !recipientHint && !selfRef &&
         (!parsed.occasion || parsed.occasion === "gift")) return false;
     // A stated kids age makes size the useful next facet, not occasion
-    // (Qwen UX panel 2026-11-04: "occasion less useful than size for kids").
+    // (LLM UX panel 2026-11-04: "occasion less useful than size for kids").
     if (t === "occasion" && parsed.specs && parsed.specs.age !== undefined) return false;
     // Occasion fits gifts/events - not specific products ("gramophone",
     // "soap 200 se kam"). Gift intent, a recipient word, or a vague query.
     if (t === "occasion" && !gift && !vague && !parsed.occasion) return false;
     // "bhai ke liye gift 2k" / "gift under 2000": a priced gift is already
     // scoped - the occasion quiz is the last thing the shopper wants
-    // (Qwen UX panel v2: 4x "occasion fits gift but budget already set").
+    // (LLM UX panel v2: 4x "occasion fits gift but budget already set").
     if (t === "occasion" && gift && parsed.budgetMax !== null) return false;
     if (t === "occasion" && prev.has("size")) return false; // fit already answered
     // A category quiz on a RESOLVED search is only grounded when the
@@ -607,19 +607,19 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // kids boost from the same age slot.
     if (t === "for_whom" && parsed.specs && parsed.specs.age !== undefined) return false;
     // P4: a bare watch query (no gender token) is not a for-whom moment -
-    // "who's it for?" on "watch under 1000" reads redundant (Qwen UX
+    // "who's it for?" on "watch under 1000" reads redundant (LLM UX
     // panel v2). "watsh for men" keeps its size question (typo, no WATCH_Q
     // match) and gender-stated watch queries keep for-whom.
     const WATCH_Q = /\b(watch|watches|smartwatch|ghadi)\b/i.test(query) || /घड़[ीि]|ghadi/.test(query);
     if (t === "for_whom" && WATCH_Q &&
         !/\b(men|mens|women|womens|him|her|uske|uski|uska)\b/i.test(query)) return false;
     // For-whom needs a wearable/apparel subject, or it reads off-target
-    // (Qwen UX panel v2: sitar, photo frame, organizer moments).
+    // (LLM UX panel v2: sitar, photo frame, organizer moments).
     if (t === "for_whom" && !isWearableQ(query)) return false;
     if (t === "for_whom" && prev.has("size")) return false; // a fit answer already narrowed the set
     // A generic gift ("gift box", "kuch acha gift ke liye") has no wearable
     // subject - "who's it for?" reads off-target next to an occasion question
-    // (Qwen UX panel v2: "occasion fits gift but options weak" on for-whom).
+    // (LLM UX panel v2: "occasion fits gift but options weak" on for-whom).
     const WEARABLE = /\b(watch|smartwatch|watche?|bangle|bangles|earring|earrings|bracelet|necklace|chain|ring|rings|saree|sari|kurti|kurtas?|kurta|shirt|shirts?|blouse|dress|dresses?|jacket|jackets?|hoodie|sweater|coat|shoe|shoes|sneaker|sneakers|slipper|slippers|sandal|sandals|cap|caps|tie|belt|wallet|scarf|shawl|dupatta)\b/i;
     if (t === "for_whom" && gift && !WEARABLE.test(query)) return false;
     // Brand question only when a brand actually dominates the candidates
@@ -656,7 +656,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     }
     // Size (S/M/L/XL) only on fit garments with size-bearing titles - a
     // "size?" question on a shawl, watch or perfume is noise (persona sim
-    // 2026-11-04: 593/3000 size questions; Qwen UX panel 2026-11-04:
+    // 2026-11-04: 593/3000 size questions; LLM UX panel 2026-11-04:
     // "size irrelevant" for shawl/watch/perfume). Kids sets use age-based
     // sizing that titles don't carry, so adult S/M/L/XL chips are skipped.
     const FIT_GARMENT = /\b(shirts?|sharts?|kurtas?|kurtis?|dresses?|frocks?|trousers?|jeans?|pants?|t-?shirts?|sarees?|salwars?|suits?|jackets?|blazers?|coats?|hoodies?|blouses?|nightys?|dhotis?|lungis?|pyjamas?|uniforms?|tops|watch(es)?|smartwatch(es)?)\b/i;
@@ -674,7 +674,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
         sizeOptions(iv.items, iv.n).reduce((a, o) => a + (String(o.label).startsWith("Any") ? 0 : (o.count || 0)), 0) < 25)) return false;
     // Capacity (tonnage/kg/litres) only where such specs live - appliances,
     // electronics, gym weights. "5 kg" options on a kids' t-shirt set are
-    // noise (Qwen UX panel 2026-11-04).
+    // noise (LLM UX panel 2026-11-04).
     const APPLIANCE_Q = /\b(ac\b|air\s?fryer|fridge|refrigerator|washing|washer|dryer|mixer|grinder|cooker|kettle|microwave|vacuum|geyser|dispenser|freezer|oven|induction|stove|heater|dumbbell|weights?|kettle)\b/i;
     if (t === "capacity" && (!hasSubject || directSpec ||
         capacityOptions(iv.items, iv.n).length < 3 ||
@@ -696,25 +696,25 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     order = ["brand", ...eligible.filter((t) => t !== "brand")];
   }
   // Category leads only when two product families genuinely split the set
-  // (Qwen UX panel v2: "budget fits but category narrowing is better" on
+  // (LLM UX panel v2: "budget fits but category narrowing is better" on
   // fan/charger; but "category options ignore pen subject" on single-
   // product queries). Gift/vague queries run the gift ladder instead.
   // Genuinely multi-family resolved set: the category question LEADS
-  // (Qwen UX panel v2: "budget fits but category narrowing is better" on
+  // (LLM UX panel v2: "budget fits but category narrowing is better" on
   // charger/fan). It is added to the ladder even for flows that carry no
   // category facet (electronics/phones/appliances), because that is where
   // the phone/laptop/car-charger split lives.
   // P5: "samsng tv" / "television" queries can be dominated by the
   // "Cell Phones & Accessories" department (junk 46% split) - a category
   // question built on that split is noise; the budget facet on the clean
-  // TV set is the A-grade moment (Qwen UX panel v2 round 6).
+  // TV set is the A-grade moment (LLM UX panel v2 round 6).
   const phoneAccArtifact = stats.categories[0] && stats.categories[0].name === "Cell Phones & Accessories" &&
     (!/\b(phone|mobile|galaxy|iphone)\b/i.test(query) && !/फ़?ो[ंn]/.test(query));
   // F6/F7: a "category split" that is really one product filed under
   // several electronics departments (charger: All Electronics + Cell Phones
   // & Accessories; TV: All Electronics + Home Audio & Theater + Amazon Home)
   // is not a shopper choice - the department quiz confuses ("options
-  // overlap and confuse intent"). Product-family splits stay (Qwen UX panel
+  // overlap and confuse intent"). Product-family splits stay (LLM UX panel
   // v2 round 7).
   const ELECTRONICS_DEPTS = ["All Electronics", "Cell Phones & Accessories",
     "Automotive", "Home Audio & Theater", "Appliances"];
@@ -1006,7 +1006,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   } else if (type === "occasion") {
     // G7: calendar- and region-aware ordering (Diwali leads in Nov 2026).
     // A query that NAMES its occasion leads with it - the question becomes
-    // a confirmation whose top chip re-ranks on the occasion tag (Qwen UX
+    // a confirmation whose top chip re-ranks on the occasion tag (LLM UX
     // panel v2: "occasion options ignore anniversary intent" when
     // Gift/Diwali led an anniversary query).
     const STATED_OCC = { wedding: "Wedding / Shaadi", birthday: "Birthday",
@@ -1025,12 +1025,12 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
         ? `gift intent without occasion; occasion tags decide ranking (occasion_blindness = 0.7% overall, but the top driver of gift-query failures in the corpus)`
         : `category flow prioritizes occasion (fashion/gift-adjacent)`;
     optionCounts = options.map((o) => ({ label: o, count: countOccasionIn(visItems, nVis, o) }));
-    // Prune weak festival options (Qwen UX panel v2: "occasion options weak"
+    // Prune weak festival options (LLM UX panel v2: "occasion options weak"
     // on Dhanteras: 4 / Diwali: 4 / Bhai Dooj: 4): keep options with at
     // least max(2, 1% of the candidate set) items when >=2 qualify.
     // F2: an occasion option must carry at least max(5, 3% of the candidate
     // set) items, and fewer than two such options means the question has no
-    // grounded answer (Qwen UX panel v2 round 7: "options weak/redundant"
+    // grounded answer (LLM UX panel v2 round 7: "options weak/redundant"
     // on tshirt/rug/organizer/hi-tshirt moments; A'd gift moments - gift
     // box, kids dress, candle - all keep >=2 strong options).
     const minOcc = Math.max(5, Math.round(0.03 * iv.n));
@@ -1038,7 +1038,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // F9': the tagged options must also cover >=15% of the candidate set,
     // or the "occasion" chips touch a sliver ("dress for my wife": Gift:34 +
     // Wedding:81 of 1130 = 10% - "options weak"). A'd gift moments all cover
-    // >=20% (Qwen UX panel v2 round 8).
+    // >=20% (LLM UX panel v2 round 8).
     const totalShare = strong.reduce((a, c) => a + (c.count || 0), 0) / Math.max(1, nVis);
     optionCounts = (strong.length >= 2 && totalShare >= 0.15) ? strong : [];
     options = optionCounts.map((c) => c.label);
@@ -1103,7 +1103,7 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // its DATA options (the "Any / No preference / Not sure" escape
     // hatches excluded) actually have products. A question with one live
     // chip out of five (e.g. occasion on "watch for him": Wedding: 1) is
-    // a quiz the answer cannot narrow - noise (Qwen UX panel v2, 2026-11-05).
+    // a quiz the answer cannot narrow - noise (LLM UX panel v2, 2026-11-05).
     const liveData = optionCounts.filter((c) =>
       !/^(No preference|Not sure|Any)/.test(String(c.label)) && (c.count || 0) > 0).length;
     if (liveData < 2) {

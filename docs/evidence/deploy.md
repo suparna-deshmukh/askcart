@@ -37,8 +37,8 @@
 ## MVP (second Vercel account - later, per plan)
 - `app/` is a standard Next.js 15 app; deploy as-is:
   1. log in to the second account (the Bits email), `cd app && vercel`
-  2. set env vars `LLM_API_KEY` + `LLM_BASE_URL` (and optional `LLM_MODEL`)
-     for the Qwen guided follow-ups; without them the deterministic
+  2. set env var `GEMINI_API_KEY` (and optional `GEMINI_MODEL`)
+     for the LLM guided follow-ups; without them the deterministic
      rule-based guide is used - both verified
   3. `vercel --prod`
 - No secrets are committed; `.env` is git-ignored.

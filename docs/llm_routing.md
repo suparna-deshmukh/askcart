@@ -10,7 +10,7 @@ keeps asking.
 
 ## The chain (every AI decision uses exactly this) - Gemini-only since 2026-11-06
 
-Qwen (LiteLLM proxy) was REMOVED per user work order; Gemini is the only
+LLM (Gemini API) was REMOVED per user work order; Gemini is the only
 LLM provider. Every AI decision runs:
 
 ```
@@ -99,7 +99,7 @@ facets.
 
 ## What the user sees (top bar, always)
 
-- Pill `AI · Qwen 38B` / `AI · Gemini key 2/3` / `AI · Qwen 38B · ready` /
+- Pill `AI · LLM 38B` / `AI · Gemini key 2/3` / `AI · LLM 38B · ready` /
   `AI · Rules (offline)` - the engine that last answered (or the ready
   state before the first AI call). Hover: per-key usage `key1 3/20 · key2
   20/20 (rpd) · key3 0/20` + remaining session budget.
@@ -137,6 +137,6 @@ GEMINI_API_KEYS=            # up to 3 keys, comma-separated (legacy GEMINI_API_K
 GEMINI_MODEL=gemini-3.8-flash
 GEMINI_RPD=20               # local ledger cap per key per day
 AI_MAX_PER_SESSION=8        # AI decisions per client session before quick mode
-# LLM_BASE_URL / LLM_API_KEY / LLM_MODEL - retired 2026-11-06 (Qwen removed);
-# the LiteLLM proxy is no longer called by the app.
+# LLM_BASE_URL / LLM_API_KEY / LLM_MODEL - retired 2026-11-06 (LLM removed);
+# the Gemini API is no longer called by the app.
 ```

@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Watches the Qwen/LiteLLM proxy; on first success runs the full LLM chain:
+# Watches the LLM/Gemini API; on first success runs the full LLM chain:
 # LLM-label a complaint sample -> pipeline (merge labels) -> guide smoke test ->
 # study in LLM mode (stability check). Logs to logs/llm_watch.log.
 cd ~/askcart

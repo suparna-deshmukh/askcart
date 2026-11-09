@@ -1,10 +1,10 @@
-// Qwen suite - RAG dimension (300 cases). In-process /api/chat route
+// LLM suite - RAG dimension (300 cases). In-process /api/chat route
 // (CHAT_LLM=0, CHAT_EVAL=1): 250 product Q&A (turn1 = SKU title search,
 // turn2 = question) + 50 FAQ (single turn). Deterministic checks:
-// <=40 words, meta.grounded !== false, no banned phrases. Then one Qwen
+// <=40 words, meta.grounded !== false, no banned phrases. Then one LLM
 // call per case judges: does the reply answer the question correctly,
 // honestly about unknowns, helpfully, using only the SKU facts?
-// PASS = deterministic ok AND Qwen pass. Resume-safe.
+// PASS = deterministic ok AND LLM pass. Resume-safe.
 import fs from "node:fs";
 import path from "node:path";
 
@@ -16,7 +16,7 @@ process.chdir(path.join(APP, "app"));
 const { POST } = await import("../../app/app/api/chat/route.js");
 const { signState, freshState } = await import("../../app/lib/chat/state.js");
 
-const HERE = path.join(App(), "eval", "qwen_suite");
+const HERE = path.join(App(), "eval", "llm_suite");
 function App() { return path.resolve(process.cwd(), ".."); }
 const PANEL = fs.readFileSync(path.join(HERE, "panel.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 const CASES = PANEL.filter((p) => p.dim === "rag");
@@ -24,7 +24,7 @@ const OUT = path.join(HERE, "results", "verdicts_rag.jsonl");
 const COST = path.join(HERE, "results", "cost_rag.json");
 const BANNED = ["100%", "guaranteed", "best quality", "will definitely", "genuine", "authentic", "free shipping", "free delivery", "lifetime"];
 
-// Qwen via the same proxy config as extractor/llm_client.py (read .env)
+// LLM via the same proxy config as extractor/llm_client.py (read .env)
 function env(name) {
   const v = process.env[name];
   if (v) return v.trim();
@@ -39,11 +39,11 @@ function env(name) {
   } catch {}
   return null;
 }
-const LLM = { base: (env("LLM_BASE_URL") || "").replace(/\/$/, ""), key: env("LLM_API_KEY"), model: env("LLM_MODEL") || "qwen38-27b" };
+const LLM = { base: (env("LLM_BASE_URL") || "").replace(/\/$/, ""), key: env("LLM_API_KEY"), model: env("LLM_MODEL") || "gemini-3-flash-preview" };
 let cost = { calls: 0, est_tokens: 0 };
 try { cost = JSON.parse(fs.readFileSync(COST, "utf8")); } catch {}
 
-async function qwen(prompt) {
+async function llm(prompt) {
   const r = await fetch(LLM.base + "/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${LLM.key}`, "Content-Type": "application/json" },
@@ -51,7 +51,7 @@ async function qwen(prompt) {
                            messages: [{ role: "user", content: prompt }],
                            extra_body: { chat_template_kwargs: { enable_thinking: false } } }),
   });
-  if (!r.ok) throw new Error("qwen " + r.status);
+  if (!r.ok) throw new Error("llm " + r.status);
   const j = await r.json();
   const content = j.choices?.[0]?.message?.content;
   if (!content) throw new Error("empty completion");
@@ -118,11 +118,11 @@ async function main() {
         let q = "FAIL", reason = "judge_error";
         try {
           const facts = r.facts || POLICY_TEXT;
-          const t = await qwen(JUDGE_PROMPT(facts, r.question, r.reply_text));
+          const t = await llm(JUDGE_PROMPT(facts, r.question, r.reply_text));
           const m = t.match(/(PASS|FAIL)\s*([^.!?]*)/);
           if (m) { q = m[1]; reason = m[2].trim().slice(0, 60); }
         } catch (e) { reason = "judge_error: " + String(e).slice(0, 60); }
-        r.qwen = q; r.reason = reason;
+        r.llm = q; r.reason = reason;
         r.pass = r.det_ok && q === "PASS";
         fOut.write(JSON.stringify(r) + "\n");
       } catch (e) {

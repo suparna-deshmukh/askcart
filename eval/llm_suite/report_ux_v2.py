@@ -1,5 +1,5 @@
-"""Qwen suite - UX panel v2 report (generated, no hand-typed numbers).
-Usage: .venv/bin/python eval/qwen_suite/report_ux_v2.py
+"""LLM suite - UX panel v2 report (generated, no hand-typed numbers).
+Usage: .venv/bin/python eval/llm_suite/report_ux_v2.py
 """
 import json
 from collections import Counter, defaultdict
@@ -40,7 +40,7 @@ def main():
 
     lines = []
     w = lines.append
-    w("# Qwen suite - UX panel v2 (current-build question moments)")
+    w("# LLM suite - UX panel v2 (current-build question moments)")
     w("")
     w(f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} by `report_ux_v2.py` (all numbers from the verdict artifacts).")
     w(f"Panel: {meta['n']} moments (seed {meta['seed']}, sha {meta['panel_sha256']}) sampled from {meta['total_moments_available']} question moments the current policy asks across {meta['total_journeys']} persona journeys ({meta['n_ask_journeys']} journeys asked at least one). Committed before judging; v1 frozen panel untouched.")
@@ -66,7 +66,7 @@ def main():
         for r in fails[:25]:
             w(f"- `{r['id']}` [{r.get('verdict')}] ({r.get('lang')}/{r.get('qtype')}) Q='{r.get('query','')[:40]}' ask='{str(r.get('question'))[:50]}' n_before={r.get('n_before')} - {str(r.get('reason'))[:70]}")
         w("")
-    w(f"Qwen usage (v2): {cost['calls']} calls, ~{cost['est_tokens']:,} est tokens. Single-LLM-judge caveat applies (same judge/prompt as v1).")
+    w(f"LLM usage (v2): {cost['calls']} calls, ~{cost['est_tokens']:,} est tokens. Single-LLM-judge caveat applies (same judge/prompt as v1).")
     w("")
     OUT.write_text("\n".join(lines))
     print(f"wrote {OUT.name}: {k}/{len(judged)} A, {len(nq)} NQ")

@@ -17,8 +17,8 @@ reviews), and the fix is to **ask the minimum number of high-value follow-up
 questions** — budget, occasion, category, brand, for-whom, size, capacity —
 until the shopper is "at their destination". The **deterministic policy
 engine decides** which question to ask, what the options are (computed from
-the live candidate set), and when to stop; the LLM (Qwen38-27B via a LiteLLM
-proxy) may only **phrase** the question (English) or **parse** a chat
+the live candidate set), and when to stop; the LLM (Gemini REST)
+may only **phrase** the question (English) or **parse** a chat
 message, and every LLM output is validated with a template/rule fallback.
 The whole thing runs as a Next.js app over a 54,304-SKU **demo catalogue**
 (US-converted + synthetic India layer, labelled as demo everywhere), with a
@@ -71,11 +71,11 @@ is never cut.
    shrinkage formula is reused per-SKU on the PDP so a 5.0★ with 3 ratings
    ranks below a 4.4★ with 3,000.
 
-### 2.3 Root-cause labelling — full Qwen re-label (T8/T9)
+### 2.3 Root-cause labelling — full LLM re-label (T8/T9)
 
 The rule lexicon scorer and the LLM disagreed too much on the 600-sample
 audit (238 overrides = 39.7%), so the **entire 6,041 corpus was re-labelled
-by Qwen** (4 slices + a 1,402-row retry pass, `scripts/retry_llm_labels.py`,
+by LLM** (4 slices + a 1,402-row retry pass, `scripts/retry_llm_labels.py`,
 0 failures). Final 6-class distribution (`data/pipeline_counts.json`,
 `data/out/root_causes.json`):
 
@@ -292,7 +292,7 @@ byte-identical responses (no-op guarantee test: 293/293, zero tolerance).
 `{ask, type, options, optionCounts, question, reason, stats}`. The
 `/api/guide` route: for non-English `lang`, question text + option labels
 come from **static translation tables** (`app/app/lib/i18n.js` — no LLM);
-for English, Qwen (temp 0.4, 240 tokens) may rephrase the question —
+for English, LLM (temp 0.4, 240 tokens) may rephrase the question —
 options must come back byte-identical or the template is used; any failure
 → template. `mode: "fallback"` forces the template (deterministic study
 runs; used by all evals so they cost zero tokens).
@@ -831,7 +831,7 @@ Artifacts: `eval/chat/results/`.
 ### 10.1 Guided-search study, n=150 (`eval/run_eval.py`)
 
 Artifacts: `eval/results/summary.txt` (deterministic), `summary_llm.txt`
-(Qwen-phrased), queries in `eval/results/queries_final.json`.
+(LLM-phrased), queries in `eval/results/queries_final.json`.
 Null = <2 intent-matched results (the app-wide definition).
 
 - Baseline (naive keyword) **null 27.3%** (41/150, CI 20.8–34.9).
@@ -839,8 +839,8 @@ Null = <2 intent-matched results (the app-wide definition).
 - **Resolved 92.0%** (any turn); **78.7% resolved by turn 2**
   (exactly turn 2: 26.0%); turns t1=79, t2=39, t3=20, t4+=0,
   unresolved=12.
-- Qwen-phrased run: **identical outcomes** (8.0% null, 78.7% by t2)
-  with zero behaviour drift — 53 Qwen-phrased, 6 template fallback.
+- LLM-phrased run: **identical outcomes** (8.0% null, 78.7% by t2)
+  with zero behaviour drift — 53 LLM-phrased, 6 template fallback.
 - Caveat (stated in §12): the panel was calibrated against the live
   app, so this demonstrates mechanics, not shopper benefit. Eval v2
   (§10.5) and the semantic panel (§10.7) are the held-out checks.
@@ -862,7 +862,7 @@ Artifact: `eval/results/sim_summary.json` (ts 20261104_0117), log
 
 ### 10.3 Relevance audit (`eval/relevance_audit.py`)
 
-53 curated queries × top-3 = 150 results, Qwen-judged
+53 curated queries × top-3 = 150 results, LLM-judged
 (R/P/I): **relevant 78.0%, partial 18.0%, irrelevant 4.0% → 96.0%
 usable**. Worst cells: gift/occasion/vague/ayurveda (1–2 each), all
 long-tail intent areas.
@@ -886,7 +886,7 @@ long-tail intent areas.
 
 `eval/evalv2/`, panel frozen in git before any arm ran (41
 real-suggest-shaped autocompletes, 25 vague, 14 Hinglish, 10 typo, 10
-dead-end; deduped vs canaries + old 150). Top-3 Qwen-judged, Wilson
+dead-end; deduped vs canaries + old 150). Top-3 LLM-judged, Wilson
 CIs, outcome classes `resolved / substitute_shown / not_in_catalogue`
 (dead-ends are no longer counted "resolved").
 
@@ -894,7 +894,7 @@ CIs, outcome classes `resolved / substitute_shown / not_in_catalogue`
 |---|---|---|
 | Null rate (0 results) | 24.0% [16.7–33.2] | 0.0% [0.0–3.7] |
 | App null (<2 on-intent) | 28.0% [20.1–37.5] | 10.0% [5.5–17.4] |
-| success@3 (Qwen) | 44.7% [34.1–55.9] | 52.0% [42.3–61.5] |
+| success@3 (LLM) | 44.7% [34.1–55.9] | 52.0% [42.3–61.5] |
 | usable@3 | 82.9% [72.9–89.7] | 75.0% [65.7–82.5] |
 | p50/p95 ms | 54 / 131 | 64 / 737 |
 | Questions/journey | – | 0.36 avg (max 3) |
@@ -951,11 +951,11 @@ including non-apparel), budget 107, for_whom 94, brand 49, capacity 2.
 
 `eval/semantic/` — panel frozen in git (200 dev+test composition per
 kind; 50-query test split run once), arms A (lexical only) /
-B (semantic only ablation) / C (hybrid fallback), Qwen-judged top-3,
+B (semantic only ablation) / C (hybrid fallback), LLM-judged top-3,
 τ=0.845 / margin 0.03 / floor 0.70 calibrated on dev split (dev hit
 31/41, dev dead-end FR 0/5, dev prec@3 92.1%).
 
-| Arm | Null | success@3 | usable@3 | Qwen-judged | Questions/journey |
+| Arm | Null | success@3 | usable@3 | LLM-judged | Questions/journey |
 |---|---|---|---|---|---|
 | A lexical | 10% [4.3–21.4] | 56% | 80% | judge | 0.46 |
 | B semantic only | 32% [20.8–45.8] | — | — | judge | 0.88 |
@@ -995,21 +995,21 @@ B (semantic only ablation) / C (hybrid fallback), Qwen-judged top-3,
 - UI tour (17), contrast (16/16), canaries (111+5) — all green after
   every code change in the fix pass.
 
-### 10.9 Qwen eval suite — 1,000-case pass rates (search / RAG / UX)
+### 10.9 LLM eval suite — 1,000-case pass rates (search / RAG / UX)
 
-`eval/qwen_suite/` — one frozen panel of **1,000 cases** (committed
-before any run; panel sha `e8f01a06d883bf79`, seed 20261104), one Qwen
-judge (qwen38-27b, temp 0, thinking off), Wilson CIs on every rate,
-generated report `eval/qwen_suite/results/summary.md`. This is the
+`eval/llm_suite/` — one frozen panel of **1,000 cases** (committed
+before any run; panel sha `e8f01a06d883bf79`, seed 20261104), one LLM
+judge (gemini-3-flash-preview, temp 0, thinking off), Wilson CIs on every rate,
+generated report `eval/llm_suite/results/summary.md`. This is the
 consolidated LLM-judged pass-rate layer that the earlier panels
 (relevance audit, eval v2, semantic panel) only approximated in
-pieces — and it adds the two dimensions that never had a Qwen eval:
+pieces — and it adds the two dimensions that never had a LLM eval:
 **RAG answer quality** and **UX question-policy appropriateness**.
 
 | Dimension | n | baseline | final |
 |---|---|---|---|
-| Search — Qwen usable@3 on live top-3 | 400 | 339 = 84.8% [80.9–87.9] (strict 57.2%) | 382 = **95.5% [93.0–97.1]** (strict 72.0% [67.4–76.2]) |
-| RAG — deterministic gate AND Qwen quality | 300 | 31 = 10.3% [7.4–14.3] | 297 = **99.0% [97.1–99.7]** |
+| Search — LLM usable@3 on live top-3 | 400 | 339 = 84.8% [80.9–87.9] (strict 57.2%) | 382 = **95.5% [93.0–97.1]** (strict 72.0% [67.4–76.2]) |
+| RAG — deterministic gate AND LLM quality | 300 | 31 = 10.3% [7.4–14.3] | 297 = **99.0% [97.1–99.7]** |
 | UX — question moment judged "appropriate" | 300 | 8 = 2.7% [1.4–5.2] (A=8/M=19/B=273) | **0 judged — 300/300 no_question** (see below) |
 | **Total** | **1000** | 378 = 37.8% [34.8–40.8] | **679/700 = 97.0% [95.5–98.0]** (no_question excluded per protocol) |
 
@@ -1088,7 +1088,7 @@ pieces — and it adds the two dimensions that never had a Qwen eval:
   suitability / quality / price × 50) on the documented PDP path
   (fresh conversation + `context.sku`, §6.4) + 50 FAQ (25 in-scope,
   25 out-of-scope). Deterministic gate (server grounding guard,
-  ≤40 words, banned phrases) = **100%** — the guard works; the Qwen
+  ≤40 words, banned phrases) = **100%** — the guard works; the LLM
   verdict measures answer quality and fails 89.7%. Verified real gaps:
   the spec answerer picks the wrong number (RAM for a storage
   question) or dodges unanswerable questions with the adjusted rating
@@ -1105,7 +1105,7 @@ pieces — and it adds the two dimensions that never had a Qwen eval:
   intent-ranked ("baby shower" query → top option AMAZON FASHION
   16,829). Apparel size/for-whom moments are the ones the judge
   accepts (all 8 A's are apparel/gift-fit).
-- **Qwen usage** (cumulative in `results/cost_*.json`, baseline + all
+- **LLM usage** (cumulative in `results/cost_*.json`, baseline + all
   fix-pass re-judges): search 65 calls ≈ 71K est tokens, RAG 1,793 ≈
   832K, UX 713 ≈ 213K — 2,571 calls ≈ 1.12M estimated tokens total,
   logged per call; same proxy/model as every other eval in the repo.
@@ -1163,7 +1163,7 @@ Trajectory: 21.0 → 24.5 → 44.7 → 25.6 (round-3 category revival
 regression, reverted) → 47.2 → 43.8 → 57.7 → 84.6 → **91.7%**
 (44/48 judged, 252 NQ; Wilson [80.4–96.7]). Round 8 re-judged 0 moments
 (all four fixes flipped M→no_question with byte-identical everything
-else). UX v2 Qwen spend: 611 calls ≈ 220K est tokens (cumulative in
+else). UX v2 LLM spend: 611 calls ≈ 220K est tokens (cumulative in
 `results/cost_ux_v2.json`). Residual 4 M's: 3× "category is better"
 (spectacles ×2, घड़ी — no grounded product-family split in the data) +
 1× hinglish-bangle "weak" (identical en options A'd — judge noise).
@@ -1190,7 +1190,7 @@ Node server libs (app/lib/):
   search.js (parseQuery + scoreAll + tiers + semantic gate)
   semantic.js (int8 index, brute-force cosine, constraints, thresholds)
   guide.js  (decideGuide: eligibility + EIG scoring + facet counts)
-  catalog.js (shard loading)   llm.js (LiteLLM proxy, breaker, caps)
+  catalog.js (shard loading)   llm.js (Gemini API, breaker, caps)
   analyticsStore.js (atomic JSON, schema-agnostic)
   chat/ (dialog, nlu, templates, grounding, state, faq)
   festivals_2026_27.json   lexicon_hinglish.json
@@ -1204,7 +1204,7 @@ Offline data plane (Python, .venv):
   eval/results/ → PROJECT.md via scripts/sync_doc_numbers.py
 ```
 
-**The invariant**: the LLM (Qwen via a LiteLLM proxy) may *phrase* and
+**The invariant**: the LLM (LLM via the Gemini API) may *phrase* and
 *parse*; it never *decides*. Every decision path (question choice,
 options, counts, ranking, budget, brand, rescue) is deterministic code;
 the LLM has an 800 ms–1.5 s timeout, a circuit breaker (3 failures →
@@ -1224,7 +1224,7 @@ docs/semantic_fallback.md     embedding layer design + limits
 docs/evidence/source_notes.md per-source raw/clean/gated + RC shares
 docs/interviews/real/ + synthetic/  (12, all labelled simulated)
 extractor/    collect_play|appstore|reddit|amazon_reviews|trustpilot|trends,
-              extract_llm.py (Qwen labeller, 4 shards)
+              extract_llm.py (LLM labeller, 4 shards)
 pipeline/     01_raw … 06_labels (DuckDB; 02_clean logs per-source drops)
 scripts/      build_catalog.py, catalog_india.py, build_embeddings.mjs,
               sync_doc_numbers.py, make_figures.py, ui_tour.js,
@@ -1270,7 +1270,7 @@ node scripts/ui_tour.js && node scripts/contrast_check.js
 ### 11.4 Environment (all optional; defaults keep the app zero-cost)
 
 ```
-LLM_API_KEY / LLM_BASE_URL / LLM_MODEL     Qwen via LiteLLM proxy
+LLM_API_KEY / LLM_BASE_URL / LLM_MODEL     LLM via Gemini API
 ASKCART_LLM_SAMPLE=6041                    full-corpus re-label
 SEMANTIC_FALLBACK=1|0                      kill switch (default 1)
 EVAL_MODE=1                                ?semantic=0|1|only override
@@ -1302,7 +1302,7 @@ than serving misaligned rows.
    indicative. No real photos — designed placeholder tiles, labelled.
    Checkout is simulated.
 3. **Single-LLM judging, doubled not triangulated.** Relevance, root
-   causes and the semantic panel are all Qwen-judged; the semantic
+   causes and the semantic panel are all LLM-judged; the semantic
    panel's second rater is another single LLM (85% binary / κ 0.66),
    not a human. No multi-annotator ground truth exists.
 4. **Scorer-vs-LLM agreement on root causes is low** (44.1%

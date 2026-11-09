@@ -1,9 +1,9 @@
 """
-AskCart large-scale query simulation (thousands of queries, Qwen guide).
+AskCart large-scale query simulation (thousands of queries, LLM guide).
 
 Generates a stratified query grid (category x product noun x budget x
 occasion x recipient x brand x vague x dead-end x light Hinglish), runs each
-query through the LIVE app exactly like the n=150 study, with the Qwen guide
+query through the LIVE app exactly like the n=150 study, with the LLM guide
 (mode unset -> LLM phrasing), answers from persona ground truth, and records:
   - one JSONL line per query (full trace) -> logs/sim_<ts>.jsonl
   - every interaction event -> /api/analytics/event with env="sim"

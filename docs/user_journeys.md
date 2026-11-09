@@ -62,4 +62,4 @@ type or product change shows up without code changes to the dashboard.
 ## J6 — Simulation / QA journeys (off the public dashboard)
 `eval/simulate.py` drives 2,000+ generated queries (persona × product ×
 budget × occasion × brand × vague grids) through the live app with the
-Qwen guide, writing `logs/sim_*.jsonl` + the isolated sim store.
+LLM guide, writing `logs/sim_*.jsonl` + the isolated sim store.

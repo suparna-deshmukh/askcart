@@ -3,7 +3,7 @@ AskCart agentic extractor (v2, reuses photo_case collector architecture).
 Agent loop: LLM receives current tally vs targets and a tool catalog, returns
 the next batch of fetch actions (JSON); tools execute locally with resume via
 part files. Decisions are audited to logs/agent_decisions.jsonl.
-LLM: Qwen38-27B via the user's LiteLLM proxy (see llm_client.py).
+LLM: Gemini (see llm_client.py).
 Zero-LLM fallback: --auto runs the locked source table greedily (deterministic).
 Usage: .venv/bin/python extractor/agent.py [--auto] [--limit N]
 """

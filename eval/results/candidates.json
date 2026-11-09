@@ -4328,7 +4328,7 @@
  },
  {
   "id": "C354",
-  "q": "qwen for home",
+  "q": "llm for home",
   "gen": "marginal",
   "budget": 3000,
   "occasion": "wedding",

@@ -1,7 +1,7 @@
 """
 AskCart D6 - LLM-verified root-cause labels.
 Reads the stage-4 complaint subset from the pipeline DB, stratified-samples
-(complaint_flag=1, all kw types), batch-labels with Qwen (LiteLLM proxy), and writes
+(complaint_flag=1, all kw types), batch-labels with LLM (Gemini API), and writes
 data/out/llm_labeled.parquet (doc_id, root_cause, label_source='llm') which
 stage 5 merges as an override. Zero-LLM mode: writes an empty file.
 Usage: .venv/bin/python extractor/extract_llm.py [--sample N] [--batch N]

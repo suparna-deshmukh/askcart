@@ -1,4 +1,4 @@
-# Qwen suite - UX panel v2 (current-build question moments)
+# LLM suite - UX panel v2 (current-build question moments)
 
 Generated: 2026-11-04 22:36 UTC by `report_ux_v2.py` (all numbers from the verdict artifacts).
 Panel: 300 moments (seed 20261105, sha 5e60d43bb88d58ad) sampled from 2575 question moments the current policy asks across 3000 persona journeys (1840 journeys asked at least one). Committed before judging; v1 frozen panel untouched.
@@ -51,4 +51,4 @@ Panel: 300 moments (seed 20261105, sha 5e60d43bb88d58ad) sampled from 2575 quest
 - `qs_uv2_0215` [M] (hi/for_whom) Q='वर्सरी का उपहार 20000 से कम' ask='छोटा सा सवाल — किसके लिए है?' n_before=12 - for-whom redundant with budget anchor
 - `qs_uv2_0230` [M] (hi/for_whom) Q='उपहार का उपहार 2000 से कम' ask='छोटा सा सवाल — किसके लिए है?' n_before=12 - for-whom fits gifts but budget already set
 
-Qwen usage (v2): 793 calls, ~285,955 est tokens. Single-LLM-judge caveat applies (same judge/prompt as v1).
+LLM usage (v2): 793 calls, ~285,955 est tokens. Single-LLM-judge caveat applies (same judge/prompt as v1).

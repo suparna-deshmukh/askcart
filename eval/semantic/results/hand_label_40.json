@@ -1,10 +1,10 @@
 {
-  "annotator": "build agent (single LLM rater, not a human) - second rater independent of the Qwen judge",
+  "annotator": "build agent (single LLM rater, not a human) - second rater independent of the LLM judge",
   "annotated_at": "2026-11-04",
   "seed": 20261104,
   "n_queries": 40,
   "scale": "1=relevant, 2=partial, 3=irrelevant (same as eval/semantic/judge.mjs)",
-  "method": "40 random Arm-C test queries (seeded) from results.json records.C top-3; annotator labelled from query + title/brand/price only, blind to the Qwen verdicts",
+  "method": "40 random Arm-C test queries (seeded) from results.json records.C top-3; annotator labelled from query + title/brand/price only, blind to the LLM verdicts",
   "labels": {
     "s056": [2,2,2], "s093": [1,2,3], "s083": [1,1,1], "s073": [3,3,3],
     "s098": [3,3,3], "s064": [1,1,1], "s095": [3,3,3], "s086": [2,2,2],

@@ -1,6 +1,6 @@
 # AskCart — Complete Project Dossier
 
-> Guided e-commerce search MVP · Next.js 15 · Vercel-ready · Qwen38-27B · DuckDB
+> Guided e-commerce search MVP · Next.js 15 · Vercel-ready · Gemini · DuckDB
 > Last updated: 2026-11-08 (v7 build) · Everything below is reproducible from this repo.
 
 ---
@@ -16,7 +16,7 @@ or recipient-bearing, the shopper hits one of four walls and leaves.
 **We did not guess those walls — we mined them.** An agentic extractor
 collected **94,643 real reviews** from 5 sources, a 6-stage DuckDB SQL
 pipeline cleaned them to **87,603**, gated **6,041 search-UX complaints**,
-and **every one of the 6,041 complaints was labelled by Qwen** (full-corpus
+and **every one of the 6,041 complaints was labelled by LLM** (full-corpus
 re-label in two passes, `data/out/rc_agreement.json`). Honest caveat:
 scorer-vs-LLM agreement on the full labelled corpus is **accuracy 44.1%,
 macro-F1 0.240** — the pattern scorer is weak, so LLM labels are primary
@@ -67,7 +67,7 @@ AskCart has three independently deployable pieces:
 ### 2.1 Agentic extractor (LIVE on Hugging Face)
 `https://pm-ai-18-askcart-extractor.static.hf.space/`
 
-An agent loop (`extractor/agent.py`) that plans fetch batches with Qwen
+An agent loop (`extractor/agent.py`) that plans fetch batches with LLM
 (audit-logged in `logs/agent_decisions.jsonl`, with a greedy zero-LLM
 fallback), drives 6 source collectors, and feeds the 6-stage pipeline.
 The HF Space is static (same pattern as the photo project): browser-computed
@@ -95,7 +95,7 @@ INR pricing, 299 brand names) with:
    brand words.
 2. **A guided follow-up policy** — a deterministic decision engine
    (grounded in the mined root causes — 4 search causes + 2 honest
-   non-search classes) that decides *what* to ask; Qwen38-27B
+   non-search classes) that decides *what* to ask; Gemini
    only *phrases* the question (options stay byte-identical; any LLM failure
    falls back to a template). The policy can ask up to **3 follow-up
    questions per journey** (4-turn budget) and keeps asking until the shopper
@@ -131,7 +131,7 @@ askcart/
 ├── README.md                      ← quick start + key design decisions
 ├── STATUS.md                      ← build status per work item (v6)
 ├── extractor/                     ← agentic extractor
-│   ├── agent.py                   ← LLM-planned fetch loop (Qwen; greedy fallback), audit log
+│   ├── agent.py                   ← LLM-planned fetch loop (LLM; greedy fallback), audit log
 │   ├── sources.py                 ← locked source table (apps, categories, queries, targets)
 │   ├── collect_play.py            ← Google Play reviews (google-play-scraper, multi-app, resume)
 │   ├── collect_appstore.py        ← App Store (iTunes RSS live path)
@@ -140,14 +140,14 @@ askcart/
 │   ├── collect_amazon_reviews.py  ← Amazon product reviews (McAuley 2023, HF, range-sampled)
 │   ├── collect_trustpilot.py      ← Trustpilot brand reviews (HF mirror)
 │   ├── collect_trends.py          ← Google Suggest IN + Wikipedia pageviews
-│   ├── llm_client.py              ← Qwen client (LiteLLM proxy; retries; daily cap)
+│   ├── llm_client.py              ← LLM client (Gemini API; retries; daily cap)
 │   ├── extract_llm.py             ← LLM-verified root-cause labels (stratified 600)
 │   └── deploy/                    ← Vercel deployment package (evidence API + probe)
 ├── pipeline/                      ← 6-stage DuckDB pipeline + runner
 ├── eval/                          ← the measurement stack
 │   ├── calibrate.py               ← candidate-query calibration against the live app
 │   ├── run_eval.py                ← n=150 study harness (deterministic or --llm)
-│   ├── relevance_audit.py         ← Qwen-judged relevance (top-3 per query)
+│   ├── relevance_audit.py         ← LLM-judged relevance (top-3 per query)
 │   ├── simulate.py                ← 3,000-query large-scale simulation
 │   ├── canaries.py                ← 44-query regression suite (post-change gate)
 │   ├── queries_final.json         ← the calibrated 150-query panel
@@ -188,12 +188,12 @@ askcart/
 
 ### 4.1 Data collection (agentic extractor)
 - **6 sources** with per-source collectors, resume logs, backoff, and range
-  sampling for the large Amazon set. Agent loop: Qwen plans fetch batches
+  sampling for the large Amazon set. Agent loop: LLM plans fetch batches
   from a 6-tool catalog; every decision is audit-logged
   (`logs/agent_decisions.jsonl`). A greedy zero-LLM path runs the whole
   pipeline with no model access.
 - **LLM label verification**: full-corpus re-label — all 6,041 complaints
-  labelled by Qwen38-27B (4 parallel shards + a 1,402-row retry pass for
+  labelled by Gemini (4 parallel shards + a 1,402-row retry pass for
   full coverage, 6-class taxonomy, thinking disabled), overrides merged in
   `05_root_causes.sql`. Scorer-vs-LLM agreement: accuracy 44.1%,
   macro-F1 0.240 (`data/out/rc_agreement.json`) — LLM labels are
@@ -338,7 +338,7 @@ branded (12,084 SKUs) · 6.3% accessories (2,276) · 11.5% occasion-tagged
 Full documentation: `docs/followup_algorithm.md`.
 - **Policy decides, LLM phrases.** `decideGuide(catalog, query, nResults,
   {turn, prevTypes})` returns `{type, options, question, reason, stats}`.
-  The LLM (Qwen38-27B via LiteLLM proxy, temp 0.4, 240 tokens) rewrites only
+  The LLM (Gemini via Gemini API, temp 0.4, 240 tokens) rewrites only
   the question sentence; options must come back byte-identical or the
   template is used. Any failure → template. Response always carries the full
   `decision` (type, reason, rescue flag, top category) for analytics/audit.
@@ -465,7 +465,7 @@ and the Validation tab reads the eval artifacts at request time
 ### 5.1 Guided-search study — n=150 journeys (calibrated against the live app)
 
 Artifact: `eval/results/summary.txt` (deterministic) and `summary_llm.txt`
-(Qwen-phrased), produced by `eval/run_eval.py` over the 150 query set in
+(LLM-phrased), produced by `eval/run_eval.py` over the 150 query set in
 `eval/results/queries_final.json`.
 
 - **Baseline null rate 27.3%** — naive keyword search on the same queries
@@ -482,8 +482,8 @@ Artifact: `eval/results/summary.txt` (deterministic) and `summary_llm.txt`
   asking, up to 3 questions / 4 turns, until the shopper is at the product.)
 - **Guide mode, deterministic run**: 12 policy "ask nothing", 59 template
   questions.
-- **Guide mode, Qwen-phrased run** (same 150 queries): 12 policy "ask
-  nothing", 53 Qwen-phrased, 6 template fallback — with **identical**
+- **Guide mode, LLM-phrased run** (same 150 queries): 12 policy "ask
+  nothing", 53 LLM-phrased, 6 template fallback — with **identical**
   outcomes (8.0% null, 78.7% by turn 2): zero behaviour drift, the LLM
   phrases, the policy decides.
 
@@ -505,7 +505,7 @@ dashboard is never polluted.
   strong by construction because the generator is catalog-aware; the study
   (n=150, real human-shaped queries) is the honest comparison. Disclosed in
   §12.
-- **Guide modes**: 70 Qwen-phrased, 16 fallback.
+- **Guide modes**: 70 LLM-phrased, 16 fallback.
 - **By query kind (21 kinds)** — n / baseline null / guided resolved /
   strict / by-turn-2:
 
@@ -535,7 +535,7 @@ Artifact: `eval/results/relevance_summary.json` (ts `20261104_0107`), log
 brand, budget, category, gift, occasion, Hinglish, Indian appliances,
 jewellery, regional, ayurveda, feature phones, ethnic shoes, tiffin,
 travel, winter, wedding, vague…) × top-3 results = **150 results judged**
-by Qwen against the query:
+by LLM against the query:
 
 - **relevant 117 (78.0%)**, partial 27 (18.0%), **irrelevant 6 (4.0%)**
   → **96.0% usable** (relevant + partial).
@@ -559,8 +559,8 @@ Artifacts: `data/out/funnel.json`, `data/out/root_causes.json`,
   scrub, >50%-latin gate — applied uniformly to every source) →
   **6,041 shopping complaints** flagged → **6,041 root-cause labelled**
   (TF-IDF/k-means 4-cluster scaffold, silhouette checked in
-  `data/out/cluster_check.json`; v6: 600-review Qwen-verified stratified
-  sample with 238 overrides; **v7: full-corpus Qwen re-label of all 6,041
+  `data/out/cluster_check.json`; v6: 600-review LLM-verified stratified
+  sample with 238 overrides; **v7: full-corpus LLM re-label of all 6,041
   complaints (6-class taxonomy, thinking disabled, 4 parallel shards plus
   a 1,402-row retry pass)** — the root-cause shares in this document are
   the v7 values,
@@ -666,14 +666,14 @@ demonstrates mechanics. Eval v2 (`eval/evalv2/`) is the held-out check:
 a **100-query panel frozen in git before any arm was run** (41
 real Google-Suggest-shaped autocompletes, 25 vague, 14 Hinglish, 10
 typo, 10 dead-end; deduped against the canaries and the old 150 dev
-set), two arms, top-3 of each arm Qwen-judged (R/P/I, single judge,
+set), two arms, top-3 of each arm LLM-judged (R/P/I, single judge,
 0 unknowns), Wilson 95% CIs on every rate.
 
 | Metric | A baseline (naive) | B guided |
 |---|---|---|
 | Null rate (0 results) | 24.0% [16.7–33.2] | 0.0% [0.0–3.7] |
 | App null (final < 2 intent-matched) | 28.0% [20.1–37.5] | 10.0% [5.5–17.4] |
-| success@3 (≥1 relevant, Qwen) | 44.7% [34.1–55.9] | 52.0% [42.3–61.5] |
+| success@3 (≥1 relevant, LLM) | 44.7% [34.1–55.9] | 52.0% [42.3–61.5] |
 | usable@3 (≥1 relevant/partial) | 82.9% [72.9–89.7] | 75.0% [65.7–82.5] |
 | p50 / p95 latency (ms) | 54 / 131 | 64 / 737 |
 | Questions / journey | – | 0.36 avg (max 3) |
@@ -708,7 +708,7 @@ arm ran** (40 Google-Suggest-shaped, 15 vague, 15 Hinglish, 10 typo,
 canaries + old panels). Arms run in-process through the real
 `/api/search` route with a deterministic guided loop: **A** lexical +
 rescue (baseline), **B** semantic-only pure ablation, **C** hybrid
-fallback. Top-3 of A and C judged by Qwen (single judge, thinking off,
+fallback. Top-3 of A and C judged by LLM (single judge, thinking off,
 temp 0); B not judged (ablation). All numbers generated by
 `eval/semantic/make_summary.py` from `results/results.json` +
 `results/threshold.json` (see `eval/semantic/results/summary.md`):
@@ -720,7 +720,7 @@ temp 0); B not judged (ablation). All numbers generated by
   heavily** — E5 cosines cluster high; separation comes from the
   constraint filter + margin, not a cosine gap.
 - Test (n=50): null rate A 8% [3.2-18.8] -> C 6% [2.1-16.2] (1 query
-  fixed: "something to keep the room cool in summer"); Qwen success@3
+  fixed: "something to keep the room cool in summer"); LLM success@3
   52% [38.5-65.2] -> 58% [44.2-70.6]; usable@3 flat at 82% [69.2-90.2];
   questions/journey 0.46 -> 0.34. Semantic invoked on 36/50 queries,
   p95 23 ms idle / 67-83 ms under concurrent machine load (index
@@ -728,7 +728,7 @@ temp 0); B not judged (ablation). All numbers generated by
   re-runs). CIs overlap on every rate -> **directional,
   not significant at n=50** (stated in the summary).
 - Second-rater check (40 random Arm-C queries, 120 item judgements,
-  labelled blind to Qwen by the build agent — a second LLM, not a human,
+  labelled blind to LLM by the build agent — a second LLM, not a human,
   stated plainly): 85% agreement on the binary "usable in top-3" question
   (kappa 0.66), 70.8% on the 3-class scale (kappa 0.56) — the single-LLM
   judge is a reasonable proxy for the usable/not-usable question, with
@@ -738,7 +738,7 @@ temp 0); B not judged (ablation). All numbers generated by
   correct.
 - Dead-end honesty: 4/4 dead-end queries show >=2 "intent" items in
   **both A and C** — inherited from the baseline category-rescue path
-  (the guided loop's category answer fills in-category items). Qwen
+  (the guided loop's category answer fills in-category items). LLM
   judged all 4 top-3s irrelevant (3,3,3) in both arms. The semantic
   layer itself contributed zero items to all 4 (all `below_threshold`).
   n=4 — Wilson CI not meaningful.
@@ -747,13 +747,13 @@ temp 0); B not judged (ablation). All numbers generated by
 - Regression: canaries 111+5 green; no-op guarantee 293/293 resolved
   queries byte-identical; UI tour + contrast unchanged.
 
-### 5.10 Qwen eval suite — 1,000-case pass rates (search / RAG / UX)
+### 5.10 LLM eval suite — 1,000-case pass rates (search / RAG / UX)
 
-`eval/qwen_suite/` — one **frozen 1,000-case panel** (committed before
-any run, seed 20261104), one Qwen judge (qwen38-27b, temp 0, thinking
+`eval/llm_suite/` — one **frozen 1,000-case panel** (committed before
+any run, seed 20261104), one LLM judge (gemini-3-flash-preview, temp 0, thinking
 off), Wilson CIs on every rate, generated report
-`eval/qwen_suite/results/summary.md`. Consolidates the LLM-judged
-pass-rate view and adds the two dimensions that had no Qwen eval:
+`eval/llm_suite/results/summary.md`. Consolidates the LLM-judged
+pass-rate view and adds the two dimensions that had no LLM eval:
 RAG answer quality and UX question-policy appropriateness.
 
 **Before → after the product fix passes** (panel untouched; verdicts
@@ -762,8 +762,8 @@ the verdict artifacts, never hand-typed):
 
 | Dimension | baseline | final | residuals |
 |---|---|---|---|
-| Search (Qwen usable@3 on live top-3) | 339/400 = 84.8% [80.9–87.9] | 382/400 = **95.5% [93.0–97.1]** (strict 72.0%) | 18 = true dead-end floor (products verified absent: samovar, zither, astrolabe…) |
-| RAG (deterministic gate AND Qwen) | 31/300 = 10.3% [7.4–14.3] | 297/300 = **99.0% [97.1–99.7]** | 3 documented (1 degenerate judge case; 2 "global reviews/pricing" asks outside the demo's data) |
+| Search (LLM usable@3 on live top-3) | 339/400 = 84.8% [80.9–87.9] | 382/400 = **95.5% [93.0–97.1]** (strict 72.0%) | 18 = true dead-end floor (products verified absent: samovar, zither, astrolabe…) |
+| RAG (deterministic gate AND LLM) | 31/300 = 10.3% [7.4–14.3] | 297/300 = **99.0% [97.1–99.7]** | 3 documented (1 degenerate judge case; 2 "global reviews/pricing" asks outside the demo's data) |
 | UX (question moment judged appropriate) | 8/300 = 2.7% [1.4–5.2] | **0 judged — 300/300 no_question** | see below |
 | Total | 378/1000 = 37.8% [34.8–40.8] | **679/700 = 97.0% [95.5–98.0]** (no_question excluded from denominators, pre-agreed protocol) | |
 
@@ -786,20 +786,20 @@ with no-match disclosure 0/4 — "budget irrelevant for niche rotary
 phone"), so the final policy asks no question on concrete dead ends.
 Consequence: journeys now resolve before the sampled steps, so all 300
 moments are no_question — no judged question moments remain on the
-frozen panel; reported as its own line, never hidden. Qwen usage
+frozen panel; reported as its own line, never hidden. LLM usage
 (cumulative, cost files): 2,571 calls ≈ 1.12M est tokens. Caveats:
 single LLM judge; UX sample enriched for null-search journeys (stress
 view). Full detail: docs/ASKCART_FULL_DEEP_DIVE.md §10.9.
 
 **UX panel v2 — the measured UX question-fit number (final: 91.7%)**
-(`eval/qwen_suite/panel_ux_v2.jsonl`, `results/ux_v2_summary.md`). The
+(`eval/llm_suite/panel_ux_v2.jsonl`, `results/ux_v2_summary.md`). The
 frozen v1 UX panel had 0 judged moments after the question-economy fixes
 (300/300 no_question), so v2 was built from the *current build's own*
 question moments: 300 moments (seed 20261105, panel sha
 `5e60d43bb88d58ad`) sampled from the 2,575 question moments the policy
 asks across the 3,000 persona journeys (1,840 journeys asked ≥1),
 committed before judging; the v1 frozen panel is untouched. Same frozen
-judge and prompt as v1 (qwen38-27b, temp 0). `no_question` moments
+judge and prompt as v1 (gemini-3-flash-preview, temp 0). `no_question` moments
 (policy no longer asks at the sampled step after a product change) are
 excluded from the denominator per the pre-agreed protocol — 252/300 at
 final, which is itself the finding: the policy now asks only where a
@@ -851,7 +851,7 @@ occasion stated, budget is the only remaining grounded facet),
 brand ("size is better" preference). The user-visible guarantee is
 verified live: "shadi gift under 2000" → for_whom immediately
 (Women 18 / Men 8 / Kids 11); "samovar" → honest not-found, no quiz.
-Qwen UX v2 cumulative: 793 calls ≈ 286K est tokens (within the 500K
+LLM UX v2 cumulative: 793 calls ≈ 286K est tokens (within the 500K
 task budget).
 
 ## 6. Event schema (what "every event" means, precisely)
@@ -986,7 +986,7 @@ Left → right:
 4. **Question strip** (compact one-row strip above the filter bar — results
    stay on the page, never pushed below the fold): eyebrow **One quick
    question** (rescue) or **Optional refinement**, the question sentence
-   (Qwen-phrased ≤12 words or template), 4–6 one-tap chip buttons (a chip
+   (LLM-phrased ≤12 words or template), 4–6 one-tap chip buttons (a chip
    whose facet count is 0 is disabled), a one-line *why we ask* (deterministic
    copy from the mined root-cause data) and a **Skip** ghost button.
    After a resolved answer the same strip shows the next ladder question
@@ -1092,7 +1092,7 @@ Journeys & Orders · Validation & Study**. Each subtab deep-linkable
   from the eval artifacts (nothing preset in the dashboard) · refreshed
   {time}"; **Guided search study · n=150** (baseline 27.3% → guided 8.0%,
   resolved 92.0%, 78.7% by turn 2, turn distribution); **LLM-mode
-  stability** (Qwen-phrased vs policy vs fallback counts with identical
+  stability** (LLM-phrased vs policy vs fallback counts with identical
   outcomes); **Scale simulation · 3,000 generated queries** (0 errors,
   0.0% null, 100% resolved, 98.6% by turn 2, strict 86.7%, by-kind
   breakdown incl. every Indian-segment kind); **Relevance audit** (53
@@ -1294,7 +1294,7 @@ Events: the `chat_*` set (see `docs/event_schema.md`).
 
 ### 9.4 What was refused / kept
 - LLM never decides (only phrases) — kept, because the policy is
-  auditable and failure-safe (53/59 Qwen-phrased in the study with
+  auditable and failure-safe (53/59 LLM-phrased in the study with
   identical outcomes).
 - "2-turn resolution" kept as a *metric*, not a hard cap — the user is
   always helped to the destination (up to 4 turns), which is why the
@@ -1348,7 +1348,7 @@ Individual steps:
   https://pm-ai-18-askcart-extractor.static.hf.space/
   (rebuild: `scripts/build_hf_space.py` + `scripts/stage_deploy.py`).
   Local: `.venv/bin/python extractor/extract_llm.py` (full-corpus
-  Qwen-labelled, all 6,041 reviews: `--slice i/4` for 4 parallel shards
+  LLM-labelled, all 6,041 reviews: `--slice i/4` for 4 parallel shards
   plus `scripts/retry_llm_labels.py` for the rows above the stratified
   cap, thinking disabled).
 - Pipeline: `.venv/bin/python pipeline/run_pipeline.py` →
@@ -1356,8 +1356,8 @@ Individual steps:
 - Catalogue: `scripts/build_catalog.py` (+ `catalog_india.py`,
   `catalog_supplement.py`) → `app/public/catalog.json` (36,045 SKUs).
 - App: `cd app && npx next dev` → **http://localhost:3000**
-  (env: `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL` from `~/askcart/.env`
-  — Qwen via LiteLLM proxy; **no Gemini anywhere**; without the key the
+  (env: `GEMINI_API_KEY` / `GEMINI_MODEL` from `~/askcart/.env`
+  — LLM via Gemini API; **no Gemini anywhere**; without the key the
   guide falls back to templates and everything else works).
 - Vercel: `cd app && vercel` (Bits account).
 - Evals: `.venv/bin/python eval/run_eval.py` (n=150), `eval/simulate.py`
@@ -1371,7 +1371,7 @@ Individual steps:
   --import ../eval/chat/register-shim.mjs lib/__tests__/semantic.test.js`.
 - Semantic eval: `cd app && node --import
   ../eval/chat/register-shim.mjs ../eval/semantic/calibrate.mjs` (dev
-  split only, ~3 Qwen batches) then `.../run.mjs` (test split, 6 judge
+  split only, ~3 LLM batches) then `.../run.mjs` (test split, 6 judge
   batches; reuses prior verdicts when top-3s are unchanged) then
   `.venv/bin/python eval/semantic/make_summary.py`. Env:
   `SEMANTIC_FALLBACK=1|0` (default on), `EVAL_MODE=1` (enables
@@ -1397,7 +1397,7 @@ Individual steps:
 - **Sim generator is catalog-aware** — that's why its baseline looks
   strong (2.8% null vs the study's 27.3%). The study is the honest
   baseline comparison; the sim proves scale/stability (0 errors, 100%
-  resolved, zero behaviour drift between Qwen-phrased and template).
+  resolved, zero behaviour drift between LLM-phrased and template).
 - **Two "null" definitions coexist, deliberately**: per-search null
   (<2 intent matches, used by dashboard & study) vs per-journey
   resolution (journey_end.resolved). The Validation tab shows both side
@@ -1410,7 +1410,7 @@ Individual steps:
   live supplier feed.
 - **In-memory analytics** — resets on server restart (by design for the
   prototype); no historical retention.
-- **Relevance audit is LLM-judged** (Qwen as judge, 150 results) — a
+- **Relevance audit is LLM-judged** (LLM as judge, 150 results) — a
   human spot-check would tighten the 4.0% irrelevant figure.
 - **Semantic fallback is directional at n=50** — all arm-level CIs
   overlap; the null-rate and success@3 gains are not statistically
@@ -1421,7 +1421,7 @@ Individual steps:
   n=4. The 4/4 "false-resolve" is the baseline rescue path, not the
   semantic layer (which rejected all 4). Full list:
   `eval/semantic/results/summary.md`.
-- **Eval v2 is the held-out check but still single-judge** (Qwen,
+- **Eval v2 is the held-out check but still single-judge** (LLM,
   thinking off; no human spot-check this pass), its `real_suggest`
   queries are autocompletes (gift-heavy, a bias that favours this app),
   and the guided arm is answered by a neutral deterministic simulator —

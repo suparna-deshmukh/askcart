@@ -467,7 +467,7 @@ Hidden controls take no space; disabled controls remain visible. Enforce these r
 | Failed-search (null) rate | 27.3% baseline → ≤8.0% guided (n=150 study, calibrated against the live app; 19.3 pts rescued). |
 | Journeys resolved within 2 turns | ≥75% (measured 78.7%; t1 = 79, t2 = 39, t3 = 20 of 150). |
 | Journey resolution at scale | 100% on the 3,000-query simulation (0.0% null, 98.6% by turn 2, 0 errors across 3,000 queries). |
-| Top-3 relevance (usable) | ≥95% (measured 95.5% on the 1,000-case Qwen suite after the fix pass; 96.0% usable on the 150-result relevance audit). The 18 residual non-usable are a true dead-end floor (products verified absent). |
+| Top-3 relevance (usable) | ≥95% (measured 95.5% on the 1,000-case LLM suite after the fix pass; 96.0% usable on the 150-result relevance audit). The 18 residual non-usable are a true dead-end floor (products verified absent). |
 | Question fit (A-grade) | 70.1% [60.4–78.3] under the always-ask requirement (disclosed cost vs 91.7% under minimum-question; both reported, never blended). |
 | Regression canaries | 44/44 green after every search change — one empty on a canary is a ship-block. |
 | Semantic fallback | Dead-end false-resolve ≤10% (0/5 on dev calibration), precision@3 ≥80% (92.1%); no-op guarantee byte-identical on all lexical-resolved queries. |

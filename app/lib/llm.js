@@ -1,9 +1,10 @@
-// AskCart LLM client - Qwen38-27B via the user's LiteLLM proxy (OpenAI-compatible).
-// RETIRED 2026-11-06 (Gemini-only routing, docs/llm_routing.md): the app no
-// longer calls chat() on any product path - the guided flow, phrasing and the
-// chatbot all route through gemini_keys.js. Kept for eval tooling reference
-// and because env() / ruleBasedGuide() are still used by scripts.
-// ruleBasedGuide() is the zero-LLM deterministic fallback used by the study.
+// AskCart LLM client - Gemini (OpenAI-compatible endpoint).
+// Gemini-only routing (docs/llm_routing.md): the product surface (guided
+// flow, phrasing, chatbot) routes through gemini_keys.js; this module is
+// the shared client for eval tooling plus the zero-LLM helpers:
+//   - env(): read a value from process.env or the repo-root .env
+//   - chat(): OpenAI-compatible chat against the Gemini API
+//   - ruleBasedGuide(): zero-LLM deterministic fallback used by the study
 import fs from "fs";
 import path from "path";
 
@@ -30,22 +31,23 @@ export function env(name) {
   return null;
 }
 
-const BASE = (env("LLM_BASE_URL") || "").replace(/\/+$/, "");
-const KEY = env("LLM_API_KEY");
-const MODEL = env("LLM_MODEL") || "qwen38-27b";
+const BASE = "https://generativelanguage.googleapis.com/v1beta/openai";
+const KEY = env("GEMINI_API_KEY") || env("LIVE_LLM_API_KEY") ||
+  (env("GEMINI_API_KEYS") || "").split(",").map((s) => s.trim()).filter(Boolean)[0] || null;
+const MODEL = env("GEMINI_MODEL") || env("LIVE_LLM_MODEL") || "gemini-3-flash-preview";
 
 export function llmAvailable() {
-  return !!BASE && !!KEY;
+  return !!KEY;
 }
 
 export async function chat(messages, { maxTokens = 500, temperature = 0.2, timeoutMs = 45000, thinking = null, attempts = 4 } = {}) {
-  if (!llmAvailable()) throw new Error("NO_KEY");
+  if (!KEY) throw new Error("NO_KEY");
   let budget = maxTokens;
   let lastErr = null;
   for (let attempt = 0; attempt < attempts; attempt++) {
     try {
       const payload = { model: MODEL, messages, temperature, max_tokens: budget };
-      if (thinking === false) payload.extra_body = { chat_template_kwargs: { enable_thinking: false } };
+      if (thinking === false) payload.reasoning_effort = "none";
       const r = await fetch(BASE + "/chat/completions", {
         method: "POST",
         signal: AbortSignal.timeout(timeoutMs),

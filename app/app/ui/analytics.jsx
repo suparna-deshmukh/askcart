@@ -738,7 +738,7 @@ function ValidationPanel({ sum, ev }) {
       )}
       {rel && (
         <div className="dim">
-          <h3>Relevance audit · Qwen-judged · {rel.queries} queries × top-3 ({rel.results_judged} results judged)</h3>
+          <h3>Relevance audit · LLM-judged · {rel.queries} queries × top-3 ({rel.results_judged} results judged)</h3>
           <BarRow label="Relevant" count={rel.verdicts.relevant} max={rel.results_judged} />
           <BarRow label="Partially relevant" count={rel.verdicts.partial} max={rel.results_judged} />
           <BarRow label="Irrelevant" count={rel.verdicts.irrelevant} max={rel.results_judged} />
@@ -830,7 +830,7 @@ function BackendPanel({ sum }) {
     return true;
   });
   const T = sum.totals;
-  const aiTotal = users.reduce((a, u) => a + u.ai.qwen + u.ai.gemini + u.ai.rules, 0);
+  const aiTotal = users.reduce((a, u) => a + u.ai.llm + u.ai.gemini + u.ai.rules, 0);
   const switches = users.reduce((a, u) => a + u.ai.switches, 0);
   const pct = (a, b) => (b ? Math.round((100 * a) / b) + "%" : "–");
   return (
@@ -838,7 +838,7 @@ function BackendPanel({ sum }) {
       <div className="statgrid">
         <Stat k="Users (sessions)" v={users.length.toLocaleString("en-IN")} note="per deployment, all-time" />
         <Stat k="Users with searches" v={users.filter((u) => u.searches > 0).length.toLocaleString("en-IN")} />
-        <Stat k="AI decisions" v={aiTotal.toLocaleString("en-IN")} note={"Qwen " + users.reduce((a, u) => a + u.ai.qwen, 0) + " · Gemini " + users.reduce((a, u) => a + u.ai.gemini, 0) + " · rules " + users.reduce((a, u) => a + u.ai.rules, 0)} />
+        <Stat k="AI decisions" v={aiTotal.toLocaleString("en-IN")} note={"LLM " + users.reduce((a, u) => a + u.ai.llm, 0) + " · Gemini " + users.reduce((a, u) => a + u.ai.gemini, 0) + " · rules " + users.reduce((a, u) => a + u.ai.rules, 0)} />
         <Stat k="Gemini key switches" v={switches.toLocaleString("en-IN")} note="429/quota rotations" warn={switches > 0} />
         <Stat k="Orders" v={T.orders.toLocaleString("en-IN")} note={"AOV ₹" + (sum.aov || 0).toLocaleString("en-IN")} />
         <Stat k="Cart rate" v={pct(T.cartAdds, T.searches)} note={"cart adds per search"} />
@@ -876,7 +876,7 @@ function BackendPanel({ sum }) {
                 <td className="num">{u.carts}</td>
                 <td className="num">{u.orders}</td>
                 <td className="num">{u.orderValue ? "₹" + u.orderValue.toLocaleString("en-IN") : "–"}</td>
-                <td>{u.ai.qwen}/{u.ai.gemini}/{u.ai.rules}{u.ai.switches ? " (" + u.ai.switches + " sw)" : ""}</td>
+                <td>{u.ai.llm}/{u.ai.gemini}/{u.ai.rules}{u.ai.switches ? " (" + u.ai.switches + " sw)" : ""}</td>
                 <td>{pct(u.carts, u.searches)} to cart</td>
               </tr>
             ))}

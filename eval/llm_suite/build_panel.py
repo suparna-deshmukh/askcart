@@ -1,8 +1,8 @@
 """
-Qwen eval suite - frozen 1,000-case panel builder (commit before running).
+LLM eval suite - frozen 1,000-case panel builder (commit before running).
 
 Dimensions:
-  search (400): Qwen R/P/I judgement of current engine top-3.
+  search (400): LLM R/P/I judgement of current engine top-3.
     100 reused from eval/evalv2/panel.jsonl (frozen 100-query panel),
      50 reused from eval/semantic/panel.jsonl (test split),
      53 reused from eval/relevance_audit.py QUERIES,
@@ -18,7 +18,7 @@ Dimensions:
              persona-sim v2 run, stratified by lang x dim x question type.
              judge_ux.py replays the journeys deterministically (0 LLM).
 
-Usage: .venv/bin/python eval/qwen_suite/build_panel.py
+Usage: .venv/bin/python eval/llm_suite/build_panel.py
 """
 import hashlib
 import json

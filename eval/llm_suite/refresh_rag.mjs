@@ -1,4 +1,4 @@
-// Qwen suite - RAG verdict refresh (token saver, 0 LLM tokens).
+// LLM suite - RAG verdict refresh (token saver, 0 LLM tokens).
 // Re-runs every case in template mode (CHAT_LLM=0) and keeps old verdicts
 // ONLY where the assistant reply is byte-identical (same input to the
 // frozen judge -> same verdict). FAQ fact corpus (policies.md) is a
@@ -15,7 +15,7 @@ process.chdir(path.join(APP, "app"));
 const { POST } = await import("../../app/app/api/chat/route.js");
 const { signState, freshState } = await import("../../app/lib/chat/state.js");
 
-const HERE = path.join(APP, "eval", "qwen_suite");
+const HERE = path.join(APP, "eval", "llm_suite");
 const PANEL = fs.readFileSync(path.join(HERE, "panel.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 const CASES = PANEL.filter((p) => p.dim === "rag");
 const OUT = path.join(HERE, "results", "verdicts_rag.jsonl");

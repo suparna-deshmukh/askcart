@@ -1,5 +1,5 @@
 """
-Qwen suite - UX v2 replay: mirrors the ACTUAL UI journey (page.jsx).
+LLM suite - UX v2 replay: mirrors the ACTUAL UI journey (page.jsx).
 
 The UI does not stop at a resolved t1: "keep guiding - a resolved result
 is a start, not the destination." After EVERY displayed search (turn T < 5)

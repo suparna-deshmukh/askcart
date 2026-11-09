@@ -1,10 +1,10 @@
 """
-Qwen suite - UX dimension (300 cases). Question-moment appropriateness.
+LLM suite - UX dimension (300 cases). Question-moment appropriateness.
 Each case references a journey from the persona-sim v2 run (pid x dim);
 this script deterministically REPLAYS the journey over HTTP (persona
 ground-truth answers, mode:"fallback", 0 LLM tokens), captures every
 question the policy asked (text, options, facet counts, results-before,
-answers so far), then Qwen judges each sampled moment:
+answers so far), then LLM judges each sampled moment:
 
   A = appropriate: given the query, the answers already given, the
       results-on-screen and the options with counts, this is a useful,
@@ -14,7 +14,7 @@ answers so far), then Qwen judges each sampled moment:
 
 PASS = A. Resume-safe.
 
-Usage: .venv/bin/python eval/qwen_suite/judge_ux.py [--url http://localhost:3000]
+Usage: .venv/bin/python eval/llm_suite/judge_ux.py [--url http://localhost:3000]
 """
 import importlib.util
 import json
@@ -102,7 +102,7 @@ def main():
                 # Agreed protocol: the replayed policy no longer asks at this
                 # step under the current build (journey resolved earlier, or
                 # question budget exhausted) - there is no question to judge.
-                # No Qwen call; report.py excludes these from the denominator.
+                # No LLM call; report.py excludes these from the denominator.
                 return {"id": c["id"], "lang": c["lang"], "dim": c["dim"], "qtype": c["qtype"],
                         "segment": c["segment"], "query": c["query"], "no_question": True, "pass": None}
             prompt = PROMPT.format(segment=c["segment"], lang=c["lang"], query=m and c["query"],

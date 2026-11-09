@@ -24,7 +24,7 @@ The 6-stage DuckDB pipeline (`pipeline/run_pipeline.py`) processed
 **94,643 raw reviews** (Play Store 33,172 · App Store 3,450 · Reddit 3,021 ·
 Amazon 40,000 · Trustpilot 15,000) → 87,603 clean → 6,041 shopping complaints,
 classified by a 6-class taxonomy. v7: all 6,041 complaints are
-Qwen-labelled (full corpus, 4 shards + 1,402-row retry pass); the pattern
+LLM-labelled (full corpus, 4 shards + 1,402-row retry pass); the pattern
 scorer is the zero-LLM fallback (scorer-vs-LLM agreement: accuracy 44.1%,
 macro-F1 0.240 — `data/out/rc_agreement.json`). The root causes:
 
@@ -64,7 +64,7 @@ items, not questions.
 
 Implementation: `app/lib/guide.js` → `decideGuide(catalog, query, nResults,
 {turn, prevTypes})`. The policy **decides**; the LLM only **phrases**
-(see §6). Same decision, same options, every time — the Qwen layer can fail
+(see §6). Same decision, same options, every time — the LLM layer can fail
 without changing behaviour (it falls back to the template).
 
 ### 3.1 Inputs
@@ -385,10 +385,10 @@ everything else - options, counts, order, stop conditions.
   falls back to the deterministic per-category order. The planner
   never sees options, prices or SKUs, so it cannot influence WHAT the
   shopper is shown.
-- Providers, in order: Qwen38-27B via LiteLLM (thinking off,
-  temperature 0, 60 output tokens, single attempt, 1500 ms timeout) ->
-  Gemini REST fallback (`GEMINI_API_KEY` / `GEMINI_MODEL` from
-  `~/askcart/.env`, 2500 ms) -> deterministic policy. Three consecutive
+- Provider: Gemini REST (thinking off,
+  temperature 0, 60 output tokens, single attempt, 1500 ms timeout)
+  (env: `GEMINI_API_KEY` / `GEMINI_MODEL` from `~/askcart/.env`) ->
+  deterministic policy. Three consecutive
   failures open a 5-minute breaker; a 10-minute in-memory cache keyed
   on query|slots|prev|types keeps repeat turns free.
 - `decision.planner` (`llm` | `gemini` | null) is returned in the
@@ -407,22 +407,22 @@ app: `eval/calibrate.py` → `eval/run_eval.py`):
 - guided null rate: **8.0%** (rescued 19.3 pts of journeys)
 - resolved within 2 turns: **78.7%** (t1=79, t2=39, t3=20, unresolved=12)
 
-Qwen-phrased mode on the same query set: `eval/results/summary_llm.txt`
+LLM-phrased mode on the same query set: `eval/results/summary_llm.txt`
 (baseline identical by construction; guided null 8.0%, 78.7% by turn 2 —
-identical to deterministic; 53 Qwen-phrased + 12 policy no-question +
+identical to deterministic; 53 LLM-phrased + 12 policy no-question +
 6 template-fallback; zero behaviour drift: the LLM phrases, never decides).
 Large-scale confirmation: 3,000-query simulation, guided null 0.0%,
 100% resolved, 98.6% by turn 2 (eval/results/sim_summary.json).
 
-## 6. LLM integration (Qwen primary; Gemini only as planner fallback)
+## 6. LLM integration (LLM primary; Gemini only as planner fallback)
 
-Gemini appears in exactly ONE place: the question-type planner's second provider (section 3.8) when the Qwen proxy is down. Question PHRASING and everything in the chat remain Qwen-only; Gemini never phrases, answers or filters.
+Gemini appears in exactly ONE place: the question-type planner's second provider (section 3.8) when the LLM proxy is down. Question PHRASING and everything in the chat remain LLM-only; Gemini never phrases, answers or filters.
 
 `app/app/api/guide/route.js`:
 
 1. policy decides `{type, options, question, reason}`;
-2. if `LLM_API_KEY` is present and mode ≠ `fallback`, Qwen38-27B (LiteLLM
-   proxy, `LLM_BASE_URL`/`LLM_API_KEY`/`LLM_MODEL` in `~/askcart/.env`)
+2. if `GEMINI_API_KEY` is present and mode ≠ `fallback`, Gemini REST
+   (`GEMINI_API_KEY` / `GEMINI_MODEL` in `~/askcart/.env`)
    rewrites the question sentence (≤12 words, user's register, options
    verified to be byte-identical);
 3. any failure → deterministic template. The response always carries the

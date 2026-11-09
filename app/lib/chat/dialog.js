@@ -190,7 +190,7 @@ const SPEC_SLOTS = {
   size: /\bsize\b|\bfit\b/,
 };
 // "ceramic" and plated finishes ("rose gold filled") are treatments, not base
-// materials - the Qwen judge treats them as not-in-facts, so they answer as
+// materials - the LLM judge treats them as not-in-facts, so they answer as
 // honest unknowns.
 const MATERIAL_WORDS = ["cotton", "silk", "steel", "stainless", "wood", "wooden", "leather",
   "plastic", "brass", "stoneware", "porcelain", "wool", "polyester", "jute", "glass", "silver", "gold",
@@ -1234,7 +1234,7 @@ function displayCatShort(c) {
 async function llmPass(state, text, ctx) {
   try {
     const { llmNlu } = await import("./nlu.js");
-    // Gemini-only routing (Qwen retired 2026-11-06): adapter keeps the
+    // Gemini-only routing (LLM retired 2026-11-06): adapter keeps the
     // OpenAI-style chat() signature nlu.js expects.
     const { geminiChat } = await import("../gemini_keys.js");
     const chat = async (msgs, opts = {}) => {

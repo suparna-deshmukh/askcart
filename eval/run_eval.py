@@ -151,7 +151,7 @@ def main():
     ap.add_argument("--url", default="http://localhost:3000")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--llm", action="store_true", dest="llm",
-                    help="use the Qwen LLM guide (default: deterministic fallback)")
+                    help="use the LLM LLM guide (default: deterministic fallback)")
     ap.add_argument("--gemini", action="store_true", dest="llm",
                     help=argparse.SUPPRESS)  # deprecated alias
     a = ap.parse_args()

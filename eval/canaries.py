@@ -135,7 +135,7 @@ def post(url, payload):
 # G3 guided-facet checks (assertions, not eyeball): the guide must only ask
 # a facet question when the candidate set can visibly act on the answer.
 G3_CHECKS = [
-    # Fashion ladder is size-first when titles carry S/M/L (Qwen UX panel v2:
+    # Fashion ladder is size-first when titles carry S/M/L (LLM UX panel v2:
     # "size is better" on watch/smartwatch; size moments 83% A). Saree titles
     # carry no S/M/L, so for-whom stays first there.
     ("guide_for_whom", "bangle", {}, "for_whom"),

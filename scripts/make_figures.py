@@ -50,7 +50,7 @@ def fig_root_causes():
         r = next(x for x in rc if x["root_cause"] == n)
         ax.text(n, v + max(vals) * 0.01, f"{v:,}\n{r['pct']}%", ha="center")
     ax.set_ylim(0, max(vals) * 1.18)
-    ax.set_title("Complaints by root cause (Qwen full-corpus labels, 6-class)")
+    ax.set_title("Complaints by root cause (LLM full-corpus labels, 6-class)")
     fig.tight_layout()
     fig.savefig(OUT / "root_causes.png")
     plt.close(fig)

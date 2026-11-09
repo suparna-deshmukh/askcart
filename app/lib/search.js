@@ -1062,7 +1062,7 @@ export function searchStats(catalog, q, opts = {}) {
   const pct = (p) => prices.length ? prices[Math.min(prices.length - 1, Math.floor(p * prices.length))] : 0;
   // On-intent price quantiles over the VISIBLE top-300 (by score): budget
   // bands should cover the products the shopper actually sees for this
-  // query, not accessory/related matches ranked below the fold (Qwen UX
+  // query, not accessory/related matches ranked below the fold (LLM UX
   // panel v2: "options wrong" on laptop/TV typo queries).
   const top = (m, n) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([name, count]) => ({ name, count }));
   const visible = (hits.length ? [...base].sort((a, b) => (b.score || 0) - (a.score || 0)) : base).slice(0, 300);
@@ -1089,7 +1089,7 @@ export function searchStats(catalog, q, opts = {}) {
   // Final bimodal guard: if the chosen on-intent subset is still bimodal
   // (p50 > 6x p25 - real laptops + laptop desks inside one department),
   // its quantiles span two price worlds; fall back to the all-visible
-  // bands instead (Qwen UX panel v2: laptob allP bands are the A'd set).
+  // bands instead (LLM UX panel v2: laptob allP bands are the A'd set).
   const iP25 = intentPct(0.25), iP50 = intentPct(0.5);
   return {
     n: hits.length,

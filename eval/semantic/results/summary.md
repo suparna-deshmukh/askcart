@@ -11,7 +11,7 @@ Dev dead-end sample was small (n=5); the 0% dev false-resolve is weak evidence �
 
 ## Test split (n=50, run once)
 
-| Arm | Null rate (app def.) | Usable@3 (Qwen) | Success@3 (Qwen) | Dead-end false-resolve | Avg questions/journey | p95 ms (semantic path) |
+| Arm | Null rate (app def.) | Usable@3 (LLM) | Success@3 (LLM) | Dead-end false-resolve | Avg questions/journey | p95 ms (semantic path) |
 |---|---|---|---|---|---|---|
 | A lexical + rescue | 16% [8.3-28.5] | 86% [73.8-93] | 82% [69.2-90.2] | 4/4 (see note) | 0.02 | n/a |
 | B semantic only (ablation) | 32% [20.8-45.8] | n/a (not judged) | n/a (not judged) | 4/4 null (honest) | 0.02 | n/a |
@@ -19,8 +19,8 @@ Dev dead-end sample was small (n=5); the 0% dev false-resolve is weak evidence �
 
 Notes:
 - Arm B is the pure ablation (`?semantic=only`, no lexical fallback when semantic is below threshold): it nulls 16/50 queries, confirming the fallback-only design is correct.
-- **Dead-end false-resolve 4/4 in both A and C** is inherited from the existing category-rescue path (the guided loop asks a category question and the simulated answer fills 24+ in-category items, which the scorer marks intent). Qwen judged all 4 dead-end top-3s as irrelevant (3,3,3) in **both** arms. Semantic itself contributed **zero** items to all 4 dead-ends (all `below_threshold`): it never false-resolves one. n=4 — Wilson CI not meaningful at this sample size.
-- Usable@3 counts >=1 relevant-or-partial in top-3; Success@3 counts >=1 relevant. Judge: single Qwen model, thinking off, temp 0; top-3 of null searches count as failures.
+- **Dead-end false-resolve 4/4 in both A and C** is inherited from the existing category-rescue path (the guided loop asks a category question and the simulated answer fills 24+ in-category items, which the scorer marks intent). LLM judged all 4 dead-end top-3s as irrelevant (3,3,3) in **both** arms. Semantic itself contributed **zero** items to all 4 dead-ends (all `below_threshold`): it never false-resolves one. n=4 — Wilson CI not meaningful at this sample size.
+- Usable@3 counts >=1 relevant-or-partial in top-3; Success@3 counts >=1 relevant. Judge: single LLM model, thinking off, temp 0; top-3 of null searches count as failures.
 
 ## Per kind (test split)
 | Kind | n | A null | C null | A usable@3 | C usable@3 | A succ@3 | C succ@3 | A q | C q |
@@ -45,16 +45,16 @@ Notes:
 (2 failures total; fewer than the 10 the spec asked for — all are listed.)
 
 ## Second-rater agreement check (40-query hand label)
-40 random Arm-C test queries (seed 20261104), top-3 each, labelled blind to the Qwen verdicts by build agent (single LLM rater, not a human) - second rater independent of the Qwen judge. 120 item-level judgements:
+40 random Arm-C test queries (seed 20261104), top-3 each, labelled blind to the LLM verdicts by build agent (single LLM rater, not a human) - second rater independent of the LLM judge. 120 item-level judgements:
 - 3-class exact agreement (relevant/partial/irrelevant): **70.8%** (Cohen's kappa 0.56)
 - Binary 'usable in top-3' (relevant+partial vs irrelevant): **85.0%** (Cohen's kappa 0.66)
-- Confusion (rows = second rater, cols = Qwen; order relevant/partial/irrelevant):
-  |  | Qwen rel | Qwen part | Qwen irr |
+- Confusion (rows = second rater, cols = LLM; order relevant/partial/irrelevant):
+  |  | LLM rel | LLM part | LLM irr |
   |---|---|---|---|
   | rel | 30 | 6 | 1 |
   | part | 11 | 24 | 12 |
   | irr | 0 | 5 | 31 |
-- Reading: the two raters agree on the binary usability question 4 of 5 times; the 3-class gap is mostly in the partial/irrelevant boundary (Qwen calls more items 'partial' than the second rater). Single annotator, single LLM — directional only.
+- Reading: the two raters agree on the binary usability question 4 of 5 times; the 3-class gap is mostly in the partial/irrelevant boundary (LLM calls more items 'partial' than the second rater). Single annotator, single LLM — directional only.
 
 ## Interpretation
 - All arm-level CIs overlap (A null [8.3, 28.5] vs C [7, 26.2]; A usable@3 [73.8, 93] vs C [76.2, 94.4]). The gains are **directional, not significant at this sample size** (n=50 per arm).
@@ -62,7 +62,7 @@ Notes:
 - The fallback does exactly what it is designed to do: it is byte-identical for the 36/50 queries lexical already resolves (no-op guarantee: 293/293 resolved queries identical across all 358 canary + study + eval-v2 panel queries) and only touches the 36 lexical nulls.
 
 ## Limitations (do not omit)
-- Relevance is judged by a single Qwen model (temp 0, thinking off) plus no multi-annotator ground truth; 40-result hand labelling was skipped per the agreed cut line (n=50 panel) — agreement with the judge is therefore unmeasured.
+- Relevance is judged by a single LLM model (temp 0, thinking off) plus no multi-annotator ground truth; 40-result hand labelling was skipped per the agreed cut line (n=50 panel) — agreement with the judge is therefore unmeasured.
 - `real_suggest` queries are real-query-shaped Google Suggest autocompletes, not logged shopper queries; there are no real users.
 - The catalogue is a demo catalogue (US-converted + synthetic India layer), so absolute relevance numbers are indicative.
 - Semantic matching can return plausible-but-wrong neighbours for out-of-catalogue products; tau/margin trade recall against this and were tuned on the dev split only.
@@ -70,4 +70,4 @@ Notes:
 - Dead-end false-resolve is measured at n=4; the 100% rate reflects the baseline rescue path, not the semantic layer (see notes).
 
 ## Presentation line (filled from artifacts)
-> A semantic fallback (multilingual e5-small embeddings, int8 index, brute-force search) invoked only when lexical search returned <2 on-intent results reduced the null rate on a frozen held-out panel (n=50) from 16% [8.3-28.5] to 14% [7-26.2] (directional; CIs overlap), raised Qwen-judged success@3 from 82% to 84% (usable@3 flat at 88%), and cut questions per journey from 0.02 to 0, with semantic latency p95 91 ms. Out-of-catalogue queries: the semantic layer itself rejected all 4 (below threshold); the 100% (4/4) app-level 'false-resolve' is inherited from the baseline category-rescue path (identical in the lexical-only arm).
+> A semantic fallback (multilingual e5-small embeddings, int8 index, brute-force search) invoked only when lexical search returned <2 on-intent results reduced the null rate on a frozen held-out panel (n=50) from 16% [8.3-28.5] to 14% [7-26.2] (directional; CIs overlap), raised LLM-judged success@3 from 82% to 84% (usable@3 flat at 88%), and cut questions per journey from 0.02 to 0, with semantic latency p95 91 ms. Out-of-catalogue queries: the semantic layer itself rejected all 4 (below threshold); the 100% (4/4) app-level 'false-resolve' is inherited from the baseline category-rescue path (identical in the lexical-only arm).

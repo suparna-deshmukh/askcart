@@ -17,3 +17,5 @@ app/.chat-secret-dev
 app/data/catalog_emb.i8
 app/data/catalog_emb.scales.f32
 app/.gemini_usage.json
+.vercel
+.env*

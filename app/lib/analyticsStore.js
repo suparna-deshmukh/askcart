@@ -243,7 +243,7 @@ function touchSession(st, sid, first = {}) {
   const sj = st.sessions[id] || { journeys: 0, firstAt: now, lastAt: now, searches: 0,
     questions: 0, answers: 0, skips: 0, views: 0, carts: 0, checkouts: 0,
     orders: 0, orderValue: 0, persona: null, buyNow: 0, interests: null,
-    ai: { qwen: 0, gemini: 0, rules: 0, switches: 0 },
+    ai: { llm: 0, gemini: 0, rules: 0, switches: 0 },
     chat: { opens: 0, msgs: 0, adds: 0 } };
   if (!sj.firstAt) sj.firstAt = now;
   sj.lastAt = now;
@@ -461,7 +461,7 @@ export function record(type, payload = {}, env = null) {
       if (sj) {
         if (p.via === "gemini") sj.ai.gemini += 1;
         else if (p.via === "rules" || p.via === "cache") sj.ai.rules += 1;
-        else sj.ai.qwen += 1;
+        else sj.ai.llm += 1;
       }
       break;
     case "ai_key_exhausted":
@@ -603,7 +603,7 @@ export function snapshot(env = null) {
         views: sj.views || 0, carts: sj.carts || 0, checkouts: sj.checkouts || 0,
         orders: sj.orders || 0, orderValue: sj.orderValue || 0,
         buyNow: sj.buyNow || 0, interests: sj.interests || null,
-        ai: sj.ai || { qwen: 0, gemini: 0, rules: 0, switches: 0 },
+        ai: sj.ai || { llm: 0, gemini: 0, rules: 0, switches: 0 },
         chat: sj.chat || { opens: 0, msgs: 0, adds: 0 },
       }))
       .sort((a, b) => (b.lastAt || 0) - (a.lastAt || 0))

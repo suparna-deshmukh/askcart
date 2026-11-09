@@ -1,5 +1,5 @@
 """
-Qwen suite - UX panel v2 builder (fresh panel of the CURRENT build).
+LLM suite - UX panel v2 builder (fresh panel of the CURRENT build).
 
 Panel v1 (300 moments, frozen, sha e8f01a06d883bf79) was sampled from the
 persona-sim v2 build. Under the current policy those journeys either
@@ -12,7 +12,7 @@ a seeded stratified sample (lang x question type) of up to 300 moments.
 
 COMMIT THE PANEL BEFORE JUDGING (same rule as v1). v1 stays untouched.
 
-Usage: .venv/bin/python eval/qwen_suite/build_ux_v2.py [--url http://localhost:3000]
+Usage: .venv/bin/python eval/llm_suite/build_ux_v2.py [--url http://localhost:3000]
 """
 import hashlib
 import importlib.util

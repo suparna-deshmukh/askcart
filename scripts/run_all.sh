@@ -1,7 +1,7 @@
 #!/bin/zsh
 # AskCart one-shot reproduction (data -> pipeline -> labels -> catalog -> study).
 # Prereqs: .venv (pandas duckdb sklearn pyarrow google-play-scraper matplotlib),
-# app/node_modules, dev server on :3000. LLM (Qwen via LiteLLM proxy) is optional -
+# app/node_modules, dev server on :3000. LLM (LLM via Gemini API) is optional -
 # every stage has a zero-LLM path.
 set -e
 cd ~/askcart
@@ -14,7 +14,7 @@ echo "== 1. corpus (resume-safe; live sources only) =="
 .venv/bin/python extractor/collect_trends.py
 echo "== 2. pipeline pass 1 =="
 .venv/bin/python pipeline/run_pipeline.py
-echo "== 3. LLM-verified labels (Qwen; empty file if unavailable) =="
+echo "== 3. LLM-verified labels (LLM; empty file if unavailable) =="
 # ASKCART_LLM_SAMPLE=6041 for a full-corpus re-label (v7, ~1.5-2 h, 4 shards)
 .venv/bin/python extractor/extract_llm.py --sample ${ASKCART_LLM_SAMPLE:-600} || true
 echo "== 4. pipeline pass 2 (merge labels) =="

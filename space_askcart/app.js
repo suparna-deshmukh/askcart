@@ -25,16 +25,16 @@ function barRow(label, value, max, color, valText) {
 
 function renderOverview() {
   const f = Object.fromEntries((D.funnel || []).map(x => [x.k, x.v]));
-  const fb = D.study.deterministic || {}, q = D.study.qwen || {};
+  const fb = D.study.deterministic || {}, q = D.study.llm || {};
   const stats = [
     [fmt(f.raw_total), "reviews collected", "5 sources: Play, App Store, Reddit, Amazon product, Trustpilot"],
     [fmt(f.clean), "clean", "dedup + language gate + PII scrub"],
     [fmt(f.complaints_flagged), "search-UX complaints", "lexicon + rating gate + 10% control"],
     [String((D.root_causes || []).length), "root-cause classes",
-     "Qwen full-corpus labels (6,041); pattern-scorer is zero-LLM fallback"],
+     "LLM full-corpus labels (6,041); pattern-scorer is zero-LLM fallback"],
     [fmt(D.catalog.skus), "SKU catalogue", "25K real Amazon products, INR, band-aware"],
     [`${fb.baseline_null_pct}% → ${fb.guided_null_pct}%`, "null results fixed", "guided follow-up (n=150 study)"],
-    [`${fb.resolved_by_turn2_pct}%`, "resolved by turn 2", "deterministic guide; Qwen mode: " + (q.resolved_by_turn2_pct ?? "?") + "%"],
+    [`${fb.resolved_by_turn2_pct}%`, "resolved by turn 2", "deterministic guide; LLM mode: " + (q.resolved_by_turn2_pct ?? "?") + "%"],
   ];
   $("stat-row").innerHTML = stats.map(s =>
     `<div class="stat"><div class="v">${s[0]}</div><div class="k">${esc(s[1])}</div><div class="d">${esc(s[2])}</div></div>`).join("");
@@ -53,7 +53,7 @@ function renderOverview() {
     `<tr><th>mode</th><th>baseline null</th><th>guided null</th><th>resolved</th><th>by turn 2</th></tr>
      <tr><td>deterministic (headline)</td><td>${fb.baseline_null_pct}%</td><td>${fb.guided_null_pct}%</td>
          <td>${fb.resolved_pct}%</td><td>${fb.resolved_by_turn2_pct}%</td></tr>
-     <tr><td>Qwen guide (stability)</td><td>${q.baseline_null_pct ?? "—"}%</td><td>${q.guided_null_pct ?? "—"}%</td>
+     <tr><td>LLM guide (stability)</td><td>${q.baseline_null_pct ?? "—"}%</td><td>${q.guided_null_pct ?? "—"}%</td>
          <td>${q.resolved_pct ?? "—"}%</td><td>${q.resolved_by_turn2_pct ?? "—"}%</td></tr>`;
 
   const figs = [["funnel.png", "Pipeline funnel"], ["root_causes.png", "Root causes"],

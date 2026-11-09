@@ -1,13 +1,12 @@
 """
-AskCart LLM client - Qwen38-27B via the user's LiteLLM proxy (OpenAI-compatible).
-Replaces the earlier Gemini path entirely (Gemini is banned for this project).
+AskCart LLM client - Gemini (OpenAI-compatible endpoint).
 Same contract as before: chat()/chat_json() return (text|obj, model); callers
 must keep a zero-LLM fallback path because is_available() can be False.
 
-Config (env, or askcart/.env): LLM_BASE_URL, LLM_API_KEY, LLM_MODEL.
-Note: qwen38-27b is a thinking model - when max_tokens is too small the whole
-budget is spent on reasoning and `content` comes back null; we detect that and
-retry with a bigger budget once.
+Config (env, or askcart/.env): GEMINI_API_KEY (or GEMINI_API_KEYS /
+LIVE_LLM_API_KEY), GEMINI_MODEL.
+Note: thinking models can return null content when the whole budget is spent
+on reasoning; we detect that and retry with a bigger budget once.
 """
 import json
 import os
@@ -19,6 +18,7 @@ from datetime import datetime, timezone
 ENV_FILE = os.path.join(os.path.dirname(__file__), "..", ".env")
 DAILY_CAP = int(os.environ.get("ASKCART_LLM_DAILY_CAP", "3000"))
 _state = {"date": None, "calls": 0}
+BASE = "https://generativelanguage.googleapis.com/v1beta/openai"
 
 
 def _env(name):
@@ -36,17 +36,24 @@ def _env(name):
     return None
 
 
+def _key():
+    return (_env("GEMINI_API_KEY")
+            or (_env("GEMINI_API_KEYS") or "").split(",")[0].strip()
+            or _env("LIVE_LLM_API_KEY")
+            or None)
+
+
 def _cfg():
     return (
-        (_env("LLM_BASE_URL") or "").rstrip("/"),
-        _env("LLM_API_KEY"),
-        _env("LLM_MODEL") or "qwen38-27b",
+        BASE.rstrip("/"),
+        _key(),
+        _env("GEMINI_MODEL") or _env("LIVE_LLM_MODEL") or "gemini-3-flash-preview",
     )
 
 
 def is_available():
-    base, key, _ = _cfg()
-    return bool(base and key)
+    _, key, _ = _cfg()
+    return bool(key)
 
 
 def _cap_ok():
@@ -61,7 +68,7 @@ def _post(messages, model, temperature, max_tokens, timeout=90, thinking=None):
     payload = {"model": model, "messages": messages,
                "temperature": temperature, "max_tokens": max_tokens}
     if thinking is False:
-        payload["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+        payload["reasoning_effort"] = "none"
     body = json.dumps(payload).encode()
     req = urllib.request.Request(base + "/chat/completions", data=body,
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})

@@ -1,5 +1,5 @@
 """
-Qwen suite - search verdict refresh (token saver, 0 LLM tokens).
+LLM suite - search verdict refresh (token saver, 0 LLM tokens).
 Re-fetches top-3 for every frozen query; keeps old verdicts ONLY where the
 top-3 is byte-identical to what the frozen judge saw (same input -> same
 verdict, judge prompt frozen with the panel). Changed/missing top-3 ids are

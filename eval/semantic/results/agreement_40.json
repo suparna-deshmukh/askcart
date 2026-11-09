@@ -4,7 +4,7 @@
   "usable_binary_agreement": 0.85,
   "kappa_3class": 0.5649,
   "kappa_binary_usable": 0.6642,
-  "confusion_hand_x_qwen": [
+  "confusion_hand_x_llm": [
     [
       30,
       6,

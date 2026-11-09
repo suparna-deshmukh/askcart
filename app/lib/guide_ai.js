@@ -166,7 +166,7 @@ export async function aiRefine({ query, queryExt, slots, answerLabel, answerType
   let raw = null;
   let via = null;
   let aiMeta = {};
-  // Gemini 3-key chain (20 RPD per key) is the only LLM provider (Qwen
+  // Gemini 3-key chain (20 RPD per key) is the only LLM provider (LLM
   // retired 2026-11-06 per user work order - docs/llm_routing.md).
   try {
     const g = await geminiGenerate({ system: systemPrompt(question), user: userMsg, maxTokens: question ? 512 : 160, timeoutMs: 2500 });

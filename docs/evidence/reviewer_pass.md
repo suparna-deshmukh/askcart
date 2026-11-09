@@ -41,7 +41,7 @@ home, pets, office — canary-verified (eval/canaries.py, 34/34 green).
 The *samovar* dead end is still 0 (by design — the guided rescue flow is the
 designed behavior for genuinely absent products).
 
-## Level 2 — Search relevance (Qwen-judged audit, 53 queries × top-3)
+## Level 2 — Search relevance (LLM-judged audit, 53 queries × top-3)
 
 `eval/results/relevance_summary.json` (final run, 2026-11-04 01:07; 21 of
 the 53 are India queries incl. 8 new R10 kinds: health/winter/
@@ -103,7 +103,7 @@ verified by re-running the audit + canaries):
 numeric tokens, phone/mobile idiom handling, Hinglish stopwords,
 blender↔mixer synonym.)
 
-## Level 3 — Scale simulation (3,000 generated queries, Qwen guide)
+## Level 3 — Scale simulation (3,000 generated queries, LLM guide)
 
 `eval/results/sim_summary.json` (run 2026-11-04 01:17,
 `logs/sim_20261104_0117.jsonl`):
@@ -164,7 +164,7 @@ flow still resolves 100% of them via the office-products category chip.
 
 Numbers are internally consistent and reproducible:
 `scripts/run_all.sh` → catalog → canaries (44/44) → study (27.3 → 8.0,
-78.7% by turn 2, n=150) → Qwen-mode study (identical) → relevance audit
+78.7% by turn 2, n=150) → LLM-mode study (identical) → relevance audit
 (96.0% usable, 53 queries) → simulation (3,000 queries, 100% resolved,
 0 errors, 98.6% by turn 2).
 Nothing in the dashboard or the docs is a preset: every displayed value is
