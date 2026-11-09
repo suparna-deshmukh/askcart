@@ -32,6 +32,13 @@ import { FilterSidebar, FilterBar } from "./ui/filters";
 import { I } from "./ui/kit/Icon";
 import { Button } from "./ui/kit/Button";
 
+// Section 3 onboarding gate - versioned flag. "1" = pre-Section-3
+// (persona-modal era); the 2026-11-08 full-screen redesign must be shown
+// once to those returning visitors, so the gate now requires "2".
+// Bump ONBOARDED_V whenever onboarding is redesigned and should re-show.
+const ONBOARDED_KEY = "askcart_onboarded";
+const ONBOARDED_V = "2";
+
 // Hero "popular" chips - single source of truth in lib/sample_queries.js
 // (verified against the live search API; precomputed in the semantic
 // query-emb cache; clicks tracked with source:"example" -> Analytics).
@@ -468,7 +475,7 @@ function AskCartHome() {
       const forced = new URLSearchParams(window.location.search).get("onboard") === "1";
       // Section 3: first visit (no askcart_onboarded) or /?onboard=1 forces
       // the full-screen onboarding; ?noob=1 bypasses it.
-      if (!noob && (localStorage.getItem("askcart_onboarded") !== "1" || forced)) {
+      if (!noob && (localStorage.getItem(ONBOARDED_KEY) !== ONBOARDED_V || forced)) {
         setOnboarded(false);
         setOnboardNeeded(true);
       }
@@ -1831,7 +1838,7 @@ function AskCartHome() {
     setOnboardNeeded(false);
     setPersonaState(p);
     setProfileState(prof);
-    try { localStorage.setItem("askcart_onboarded", "1"); } catch {}
+    try { localStorage.setItem(ONBOARDED_KEY, ONBOARDED_V); } catch {}
     // 2026-11-06: show the payoff of the answers, and wire them to behaviour.
     if (p) {
       const payoff =
