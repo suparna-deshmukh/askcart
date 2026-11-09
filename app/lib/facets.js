@@ -85,8 +85,12 @@ export function sizeOptions(items, n) {
   const counts = {};
   for (const it of items) {
     const ms = String(it.title).match(/\b(xxxl|xxl|xl|l|m|s|xs)\b/gi) || [];
-    for (const w of ms) {
-      const k = w.toLowerCase();
+    // 2026-11-10: count ITEMS, not token occurrences — a title that carries
+    // the token twice ("Camp's Denim Jacket (White S)" -> s + S) is still
+    // ONE size-S item. Occurrence counting made chip counts disagree with
+    // the per-item recount (guard:count_mismatch) and with the post-click
+    // narrowing, which selects items.
+    for (const k of new Set(ms.map((w) => w.toLowerCase()))) {
       if (SIZE_ORDER.includes(k)) counts[k] = (counts[k] || 0) + 1;
     }
   }
@@ -99,10 +103,13 @@ export function capacityOptions(items, n) {
   const counts = new Map();
   for (const it of items) {
     const ms = String(it.title).match(/(\d+(?:\.\d+)?)\s*(ton|kg|l)\b/g) || [];
-    for (const raw of ms) {
+    // 2026-11-10: same items-not-occurrences rule as sizeOptions —
+    // "5 kg / 6.5 kg" variants or repeated specs in one title count once.
+    for (const key of new Set(ms.map((raw) => {
       const m = raw.match(/(\d+(?:\.\d+)?)\s*(ton|kg|l)/i);
       const u = m[2].toLowerCase();
-      const key = `${m[1]} ${u === "l" ? "L" : u}`;
+      return `${m[1]} ${u === "l" ? "L" : u}`;
+    }))) {
       counts.set(key, (counts.get(key) || 0) + 1);
     }
   }

@@ -82,7 +82,7 @@ function flowKey(category) {
 }
 
 const GIFT_WORDS = ["gift", "present", "gifts", "gifting", "for him", "for her"];
-function hasGiftIntent(q) {
+export function hasGiftIntent(q) {
   const s = String(q).toLowerCase();
   return GIFT_WORDS.some((w) => s.includes(w));
 }
@@ -366,7 +366,13 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   const visCatView = buildIntentView(visItems);
   const worldGuard = (() => {
     if (isWearableQ(query)) return false;
-    if (visCatView.categories.slice(0, 2).some((c) => c.name === "AMAZON FASHION")) return true;
+    // 2026-11-10: a fashion world on a GIFT / occasion-stated query is
+    // on-target (apparel is a top gift category: "shadi gift" = kurtis),
+    // not the mismatch this guard targets (a product-subject query like
+    // "fan" inheriting hand fans). Such queries keep their brand/tag
+    // option sources; true subject mismatches are still suppressed.
+    const giftOrOccasion = hasGiftIntent(query) || !!(parsed.occasion && parsed.occasion !== "gift");
+    if (visCatView.categories.slice(0, 2).some((c) => c.name === "AMAZON FASHION") && !giftOrOccasion) return true;
     const dom = visCatView.categories[0];
     if (dom && nVis && dom.count / nVis >= 0.5) {
       const synCats = new Set();
@@ -927,19 +933,30 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
       const budgetFacetDone = facetDone("budget");
       // P3: the world guard suppresses the tag source too (a fashion
       // world on a non-wearable query is a mismatch, not an option).
+      // 2026-11-10: adaptive floors for small (narrowed) worlds — the old
+      // fixed floors (tag>=3, brand>=2, >=2 live options) are structurally
+      // unsatisfiable on a ~10-item set, which killed the chain into a
+      // bare typed input box ("shadi gift under 2000" T3). Small worlds
+      // accept count-1 options drawn from the narrowed set; large worlds
+      // keep the original data floors unchanged.
+      // A world below the 150-item search cap is a NARROWED set (the
+      // shopper's previous answers shaped it) — it gets the relaxed
+      // count-1 floor. The initial 150-item world keeps the original
+      // data floors (2/3).
+      const smallWorld = nVis < 150;
       const tagOpts = (!worldGuard && !occSettled) ? (iv.tags || [])
-        .filter((o) => o.count >= 3 && !/^(gift|new|best|sale|offer|deal)$/i.test(o.name))
+        .filter((o) => o.count >= (smallWorld ? 1 : 3) && !/^(gift|new|best|sale|offer|deal)$/i.test(o.name))
         .slice(0, 3).map((o) => ({ label: o.name, count: visItems.filter((r) => (r.tags || []).includes(o.name)).length }))
         : [];
       const brandOpts = (!worldGuard && !brandFacetDone && iv.brands.length >= 2)
-        ? iv.brands.filter((b) => b.count >= 2)
+        ? iv.brands.filter((b) => b.count >= (smallWorld ? 1 : 2))
           .slice(0, 3).map((b) => ({ label: b.name, count: visItems.filter((r) => (r.brand || "") === b.name).length }))
         : [];
-      if (tagOpts.length >= 2 && !usedAny.has("tags")) {
+      if (tagOpts.length >= (smallWorld ? 1 : 2) && !usedAny.has("tags")) {
         return out("any", tagOpts.map((o) => o.label), tagOpts,
           "open refinement: options drawn from the narrowed set (usage tags), typed escape available", "tags");
       }
-      if (brandOpts.length >= 2 && !usedAny.has("brands")) {
+      if (brandOpts.length >= (smallWorld ? 1 : 2) && !usedAny.has("brands")) {
         return out("any", brandOpts.map((o) => o.label), brandOpts,
           "open refinement: options drawn from the narrowed set (brands), typed escape available", "brands");
       }
@@ -968,15 +985,19 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
             "open refinement: price bands from the narrowed set's actual price spread, typed escape available", "bands");
         }
       }
-      if (!usedAny.has("typed")) {
-        return out("any", [], [],
-          "guaranteed question (typed last resort): no data facet with >=2 live options - open typed refinement", "typed");
-      }
-    } else if (!usedAny.has("typed")) {
-      return out("any", [], [],
-        "guaranteed question (typed last resort): data-sourced open questions exhausted - open typed refinement", "typed");
     }
-    return null;
+    // 2026-11-10: the typed open question is the chain's CONTINUATION —
+    // uncapped and re-askable, and reachable on EVERY turn. The
+    // 2026-11-06 "up to twice, different source" cap applied to the
+    // DATA-sourced anys (tags/brands/bands), which keep their usedAny
+    // rules above. When the current world holds no data facet with a live
+    // option, the typed question keeps the journey alive (the old cap —
+    // and an earlier draft that only returned typed inside the
+    // dataAnyUsed<2 branch — ended the chain with NO question even on a
+    // 74-item world); the typed answer re-searches and re-grounds the
+    // next question.
+    return out("any", [], [],
+      "guaranteed question (typed last resort): no data facet with live options in the current world - open typed refinement", "typed");
   };
 
   if (!order.length) {

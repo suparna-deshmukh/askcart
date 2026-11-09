@@ -28,9 +28,9 @@ import path from "node:path";
 const ROOT = path.join(import.meta.dirname, "..");
 process.chdir(path.join(ROOT, "app")); // loadCatalog reads public/catalog.json from cwd
 const { loadCatalog } = await import("../app/lib/catalog.js");
-const { search } = await import("../app/lib/search.js");
-const { decideGuide, buildIntentView } = await import("../app/lib/guide.js");
-const { validateGuideQuestion, validateRecommendationRail, itemRelation, guardState, optionKind, recountOption } = await import("../app/lib/guard.js");
+const { search, parseQuery } = await import("../app/lib/search.js");
+const { decideGuide, buildIntentView, hasGiftIntent } = await import("../app/lib/guide.js");
+const { validateGuideQuestion, validateRecommendationRail, itemRelation, guardState, optionKind, recountOption, itemMatchesOption, isEscape } = await import("../app/lib/guard.js");
 
 const catalog = loadCatalog();
 const proj = (rs) => rs.map(r => ({ sku: r.sku, title: r.title, price: r.price, brand: r.brand, category: r.category, tags: r.tags, intent: r.intent }));
@@ -135,6 +135,11 @@ const ask = (q, vis, turn, prevTypes, slots) =>
 
 function worldLeakKind(q, vis, d) {
   if (isWearable(q)) return null;
+  // 2026-11-10: mirror the policy exemption (guide.js worldGuard) — a
+  // fashion world on a gift / occasion-stated query is on-target (apparel
+  // is a top gift category: "shadi gift" = kurtis), not a leak.
+  const parsed = parseQuery(q);
+  if (hasGiftIntent(q) || !!(parsed.occasion && parsed.occasion !== "gift")) return null;
   const cats = buildIntentView(vis).categories.slice(0, 2).map(c => c.name);
   if (!cats.includes("AMAZON FASHION")) return null;
   const kinds = (d.optionCounts || []).map(o => optionKind(d, o.label));
@@ -171,8 +176,25 @@ async function step(cur, a, turn, q, j) {
   const { sopts, slots: aslots, extraQ } = chipOpts(chip, gtype, cur.vis);
   let rs = doSearch(q + (extraQ ? " " + extraQ : ""), { relax: true, ...sopts });
   let vis = proj(rs);
+  // 2026-11-10 client parity (page.jsx applyAnswer): a data-grounded chip
+  // NARROWS the visible world with the chip's own count predicate — the
+  // catalog-wide re-search world is only kept for typed/escape answers.
+  // ("Pigeon 9" on a 150-product card must stay a 9-item world, not the
+  // 109-item catalogue re-search.)
+  const oc = (cur.d.optionCounts || []).find((o) => o.label === chip);
+  const kind = oc ? (oc.kind || optionKind(cur.d, oc.orig || oc.label)) : null;
+  const canon = oc ? (oc.orig || oc.label) : null;
+  const dataChip = !!oc && !(cur.d.stats && cur.d.stats.rescue) && oc.count > 0 && !isEscape(canon) &&
+    ["brand", "category", "tag", "band", "for_whom", "size", "capacity", "occasion"].includes(kind);
   let slots = { ...cur.slots, ...aslots };
-  if (vis.filter(v => v.intent).length < 2 && sopts.category) {
+  if (dataChip) {
+    const matched = cur.vis.filter((v) => itemMatchesOption(kind, canon, v));
+    const rank = new Map(rs.map((r, i) => [r.sku, i]));
+    const visIdx = new Map(cur.vis.map((v, i) => [v.sku, i]));
+    vis = matched.slice().sort((x, y) =>
+      (rank.has(x.sku) ? rank.get(x.sku) : 1e9 + visIdx.get(x.sku)) -
+      (rank.has(y.sku) ? rank.get(y.sku) : 1e9 + visIdx.get(y.sku)));
+  } else if (vis.filter(v => v.intent).length < 2 && sopts.category) {
     const o2 = Object.fromEntries(Object.entries(sopts).filter(([k]) => k !== "category"));
     rs = doSearch(q, { relax: true, ...o2 }); vis = proj(rs);
     slots = Object.fromEntries(Object.entries(slots).filter(([k]) => k !== "category"));

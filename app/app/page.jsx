@@ -24,7 +24,7 @@ import { Footer } from "./ui/shell/Footer";
 import { ToasterProvider, useToast } from "./ui/kit/Toaster";
 import { useChat } from "./ui/chat/useChat";
 import { looksConversational } from "../lib/ask";
-import { recountOption, optionKind, validateRecommendationRail } from "../lib/guard.js";
+import { recountOption, optionKind, itemMatchesOption, isEscape, validateRecommendationRail } from "../lib/guard.js";
 import { WishlistView } from "./ui/wishlist";
 import { ProductCard, VARIANT_PAREN } from "./ui/cards";
 import { HeroDemo, HomeSections, useTypewriter } from "./ui/home";
@@ -1362,6 +1362,16 @@ function AskCartHome() {
       else if (c) opts = { category: c.category };
       else extraQ = chip;
     }
+    // 2026-11-10: a chip's count is a promise about the VISIBLE set (the
+    // "N products" badge). A data-grounded chip (count > 0, not an escape,
+    // not a rescue option) must narrow the visible set to exactly the
+    // matching items when clicked; the old catalog-wide re-search broke
+    // the promise ("Pigeon 9" on a 150-product card -> "150 -> 109").
+    const chipOC = (guide.optionCounts || []).find((c) => c && c.label === chip);
+    const chipKind = chipOC ? (chipOC.kind || optionKind(guide, chipOC.orig || chipOC.label)) : null;
+    const chipCanon = chipOC ? (chipOC.orig || chipOC.label) : null;
+    const chipIsData = !!chipOC && !guide.rescue && chipOC.count > 0 && !isEscape(chipCanon) &&
+      ["brand", "category", "tag", "band", "for_whom", "size", "capacity", "occasion"].includes(chipKind);
     // Item 6: the AI refine (Gemini) runs IN FLIGHT while the
     // deterministic re-search executes; the page waits at most ~4.5s for
     // it, so a down provider never stalls the grid (v6 latency).
@@ -1396,7 +1406,7 @@ function AskCartHome() {
     }
     const appliedOpts = { ...opts };
     const newSlots = { ...trailOpts(), ...appliedOpts, ...aiOpts };
-    if (res.results.filter((r) => r.intent).length < 2 && opts.category) {
+    if (!chipIsData && res.results.filter((r) => r.intent).length < 2 && opts.category) {
       // the picked category was a dead end - retry without it, other
       // constraints (budget/occasion) still applied
       res = await doSearch(s.query, { relax: true, turn: turnNow, ...trailOpts(), category: null,
@@ -1408,7 +1418,20 @@ function AskCartHome() {
     // working ("budget headphones under 3000" + Apple must not silently
     // fall back to the mixed list). An empty facet leaves the honest
     // zero-results state, which re-asks the rescue question.
-    const finalResults = res.results;
+    let finalResults = res.results;
+    if (chipIsData) {
+      // Honor the chip: the post-click grid is the VISIBLE set filtered
+      // by the same predicate the chip's count used (itemMatchesOption —
+      // the single recount source shared by server, guard and card).
+      // Re-search order is kept where available; any visible match the
+      // re-search omitted keeps its original position.
+      const matched = s.results.filter((r) => itemMatchesOption(chipKind, chipCanon, r));
+      const rank = new Map(res.results.map((r, i) => [r.sku, i]));
+      const visIdx = new Map(s.results.map((r, i) => [r.sku, i]));
+      finalResults = matched.slice().sort((a, b) =>
+        (rank.has(a.sku) ? rank.get(a.sku) : 1e9 + visIdx.get(a.sku)) -
+        (rank.has(b.sku) ? rank.get(b.sku) : 1e9 + visIdx.get(b.sku)));
+    }
     const ok = finalResults.filter((r) => r.intent).length >= 2;
     const wasOk = s.ok === true;
     markResultsShown(s.query, finalResults, turnNow, "results");

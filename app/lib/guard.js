@@ -62,6 +62,7 @@ let displayToRawCache = null;
 const displayToRaw = (label) => (displayToRawCache ??= Object.fromEntries(Object.entries(CAT_DISPLAY).map(([raw, disp]) => [disp, raw])))[label];
 
 const isEscape = (label) => ESCAPE_RE.test(String(label));
+export { isEscape };
 const bandNums = (label) => (String(label).match(/[\d,]+/g) || [])
   .map((x) => parseInt(x.replace(/,/g, ""), 10)).filter((n) => n > 0);
 
@@ -96,42 +97,54 @@ function slotOf(q) {
 // Single source of truth for option recounts — the tier ladder, the server
 // guard and the client card recount all use these predicates, so server
 // count == client count by construction.
+// 2026-11-10: per-item predicate for each option kind. Every count (tier
+// ladder, exit guard, client card recount) AND the post-click narrowing
+// (page.applyAnswer) must select items with this ONE predicate: a chip's
+// number is a promise about the visible set ("N products" badge), so
+// clicking it must show exactly the items the predicate selects — the
+// 48-slice fix (2026-11-09) aligned the displayed number with the visible
+// set but the click still ran a CATALOG-WIDE re-search ("Pigeon 9" on a
+// 150-product card returned all 109 catalogue Pigeon matches -> the meter
+// lied: "150 → 109", "Pigeon · 109 of 150 left").
+export function itemMatchesOption(kind, label, item) {
+  const r = item || {};
+  switch (kind) {
+    case "brand":
+      return (r.brand || "") === label;
+    case "category": {
+      const raw = displayToRaw(label) || label;
+      return r.category === raw || r.category === label;
+    }
+    case "tag":
+      return (r.tags || []).includes(label);
+    case "band":
+      return countBudget([r], 1, label) > 0;
+    case "for_whom": {
+      const fw = forWhomOptions([r], 1).find((o) => o.label.toLowerCase() === String(label).toLowerCase());
+      return !!fw && fw.count > 0;
+    }
+    case "size": {
+      const so = sizeOptions([r], 1).find((o) => o.label.toLowerCase() === String(label).toLowerCase());
+      return !!so && so.count > 0;
+    }
+    case "capacity": {
+      const co = capacityOptions([r], 1).find((o) => o.label.toLowerCase() === String(label).toLowerCase());
+      return !!co && co.count > 0;
+    }
+    case "occasion": {
+      if (label === "Everyday use") return !(r.tags || []).some((tg) => CORE_OCC_TAGS.includes(tg));
+      const tag = OCCASION_TAG[label] || FESTIVAL_TAG[label] || (label === "Party / Event" ? "party" : null);
+      return tag ? (r.tags || []).includes(tag) : false;
+    }
+    default:
+      return false;
+  }
+}
+
 export function recountOption(kind, label, items) {
   const n = (items || []).length;
   if (isEscape(label)) return n;
-  switch (kind) {
-    case "brand":
-      return items.filter((r) => (r.brand || "") === label).length;
-    case "category": {
-      const raw = displayToRaw(label) || label;
-      return items.filter((r) => r.category === raw || r.category === label).length;
-    }
-    case "tag":
-      return items.filter((r) => (r.tags || []).includes(label)).length;
-    case "band":
-      return countBudget(items, n, label);
-    case "for_whom": {
-      const fw = forWhomOptions(items, n).find((o) => o.label.toLowerCase() === String(label).toLowerCase());
-      return fw ? fw.count : 0;
-    }
-    case "size": {
-      const so = sizeOptions(items, n).find((o) => o.label.toLowerCase() === String(label).toLowerCase());
-      return so ? so.count : 0;
-    }
-    case "capacity": {
-      const co = capacityOptions(items, n).find((o) => o.label.toLowerCase() === String(label).toLowerCase());
-      return co ? co.count : 0;
-    }
-    case "occasion": {
-      if (label === "Everyday use") {
-        return n - items.filter((r) => (r.tags || []).some((tg) => CORE_OCC_TAGS.includes(tg))).length;
-      }
-      const tag = OCCASION_TAG[label] || FESTIVAL_TAG[label] || (label === "Party / Event" ? "party" : null);
-      return tag ? items.filter((r) => (r.tags || []).includes(tag)).length : 0;
-    }
-    default:
-      return 0;
-  }
+  return (items || []).filter((r) => itemMatchesOption(kind, label, r)).length;
 }
 
 // Rule 1: the label exists in the intent-scoped view for its kind.
@@ -197,7 +210,10 @@ export function validateGuideQuestion(question, iv, visibleResults, answered = {
   if (types.has(String(q.type))) return guardFail(q, "reask");
   if (String(q.type) === "any") {
     const st = String(q.subType || "");
-    if (st && types.has("any:" + st)) return guardFail(q, "reask");
+    // 2026-11-10: any:typed is the chain's continuation (the typed answer
+    // re-searches and re-grounds the next question), so it is re-askable;
+    // data-sourced anys (tags/brands/bands) stay once per journey.
+    if (st && st !== "typed" && types.has("any:" + st)) return guardFail(q, "reask");
     const subSlot = ANY_SUBTYPE_SLOT[st];
     if (subSlot && (answered && answered[subSlot] != null || types.has(subSlot))) return guardFail(q, "reask");
   }
@@ -229,7 +245,13 @@ export function validateGuideQuestion(question, iv, visibleResults, answered = {
     if (!isEscape(label) && rc > 0) live += 1;
   }
   // Rule 3 — a chip question needs >=2 live options, else typed-only.
-  if (live < 2) return guardFail(q, "thin");
+  // 2026-11-10: an open "any" refinement needs only >=1 — the typed
+  // escape and the "Something else…" chip are always present, so one
+  // grounded option is still a real narrowed-set question. (Small
+  // worlds used to die into a bare input box: "shadi gift under 2000"
+  // asked for-whom + size and then offered ZERO options at turn 3.)
+  const minLive = String(q.type) === "any" ? 1 : 2;
+  if (live < minLive) return guardFail(q, "thin");
   return { ok: true, question: { ...q, optionCounts: counts } };
 }
 
