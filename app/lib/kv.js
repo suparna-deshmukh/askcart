@@ -163,6 +163,8 @@ export async function kvGet(key) {
     const v = await command(["GET", key]);
     return typeof v === "string" ? v : null;
   } catch {
+    // TEMP (2026-11-10 diagnostic): surface silent failures
+    lastKvError = { where: "kvGet", key, at: Date.now() };
     return null;
   }
 }
@@ -170,9 +172,18 @@ export async function kvGet(key) {
 export async function kvSet(key, value, ttlSec) {
   try {
     await command(ttlSec ? ["SET", key, value, "EX", String(ttlSec)] : ["SET", key, value]);
-  } catch {
-    /* fail open */
+  } catch (e) {
+    // TEMP (2026-11-10 diagnostic): surface silent failures
+    lastKvError = { where: "kvSet", key, valueBytes: Buffer.byteLength(String(value || "")), msg: String((e && e.message) || e), at: Date.now() };
   }
+}
+
+// TEMP diagnostic state (delete with the probe)
+let lastKvError = null;
+export function kvLastError() {
+  const e = lastKvError;
+  lastKvError = null;
+  return e;
 }
 
 export async function kvPing(timeoutMs = 5000) {
