@@ -169,7 +169,7 @@ cd app && node --import ../eval/chat/register-shim.mjs \
 ## Live links
 - Agentic extractor (HF Space, static, browser-computed):
   https://pm-ai-18-askcart-extractor.static.hf.space/
-- MVP: http://localhost:3000 (this machine) -> second (Bits) Vercel account.
+- MVP (production, suparna2 Vercel account): https://askcart-nine.vercel.app
 
 ## Deploy
 - Agentic extractor: **deployed on Hugging Face** -
@@ -177,6 +177,9 @@ cd app && node --import ../eval/chat/register-shim.mjs \
 - Extractor/evidence API (Vercel, secondary): `extractor/deploy/` ->
   `vercel --prod` (staged artifacts in `extractor/deploy/data/`; re-stage with
   `.venv/bin/python scripts/stage_deploy.py` after the final pipeline).
-- MVP: `app/` is Vercel-ready (Next 15). Set `GEMINI_API_KEY`
-  (+ optional `GEMINI_MODEL`) as env vars on the target Vercel account; without
-  them the guide falls back to the deterministic rule-based follow-ups.
+- MVP: `app/` is Vercel-ready (Next 15) and deployed on the `suparna2`
+  Vercel account (project `askcart`, root directory `app`; git push to `main`
+  auto-deploys to https://askcart-nine.vercel.app). Env vars set on the
+  project: `GEMINI_API_KEYS` pool (+ legacy `GEMINI_API_KEY`), `GEMINI_MODEL`,
+  `GEMINI_RPD`, `AI_MAX_PER_SESSION`; without keys the guide falls back to the
+  deterministic rule-based follow-ups.
