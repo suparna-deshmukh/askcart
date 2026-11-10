@@ -189,5 +189,3 @@ cd app && node --import ../eval/chat/register-shim.mjs \
   makes the analytics dashboard global across serverless instances; fails
   open without it); without keys the guide falls back to the deterministic
   rule-based follow-ups.
-
-<!-- deploy-probe -->
