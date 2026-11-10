@@ -184,3 +184,5 @@ cd app && node --import ../eval/chat/register-shim.mjs \
   project: `GEMINI_API_KEYS` pool (+ legacy `GEMINI_API_KEY`), `GEMINI_MODEL`,
   `GEMINI_RPD`, `AI_MAX_PER_SESSION`; without keys the guide falls back to the
   deterministic rule-based follow-ups.
+
+<!-- deploy-probe -->
