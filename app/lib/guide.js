@@ -280,8 +280,8 @@ const CAT_SYNONYMS = {
   bed: ["Amazon Home"], curtain: ["Amazon Home"], pillow: ["Amazon Home"],
   tv: ["Home Audio & Theater", "All Electronics", "Appliances"],
   television: ["Home Audio & Theater", "All Electronics", "Appliances"],
-  phone: ["Cell Phones & Accessories"], laptop: ["Computers & Accessories"],
-  computer: ["Computers & Accessories"], ac: ["Appliances"], fridge: ["Appliances"],
+  phone: ["Cell Phones & Accessories"], laptop: ["Computers & Accessories", "Computers"],
+  computer: ["Computers & Accessories", "Computers"], ac: ["Appliances"], fridge: ["Appliances"],
   refrigerator: ["Appliances"], mixer: ["Appliances"], blender: ["Appliances"],
   geyser: ["Appliances"], washing: ["Appliances"], machine: ["Appliances"],
   kurti: ["AMAZON FASHION"], saree: ["AMAZON FASHION"], kurta: ["AMAZON FASHION"],
@@ -372,13 +372,35 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     // "fan" inheriting hand fans). Such queries keep their brand/tag
     // option sources; true subject mismatches are still suppressed.
     const giftOrOccasion = hasGiftIntent(query) || !!(parsed.occasion && parsed.occasion !== "gift");
-    if (visCatView.categories.slice(0, 2).some((c) => c.name === "AMAZON FASHION") && !giftOrOccasion) return true;
     const dom = visCatView.categories[0];
-    if (dom && nVis && dom.count / nVis >= 0.5) {
-      const synCats = new Set();
-      for (const tk of parsed.tokens || []) { const sy = CAT_SYNONYMS[tk]; if (sy) sy.forEach((c) => synCats.add(c)); }
-      if (synCats.size && !synCats.has(dom.name)) return true;
-    }
+    const synCats = new Set();
+    for (const tk of parsed.tokens || []) { const sy = CAT_SYNONYMS[tk]; if (sy) sy.forEach((c) => synCats.add(c)); }
+    // 2026-11-10: robust family matching — catalog category names drift
+    // from the synonym table ("Computers" vs "Computers & Accessories"),
+    // and the old exact-equality test mis-fired the guard on ON-TARGET
+    // worlds, suppressing every option source into a bare typed box
+    // (recurring report: "laptop under 50000 for college" T1 had 5 live
+    // brands but zero options). Normalized containment in either
+    // direction accepts renamed/aliased category families; a true subject
+    // mismatch (fan -> hand fans) still has no shared family word.
+    const normCat = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const familyMatch = (name) => {
+      const n = normCat(name);
+      return [...synCats].some((sc) => {
+        const sn = normCat(sc);
+        return sn === n || sn.includes(n) || n.includes(sn);
+      });
+    };
+    // On-target exemption: a dominant family (>=50%) that family-matches
+    // the query subject is an ON-TARGET world — a fashion presence in
+    // top-2 is catalog noise ("laptop under 50000": Computers 67% +
+    // AMAZON FASHION 11%) and must not suppress grounded brand/tag
+    // options. Unknown subjects (nonsense / out-of-catalog queries)
+    // cannot claim on-target, so they keep the legacy top-2 suppression.
+    const onTarget = !!dom && !!nVis && dom.count / nVis >= 0.5 && synCats.size > 0 && familyMatch(dom.name);
+    const fashionTop2 = visCatView.categories.slice(0, 2).some((c) => c.name === "AMAZON FASHION");
+    if (fashionTop2 && !giftOrOccasion && !onTarget) return true;
+    if (dom && nVis && dom.count / nVis >= 0.5 && synCats.size && !familyMatch(dom.name)) return true;
     return false;
   })();
   // §9: answered/asked view for the exit guard (a query-stated occasion

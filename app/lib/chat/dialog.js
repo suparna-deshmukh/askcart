@@ -520,14 +520,43 @@ export async function handleTurn(state, input, ctx) {
     case "explain": {
       const reasons = [];
       const sl = state.slots;
-      if (sl.budgetMax) reasons.push("Under ₹" + sl.budgetMax.toLocaleString("en-IN"));
-      if (sl.occasion && sl.occasion !== "gift") reasons.push("occasion: " + sl.occasion);
-      if (sl.brand) reasons.push("brand: " + sl.brand);
-      if (sl.forWhom) reasons.push("for " + sl.forWhom);
-      if (sl.size) reasons.push("size " + sl.size.toUpperCase());
-      if (sl.recipient) reasons.push("for " + sl.recipient);
+      // 2026-11-10: explain the ACTUAL top pick, not just the slot echo.
+      // The page primes state.last with its first 3 results (and the PDP
+      // sku via context), so the answer cites the item's real price vs
+      // budget, rating volume, brand match and title tokens - the
+      // "why did you pick the first one?" report (generic template).
+      const lastItems = (state.last && Array.isArray(state.last.all)) ? state.last.all : [];
+      const focus = (ctx.context && ctx.context.sku)
+        ? (lastItems.find((r) => r.sku === ctx.context.sku) || ctx.catalog.find((x) => x.sku === ctx.context.sku))
+        : lastItems[0];
+      if (focus) {
+        if (sl.budgetMax && focus.price <= sl.budgetMax) {
+          reasons.push("₹" + focus.price.toLocaleString("en-IN") + " is inside your ₹" + sl.budgetMax.toLocaleString("en-IN") + " budget");
+        }
+        if (focus.rating >= 4 && (focus.num_ratings || 0) > 0) {
+          const rr = focus.num_ratings >= 1000 ? (focus.num_ratings / 1000).toFixed(1) + "k" : String(focus.num_ratings);
+          reasons.push("a " + (Math.round(focus.rating * 10) / 10) + " star rating from " + rr + " ratings");
+        }
+        if (sl.brand && focus.brand && focus.brand.toLowerCase() === String(sl.brand).toLowerCase()) {
+          reasons.push("it's " + focus.brand + ", the brand you asked for");
+        }
+        const qToks = ((state.last && state.last.parsed && state.last.parsed.rawWords) ||
+          (state.q ? String(state.q).toLowerCase().match(/[a-z0-9]+/g) : [])) || [];
+        const titleL = String(focus.title || "").toLowerCase();
+        const hits = qToks.filter((w) => w && w.length >= 3 && !/^(under|over|for|and|the|with|per|not|out)$/i.test(w) && titleL.includes(w));
+        if (hits.length) reasons.push("its title carries " + hits.slice(0, 3).join(", "));
+      }
+      if (!focus || reasons.length < 3) {
+        if (sl.budgetMax && !(focus && focus.price <= sl.budgetMax)) reasons.push("under ₹" + sl.budgetMax.toLocaleString("en-IN"));
+        if (sl.occasion && sl.occasion !== "gift") reasons.push("occasion: " + sl.occasion);
+        if (sl.brand && !(focus && focus.brand && focus.brand.toLowerCase() === String(sl.brand).toLowerCase())) reasons.push("brand: " + sl.brand);
+        if (sl.forWhom) reasons.push("for " + sl.forWhom);
+        if (sl.size) reasons.push("size " + sl.size.toUpperCase());
+        if (sl.recipient) reasons.push("for " + sl.recipient);
+      }
+      const capped = reasons.slice(0, 4);
       act = "explain";
-      text = reasons.length ? T_(lang, "explain", { reasons: reasons.join(" · ") })
+      text = capped.length ? T_(lang, "explain", { reasons: capped.join(" · ") })
         : T_(lang, "explain_none", { q: state.q || "" });
       return finish();
     }

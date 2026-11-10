@@ -67,7 +67,7 @@
   --t-micro: 90ms; --t-base: 150ms; --t-panel: 240ms; --t-hero: 400ms;
 
   /* Layout */
-  --container: 1280px; --gutter: 24px;
+  --container: 1600px; --gutter: 28px;
   --header-h: 68px; --nav-h: 44px; --announce-h: 36px; --tabbar-h: 56px;
 
   /* Category tile themes [from, to, ink] - decorative art only, never text */
@@ -114,7 +114,9 @@ body.largetext { font-size: 16.5px; }
 
 
 /* ---------- Hero + search ---------- */
-.wrap { width: 100%; max-width: 1400px; margin: 0 auto; padding: 20px 28px 80px; }
+/* 2026-11-10: use the full laptop width (1440-1728) with breathable
+   side gutters instead of a 1400px island with dead flanks. */
+.wrap { width: 100%; max-width: 1600px; margin: 0 auto; padding: 20px 32px 80px; }
 .appshell { display: flex; align-items: stretch; min-height: 100vh; }
 .appshell-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 @media (max-width: 1023px) { .appshell { display: block; } }
@@ -167,7 +169,10 @@ body.largetext { font-size: 16.5px; }
 .filter-meta { font-size: 12px; color: var(--faint); margin-left: auto; }
 
 /* ---------- Product cards ---------- */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 12px; }
+/* 2026-11-10: 185px min => 7 columns on a 1470-1512px laptop, 8 on
+   16-inch; a 95-result page fits in fewer rows (less scroll, less
+   "zoomed" feel) while titles keep two-line clamps. */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 12px; }
 /* G12: outcome micro-survey strip */
 .survey { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 2px 12px;
           padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--border);
@@ -285,6 +290,7 @@ body.largetext { font-size: 16.5px; }
 .an-livepill.an-inline { margin: 0 0 14px; }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; animation: pulse 1.6s ease-in-out infinite; flex: none; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+.spin-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--guide); margin-right: 8px; animation: pulse 1.1s ease-in-out infinite; }
 .statgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
 .stat { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 13px 14px 12px; box-shadow: var(--shadow-xs); }
 .stat .k { font-size: 11.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; font-weight: 750; display: flex; align-items: center; gap: 5px; }
@@ -928,12 +934,18 @@ html[lang="hi"] .titem-lbl { line-height: 1.4; }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 @container main (min-width: 720px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
 @container main (min-width: 960px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
-@container main (min-width: 1280px) { .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+/* 2026-11-10: denser laptop ladder (was capped at 5) - full width with
+   breathable gutters, fewer rows per result page. */
+@container main (min-width: 1280px) { .grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@container main (min-width: 1480px) { .grid { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+@container main (min-width: 1680px) { .grid { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
 .grid.grid-compact { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important; gap: 8px; }
 /* results layout: sticky sidebar (desktop) + main column */
 .res-layout { display: grid; grid-template-columns: 1fr; }
 @container main (min-width: 960px) {
-  .res-layout { grid-template-columns: 264px minmax(0, 1fr); gap: 0 28px; align-items: start; }
+  /* 2026-11-10: slimmer sidebar + gap frees a 6th/7th result column on
+     laptop widths (less scroll per page). */
+  .res-layout { grid-template-columns: 232px minmax(0, 1fr); gap: 0 20px; align-items: start; }
 }
 .fside { display: none; }
 @container main (min-width: 960px) {

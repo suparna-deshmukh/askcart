@@ -61,7 +61,7 @@ export function Tile({ item, size = 120, className = "", imageUrl, showInfo = tr
   return (
     <div className={"tile2" + (fluid ? " tile2-fluid" : "") + " " + className}
          style={fluid
-                  ? { width: "100%", aspectRatio: aspect || "1 / 1", borderRadius: 12,
+                  ? { width: "100%", aspectRatio: aspect || "4 / 3", borderRadius: 12,
                       background: url ? "var(--surface)" : `linear-gradient(160deg, var(--cat-${th.c}-1), var(--cat-${th.c}-2))` }
                   : { width: size, height: size, borderRadius: 10, flex: "none",
                       background: url ? "var(--surface)" : `linear-gradient(160deg, var(--cat-${th.c}-1), var(--cat-${th.c}-2))` }}

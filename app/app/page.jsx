@@ -2259,7 +2259,7 @@ function AskCartHome() {
                 <div className="nullmsg">Search hiccup — {s.error}. Try again.</div>
               )}
 
-              {s && !s.error && !s.guide && s.ok === false && (
+              {s && !busy && !s.error && !s.guide && s.ok === false && (
                 <div className="dim" style={{ marginTop: 16 }}>
                   <h3>{s.results.length === 0 ? "No products matched that exactly" : `No exact match for “${s.query}” in the catalogue`}</h3>
                   <div style={{ fontSize: 13.5, color: "var(--sub)", marginBottom: 12 }}>
@@ -2276,6 +2276,12 @@ function AskCartHome() {
                       {EXAMPLES.map((e) => <span key={e} onClick={() => startSearch(e, "example")}>{e}</span>)}
                     </div>
                   )}
+                </div>
+              )}
+
+              {busy && (
+                <div className="dim" style={{ marginTop: 16, fontSize: 13.5 }}>
+                  <span className="spin-dot" aria-hidden="true" />{t(lang, "findingOrder")}
                 </div>
               )}
 
