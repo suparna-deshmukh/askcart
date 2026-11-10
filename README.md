@@ -179,7 +179,8 @@ cd app && node --import ../eval/chat/register-shim.mjs \
   `.venv/bin/python scripts/stage_deploy.py` after the final pipeline).
 - MVP: `app/` is Vercel-ready (Next 15) and deployed on the `suparna2`
   Vercel account (project `askcart`, root directory `app`; git push to `main`
-  auto-deploys to https://askcart-nine.vercel.app). Env vars set on the
+  auto-deploys to https://askcart-nine.vercel.app; project protection
+  mirrors insightextractor: all_except_custom_domains). Env vars set on the
   project: `GEMINI_API_KEYS` pool (+ legacy `GEMINI_API_KEY`), `GEMINI_MODEL`,
   `GEMINI_RPD`, `AI_MAX_PER_SESSION`; without keys the guide falls back to the
   deterministic rule-based follow-ups.
