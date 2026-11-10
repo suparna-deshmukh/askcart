@@ -195,7 +195,7 @@ export async function POST(req) {
   // (2026-11-06 fix) the record block used to sit AFTER the return -
   // dead code - so refine calls were never in the analytics ledger.
   try {
-    record("ai_call", {
+    await record("ai_call", {
       kind: "refine", via: via || "rules",
       question: body.question !== false,
       key_idx: (out && out.ai && out.ai.keyIdx) ?? null,
@@ -203,7 +203,7 @@ export async function POST(req) {
       session_id: String(body.session_id || "").slice(0, 40) || undefined,
     });
     if (out && out.ai && out.ai.rotatedFrom != null) {
-      record("ai_key_exhausted", { key_idx: out.ai.rotatedFrom, reason: "rpd_or_quota", kind: "refine" });
+      await record("ai_key_exhausted", { key_idx: out.ai.rotatedFrom, reason: "rpd_or_quota", kind: "refine" });
     }
   } catch { /* analytics must never break refine */ }
   return NextResponse.json({

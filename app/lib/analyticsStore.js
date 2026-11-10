@@ -420,7 +420,7 @@ function persist(st, env) {
   }, 500);
 }
 
-export function record(type, payload = {}, env = null) {
+export async function record(type, payload = {}, env = null) {
   const st = load(env);
   if (!st.outcome) st.outcome = { yes: 0, no: 0, reasons: {} }; // hot-reload safety
   const ev = { type, at: Date.now(), payload };
@@ -606,9 +606,11 @@ export function record(type, payload = {}, env = null) {
   capMap(st.queries); capMap(st.guide); capMap(st.cats); capMap(st.brands); capMap(st.cohorts); capMap(st.filters); capMap(st.sessions);
   capMap(st.products); capMap(st.interests); capMap(st.chatSources);
   persist(st, env);
-  // Fire-and-forget: the pooled KV queue serializes bursts; the last write
-  // carries the full local state, so rapid events can't be lost.
-  if (kvEnabled()) syncToRedis(st, env).catch(() => {});
+  // Awaited: Vercel suspends the instance as soon as the response is sent,
+  // so a fire-and-forget sync would be killed mid-write and the shared
+  // snapshot would never advance (2026-11-10 diagnosis). syncToRedis is
+  // internally fail-open — it never throws.
+  if (kvEnabled()) await syncToRedis(st, env);
   return ev;
 }
 

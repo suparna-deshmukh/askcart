@@ -127,7 +127,7 @@ export async function POST(req) {
   try {
     const via = decision.planner || (mode === "llm" ? "gemini" : null);
     if (via || body.planner === true) {
-      record("ai_call", {
+      await record("ai_call", {
         kind: "plan", via: via || "rules",
         key_idx: (decision.plannerAi && decision.plannerAi.keyIdx) ?? null,
         cached: !!(decision.plannerAi && decision.plannerAi.cached),
@@ -136,7 +136,7 @@ export async function POST(req) {
         turn,
       });
       if (decision.plannerAi && decision.plannerAi.rotatedFrom != null) {
-        record("ai_key_exhausted", { key_idx: decision.plannerAi.rotatedFrom, reason: "rpd_or_quota", kind: "planner" });
+        await record("ai_key_exhausted", { key_idx: decision.plannerAi.rotatedFrom, reason: "rpd_or_quota", kind: "planner" });
       }
     }
   } catch { /* analytics must never break the guide */ }

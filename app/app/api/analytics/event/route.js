@@ -93,6 +93,9 @@ export async function POST(req) {
     return NextResponse.json({ ok: false, error: "bad session id" }, { status: 400 });
   }
   const env = body.env === "sim" ? "sim" : null;
-  record(type, payload, env);
+  // Awaited: the shared-snapshot sync must finish before the response or
+  // Vercel suspends the instance mid-write (fire-and-forget was silently
+  // losing every analytics event on the serverless runtime).
+  await record(type, payload, env);
   return NextResponse.json({ ok: true });
 }
