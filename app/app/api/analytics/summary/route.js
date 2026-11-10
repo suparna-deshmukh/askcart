@@ -15,7 +15,7 @@ export async function GET(req) {
   const url = new URL(req.url);
   const env = url.searchParams.get("env") === "sim" ? "sim" : null;
   const range = url.searchParams.get("range") || "live";
-  if (env === "sim" || range === "live") return NextResponse.json(snapshot(env));
+  if (env === "sim" || range === "live") return NextResponse.json(await snapshot(env));
   const H = 3600000, D = 86400000;
   if (range === "1h" || range === "24h") {
     const span = range === "1h" ? H : D;
@@ -24,16 +24,16 @@ export async function GET(req) {
       ok: true, range,
       window: [to - span, to],
       previousWindow: [to - 2 * span, to - span],
-      current: windowStats(to - span, to, env),
-      previous: windowStats(to - 2 * span, to - span, env),
+      current: await windowStats(to - span, to, env),
+      previous: await windowStats(to - 2 * span, to - span, env),
     });
   }
   if (range === "all") {
     return NextResponse.json({
       ok: true, range: "all",
-      snapshot: snapshot(env),
-      current: windowStats(0, Date.now(), env),
+      snapshot: await snapshot(env),
+      current: await windowStats(0, Date.now(), env),
     });
   }
-  return NextResponse.json(snapshot(env));
+  return NextResponse.json(await snapshot(env));
 }

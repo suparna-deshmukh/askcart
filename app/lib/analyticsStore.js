@@ -18,6 +18,7 @@
 
 import fs from "fs";
 import path from "path";
+import { kvEnabled, kvGet, kvSet } from "./kv.js";
 
 const MAX_EVENTS = 500;
 const MAX_ORDERS = 50;
@@ -97,11 +98,115 @@ function readLog(env) {
   } catch { return []; }
 }
 
+// Vercel can't write the JSONL file (read-only cwd), so range windows fall
+// back to the shared 500-event ring (it is globally synced when Redis is on).
+function ringLines(env) {
+  const st = load(env);
+  return (st.events || []).map((e) => {
+    const p = e.payload || {};
+    const o = { t: e.at, type: e.type };
+    if (p.session_id) o.s = String(p.session_id).slice(0, 40);
+    if (p.query) o.q = String(p.query).slice(0, 60);
+    if (p.category) o.c = String(p.category).slice(0, 40);
+    if (p.brand) o.b = String(p.brand).slice(0, 40);
+    if (p.sku) o.k = String(p.sku).slice(0, 40);
+    if (p.total !== undefined) o.v = Number(p.total) || 0;
+    if (p.source) o.src = String(p.source).slice(0, 24);
+    if (p.n_results !== undefined) o.n = Number(p.n_results) || 0;
+    if (p.turn) o.tr = Number(p.turn) || 0;
+    return o;
+  });
+}
+
+// ---------------- shared KV sync (Upstash) ----------------
+// The snapshot is the all-time source of truth. On Vercel every instance
+// starts empty, so the first read hydrates from the shared store and every
+// burst of events pushes a debounced snapshot back. If two instances write
+// concurrently, the snapshot with the newer lastEventAt wins; the live event
+// ring is unioned either way so the dashboard feed never loses events.
+// Everything fails open — Redis problems must never break recording.
+
+const hydrated = {};
+
+function stateKey(env) {
+  return "askcart:state:" + (env === "sim" ? "sim" : "public");
+}
+
+function lastEventAt(st) {
+  const evs = st && st.events ? st.events : [];
+  return evs.length ? evs[evs.length - 1].at : 0;
+}
+
+function isFreshState(st) {
+  const t = st && st.totals;
+  return !st || !t || (!t.searches && !t.orders && !t.onboardingDone);
+}
+
+function unionEvents(a, b) {
+  const seen = new Set();
+  const out = [];
+  for (const src of [a, b]) {
+    for (const e of (src && src.events) || []) {
+      const p = e.payload || {};
+      const k = e.at + "|" + e.type + "|" + (p.session_id || "") + "|" + (p.query || "");
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(e);
+    }
+  }
+  out.sort((x, y) => x.at - y.at);
+  return out.slice(-MAX_EVENTS);
+}
+
+function adoptInto(st, saved) {
+  const ours = (st.events || []).slice();
+  Object.assign(st, saved);
+  st.totals = { ...fresh().totals, ...(st.totals || {}) };
+  st.outcome = { ...fresh().outcome, reasons: {}, ...(st.outcome || {}) };
+  st.outcome.reasons = { ...(st.outcome.reasons || {}) };
+  st.events = unionEvents({ events: ours }, { events: saved.events || [] });
+  st.orders = (st.orders || []).slice(-MAX_ORDERS);
+  sanitize(st);
+}
+
+async function hydrate(env) {
+  const key = env === "sim" ? "sim" : "public";
+  if (!kvEnabled() || hydrated[key]) return;
+  hydrated[key] = true;
+  try {
+    const raw = await kvGet(stateKey(env));
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (!saved || typeof saved !== "object") return;
+    const st = load(env);
+    if (isFreshState(st) || lastEventAt(saved) > lastEventAt(st)) {
+      adoptInto(st, saved);
+      persist(st, env);
+    }
+  } catch { /* start fresh */ }
+}
+
+async function syncToRedis(st, env) {
+  if (!kvEnabled()) return;
+  try {
+    const raw = await kvGet(stateKey(env));
+    let remote = null;
+    if (raw) { try { remote = JSON.parse(raw); } catch { remote = null; } }
+    if (remote && !isFreshState(remote)) {
+      const remoteNewer = lastEventAt(remote) > lastEventAt(st);
+      if (remoteNewer) adoptInto(st, remote);
+      else st.events = unionEvents(st, remote);
+    }
+    await kvSet(stateKey(env), JSON.stringify(st));
+  } catch { /* fail open */ }
+}
+
 // Aggregate one [from, to] window from the JSONL log. Pure function of
 // the log: counts per type, unique sessions, order value, top lists,
 // per-bucket activity, and the assistant-adoption session predicates.
-export function windowStats(fromMs, toMs, env = null) {
-  const lines = readLog(env).filter((l) => l.t >= fromMs && l.t <= toMs);
+export async function windowStats(fromMs, toMs, env = null) {
+  const fileLines = readLog(env);
+  const lines = (fileLines.length ? fileLines : ringLines(env)).filter((l) => l.t >= fromMs && l.t <= toMs);
   const types = {};
   const sessions = new Set();
   const qMap = new Map(), cMap = new Map(), kMap = new Map(), srcMap = new Map();
@@ -501,10 +606,14 @@ export function record(type, payload = {}, env = null) {
   capMap(st.queries); capMap(st.guide); capMap(st.cats); capMap(st.brands); capMap(st.cohorts); capMap(st.filters); capMap(st.sessions);
   capMap(st.products); capMap(st.interests); capMap(st.chatSources);
   persist(st, env);
+  // Fire-and-forget: the pooled KV queue serializes bursts; the last write
+  // carries the full local state, so rapid events can't be lost.
+  if (kvEnabled()) syncToRedis(st, env).catch(() => {});
   return ev;
 }
 
-export function snapshot(env = null) {
+export async function snapshot(env = null) {
+  await hydrate(env);
   const st = load(env);
   const T = st.totals;
   const funnel = {
