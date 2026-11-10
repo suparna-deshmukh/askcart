@@ -178,11 +178,16 @@ cd app && node --import ../eval/chat/register-shim.mjs \
   `vercel --prod` (staged artifacts in `extractor/deploy/data/`; re-stage with
   `.venv/bin/python scripts/stage_deploy.py` after the final pipeline).
 - MVP: `app/` is Vercel-ready (Next 15) and deployed on the `suparna2`
-  Vercel account (project `askcart`, root directory `app`; git push to `main`
-  auto-deploys to https://askcart-nine.vercel.app; project protection
-  mirrors insightextractor: all_except_custom_domains). Env vars set on the
-  project: `GEMINI_API_KEYS` pool (+ legacy `GEMINI_API_KEY`), `GEMINI_MODEL`,
-  `GEMINI_RPD`, `AI_MAX_PER_SESSION`; without keys the guide falls back to the
-  deterministic rule-based follow-ups.
+  Vercel account (project `askcart`; git push to `main` auto-deploys to
+  https://askcart-nine.vercel.app; project protection mirrors
+  insightextractor: all_except_custom_domains). Project build config (set
+  via the Vercel API on 2026-11-10 after deployments shipped with an empty
+  build because the import never recorded the root directory): framework
+  `nextjs`, rootDirectory `app`. Env vars set on the project:
+  `GEMINI_API_KEYS` pool (+ legacy `GEMINI_API_KEY`), `GEMINI_MODEL`,
+  `GEMINI_RPD`, `AI_MAX_PER_SESSION`, `ASKCARD_REDIS_URL` (Upstash Redis —
+  makes the analytics dashboard global across serverless instances; fails
+  open without it); without keys the guide falls back to the deterministic
+  rule-based follow-ups.
 
 <!-- deploy-probe -->
