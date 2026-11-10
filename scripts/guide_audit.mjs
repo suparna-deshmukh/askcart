@@ -31,6 +31,7 @@ const { loadCatalog } = await import("../app/lib/catalog.js");
 const { search, parseQuery } = await import("../app/lib/search.js");
 const { decideGuide, buildIntentView, hasGiftIntent } = await import("../app/lib/guide.js");
 const { validateGuideQuestion, validateRecommendationRail, itemRelation, guardState, optionKind, recountOption, itemMatchesOption, isEscape } = await import("../app/lib/guard.js");
+const { CAT_SYNONYMS } = await import("../app/lib/guide.js");
 
 const catalog = loadCatalog();
 const proj = (rs) => rs.map(r => ({ sku: r.sku, title: r.title, price: r.price, brand: r.brand, category: r.category, tags: r.tags, intent: r.intent }));
@@ -84,11 +85,53 @@ for (const [c, items] of topCats) {
     ext.push(t);
   }
 }
-// 200 journeys: 60 hand x {subflow0, typed} = 120 + 80 catalog x tree0 = 200
+// ---- journey sets ---------------------------------------------------------
+// Set A (frozen 200, original CI set): 60 hand x {subflow0, typed} = 120
+// + 80 catalog x tree0 = 200.
+// Set B (new 200, 2026-11-10): failure-state biased - priced/model/spec
+// queries, fresh dead-ends and Devanagari, and ESCAPE-FIRST journeys: the
+// escape chip ("No preference / Any ... / Not sure / Unisex") does not
+// narrow the world, so the chain runs long and dries out - exactly the
+// turns the top-value filter fallback (guide.js) must keep alive with
+// real options. 60 hand x {esc, typed} = 120 + 80 catalog (disjoint
+// slice) x esc = 200.
+const SET = (process.argv[2] || "a").toLowerCase() === "b" ? "b" : "a";
+const handB = [
+  ["shadi gift under 2000", "gift"], ["bhai ke liye gift", "gift"], ["gift for colleague", "gift"],
+  ["anniversary gift for wife", "gift"], ["birthday gift for 10 year old", "gift"], ["rakhi gift under 500", "gift"],
+  ["corporate gift hamper", "gift"], ["uphaar ke liye kuch", "gift"], ["gift for dad under 3000", "gift"],
+  ["wedding gift for couple", "gift"], ["kuch gift dena hai", "gift"], ["shaadi me lena hai", "gift"],
+  ["smart watch under 1500", "priced"], ["saree under 1000", "priced"], ["kurti under 800", "priced"],
+  ["shoes under 1200", "priced"], ["perfume under 1000", "priced"], ["backpack under 2000", "priced"],
+  ["sandal under 800", "priced"], ["watch under 2500", "priced"], ["t-shirt under 400", "priced"],
+  ["bedsheet under 900", "priced"], ["cookware set under 3000", "priced"], ["phone case under 500", "priced"],
+  ["water purifier", "product"], ["induction stove", "product"], ["gaming keyboard", "product"],
+  ["wall clock", "product"], ["kitchen scale", "product"], ["school bag", "product"],
+  ["yoga mat", "product"], ["desk lamp", "product"],
+  ["samsung galaxy m34", "model"], ["bo at rockerz 451", "model"], ["hp pavilion 15", "model"],
+  ["oneplus 12r", "model"], ["lg 8kg washing machine", "spec"], ["23 inch tv", "spec"],
+  ["5 star ac 1.5 ton", "spec"], ["geyser 3 liter", "spec"], ["microwave 20 liter", "spec"],
+  ["air fryer 4 liter", "spec"],
+  ["सब्जी की टोकरी", "hi"], ["दुपट्टा", "hi"], ["ब्लाज़र", "hi"], ["पapai ke liye gift", "hi"],
+  ["चाची के लिए उपहार", "hi"], ["बेटी का जन्मदिन गिफ्ट", "hi"], ["घर के लिए दीया", "hi"],
+  ["साले की शादी", "hi"],
+  ["headphne", "typo"], ["laptopt", "typo"], ["smartwath", "typo"],
+  ["bluetooh speaker", "typo"], ["kurti for ladkai", "typo"],
+  ["vintage vinyl record player", "deadend"], ["electric scooter", "deadend"], ["drone camera", "deadend"],
+  ["smart door lock", "deadend"], ["portable generator", "deadend"],
+];
+const TYPEDB = { gift: "under 1500", priced: "white", product: "black", model: "new",
+                 spec: "5 star", hi: "ke liye", typo: "premium", deadend: "something else" };
 const journeys = [];
-hand.forEach((q, i) => journeys.push({ query: q, shape: SHAPES[i], plan: "subflow0" }));
-hand.forEach((q, i) => journeys.push({ query: q, shape: SHAPES[i], plan: "typed", typed: TYPED[SHAPES[i]] }));
-for (const q of ext.slice(0, 80)) journeys.push({ query: q, shape: "catalog", plan: "tree0" });
+if (SET === "a") {
+  hand.forEach((q, i) => journeys.push({ query: q, shape: SHAPES[i], plan: "subflow0" }));
+  hand.forEach((q, i) => journeys.push({ query: q, shape: SHAPES[i], plan: "typed", typed: TYPED[SHAPES[i]] }));
+  for (const q of ext.slice(0, 80)) journeys.push({ query: q, shape: "catalog", plan: "tree0" });
+} else {
+  for (const [q, shape] of handB) journeys.push({ query: q, shape, plan: "esc" });
+  for (const [q, shape] of handB) journeys.push({ query: q, shape, plan: "typed", typed: TYPEDB[shape] });
+  for (const q of ext.slice(80, 160)) journeys.push({ query: q, shape: "catalog", plan: "esc" });
+}
 
 // ---- chip -> search opts + guide slots (client parity, page.jsx applyAnswer)
 function chipOpts(chip, gtype, results) {
@@ -140,8 +183,25 @@ function worldLeakKind(q, vis, d) {
   // is a top gift category: "shadi gift" = kurtis), not a leak.
   const parsed = parseQuery(q);
   if (hasGiftIntent(q) || !!(parsed.occasion && parsed.occasion !== "gift")) return null;
-  const cats = buildIntentView(vis).categories.slice(0, 2).map(c => c.name);
+  const catView = buildIntentView(vis);
+  const cats = catView.categories.slice(0, 2).map(c => c.name);
   if (!cats.includes("AMAZON FASHION")) return null;
+  // 2026-11-10: mirror the policy's on-target family-match exemption too —
+  // a dominant family (>=50%) that family-matches the query subject via
+  // CAT_SYNONYMS is on-target (a fashion presence in top-2 is catalog
+  // noise, e.g. 1 blanket filed in AMAZON FASHION under an Amazon Home
+  // world). Same normalized containment in either direction as guide.js.
+  const dom = catView.categories[0];
+  if (dom && vis.length && dom.count / vis.length >= 0.5) {
+    const synCats = new Set();
+    for (const tk of parsed.tokens || []) { const sy = CAT_SYNONYMS[tk]; if (sy) sy.forEach(c => synCats.add(c)); }
+    const norm = (x) => String(x).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const n = norm(dom.name);
+    for (const sc of synCats) {
+      const sn = norm(sc);
+      if (sn === n || sn.includes(n) || n.includes(sn)) return null;
+    }
+  }
   const kinds = (d.optionCounts || []).map(o => optionKind(d, o.label));
   return kinds.includes("brand") || kinds.includes("tag") ? "fashion brand/tag leak" : null;
 }
@@ -226,6 +286,18 @@ for (const j of journeys) {
     const l1 = await step(cur, { kind: "typed", text: j.typed }, 1, q, j);
     const l2 = (l1.d.ask ? (l1.d.optionCounts || []) : []).filter(o => o.count > 0);
     if (l1.d.ask && l2.length) await step(l1, { kind: "chip", label: l2[0].label }, 2, q, j);
+  } else if (j.plan === "esc") {
+    // Escape-first (set B): the escape chip keeps the whole world, so the
+    // ladder runs dry and the top-value filter fallback must answer with
+    // options. Up to 3 answered questions.
+    let l = cur;
+    for (let depth = 1; depth <= 3 && l.d.ask; depth++) {
+      const opts = l.d.optionCounts || [];
+      const pick = opts.find(o => isEscape(o.label) && (o.count || 0) > 0)
+        || opts.find(o => (o.count || 0) > 0);
+      if (!pick) break;
+      l = await step(l, { kind: "chip", label: pick.label }, depth, q, j);
+    }
   } else { // tree0: first leaf, 3 levels
     let l = await step(cur, { kind: "chip", label: live[0].label }, 1, q, j);
     for (let depth = 2; depth <= 3 && l.d.ask; depth++) {
@@ -285,5 +357,5 @@ if (total > 0) {
   for (const v of violations) console.error("  " + v);
   process.exit(1);
 }
-console.log(`journeys: ${journeys.length}/${journeys.length} green, moments: ${moments}, guard fallbacks this run: ${gstate.fallbacks}, relax-expansions (informational): ${narrowGrowths}`);
-console.log("GUIDE AUDIT OK: 200/200 journeys, 10-anchor rail audit, 0 ungrounded / re-ask / zero-count / world-guard violations");
+console.log(`journeys: ${journeys.length}/${journeys.length} green (set ${SET}), moments: ${moments}, guard fallbacks this run: ${gstate.fallbacks}, relax-expansions (informational): ${narrowGrowths}`);
+console.log(`GUIDE AUDIT OK: set ${SET} - ${journeys.length} journeys, 10-anchor rail audit, 0 ungrounded / re-ask / zero-count / world-guard violations`);

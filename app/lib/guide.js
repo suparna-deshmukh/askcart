@@ -260,7 +260,9 @@ const TEMPLATES = {
 
 
 // Query-subject -> category synonyms for intent-ranked rescue options.
-const CAT_SYNONYMS = {
+// Exported: the audit's world-leak mirror must use the SAME table as
+// the policy's worldGuard on-target exemption (single source of truth).
+export const CAT_SYNONYMS = {
   baby: ["Baby", "Toys & Games"], shower: ["Baby", "Toys & Games"],
   khilona: ["Toys & Games", "Baby"], toy: ["Toys & Games", "Baby"],
   toys: ["Toys & Games", "Baby"], puzzle: ["Toys & Games"], game: ["Video Games", "Toys & Games"],
@@ -498,6 +500,173 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   const effN = (Array.isArray(context.visible) && context.visible.length)
     ? context.visible.length : nResults;
   const isRescue = effN < 2;
+  // Top-value filter fallback (2026-11-10, user requirement): every turn
+  // must end in a question; when the policy (ladder + guaranteed tiers)
+  // can only produce a question WITHOUT options (the typed-only last
+  // resort) or no question at all (dry ladder), the turn still gets a
+  // question - about a PREEXISTING filter, with the FEW HIGHEST VALUES
+  // of that filter in the visible set as options:
+  //   brand -> category -> usage tags -> for-whom -> size -> capacity
+  //   -> price band.
+  // ONLY a fallback: it runs when the main path produced a
+  // questionless/optionless result and never replaces a policy decision
+  // that already carries options. Every candidate passes the full exit
+  // guard (label grounding, exact recount over the visible set, no
+  // re-ask, facet eligibility), so an already-asked/answered filter is
+  // skipped and the next one is tried. If no filter still holds >=2
+  // live values (or the world has <2 items), the original result stands
+  // - the typed question or the honest destination/not-found stop.
+  const topValueFallback = () => {
+    if (effN < 2) return null; // 0-1 item worlds hold no narrowing value
+    const smallWorld = nVis < 150;
+    const minCt = smallWorld ? 1 : 2; // narrowed worlds keep count-1 chips
+    const strong = (vals) => (vals || []).filter((v) => (v.count || 0) >= minCt).slice(0, 3);
+    const mk = (type, subType, optionCounts, detail) => {
+      const q = {
+        ask: true, type, options: optionCounts.map((c) => c.label), optionCounts,
+        question: TEMPLATES[type], subType: subType || null,
+        reason: "topvalue-fallback: " + detail + " (no grounded facet left on this turn)",
+        stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue },
+      };
+      const g = validateGuideQuestion(q, iv, visItems, answeredEff, [...prev]);
+      return g.ok ? g.question : null;
+    };
+    // 1) brand - the trust filter; top-3 brands by count in the intent
+    //    view, counts recounted over the visible set (guard parity).
+    //    Skipped on the journey's first question (brand is a refinement,
+    //    never the opener) and when the query names the brand (a single
+    //    brand >=50% is a re-ask of the query itself).
+    if (!worldGuard && !statedBrand && !prev.has("brand") && !prev.has("any:brands") &&
+        answeredEff.brand == null && !(context.turn <= 1 && prev.size === 0)) {
+      const brands = strong(iv.brands);
+      if (brands.length >= 2) {
+        const counts = brands.map((b) => ({ label: b.name, count: visItems.filter((r) => (r.brand || "") === b.name).length }));
+        counts.push({ label: "No preference - best rated", count: nVis });
+        const q = mk("brand", null, counts, "highest brand values in the visible set (" +
+          counts.map((c) => c.label + ":" + c.count).join(", ") + ")");
+        if (q) return q;
+      }
+    }
+    // Candidates 3-7 (usage tags -> for-whom -> size -> capacity ->
+    // price band) form the shared tail: reached when the category
+    // candidate is skipped (single family / electronics-department
+    // split), fails the guard, or simply yields to the next filter.
+    const askTail = () => {
+      // 3) usage tags - the tag filter; top-3 non-generic tags. Generic
+      //    tags (gift/new/best/sale/offer/deal) and, once the occasion
+      //    facet is settled, occasion-mapped tags are excluded up front
+      //    (the guard rejects them per label).
+      if (!worldGuard && !prev.has("any:tags") && !prev.has("occasion") &&
+          answeredEff.occasion == null) {
+        const OCC_TAGS = new Set([...Object.values(OCCASION_TAG), ...Object.values(FESTIVAL_TAG), "party"]);
+        const badTag = (nm) => /^(gift|new|best|sale|offer|deal)$/i.test(nm) ||
+          (answeredEff.occasion != null && OCC_TAGS.has(OCCASION_TAG[nm] || FESTIVAL_TAG[nm] || (nm === "Party / Event" ? "party" : nm)));
+        const tags = strong((iv.tags || []).filter((t) => !badTag(t.name)));
+        if (tags.length >= 2) {
+          const counts = tags.map((t) => ({ label: t.name, count: visItems.filter((r) => (r.tags || []).includes(t.name)).length }));
+          const q = mk("any", "tags", counts, "highest usage-tag values in the visible set (" +
+            counts.map((c) => c.label + ":" + c.count).join(", ") + ")");
+          if (q) return q;
+        }
+      }
+      // 4) for-whom - the recipient filter; top gender lines by visible
+      //    count (item-based title tokens, same predicate as the guard).
+      if (!prev.has("for_whom") && answeredEff.forWhom == null) {
+        const fw = forWhomOptions(visItems, nVis).filter((o) => o.count > 0 && !/^unisex/i.test(o.label));
+        const top3 = strong(fw.slice().sort((a, b) => b.count - a.count));
+        if (top3.length >= 2) {
+          const counts = top3.map((o) => ({ label: o.label, count: o.count }));
+          counts.push({ label: "Unisex / any", count: nVis });
+          const q = mk("for_whom", null, counts, "highest for-whom values in the visible set (" +
+            counts.map((c) => c.label + ":" + c.count).join(", ") + ")");
+          if (q) return q;
+        }
+      }
+      // 5) size - the fit filter; top-3 sizes by visible count. Labels
+      //    must exist in the intent-scoped view too (guard rule 1).
+      if (!prev.has("size") && answeredEff.size == null) {
+        const ivSizeLabels = new Set(sizeOptions(iv.items, iv.n).map((o) => o.label));
+        const sz = strong(sizeOptions(visItems, nVis).filter((o) => !String(o.label).startsWith("Any") && ivSizeLabels.has(o.label)).sort((a, b) => b.count - a.count));
+        if (sz.length >= 2) {
+          const counts = sz.map((o) => ({ label: o.label, count: o.count }));
+          counts.push({ label: "Any size", count: nVis });
+          const q = mk("size", null, counts, "highest size values in the visible set (" +
+            counts.map((c) => c.label + ":" + c.count).join(", ") + ")");
+          if (q) return q;
+        }
+      }
+      // 6) capacity - the spec filter (tonnage/kg/litres); top-3 by
+      //    count. Labels must exist in the intent-scoped view too (guard
+      //    rule 1).
+      if (!prev.has("capacity") && answeredEff.capacity == null) {
+        const ivCapLabels = new Set(capacityOptions(iv.items, iv.n).map((o) => o.label));
+        const cp = strong(capacityOptions(visItems, nVis).filter((o) => !/^any$/i.test(o.label) && ivCapLabels.has(o.label)));
+        if (cp.length >= 2) {
+          const counts = cp.map((o) => ({ label: o.label, count: o.count }));
+          counts.push({ label: "Any", count: nVis });
+          const q = mk("capacity", null, counts, "highest capacity values in the visible set (" +
+            counts.map((c) => c.label + ":" + c.count).join(", ") + ")");
+          if (q) return q;
+        }
+      }
+      // 7) price band - the budget filter; the set's own quantile split.
+      //    Only "Under"/range bands (both map to an applicable cap, same
+      //    rule as the tier ladder) - and only when the budget facet is
+      //    still open: sub-budget bands after a stated "under 2000" read
+      //    as a bad question (same rule as the tier ladder's bands
+      //    source).
+      {
+        const P = iv.pricePIntent || iv.priceP || {};
+        if (P.p25 > 0 && P.p75 > P.p25 && parsed.budgetMax === null && !facetDone("budget")) {
+          const p25 = Math.round(P.p25).toLocaleString("en-IN");
+          const p75 = Math.round(P.p75).toLocaleString("en-IN");
+          const counts = [
+            { label: `Under ₹${p25}`, count: countBudget(visItems, nVis, `Under ₹${p25}`) },
+            { label: `₹${p25} – ₹${p75}`, count: countBudget(visItems, nVis, `₹${p25} – ₹${p75}`) },
+          ].filter((o) => o.count >= minCt);
+          if (counts.length >= 2) {
+            const q = mk("any", "bands", counts, "highest price-band values in the visible set (" +
+              counts.map((c) => c.label + ":" + c.count).join(", ") + ")");
+            if (q) return q;
+          }
+        }
+      }
+      return null;
+    };
+    // 2) category - product-family filter; top-3 families (display
+    //    labels) + the safe "Any category" escape (a tap never zeroes
+    //    the set). A near-single-family set (>=90%) has no family
+    //    choice to offer, and a split where every family is an
+    //    electronics department (F6/F7) is a catalog-filing artifact,
+    //    not a shopper choice - both fall through to the tail.
+    if (dominantShare < 0.9 && !prev.has("category")) {
+      const cats = strong(iv.categories);
+      if (cats.length >= 2) {
+        const DEPT_DEPTS = ["All Electronics", "Cell Phones & Accessories", "Automotive",
+                            "Home Audio & Theater", "Appliances"];
+        if (!cats.every((c) => DEPT_DEPTS.includes(c.name))) {
+          const names = rankCategoriesByIntent(cats.map((c) => c.name), query);
+          const catCountVis = new Map();
+          for (const r of visItems) if (r.category) catCountVis.set(r.category, (catCountVis.get(r.category) || 0) + 1);
+          const counts = names.map((nm) => ({ label: displayCat(nm), count: catCountVis.get(nm) || 0 }));
+          counts.push({ label: "Any category", count: nVis });
+          const q = mk("category", null, counts, "highest category values in the visible set (" +
+            counts.map((c) => c.label + ":" + c.count).join(", ") + ")");
+          if (q) return q;
+        }
+      }
+    }
+    return askTail();
+  };
+
+  // Every terminal result passes through here: a result that already
+  // carries options is untouched (the policy's decision stands); a
+  // questionless/optionless result gets ONE chance at a top-value
+  // filter question before it ships.
+  const emit = (r) => {
+    if (r && r.ask && (r.options || []).length > 0) return r;
+    return topValueFallback() || r;
+  };
   // A resolved set is genuinely multi-family when a second family holds
   // >=20% of the candidates AND clearly trails the first by >=15 points
   // (charger: 61%/23% yes; soap: 33%/31% no - "options overlap";
@@ -530,9 +699,9 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   // out-of-catalogue product type. Vague browses and gift intents keep
   // disambiguation.
   if (isRescue && !vague && !selfRef && !hasGiftIntent(query)) {
-    return { ask: false, type: null, options: [], question: "",
+    return emit({ ask: false, type: null, options: [], question: "",
              reason: "concrete search not resolved by the catalogue - honest not-found, no category quiz on a dead end",
-             stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue } };
+             stats: { n: stats.n, topCategory: dominant ? dominant.name : null, dominantShare, flow, rescue: isRescue } });
   }
   const eligible = ladder.filter((t) => {
     if (prev.has(t)) return false;
@@ -769,11 +938,11 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   // 1 on a resolved multi-token search - the shopper is not at a pickable
   // one-item grid).
   if (effN <= 1 && prev.size >= 1) {
-    return { ask: false, type: null, options: [], question: "",
+    return emit({ ask: false, type: null, options: [], question: "",
              reason: effN === 0
                ? "set exhausted (0 items) - this answer path holds nothing"
                : "destination reached (1 item left - your pick)",
-             stats };
+             stats });
   }
 
   // Guaranteed first question (product thesis: every search is guided from
@@ -1024,8 +1193,8 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
 
   if (!order.length) {
     const fb = firstQuestionFallback();
-    if (fb) return fb;
-    return { ask: false, type: null, options: [], question: "", reason: "no eligible facet left (all constraints present or data-thin)", stats };
+    if (fb) return emit(fb);
+    return emit({ ask: false, type: null, options: [], question: "", reason: "no eligible facet left (all constraints present or data-thin)", stats });
   }
 
   // Sparse-question guard (persona sim 2026-11-04: 131/3000 journeys were
@@ -1200,9 +1369,9 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   for (const t of ordered) if (grounded.has(t)) { chosen = { type: t, ...grounded.get(t) }; break; }
   if (!chosen) {
     const fb = firstQuestionFallback();
-    if (fb) return fb;
-    return { ask: false, type: null, options: [], question: "",
-             reason: "no grounded facet left (every eligible facet has <2 live options)", stats };
+    if (fb) return emit(fb);
+    return emit({ ask: false, type: null, options: [], question: "",
+             reason: "no grounded facet left (every eligible facet has <2 live options)", stats });
   }
 
   type = chosen.type;
@@ -1237,8 +1406,8 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
   // must equal a recount over the visible set, no re-ask. On a violation
   // the typed-only fallback survives (the typed escape always does).
   const gv = validateGuideQuestion(decided, iv, visItems, answeredEff, [...prev]);
-  if (gv.ok) return gv.question;
-  return {
+  if (gv.ok) return emit(gv.question);
+  return emit({
     ...decided,
     options: [],
     optionCounts: [],
@@ -1246,5 +1415,5 @@ const isWearableQ = (q) => WEARABLE_Q.test(q) || DEVANAGARI_WEARABLE.test(q);
     subType: null,
     planPhrase: null,
     reason: gv.question.reason,
-  };
+  });
 }

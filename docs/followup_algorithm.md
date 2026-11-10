@@ -367,6 +367,65 @@ analytics (`llm` vs `fallback`). Before the fix a slow LLM cost up to
 ~32 s (45 s default timeout + 4-attempt backoff) before the template
 landed.
 
+### 3.9 Top-value filter fallback (2026-11-10)
+
+**Requirement:** every turn, for every kind of query, ends in a question.
+The policy's terminal states that violate the spirit of that — the
+typed-only last resort (a question with **no options**) and the dry-ladder
+`ask:false` exits — are caught by a final fallback layer. It is ONLY a
+fallback: it runs when the main path produced a questionless or
+optionless result, and never replaces a policy decision that already
+carries options.
+
+**Mechanism** (`app/lib/guide.js`, `topValueFallback` + the `emit`
+wrapper on every terminal return of `decideGuide`): pick a
+**preexisting filter** and ask about it, with the **few highest values**
+of that filter in the visible set as options (top-3 by count + the
+filter's usual escape chip). Filter priority:
+
+1. **brand** — top-3 brands in the intent view, counts recounted over
+   the visible set. Skipped when the query names the brand (a single
+   brand >=50% = `statedBrand`), on the journey's first question (brand
+   is a refinement, never the opener), or after brand was asked in any
+   form (`brand` / `any:brands`).
+2. **category** — top-3 product families (display labels) + "Any
+   category". Skipped for near-single-family worlds (dominant >=90%)
+   and for electronics-department splits (the F6/F7 filing artifact:
+   All Electronics + Home Audio & Theater + ... is not a shopper
+   choice).
+3. **usage tags** — top-3 non-generic tags (generic
+   `gift/new/best/sale/offer/deal` excluded; occasion-mapped tags
+   excluded once the occasion facet is settled).
+4. **for-whom** — top-3 gender lines by visible count.
+5. **size** — top-3 sizes by visible count (labels must also exist in
+   the intent-scoped view).
+6. **capacity** — top-3 tonnage/kg/litres values (same grounding).
+7. **price band** — the set's own quantile split
+   (`Under p25` / `p25–p75`), only while the budget facet is open
+   (sub-budget bands after a stated "under 2000" read as a bad
+   question, same rule as the tier ladder).
+
+**Guarantees.** Every candidate passes the full §9 exit guard (label
+grounding in the intent view, exact recount over the visible set, no
+re-ask, facet eligibility), so an already-asked/answered filter is
+skipped and the next one is tried; counts use the same per-kind
+predicates as the tier ladder, guard and client card, so server count ==
+client count by construction. Relaxed floors: a narrowed world
+(visible < 150) accepts count-1 chips; a 150-item world requires
+count-2. If no filter still holds >=2 live values (or the visible world
+has <2 items), the original terminal state stands — the typed question
+or the honest destination/not-found stop.
+
+**What this changes.** The typed-only last resort (old tier 7) is now
+the LAST-of-last resort: it is reachable only when every preexisting
+filter is already asked/answered or data-thin. The honest not-found on
+a concrete dead end with closest picks on screen (>=2 items) now offers
+the best top-value filter question instead of ending silent. The
+destination stop (1 item left) is untouched — with 0-1 items no filter
+value can narrow, so no question is possible there by construction.
+The reason string is prefixed `topvalue-fallback:` for auditability
+(`guide_question_shown.reason`, `guide_audit`).
+
 ### 3.8 AI planner for the question TYPE (Item D, 2026-11-05)
 
 On the live page (the client sends `planner: true`) the AI picks WHICH
