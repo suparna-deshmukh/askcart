@@ -194,6 +194,26 @@ function groupGrid(items) {
   return out;
 }
 
+// The results world the page STORES and RENDERS: the family-folded cards
+// (groupGrid - one card per variant family, 2 per brand·model), applied
+// ONCE here at storage time. groupGrid is idempotent, so every layout
+// (ranked grid, shelves) renders the stored world 1:1 and can never
+// shrink it again on a later turn. The "N products" badge, the follow-up
+// option counts (this is the set sent to /api/guide as the visible world,
+// which the server and the card recount both run over), the narrowing
+// meter and the grid below all stand on this ONE set, so the number next
+// to an option always equals the number of cards the shopper can count
+// in the list below the question (2026-11-14: brand chips counted raw
+// SKUs in a 150-item fetch while the grid showed a folded, capped slice
+// - the by-eye count never matched; folding also had to move OUT of the
+// layout memo, because the post-click single grid re-folded the
+// already-folded world and dropped 2 of 9 Pigeon cards).
+function cardWorld(items) {
+  const list = items || [];
+  if (!list.length) return list;
+  return groupGrid(list);
+}
+
 // Gemini 4-point spark mark (the AI that plans the questions). Pure
 // decorative, guide-palette coloured via currentColor.
 function GeminiSpark({ size = 14 }) {
@@ -622,7 +642,6 @@ function AskCartHome() {
   const [pdp, setPdp] = useState(null);
   const scrollRef = useRef(0); // Phase 5: origin search scroll position, restored on PDP close
   const [quick, setQuick] = useState(null); // Phase 5: quick view modal item
-  const [moreN, setMoreN] = useState(24); // 7.3: "Show more" page size
   // P3-lite: Plain = the legacy keyword baseline (naive mode: no budget/
   // occasion understanding, no questions) kept only as a reviewer A/B
   // behind ?mode=plain. Guided is the default and the only mode the UI
@@ -661,15 +680,15 @@ function AskCartHome() {
     if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
     const ok = res.results.filter((r) => r.intent).length >= 2;
     journeyRef.current = ensureJourney(query);
-    markResultsShown(query, res.results, 1, "chat");
+    const cards = cardWorld(res.results);
+    markResultsShown(query, cards, 1, "chat");
     track("chat_apply_to_results", { query, slots_changed: Object.keys(opts).filter((k) => opts[k] != null).length, journey_id: journeyRef.current.id });
     const trail = [query];
     if (meta.trailLabel) trail.push({ label: meta.trailLabel, opts: { budget: opts.budget || null, occasion: opts.occasion || null, category: opts.category || null, brand: opts.brand || null, forWhom: opts.forWhom || null, size: opts.size || null, capacity: opts.capacity || null } });
-    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: res.results,
-           total: res.results.length, parsed: res.parsed,
-           filters: { ...DEFAULT_FILTERS }, guide: null, trail, exhausted: !ok, error: null, counts: [res.results.length],
+    setS({ query, turn: 1, ok, ms: Date.now() - t0, results: cards,
+           total: cards.length, parsed: res.parsed,
+           filters: { ...DEFAULT_FILTERS }, guide: null, trail, exhausted: !ok, error: null, counts: [cards.length],
            echo: meta.echo || null });
-    setMoreN(24);
     if (ok) endJourney(journeyRef.current, { resolved: true, turns: 1 });
   }
   // Chat add-to-cart: resolve the full catalogue item by sku.
@@ -1122,16 +1141,16 @@ function AskCartHome() {
     // Resolution = ≥2 intent-matched results (same definition the n=150
     // study and the simulation use). Loose/relax results alone do not count.
     const ok = res.results.filter((r) => r.intent).length >= 2;
-    markResultsShown(query, res.results, 1, "results");
-    setS({ query, turn: 1, ok, seq, ms: Date.now() - t0, results: res.results, total: res.results.length, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null, counts: [res.results.length] });
-    setMoreN(24);
+    const cards = cardWorld(res.results);
+    markResultsShown(query, cards, 1, "results");
+    setS({ query, turn: 1, ok, seq, ms: Date.now() - t0, results: cards, total: cards.length, parsed: res.parsed, filters: { ...DEFAULT_FILTERS }, guide: null, trail: [query], exhausted: false, error: null, counts: [cards.length] });
     if (ok) {
       track("resolved", { query, turns: 1, n_results: res.results.filter((r) => r.intent).length, journey_id: journeyRef.current.id });
       if (naive) { endJourney(journeyRef.current, { resolved: true, turns: 1 }); setBusy(false); return; }
       // Optional refinement: the policy decides if one more question adds
       // value (e.g. budget for an open-ended "headphones" query).
       // n_results = intent-hit count (same semantics as the study).
-      const g = await askGuide(query, res.results.filter((r) => r.intent).length, 2, null, res.results);
+      const g = await askGuide(query, res.results.filter((r) => r.intent).length, 2, null, cards);
       if (g.guide) {
         planPhraseRef.current = !!(g.decision && g.decision.planPhrase);
         pushPrevType(g.guide);
@@ -1142,7 +1161,7 @@ function AskCartHome() {
           planner: (g.decision && g.decision.planner) || null,
           journey_id: journeyRef.current.id,
         });
-        trackGuideQuestion(g, res.results.length);
+        trackGuideQuestion(g, cards.length);
         setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...g.guide, mode: g.mode, refine: true, rescue: !!(g.decision && g.decision.rescue) } } : st);
       } else {
         endJourney(journeyRef.current, { resolved: true, turns: 1 });
@@ -1166,7 +1185,7 @@ function AskCartHome() {
       }
     }
     for (let turn = 2; turn <= 5; turn++) {
-      const g = await askGuide(query, res.results.filter((r) => r.intent).length, turn, null, res.results);
+      const g = await askGuide(query, res.results.filter((r) => r.intent).length, turn, null, cards);
       const guide = g.guide;
       if (!guide) {
         track("guide_no_question", { query, turn, reason: (g.decision && g.decision.reason) || "" });
@@ -1182,7 +1201,7 @@ function AskCartHome() {
         query, question_type: guide.type, turn, options_count: guide.options.length,
         mode: g.mode, reason: g.decision && g.decision.reason, planner: (g.decision && g.decision.planner) || null, journey_id: journeyRef.current.id,
       });
-      trackGuideQuestion(g, res.results.length);
+      trackGuideQuestion(g, cards.length);
       // s.turn stays at the last displayed search (1) - the search after
       // this chip answer is turn 2, same numbering as the n=150 study.
       setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } } : st);
@@ -1561,17 +1580,18 @@ function AskCartHome() {
     if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
     const intentN = res.results.filter((r) => r.intent).length;
     const ok = intentN >= 2;
-    markResultsShown(s.query, res.results, turnNow, "results");
-    setS({ ...s, turn: turnNow, ok, seq, ms: Date.now() - t0, results: res.results,
-           total: res.results.length, parsed: res.parsed,
+    const cards = cardWorld(res.results);
+    markResultsShown(s.query, cards, turnNow, "results");
+    setS({ ...s, turn: turnNow, ok, seq, ms: Date.now() - t0, results: cards,
+           total: cards.length, parsed: res.parsed,
            filters: { ...DEFAULT_FILTERS }, guide: null, trail: [...s.trail, { label: txt, opts: null }, ...aiSteps],
-           echo: echoFor(txt, res.results.length, s.total), error: null, counts: [...(s.counts || []), res.results.length] });
+           echo: echoFor(txt, cards.length, s.total), error: null, counts: [...(s.counts || []), cards.length] });
     if (ok) {
       track("resolved", { query: s.query, turns: turnNow, n_results: intentN, journey_id: journeyRef.current.id });
       // Same keep-guiding rule as chip answers: the typed text narrows
       // the set, so the next question is built on the narrowed set.
       if (!plainMode) {
-        const g2 = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }, res.results));
+        const g2 = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }, cards));
         if (g2.guide) {
           planPhraseRef.current = !!(g2.decision && g2.decision.planPhrase);
           pushPrevType(g2.guide);
@@ -1581,7 +1601,7 @@ function AskCartHome() {
             options_count: g2.guide.options.length, mode: g2.mode, refine: true,
             reason: g2.decision && g2.decision.reason, planner: (g2.decision && g2.decision.planner) || null, journey_id: journeyRef.current.id,
           });
-          trackGuideQuestion(g2, res.results.length);
+          trackGuideQuestion(g2, cards.length);
           setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...g2.guide, mode: g2.mode, refine: true, rescue: !!(g2.decision && g2.decision.rescue) } } : st);
           setBusy(false);
           return;
@@ -1592,7 +1612,7 @@ function AskCartHome() {
       return;
     }
     if (!plainMode) {
-      const g = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }, res.results));
+      const g = (planPhraseRef.current ? null : aiGuideWrap(ai)) || (await askGuide(s.query + " " + txt, intentN, turnNow + 1, { ...trailOpts(), ...aiOpts }, cards));
       if (g.guide) {
         planPhraseRef.current = !!(g.decision && g.decision.planPhrase);
         pushPrevType(g.guide);
@@ -1602,7 +1622,7 @@ function AskCartHome() {
           options_count: g.guide.options.length, mode: g.mode,
           reason: g.decision && g.decision.reason, planner: (g.decision && g.decision.planner) || null, journey_id: journeyRef.current.id,
         });
-        trackGuideQuestion(g, res.results.length);
+        trackGuideQuestion(g, cards.length);
         setS((st) => (st && st.seq === seq) ? { ...st, guide: { ...g.guide, mode: g.mode, refine: false, rescue: !!(g.decision && g.decision.rescue) } } : st);
         setBusy(false);
         return;
@@ -1675,9 +1695,10 @@ function AskCartHome() {
     setBusy(false);
     if (res.error) { setS((st) => st && { ...st, error: res.error }); return; }
     const ok = res.results.filter((r) => r.intent).length >= 2;
-    markResultsShown(s.query, res.results, remaining.length + 1, "results");
-    setS((st) => st && { ...st, ok, ms: Date.now() - t0, results: res.results,
-                         total: res.results.length, parsed: res.parsed,
+    const cards = cardWorld(res.results);
+    markResultsShown(s.query, cards, remaining.length + 1, "results");
+    setS((st) => st && { ...st, ok, ms: Date.now() - t0, results: cards,
+                         total: cards.length, parsed: res.parsed,
                          trail: st.trail.filter((_, j) => j !== i), echo: null,
                          guide: null, exhausted: false });
   }
@@ -1889,7 +1910,7 @@ function AskCartHome() {
     for (const r of filtered) catCount.set(r.category, (catCount.get(r.category) || 0) + 1);
     const topEntry = [...catCount.entries()].sort((a, b) => b[1] - a[1])[0] || [null, 0];
     if (topEntry[1] / filtered.length >= 0.6) {
-      const grid = groupGrid(filtered); // API order = relevance; S7: family-folded
+      const grid = filtered; // API order = relevance; S7 fold applied once in cardWorld (storage)
       return { filtered, single: true, grid, best: new Set(grid.slice(0, 3).map((r) => r.sku)),
                rec: [], groups: [], more: [] };
     }
@@ -2364,19 +2385,11 @@ function AskCartHome() {
                           {layout.single ? (
                             <>
                               <div className={"grid" + (density === "compact" ? " grid-compact" : "")}>
-                                {layout.grid.slice(0, moreN).map((r) => (
+                                {layout.grid.map((r) => (
                                   <ProductCard key={r.sku} r={r} best={layout.best.has(r.sku)}
                                                overBudget={overBudget(r)} {...cardProps("results", r)} />
                                 ))}
                               </div>
-                              {layout.grid.length > moreN && (
-                                <div className="res-more">
-                                  <button className="fchip" style={{ padding: "9px 22px" }}
-                                          onClick={() => { setMoreN((n) => n + 24); track("show_more", { query: s.query, n: moreN + 24 }); }}>
-                                    {t(lang, "showMore")} ({layout.grid.length - moreN} {t(lang, "left")})
-                                  </button>
-                                </div>
-                              )}
                             </>
                           ) : (
                             <>
@@ -2407,16 +2420,8 @@ function AskCartHome() {
                                     <span className="gc">{layout.more.length} {t(lang, "moreWord")} {t(lang, "inResultSet")}</span>
                                   </div>
                                   <div className={"grid" + (density === "compact" ? " grid-compact" : "")}>
-                                    {layout.more.slice(0, moreN).map((r) => <ProductCard key={r.sku} r={r} overBudget={overBudget(r)} {...cardProps("results", r)} />)}
+                                    {layout.more.map((r) => <ProductCard key={r.sku} r={r} overBudget={overBudget(r)} {...cardProps("results", r)} />)}
                                   </div>
-                                  {layout.more.length > moreN && (
-                                    <div className="res-more">
-                                      <button className="fchip" style={{ padding: "9px 22px" }}
-                                              onClick={() => { setMoreN((n) => n + 24); track("show_more", { query: s.query, n: moreN + 24 }); }}>
-                                        {t(lang, "showMore")} ({layout.more.length - moreN} {t(lang, "left")})
-                                      </button>
-                                    </div>
-                                  )}
                                 </div>
                               )}
                             </>

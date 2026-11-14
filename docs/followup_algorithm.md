@@ -79,6 +79,19 @@ without changing behaviour (it falls back to the template).
    never hardcoded.
 4. **Conversation state** — current turn and question types already asked
    (a type is never repeated; brand is never the first question of a journey).
+5. **The visible world** (`context.visible`, sent by the client) — the exact
+   set of CARDS the results page will render: the fetched result list
+   family-folded once at storage time (`cardWorld`, `app/page.jsx` — one
+   card per variant family, max 2 cards per brand+model; the fold is
+   idempotent so a later narrowed turn can never shrink a stored world
+   again). Every option count, quantile and eligibility floor in this
+   policy runs over this set — never the raw fetched SKUs — so a chip's
+   number always equals the number of cards the shopper can count in the
+   list below the question, and clicking the chip lands on exactly that
+   many cards (meter "N → k", echo "chip · k of N left"). The pre-2026-11-14
+   behaviour (counts over the full 150-SKU fetch while the grid rendered a
+   folded, "Show more"-capped slice) is the user-reported "count doesn't
+   tally" bug.
 
 ### 3.2 Per-product-type flows
 
